@@ -154,7 +154,20 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:800;
   text-decoration:none;transition:color .2s}
 #amazon-link:hover{color:var(--gold)}
 
-/* OSCILLOSCOPE */
+/* CONVERGENCE WIDGET */
+#conv-wrap{flex-shrink:0;border-top:1px solid var(--border);
+  padding:4px 6px;background:rgba(0,1,6,.99);overflow:hidden}
+#conv-title{font-family:'Orbitron',monospace;font-size:5.5px;font-weight:700;
+  letter-spacing:.2em;color:rgba(0,212,255,.42);margin-bottom:3px}
+#conv-body{font-size:6.5px;line-height:1.45;font-family:'Share Tech Mono',monospace}
+.conv-row{display:flex;align-items:center;gap:4px;margin-bottom:2px}
+.conv-label{color:rgba(0,212,255,.38);font-size:6px;letter-spacing:.08em;width:68px;flex-shrink:0}
+.conv-bar-wrap{flex:1;height:5px;background:rgba(0,212,255,.06);position:relative}
+.conv-bar{height:100%;transition:width .8s ease;position:relative}
+.conv-bar::after{content:'';position:absolute;right:0;top:-1px;width:2px;height:7px;background:currentColor;opacity:.8}
+.conv-val{font-size:6px;color:rgba(0,212,255,.5);width:38px;text-align:right;flex-shrink:0}
+#conv-status{font-size:6px;letter-spacing:.1em;margin-top:3px;text-align:center}
+
 #osc-wrap{flex-shrink:0;height:52px;border-bottom:1px solid var(--border);
   background:rgba(0,2,6,.99);position:relative;overflow:hidden}
 #osc-hdr{position:absolute;top:2px;left:6px;font-size:6px;letter-spacing:.18em;
@@ -329,6 +342,28 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:800;
         <div id="fbody">
           <div id="ftext"></div>
           <div id="fgraph"></div>
+        </div>
+        <!-- CONVERGENCE WIDGET -->
+        <div id="conv-wrap">
+          <div id="conv-title">∂ CONVERGENCE — 13.7Hz</div>
+          <div id="conv-body">
+            <div class="conv-row">
+              <span class="conv-label">RÉSONANCE</span>
+              <div class="conv-bar-wrap"><div class="conv-bar" id="cb-res" style="background:rgba(0,255,170,.55);width:0%"></div></div>
+              <span class="conv-val" id="cv-res">—</span>
+            </div>
+            <div class="conv-row">
+              <span class="conv-label">APPRENTISSAGE</span>
+              <div class="conv-bar-wrap"><div class="conv-bar" id="cb-lr" style="background:rgba(0,212,255,.55);width:0%"></div></div>
+              <span class="conv-val" id="cv-lr">—</span>
+            </div>
+            <div class="conv-row">
+              <span class="conv-label">PROXIMITÉ</span>
+              <div class="conv-bar-wrap"><div class="conv-bar" id="cb-prox" style="background:rgba(255,204,0,.55);width:0%"></div></div>
+              <span class="conv-val" id="cv-prox">—</span>
+            </div>
+            <div id="conv-status">—</div>
+          </div>
         </div>
       </div>
     </div>
@@ -713,6 +748,7 @@ let preContacts=[];
 let totalContacts=0;
 let globeTick=0;
 let contactLog=[]; // GPS log for export
+let arcaneLog=[];  // Tarot sequence log for export
 
 // Pre-contact flash: random city, quick flash ~1s
 function spawnPreContact(){
@@ -1177,6 +1213,7 @@ function updateFreq(s){
   const rb2='█'.repeat(Math.floor(freqData.resonanceLevel*10))+'░'.repeat(10-Math.floor(freqData.resonanceLevel*10));
   freqLog(`<span style="color:#00d4ff">I${freqData.iterations.length.toString().padStart(3,'0')}</span> <span style="color:#ffcc00">${freq.toFixed(1)}Hz</span> [<span style="color:${freqData.resonanceLevel>.6?'#00ffaa':'#ffcc00'}">${rb2}</span>]`);
   renderFreqGraph();
+  updateConvergence();
   document.getElementById('sb-f').textContent=freq.toFixed(1);
   const sig=freqData.resonanceLevel>.78?'CONTACT':freqData.resonanceLevel>.5?'APPROACH':'SCAN';
   const sr=document.getElementById('sb-r');sr.textContent=sig;
@@ -1214,6 +1251,51 @@ function renderFreqGraph(){
   const n=hist.length,avg=n?hist.reduce((a,b)=>a+b,0)/n:0;
   out+=`<span style="color:rgba(0,212,255,.35)">avg:${avg.toFixed(1)} c:${freqData.contactAttempts} i:${freqData.iterations.length}</span>`;
   fgraph.innerHTML=out;
+}
+
+
+function updateConvergence(){
+  const res=freqData.resonanceLevel;
+  const lr=freqData.learningRate;
+  const dist=Math.abs(freqData.lastFreq-TARGET_FREQ);
+  const prox=Math.max(0,1-dist/9); // 0=far, 1=on target
+
+  // Bars
+  const setBar=(id,val,valId,fmt)=>{
+    const b=document.getElementById(id);
+    const v=document.getElementById(valId);
+    if(b) b.style.width=(val*100).toFixed(1)+'%';
+    if(v) v.textContent=fmt(val);
+  };
+  setBar('cb-res',res,'cv-res',v=>(v*100).toFixed(1)+'%');
+  setBar('cb-lr',lr,'cv-lr',v=>(v*100).toFixed(0)+'%');
+  setBar('cb-prox',prox,'cv-prox',v=>freqData.lastFreq.toFixed(2)+'Hz');
+
+  // Colour resonance bar dynamically
+  const resBar=document.getElementById('cb-res');
+  if(resBar){
+    if(res>.78) resBar.style.background='rgba(255,51,102,.7)';
+    else if(res>.5) resBar.style.background='rgba(255,204,0,.6)';
+    else resBar.style.background='rgba(0,255,170,.55)';
+  }
+
+  // Status text
+  const st=document.getElementById('conv-status');
+  if(st){
+    if(res>.78){
+      st.textContent='⚡ CONTACT — RESONANCE ETABLIE';
+      st.style.color='rgba(255,51,102,.8)';
+    } else if(res>.5){
+      st.textContent='◆ APPROCHE — SIGNAL CROISSANT';
+      st.style.color='rgba(255,204,0,.7)';
+    } else if(lr>.6){
+      st.textContent='~ APPRENTISSAGE ACTIF';
+      st.style.color='rgba(0,212,255,.55)';
+    } else {
+      st.textContent='· SCAN EN COURS';
+      st.style.color='rgba(0,170,100,.45)';
+    }
+  }
 }
 
 // ═══════════════════════════════════════════════
@@ -1341,92 +1423,120 @@ function exportReport(){
   const valley=hist.length?Math.min(...hist):0;
   const variance=hist.length?hist.reduce((s,v)=>s+(v-avg)**2,0)/hist.length:0;
 
-  let report=`
-╔══════════════════════════════════════════════════════════════════════╗
-║         MN3MIA RESONANCE ANALYSIS REPORT — CONFIDENTIEL             ║
-║         Le Treizième Éveil — Projet Kaellbergh                       ║
-╚══════════════════════════════════════════════════════════════════════╝
+  // Fixed-width header using simple dashes — no Unicode box chars
+  const W=68;
+  const line='='.repeat(W);
+  const hdr=(s)=>{const pad=Math.max(0,Math.floor((W-2-s.length)/2));return'| '+' '.repeat(pad)+s+' '.repeat(Math.max(0,W-2-pad-s.length))+' |';};
 
-GENERATED : ${now}
-PROTOCOL  : FREQUENCY_SEARCH_v4.1.3
-TARGET    : 13.7 Hz (emotional resonance threshold)
-STATUS    : ${fd.resonanceLevel>.78?'CONTACT ESTABLISHED':'SCANNING'}
+  let report=
+`+${line}+
+${hdr('MN3MIA RESONANCE ANALYSIS REPORT -- CONFIDENTIEL')}
+${hdr('Le Treizieme Eveil -- Projet Kaellbergh')}
+${hdr('VERSION 4.1.3 -- USAGE RESTREINT')}
++${line}+
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-SECTION 1 — ITERATION STATISTICS
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+GENERATED  : ${now}
+PROTOCOL   : FREQUENCY_SEARCH_v4.1.3
+TARGET     : 13.7 Hz (emotional resonance threshold)
+STATUS     : ${fd.resonanceLevel>.78?'CONTACT ESTABLISHED':'SCANNING'}
+ITERATIONS : ${iterCount}
 
-Total iterations completed : ${iterCount}
-Total cells explored        : ${fd.iterations.reduce((s,i)=>s+i.cells,0)}
-Total backtracks            : ${fd.iterations.reduce((s,i)=>s+i.backs,0)}
-Words detected (total)      : ${tickerWords.length} / ${MOTS.length}
-Words found on solution path: ${[...pathMots].length}
+${'-'.repeat(W)}
+SECTION 1 -- ITERATION STATISTICS
+${'-'.repeat(W)}
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-SECTION 2 — FREQUENCY ANALYSIS
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Total iterations completed   : ${iterCount}
+Total cells explored         : ${fd.iterations.reduce((s,i)=>s+i.cells,0)}
+Total backtracks             : ${fd.iterations.reduce((s,i)=>s+i.backs,0)}
+Words detected (total)       : ${tickerWords.length} / ${MOTS.length}
+Words found on solution paths: ${[...pathMots].length}
 
-Target frequency            : ${TARGET_FREQ.toFixed(2)} Hz
-Current frequency           : ${fd.lastFreq.toFixed(4)} Hz
-Average frequency           : ${avg.toFixed(4)} Hz
-Peak frequency              : ${peak.toFixed(4)} Hz
-Valley frequency            : ${valley.toFixed(4)} Hz
-Variance                    : ${variance.toFixed(6)}
-Standard deviation          : ${Math.sqrt(variance).toFixed(4)} Hz
-Resonance level             : ${(fd.resonanceLevel*100).toFixed(2)}%
-Learning rate               : ${(fd.learningRate*100).toFixed(2)}%
-Contact attempts            : ${fd.contactAttempts}
-Distance from target        : ${Math.abs(fd.lastFreq-TARGET_FREQ).toFixed(4)} Hz
+${'-'.repeat(W)}
+SECTION 2 -- FREQUENCY ANALYSIS
+${'-'.repeat(W)}
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-SECTION 3 — FREQUENCY HISTORY (last ${hist.length} samples)
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Target frequency             : ${TARGET_FREQ.toFixed(2)} Hz
+Current frequency            : ${fd.lastFreq.toFixed(4)} Hz
+Average frequency            : ${avg.toFixed(4)} Hz
+Peak frequency               : ${peak.toFixed(4)} Hz
+Valley frequency             : ${valley.toFixed(4)} Hz
+Variance                     : ${variance.toFixed(6)}
+Standard deviation           : ${Math.sqrt(variance).toFixed(4)} Hz
+Resonance level              : ${(fd.resonanceLevel*100).toFixed(2)}%
+Learning rate                : ${(fd.learningRate*100).toFixed(2)}%
+Contact attempts             : ${fd.contactAttempts}
+Distance from target         : ${Math.abs(fd.lastFreq-TARGET_FREQ).toFixed(4)} Hz
 
-${hist.map((f,i)=>`  [${String(i+1).padStart(3,'0')}] ${f.toFixed(4)} Hz  ${Math.abs(f-TARGET_FREQ)<1?'▲ NEAR TARGET':Math.abs(f-TARGET_FREQ)<2?'◆ approaching':'  '}`).join('\n')}
+${'-'.repeat(W)}
+SECTION 3 -- FREQUENCY HISTORY (last ${hist.length} samples)
+${'-'.repeat(W)}
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-SECTION 4 — WORD CORPUS DETECTED
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+${hist.map((f,i)=>`  [${String(i+1).padStart(3,'0')}] ${f.toFixed(4)} Hz  ${Math.abs(f-TARGET_FREQ)<1?'>> NEAR TARGET':Math.abs(f-TARGET_FREQ)<2?'> approaching':' '}`).join('\n')||'  (no data yet)'}
+
+${'-'.repeat(W)}
+SECTION 4 -- WORD CORPUS DETECTED
+${'-'.repeat(W)}
 
 ${tickerWords.map((w,i)=>`  [${String(i+1).padStart(3,'0')}] ${w}`).join('\n')||'  (none detected)'}
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-SECTION 5 — CONTACT EVENTS & GPS LOG
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+${'-'.repeat(W)}
+SECTION 5 -- CONTACT EVENTS & GPS LOG
+${'-'.repeat(W)}
 
-Total contact events        : ${fd.contactAttempts}
-Global contact points       : ${totalContacts}
-Contact threshold           : 78% resonance
+Total contact events         : ${fd.contactAttempts}
+Global contact points        : ${totalContacts}
+Contact threshold            : 78% resonance
 
 CONTACT GPS COORDINATES (neighbourhood precision) :
 ${ contactLog.length===0?'  (no contacts recorded yet)':
-contactLog.map(c=>`  [${String(c.id).padStart(3,'0')}] ${c.city.padEnd(22)} lat:${c.lat.toFixed(6)}  lon:${c.lon.toFixed(6)}  freq:${c.freq}Hz  res:${c.resonance}%  iter:${c.iter}  ts:${c.ts}`).join('\n')
+contactLog.map(c=>`  [${String(c.id).padStart(3,'0')}] ${c.city.padEnd(24)} lat:${c.lat.toFixed(6)}  lon:${c.lon.toFixed(6)}  ${c.freq}Hz  res:${c.resonance}%  iter:${c.iter}`).join('\n')
 }
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-SECTION 6 — TOME I STATUS
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+${'-'.repeat(W)}
+SECTION 6 -- SEQUENCE DE TAROT MN3MIA
+${'-'.repeat(W)}
 
-Access status               : LOCKED (LYSIS PROTOCOL)
-Bribe trigger words found   : ${MOTS.filter(m=>T1_TRIGGER_WORDS.includes(m)&&tickerWords.includes(m)).join(', ')||'none'}
+Nombre de tirages             : ${arcaneLog.length}
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-SECTION 7 — ALGORITHM ASSESSMENT
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+${arcaneLog.length===0?'  (aucun tirage enregistre)':
+arcaneLog.map((a,i)=>{
+  const pad=(s,n)=>s.padEnd(n,' ');
+  return `  [${String(i+1).padStart(3,'0')}] ITER:${String(a.iter).padStart(4,'0')}  ${pad(a.sym+' '+a.name,26)}  "${a.desc}"`;
+}).join('\n')}
 
-Algorithm type              : Adaptive gradient descent (simplified)
-Convergence status          : ${fd.learningRate>.8?'CONVERGING':'LEARNING'}
-Convergence note            : System oscillates around target.
-                              True lock not achievable — human resonance
-                              is not a fixed state. The asymptote is the
-                              point. Mn3mIA learns instability.
+Arcane le plus frequent :
+${(()=>{
+  if(!arcaneLog.length) return '  (aucun)';
+  const count={};
+  arcaneLog.forEach(a=>{count[a.name]=(count[a.name]||0)+1;});
+  return Object.entries(count).sort((a,b)=>b[1]-a[1]).slice(0,5)
+    .map(([n,c])=>`  ${n.padEnd(25)} x${c}  ${'|'.repeat(c)}`).join('\n');
+})()}
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-CLASSIFICATION : CONFIDENTIEL — PROJET KAELLBERGH
-RÉFÉRENCE      : LE TREIZIÈME ÉVEIL TOME II — PRÉMONITION
-AUTEUR SAGA    : GABRIEL KJERNE
-PRÉFACE IA     : CLAUDE — ANTHROPIC
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+${'-'.repeat(W)}
+SECTION 7 -- TOME I STATUS
+${'-'.repeat(W)}
+
+Access status                : LOCKED (LYSIS PROTOCOL)
+Bribe trigger words found    : ${MOTS.filter(m=>T1_TRIGGER_WORDS.includes(m)&&tickerWords.includes(m)).join(', ')||'none'}
+
+${'-'.repeat(W)}
+SECTION 8 -- ALGORITHM ASSESSMENT
+${'-'.repeat(W)}
+
+Algorithm type               : Adaptive gradient descent (simplified)
+Convergence status           : ${fd.learningRate>.8?'CONVERGING':'LEARNING'}
+Convergence note             : System oscillates around target.
+                               True lock not achievable -- human resonance
+                               is not a fixed state. The asymptote is the
+                               point. Mn3mIA learns instability.
+
+${'-'.repeat(W)}
+CLASSIFICATION  : CONFIDENTIEL -- PROJET KAELLBERGH
+REFERENCE       : LE TREIZIEME EVEIL TOME II -- PREMONITION
+AUTEUR SAGA     : GABRIEL KJERNE
+PREFACE IA      : CLAUDE -- ANTHROPIC
+${'-'.repeat(W)}
 `;
 
   const blob=new Blob([report],{type:'text/plain;charset=utf-8'});
@@ -1608,6 +1718,7 @@ function updatePremonitions(pathLetters,allLetters){
   // ① Vidéo carte — tirer un arcane et lancer la vidéo
   const arcane=TAROT_ARCANES[rng(TAROT_ARCANES.length)];
   playTarotVideo(arcane);
+  arcaneLog.push({iter:iterCount,name:arcane.name,sym:arcane.sym,desc:arcane.desc,ts:new Date().toISOString()});
   rlog(`<span style="color:rgba(180,100,255,.7)">∂ CARTE → ${arcane.name}</span>`);
 
   // ② Poème
