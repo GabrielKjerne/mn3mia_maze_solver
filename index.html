@@ -1213,7 +1213,7 @@ function updateFreq(s){
   freqData.iterations.push(s);
   const freq=computeFreq(s);
   freqData.lastFreq=freq;freqData.freqHistory.push(freq);
-  if(freqData.freqHistory.length>GRAPH_W) freqData.freqHistory.shift();
+  if(freqData.freqHistory.length>60) freqData.freqHistory.shift();
   freqData.resonanceLevel=freqData.resonanceLevel*.73+Math.max(0,1-Math.abs(freq-TARGET_FREQ)/8)*.27;
   freqData.learningRate=Math.min(.95,freqData.learningRate+.04);
   freqData.phaseShift+=freq*.016;
