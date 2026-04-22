@@ -1746,8 +1746,9 @@ async function loadAudio(){
   if(!audioCtx) audioCtx=new(window.AudioContext||window.webkitAudioContext)();
   if(audioBuffer) return audioBuffer;
   try{
-    const resp=await fetch('music.wav');
-    if(!resp.ok) throw new Error('music.wav not found');
+    const resp=await fetch('music.mp3').catch(()=>null)
+      || await fetch('music.wav').catch(()=>null);
+    if(!resp||!resp.ok) throw new Error('music.mp3 / music.wav not found');
     const arrBuf=await resp.arrayBuffer();
     audioBuffer=await audioCtx.decodeAudioData(arrBuf);
     return audioBuffer;
