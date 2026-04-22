@@ -100,8 +100,7 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:800;
   color:#009955;border-right:1px solid var(--border);
   scrollbar-width:thin;scrollbar-color:rgba(0,212,255,.08) transparent}
 #ftext::-webkit-scrollbar{width:2px}
-#fgraph{flex:1;overflow:hidden;padding:2px 3px;font-size:6.5px;line-height:1.28;
-  color:#00ffaa;white-space:pre}
+#fgraph-canvas{flex:1;display:block;min-width:0;min-height:0}
 
 /* ═══════════════════════════════
    CENTER PANEL — Maze
@@ -218,7 +217,7 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:800;
   letter-spacing:.18em;color:rgba(180,100,255,.7)}
 #tarot-vid-name{font-size:5px;letter-spacing:.1em;color:rgba(180,100,255,.45)}
 #tarot-vid-wrap{flex:1;position:relative;overflow:hidden;background:#000}
-#tarot-video{width:100%;height:100%;object-fit:cover;display:block}
+#tarot-video{width:100%;height:100%;object-fit:contain;display:block;background:#000}
 #tarot-fallback{position:absolute;inset:0;display:flex;flex-direction:column;
   align-items:center;justify-content:center;padding:6px;
   font-size:6.5px;line-height:1.5;color:rgba(200,160,255,.65);
@@ -292,17 +291,27 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:800;
    MOBILE
 ═══════════════════════════════ */
 @media(max-width:768px){
-  #main{grid-template-columns:1fr;grid-template-rows:auto auto auto;overflow-y:auto;overflow-x:hidden}
-  #left{flex-direction:row;height:170px;flex-shrink:0;border-right:none;border-bottom:1px solid var(--border)}
+  html,body{overflow:hidden}
+  #app{overflow:hidden}
+  #main{grid-template-columns:1fr;grid-template-rows:auto auto auto;
+    overflow-y:scroll;overflow-x:hidden;-webkit-overflow-scrolling:touch}
+  #left{flex-direction:row;min-height:180px;height:180px;flex-shrink:0;
+    border-right:none;border-bottom:1px solid var(--border)}
   #gw{flex:0 0 48%;border-bottom:none;border-right:1px solid var(--border)}
-  #center{height:240px;border-right:none;border-bottom:1px solid var(--border);flex-shrink:0}
-  #right{height:auto;min-height:260px;flex-shrink:0}
+  #fw{flex:1}
+  #center{min-height:260px;height:260px;border-right:none;
+    border-bottom:1px solid var(--border);flex-shrink:0}
+  #right{min-height:480px;height:auto;flex-shrink:0}
   #tc-d{display:none}
   #t1panel{height:70px}
+  #premo-wrap{min-height:300px}
+  #tarot-col{min-height:200px}
 }
 @media(max-width:480px){
-  #left{height:150px}#center{height:200px}
+  #left{height:160px;min-height:160px}
+  #center{height:220px;min-height:220px}
   #tc-t{font-size:8px}#tc-s{font-size:6.5px}
+  #right{min-height:520px}
 }
 </style>
 </head>
@@ -341,7 +350,7 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:800;
         </div>
         <div id="fbody">
           <div id="ftext"></div>
-          <div id="fgraph"></div>
+          <canvas id="fgraph-canvas"></canvas>
         </div>
         <!-- CONVERGENCE WIDGET -->
         <div id="conv-wrap">
@@ -694,7 +703,6 @@ const gc=document.getElementById('gc');
 const gctx=gc.getContext('2d');
 const rb=document.getElementById('rb');
 const ftext=document.getElementById('ftext');
-const fgraph=document.getElementById('fgraph');
 const wflash=document.getElementById('wflash');
 const ttrack=document.getElementById('ttrack');
 
@@ -1181,7 +1189,7 @@ function drawMaze(vis,ps){
 // ═══════════════════════════════════════════════
 // FREQUENCY ANALYZER
 // ═══════════════════════════════════════════════
-const TARGET_FREQ=13.7,GRAPH_W=40,GRAPH_H=12;
+const TARGET_FREQ=13.7;
 let freqData={iterations:[],freqHistory:[],resonanceLevel:0,learningRate:0,
   contactAttempts:0,wordsFound:0,phaseShift:0,lastFreq:0};
 let freqTick=0,freqLogLines=[];
@@ -1212,45 +1220,330 @@ function updateFreq(s){
   if(freqData.resonanceLevel>.78){freqData.contactAttempts++;triggerContact();}
   const rb2='█'.repeat(Math.floor(freqData.resonanceLevel*10))+'░'.repeat(10-Math.floor(freqData.resonanceLevel*10));
   freqLog(`<span style="color:#00d4ff">I${freqData.iterations.length.toString().padStart(3,'0')}</span> <span style="color:#ffcc00">${freq.toFixed(1)}Hz</span> [<span style="color:${freqData.resonanceLevel>.6?'#00ffaa':'#ffcc00'}">${rb2}</span>]`);
-  renderFreqGraph();
   updateConvergence();
   document.getElementById('sb-f').textContent=freq.toFixed(1);
   const sig=freqData.resonanceLevel>.78?'CONTACT':freqData.resonanceLevel>.5?'APPROACH':'SCAN';
   const sr=document.getElementById('sb-r');sr.textContent=sig;
   sr.style.color=freqData.resonanceLevel>.78?'#ff3366':freqData.resonanceLevel>.5?'#ffcc00':'#00ffaa';
 }
+// ─── TRON GRAPH — vertical, lightweight, no reflow ───────────
+const fgc=document.getElementById('fgraph-canvas');
+const fgx=fgc.getContext('2d');
+let fgTick=0;
+let fgW=0,fgH=0; // cached dimensions — only update on resize
+
+function initFgCanvas(){
+  // Call once on start and on window resize — not per frame
+  const wrap=document.getElementById('fbody');
+  if(!wrap) return;
+  const textEl=document.getElementById('ftext');
+  const tW=textEl?textEl.offsetWidth:80;
+  fgW=Math.max(60,wrap.clientWidth-tW-2);
+  fgH=Math.max(80,wrap.clientHeight||120);
+  fgc.width=fgW;fgc.height=fgH;
+  // Clear
+  fgx.fillStyle='#00020a';fgx.fillRect(0,0,fgW,fgH);
+}
+
 function renderFreqGraph(){
-  const hist=freqData.freqHistory;if(hist.length<2) return;
+  // Guard — skip if canvas not ready
+  if(!fgW||!fgH) return;
+  fgTick++;
+  const W=fgW,H=fgH;
+  const hist=freqData.freqHistory;
+
+  // Background — Tron dark with subtle fade trail
+  fgx.fillStyle='rgba(0,2,10,.7)';
+  fgx.fillRect(0,0,W,H);
+
   const minF=4,maxF=22,range=maxF-minF;
-  const grid=Array.from({length:GRAPH_H},()=>new Array(GRAPH_W).fill(' '));
-  const tRow=GRAPH_H-1-Math.floor((TARGET_FREQ-minF)/range*(GRAPH_H-1));
-  for(let c=0;c<GRAPH_W;c++) grid[tRow][c]='─';
-  for(let i=0;i<Math.min(hist.length,GRAPH_W);i++){
-    const c=GRAPH_W-Math.min(hist.length,GRAPH_W)+i,f=hist[i];
-    const row=GRAPH_H-1-Math.floor(clamp((f-minF)/range,0,1)*(GRAPH_H-1));
-    if(row>=0&&row<GRAPH_H){grid[row][c]=Math.abs(f-TARGET_FREQ)<1.5?'◆':'•';
-      for(let r=row+1;r<GRAPH_H;r++) if(grid[r][c]===' ') grid[r][c]='▏';}
+  const padL=22,padR=4,padT=6,padB=14;
+  const gW=W-padL-padR;
+  const gH=H-padT-padB;
+
+  // ── TRON GRID ─────────────────────────────────────
+  // Horizontal lines
+  fgx.lineWidth=.4;
+  [4,8,13.7,18,22].forEach(f=>{
+    const y=padT+gH*(1-(f-minF)/range);
+    fgx.strokeStyle=f===13.7?'rgba(255,204,0,.18)':'rgba(0,212,255,.06)';
+    fgx.beginPath();fgx.moveTo(padL,y);fgx.lineTo(W-padR,y);fgx.stroke();
+  });
+  // Vertical lines
+  for(let i=0;i<=4;i++){
+    const x=padL+i*(gW/4);
+    fgx.strokeStyle='rgba(0,212,255,.04)';
+    fgx.beginPath();fgx.moveTo(x,padT);fgx.lineTo(x,padT+gH);fgx.stroke();
   }
-  for(let c=0;c<GRAPH_W;c++){
-    const wr=Math.floor(tRow+Math.sin(freqData.phaseShift+c*.38)*freqData.resonanceLevel*2.2);
-    if(wr>=0&&wr<GRAPH_H&&grid[wr][c]===' ') grid[wr][c]='~';
+
+  // ── Y AXIS LABELS ─────────────────────────────────
+  fgx.font='5px "Share Tech Mono",monospace';
+  fgx.textAlign='right';fgx.textBaseline='middle';
+  [4,13.7,22].forEach(f=>{
+    const y=padT+gH*(1-(f-minF)/range);
+    fgx.fillStyle=f===13.7?'rgba(255,204,0,.5)':'rgba(0,212,255,.25)';
+    fgx.fillText(f===13.7?'13.7':String(f),padL-2,y);
+  });
+
+  // ── TARGET LINE ───────────────────────────────────
+  const targetY=padT+gH*(1-(TARGET_FREQ-minF)/range);
+  fgx.setLineDash([2,3]);
+  fgx.strokeStyle='rgba(255,204,0,.35)';fgx.lineWidth=.8;
+  fgx.beginPath();fgx.moveTo(padL,targetY);fgx.lineTo(W-padR,targetY);
+  fgx.stroke();fgx.setLineDash([]);
+
+  if(hist.length<2){
+    fgx.fillStyle='rgba(0,212,255,.2)';fgx.font='6px "Share Tech Mono"';
+    fgx.textAlign='center';fgx.textBaseline='middle';
+    fgx.fillText('SCAN...',padL+gW/2,padT+gH/2);
+    return;
   }
-  let out='';
-  for(let r=0;r<GRAPH_H;r++){
-    let line='';
-    for(const ch of grid[r]){
-      if(ch==='◆') line+=`<span style="color:#00ffaa;text-shadow:0 0 5px #00ffaa">${ch}</span>`;
-      else if(ch==='•') line+=`<span style="color:#00bb66">${ch}</span>`;
-      else if(ch==='─') line+=`<span style="color:rgba(255,204,0,.38)">${ch}</span>`;
-      else if(ch==='~') line+=`<span style="color:rgba(0,255,170,.28)">${ch}</span>`;
-      else if(ch==='▏') line+=`<span style="color:rgba(0,80,42,.35)">${ch}</span>`;
-      else line+=`<span style="color:rgba(0,60,35,.4)">${ch}</span>`;
+
+  const N=Math.min(hist.length,55);
+  const visible=hist.slice(-N);
+  const xStep=gW/Math.max(1,N-1);
+
+  // ── AREA FILL ─────────────────────────────────────
+  const grad=fgx.createLinearGradient(0,padT,0,padT+gH);
+  const res=freqData.resonanceLevel;
+  grad.addColorStop(0,`rgba(0,${Math.floor(150+res*100)},${Math.floor(200+res*55)},.15)`);
+  grad.addColorStop(1,'rgba(0,20,40,.02)');
+  fgx.fillStyle=grad;
+  fgx.beginPath();
+  visible.forEach((f,i)=>{
+    const x=padL+i*xStep;
+    const y=padT+gH*(1-clamp((f-minF)/range,0,1));
+    if(i===0) fgx.moveTo(x,padT+gH);
+    fgx.lineTo(x,y);
+  });
+  fgx.lineTo(padL+(N-1)*xStep,padT+gH);
+  fgx.closePath();fgx.fill();
+
+  // ── CURVE — segment by segment with colour ────────
+  fgx.lineWidth=1.4;
+  for(let i=1;i<visible.length;i++){
+    const f=visible[i];
+    const d=Math.abs(f-TARGET_FREQ);
+    let col;
+    if(d<.5) col='rgba(0,255,170,1)';
+    else if(d<1.5) col='rgba(0,220,140,.9)';
+    else if(d<3) col='rgba(0,180,255,.8)';
+    else if(f>TARGET_FREQ) col='rgba(255,140,40,.7)';
+    else col='rgba(0,100,200,.65)';
+    const x0=padL+(i-1)*xStep;
+    const y0=padT+gH*(1-clamp((visible[i-1]-minF)/range,0,1));
+    const x1=padL+i*xStep;
+    const y1=padT+gH*(1-clamp((f-minF)/range,0,1));
+    if(d<1.5){fgx.shadowBlur=5;fgx.shadowColor='rgba(0,255,170,.5)';}
+    fgx.strokeStyle=col;
+    fgx.beginPath();fgx.moveTo(x0,y0);fgx.lineTo(x1,y1);fgx.stroke();
+    fgx.shadowBlur=0;
+  }
+
+  // ── HEAD DOT — current freq ───────────────────────
+  const lf=visible[visible.length-1];
+  const lx=padL+(N-1)*xStep;
+  const ly=padT+gH*(1-clamp((lf-minF)/range,0,1));
+  const near=Math.abs(lf-TARGET_FREQ)<1.5;
+  // Pulse ring
+  const pulse=.5+.5*Math.sin(fgTick*.18);
+  fgx.beginPath();fgx.arc(lx,ly,4+pulse*3,0,Math.PI*2);
+  fgx.strokeStyle=`rgba(0,255,170,${near?.5:.2})`;fgx.lineWidth=.8;fgx.stroke();
+  // Core dot
+  fgx.beginPath();fgx.arc(lx,ly,2.5,0,Math.PI*2);
+  fgx.fillStyle=near?'#00ffaa':'#00d4ff';
+  fgx.shadowBlur=near?8:4;fgx.shadowColor=near?'rgba(0,255,170,.8)':'rgba(0,212,255,.5)';
+  fgx.fill();fgx.shadowBlur=0;
+  // Freq label
+  fgx.font='bold 6px "Share Tech Mono",monospace';
+  fgx.textAlign='center';fgx.textBaseline='bottom';
+  fgx.fillStyle=near?'rgba(0,255,170,.9)':'rgba(0,212,255,.7)';
+  fgx.fillText(lf.toFixed(1),lx,ly-4);
+
+  // ── RESONANCE WAVE on target line ─────────────────
+  if(res>.25){
+    fgx.strokeStyle=`rgba(0,255,170,${res*.3})`;
+    fgx.lineWidth=1;fgx.shadowBlur=3;fgx.shadowColor='rgba(0,255,170,.4)';
+    fgx.beginPath();
+    for(let i=0;i<N;i++){
+      const x=padL+i*xStep;
+      const wave=Math.sin(fgTick*.1+i*.25)*res*5;
+      const y=targetY+wave;
+      if(i===0) fgx.moveTo(x,y);else fgx.lineTo(x,y);
     }
-    out+=line+'\n';
+    fgx.stroke();fgx.shadowBlur=0;
   }
+
+  // ── STATS ─────────────────────────────────────────
+  const avg=hist.reduce((a,b)=>a+b,0)/hist.length;
+  fgx.globalAlpha=1;fgx.shadowBlur=0;
+  fgx.font='5px "Share Tech Mono",monospace';
+  fgx.textAlign='left';fgx.textBaseline='bottom';
+  fgx.fillStyle='rgba(0,212,255,.3)';
+  fgx.fillText(`avg:${avg.toFixed(1)} c:${freqData.contactAttempts}`,padL,H-2);
+}
+
+
+function renderFreqGraph(){
+  resizeFgCanvas();
+  fgTick++;
+  const W=fgc.width,H=fgc.height;
+  const hist=freqData.freqHistory;
+
+  // Fade trail — Tron motion blur
+  fgx.fillStyle='rgba(0,3,10,.55)';
+  fgx.fillRect(0,0,W,H);
+
+  if(hist.length<2){
+    fgx.fillStyle='rgba(0,212,255,.25)';
+    fgx.font=`7px "Share Tech Mono"`;
+    fgx.textAlign='center';fgx.textBaseline='middle';
+    fgx.fillText('SCANNING...',W/2,H/2);
+    return;
+  }
+
+  const minF=4,maxF=22,range=maxF-minF;
+  const N=Math.min(hist.length,60);
+  const padL=28,padR=6,padT=8,padB=18;
+  const gW=W-padL-padR;
+  const gH=H-padT-padB;
+
+  // ── TRON GRID ──────────────────────────────────────────────
+  // Horizontal grid lines with perspective vanish toward top
+  const ROWS=5;
+  for(let i=0;i<=ROWS;i++){
+    const t=i/ROWS;
+    // Perspective: lines get closer together toward top
+    const perspY=padT+gH*(1-Math.pow(1-t,1.6));
+    const alpha=.04+t*.08;
+    fgx.strokeStyle=`rgba(0,212,255,${alpha})`;
+    fgx.lineWidth=.5;
+    fgx.beginPath();fgx.moveTo(padL,perspY);fgx.lineTo(W-padR,perspY);
+    fgx.stroke();
+  }
+  // Vertical grid lines fanning out (perspective)
+  const VCOLS=8;
+  const vanishX=padL+gW/2,vanishY=padT;
+  for(let i=0;i<=VCOLS;i++){
+    const t=i/VCOLS;
+    const bX=padL+t*gW;
+    fgx.strokeStyle='rgba(0,212,255,.04)';fgx.lineWidth=.5;
+    fgx.beginPath();
+    fgx.moveTo(vanishX+(bX-vanishX)*.05,vanishY+2);
+    fgx.lineTo(bX,padT+gH);fgx.stroke();
+  }
+
+  // ── Y-AXIS LABELS ──────────────────────────────────────────
+  fgx.font='5.5px "Share Tech Mono",monospace';
+  fgx.textAlign='right';fgx.textBaseline='middle';
+  const yLabels=[4,8,13.7,18,22];
+  for(const f of yLabels){
+    const y=padT+gH*(1-(f-minF)/range);
+    fgx.fillStyle=f===TARGET_FREQ?'rgba(255,204,0,.6)':'rgba(0,212,255,.28)';
+    fgx.fillText(f.toFixed(f===TARGET_FREQ?1:0),padL-2,y);
+    if(f===TARGET_FREQ){
+      // Dashed target line — gold
+      fgx.strokeStyle='rgba(255,204,0,.3)';fgx.lineWidth=.8;
+      fgx.setLineDash([3,3]);
+      fgx.beginPath();fgx.moveTo(padL,y);fgx.lineTo(W-padR,y);
+      fgx.stroke();fgx.setLineDash([]);
+    }
+  }
+
+  // ── AREA FILL — gradient under curve ──────────────────────
+  const xStep=gW/Math.max(1,N-1);
+  const pts=hist.slice(-N).map((f,i)=>({
+    x:padL+i*xStep,
+    y:padT+gH*(1-clamp((f-minF)/range,0,1))
+  }));
+
+  const grad=fgx.createLinearGradient(0,padT,0,padT+gH);
+  grad.addColorStop(0,'rgba(0,212,255,.18)');
+  grad.addColorStop(.5,'rgba(0,150,255,.08)');
+  grad.addColorStop(1,'rgba(0,50,100,.02)');
+  fgx.fillStyle=grad;
+  fgx.beginPath();
+  fgx.moveTo(pts[0].x,padT+gH);
+  pts.forEach(p=>fgx.lineTo(p.x,p.y));
+  fgx.lineTo(pts[pts.length-1].x,padT+gH);
+  fgx.closePath();fgx.fill();
+
+  // ── MAIN CURVE — Tron neon line ────────────────────────────
+  // Glow pass
+  fgx.shadowBlur=8;fgx.shadowColor='rgba(0,212,255,.7)';
+  fgx.strokeStyle='rgba(0,180,255,.25)';fgx.lineWidth=4;
+  fgx.beginPath();
+  pts.forEach((p,i)=>i===0?fgx.moveTo(p.x,p.y):fgx.lineTo(p.x,p.y));
+  fgx.stroke();
+  // Sharp pass — colour by proximity to 13.7
+  fgx.lineWidth=1.5;fgx.shadowBlur=0;
+  // Draw segments with colour per segment
+  for(let i=1;i<pts.length;i++){
+    const f=hist[hist.length-N+i];
+    const dist=Math.abs(f-TARGET_FREQ);
+    let col;
+    if(dist<.5) col='rgba(0,255,170,1)';
+    else if(dist<1.5) col='rgba(80,255,200,.9)';
+    else if(dist<3) col='rgba(0,212,255,.85)';
+    else if(f>TARGET_FREQ) col='rgba(255,160,50,.75)';
+    else col='rgba(0,130,200,.7)';
+    fgx.strokeStyle=col;
+    fgx.shadowBlur=dist<1.5?6:0;
+    fgx.shadowColor='rgba(0,255,170,.6)';
+    fgx.beginPath();fgx.moveTo(pts[i-1].x,pts[i-1].y);fgx.lineTo(pts[i].x,pts[i].y);
+    fgx.stroke();
+  }
+  fgx.shadowBlur=0;
+
+  // ── DATA POINTS — nodes ─────────────────────────────────────
+  for(let i=0;i<pts.length;i++){
+    const f=hist[hist.length-N+i];
+    const near=Math.abs(f-TARGET_FREQ)<1.5;
+    const isLast=(i===pts.length-1);
+    if(near||isLast||i%8===0){
+      const r=near?3:isLast?2.5:1.5;
+      fgx.beginPath();fgx.arc(pts[i].x,pts[i].y,r,0,Math.PI*2);
+      fgx.fillStyle=near?'#00ffaa':isLast?'#00d4ff':'rgba(0,180,220,.6)';
+      if(near||isLast){fgx.shadowBlur=8;fgx.shadowColor=near?'#00ffaa':'#00d4ff';}
+      fgx.fill();fgx.shadowBlur=0;
+    }
+  }
+
+  // ── CURRENT FREQ INDICATOR — vertical line at rightmost point ──
+  if(pts.length>0){
+    const lp=pts[pts.length-1];
+    fgx.strokeStyle='rgba(0,212,255,.5)';fgx.lineWidth=.8;
+    fgx.setLineDash([2,2]);
+    fgx.beginPath();fgx.moveTo(lp.x,lp.y);fgx.lineTo(lp.x,padT+gH);
+    fgx.stroke();fgx.setLineDash([]);
+    // Current freq badge
+    const f=hist[hist.length-1];
+    const near=Math.abs(f-TARGET_FREQ)<1.5;
+    fgx.fillStyle=near?'rgba(0,255,170,.85)':'rgba(0,212,255,.7)';
+    fgx.font='bold 6.5px "Share Tech Mono",monospace';
+    fgx.textAlign='center';fgx.textBaseline='bottom';
+    if(near){fgx.shadowBlur=6;fgx.shadowColor='rgba(0,255,170,.8)';}
+    fgx.fillText(f.toFixed(1)+'Hz',lp.x,lp.y-3);
+    fgx.shadowBlur=0;
+  }
+
+  // ── RESONANCE PULSE RING ────────────────────────────────────
+  if(freqData.resonanceLevel>.3&&pts.length>0){
+    const lp=pts[pts.length-1];
+    const pulse=.4+.6*Math.sin(fgTick*.12);
+    const r=6+freqData.resonanceLevel*10*pulse;
+    fgx.beginPath();fgx.arc(lp.x,lp.y,r,0,Math.PI*2);
+    fgx.strokeStyle=`rgba(0,255,170,${freqData.resonanceLevel*.35*pulse})`;
+    fgx.lineWidth=1;fgx.stroke();
+  }
+
+  // ── BOTTOM STATS ───────────────────────────────────────────
   const n=hist.length,avg=n?hist.reduce((a,b)=>a+b,0)/n:0;
-  out+=`<span style="color:rgba(0,212,255,.35)">avg:${avg.toFixed(1)} c:${freqData.contactAttempts} i:${freqData.iterations.length}</span>`;
-  fgraph.innerHTML=out;
+  fgx.globalAlpha=1;fgx.shadowBlur=0;
+  fgx.font='5.5px "Share Tech Mono",monospace';
+  fgx.textAlign='left';fgx.textBaseline='bottom';
+  fgx.fillStyle='rgba(0,212,255,.35)';
+  fgx.fillText(`avg:${avg.toFixed(1)}  c:${freqData.contactAttempts}  i:${n}`,padL,H-2);
 }
 
 
@@ -1356,6 +1649,7 @@ function nextIteration(){
 function loop(){
   animId=requestAnimationFrame(loop);tick++;
   if(tick%3===0) drawGlobe();
+  if(tick%6===0) renderFreqGraph();
   if(phase==='ready'||phase==='idle'){
     if(tick%4===0&&maze) drawMaze(visitedSet,pathSet);updateP();return;
   }
@@ -1960,7 +2254,7 @@ function stopMusic(){
 }
 
 // Init idle oscilloscope on load
-window.addEventListener('resize',()=>{if(!isPlaying) drawOscIdle();});
+window.addEventListener('resize',()=>{initFgCanvas();if(!isPlaying) drawOscIdle();});
 
 // ═══════════════════════════════════════════════
 // RECORDING
@@ -2031,8 +2325,7 @@ document.addEventListener('keydown',e=>{
 // ═══════════════════════════════════════════════
 async function startMain(){
   computeLayout();rebuildTicker();
-  setTimeout(()=>drawOscIdle(),200);
-  // Init tarot with random arcane
+  setTimeout(()=>{initFgCanvas();drawOscIdle();},200);
   setTimeout(()=>playTarotVideo(TAROT_ARCANES[rng(TAROT_ARCANES.length)]),500);
   const built=buildMaze();
   maze=built;entry=[built.er*2+1,0];exit_=[built.xr*2+1,W-1];
