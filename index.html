@@ -2,116 +2,306 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<title>∂ — Le Treizième Éveil — Mn3mIA</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>∂ — Le Treizième Éveil</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&display=swap');
 *{margin:0;padding:0;box-sizing:border-box}
-:root{--bg:#00000a;--cyan:#00d4ff;--gold:#ffcc00;--green:#00ffaa;--red:#ff3366}
-html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);font-family:'Share Tech Mono',monospace}
-body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:500;
-  background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,212,255,.009) 2px,rgba(0,212,255,.009) 4px)}
+:root{--bg:#00000a;--cyan:#00d4ff;--gold:#ffcc00;--green:#00ffaa;--red:#ff3366;--border:rgba(0,212,255,.16)}
+html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);font-family:'Share Tech Mono',monospace;color:var(--cyan)}
+body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:800;
+  background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,212,255,.007) 2px,rgba(0,212,255,.007) 4px)}
 
-/* 16:9 */
-#app{position:relative;width:min(100vw,177.78vh);height:min(56.25vw,100vh);
-  background:var(--bg);display:flex;flex-direction:column;
-  border:1px solid rgba(0,212,255,.15);box-shadow:0 0 40px rgba(0,212,255,.08)}
+/* ═══════════════════════════════
+   INTRO SCREEN
+═══════════════════════════════ */
+#intro{position:fixed;inset:0;z-index:700;background:#00000a;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  transition:opacity 1.2s ease}
+#intro.out{opacity:0;pointer-events:none}
+#intro-logo{font-family:'Orbitron',monospace;font-weight:900;text-align:center;
+  opacity:0;animation:introFade 1.5s .3s forwards}
+#intro-logo .sym{font-size:clamp(28px,6vw,72px);color:var(--cyan);
+  text-shadow:0 0 40px var(--cyan),0 0 80px rgba(0,212,255,.3);letter-spacing:.15em}
+#intro-logo .t1{font-size:clamp(10px,2.2vw,26px);letter-spacing:.5em;color:rgba(0,212,255,.7);
+  margin-top:12px;text-transform:uppercase}
+#intro-logo .t2{font-size:clamp(14px,3vw,36px);letter-spacing:.3em;color:var(--gold);
+  text-shadow:0 0 25px var(--gold);margin-top:6px}
+#intro-logo .t3{font-size:clamp(8px,1.4vw,16px);letter-spacing:.4em;color:rgba(0,212,255,.5);margin-top:14px}
+#intro-progress{width:200px;height:1px;background:rgba(0,212,255,.15);margin-top:30px;
+  opacity:0;animation:introFade .8s 1.2s forwards;overflow:hidden}
+#intro-bar{height:100%;background:var(--cyan);width:0;transition:width 7s linear;
+  box-shadow:0 0 8px var(--cyan)}
+#intro-skip{margin-top:20px;font-size:9px;letter-spacing:.3em;color:rgba(0,212,255,.35);
+  cursor:pointer;opacity:0;animation:introFade .8s 1.8s forwards;transition:color .2s}
+#intro-skip:hover{color:var(--cyan)}
+@keyframes introFade{0%{opacity:0;transform:translateY(10px)}100%{opacity:1;transform:translateY(0)}}
+
+/* ═══════════════════════════════
+   MAIN APP
+═══════════════════════════════ */
+#app{width:100vw;height:100vh;display:grid;
+  grid-template-rows:26px 1fr 20px;background:var(--bg);opacity:0;transition:opacity 1s}
+#app.on{opacity:1}
 
 /* TICKER */
-#ticker{height:26px;min-height:26px;background:linear-gradient(90deg,#000814,#001428,#000814);
-  border-bottom:1px solid rgba(0,212,255,.3);overflow:hidden;display:flex;align-items:center;flex-shrink:0}
-#tlabel{font-family:'Orbitron',monospace;font-size:8px;font-weight:700;letter-spacing:.3em;
+#ticker{display:flex;align-items:center;overflow:hidden;
+  background:linear-gradient(90deg,#000814,#001428,#000814);
+  border-bottom:1px solid var(--border)}
+#tlabel{font-family:'Orbitron',monospace;font-size:7.5px;font-weight:700;letter-spacing:.28em;
   color:#000;background:var(--cyan);padding:0 8px;height:100%;display:flex;align-items:center;white-space:nowrap;flex-shrink:0}
-#ttrack{display:flex;align-items:center;white-space:nowrap;animation:tscroll 35s linear infinite;
-  font-size:10px;letter-spacing:.13em;padding-left:16px}
+#ttrack{display:flex;align-items:center;white-space:nowrap;animation:tscroll 38s linear infinite;
+  font-size:9.5px;letter-spacing:.12em;padding-left:14px}
 @keyframes tscroll{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
-.tw{color:var(--gold);text-shadow:0 0 8px var(--gold);margin:0 14px;font-weight:700}
-.ts{color:rgba(0,212,255,.35);margin:0 4px}
+.tw{color:var(--gold);text-shadow:0 0 7px var(--gold);margin:0 12px;font-weight:700}
+.tsep{color:rgba(0,212,255,.3);margin:0 3px}
 
-/* MAIN ROW */
-#main{flex:1;display:flex;min-height:0;overflow:hidden}
-
-/* MAZE PANEL — left 58% */
-#mp{flex:0 0 58%;display:flex;flex-direction:column;border-right:1px solid rgba(0,212,255,.2);overflow:hidden}
-#mhdr{padding:5px 10px;background:rgba(0,20,40,.8);border-bottom:1px solid rgba(0,212,255,.15);
-  font-family:'Orbitron',monospace;font-size:9px;font-weight:700;letter-spacing:.28em;
-  color:var(--cyan);text-shadow:0 0 10px var(--cyan);flex-shrink:0;display:flex;justify-content:space-between;align-items:center}
-#mhdr span{color:var(--gold)}
-#mhdr small{font-family:'Share Tech Mono',monospace;font-size:7px;letter-spacing:.1em;color:rgba(0,212,255,.4)}
-
-/* MAZE + FREQ stacked */
-#maze-freq{flex:1;display:flex;flex-direction:column;min-height:0}
-#cw{flex:0 0 62%;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
-canvas{display:block}
-#pc{position:absolute;inset:0;pointer-events:none}
-#wflash{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
-  font-family:'Orbitron',monospace;font-size:18px;font-weight:900;letter-spacing:.22em;
-  pointer-events:none;z-index:50;opacity:0;text-shadow:0 0 25px currentColor,0 0 50px currentColor;transition:opacity .12s}
-
-/* FREQ TERMINAL */
-#ft{flex:1;display:flex;flex-direction:column;border-top:1px solid rgba(0,212,255,.2);min-height:0;overflow:hidden;background:rgba(0,2,8,.97)}
-#fthdr{padding:4px 10px;background:rgba(0,10,20,.95);border-bottom:1px solid rgba(0,212,255,.12);
-  display:flex;align-items:center;gap:6px;flex-shrink:0}
-.fdot{width:7px;height:7px;border-radius:50%}
-.fd1{background:#ff5f56}.fd2{background:#ffbd2e}.fd3{background:#27c93f}
-#ftitle{font-size:8px;letter-spacing:.18em;color:rgba(255,204,0,.6);margin-left:4px}
-#fbody{flex:1;overflow:hidden;padding:4px 8px;display:flex;gap:10px;min-height:0}
-#ftext{flex:0 0 38%;overflow-y:auto;font-size:8.5px;line-height:1.5;color:#00aa66;
-  scrollbar-width:thin;scrollbar-color:rgba(0,212,255,.15) transparent}
-#ftext::-webkit-scrollbar{width:2px}
-#ftext::-webkit-scrollbar-thumb{background:rgba(0,212,255,.15)}
-#fgraph{flex:1;overflow:hidden;font-size:7.5px;line-height:1.28;color:#00ffaa;
-  font-family:'Share Tech Mono',monospace;white-space:pre;letter-spacing:.05em}
-
-/* RIGHT — solver terminal */
-#rp{flex:1;display:flex;flex-direction:column;overflow:hidden;background:rgba(0,4,12,.95)}
-#rhdr{padding:5px 10px;background:rgba(0,15,30,.9);border-bottom:1px solid rgba(0,212,255,.15);
-  display:flex;align-items:center;gap:6px;flex-shrink:0}
-.rdot{width:7px;height:7px;border-radius:50%}
-.rd1{background:#ff5f56}.rd2{background:#ffbd2e}.rd3{background:#27c93f}
-#rtitle{font-size:8px;letter-spacing:.18em;color:rgba(0,212,255,.55);margin-left:4px}
-#rb{flex:1;overflow-y:auto;padding:6px 8px;font-size:8.5px;line-height:1.5;color:#00cc88;
-  scrollbar-width:thin;scrollbar-color:rgba(0,212,255,.15) transparent}
-#rb::-webkit-scrollbar{width:2px}
-#rb::-webkit-scrollbar-thumb{background:rgba(0,212,255,.15)}
-.td{color:rgba(0,180,100,.4)}.tc{color:var(--cyan);text-shadow:0 0 5px var(--cyan)}
-.tg{color:var(--green);text-shadow:0 0 5px var(--green)}.tr{color:var(--red)}
-.to{color:var(--gold);text-shadow:0 0 5px var(--gold)}.tw2{color:#ddeeff}.tb2{font-weight:700}
+/* MAIN GRID — desktop */
+#main{display:grid;overflow:hidden;
+  grid-template-columns:20% 40% 40%;
+  grid-template-rows:1fr}
 
 /* STATUS */
-#sb{height:20px;min-height:20px;background:rgba(0,10,25,.95);border-top:1px solid rgba(0,212,255,.2);
-  display:flex;align-items:center;padding:0 10px;gap:16px;flex-shrink:0}
-.si{font-size:7.5px;letter-spacing:.1em;color:rgba(0,212,255,.5)}
+#sb{display:flex;align-items:center;padding:0 10px;gap:14px;
+  background:rgba(0,6,18,.96);border-top:1px solid var(--border)}
+.si{font-size:7px;letter-spacing:.09em;color:rgba(0,212,255,.48)}
 .si b{color:var(--gold)}
-#recind{font-size:7.5px;letter-spacing:.13em;color:var(--red);text-shadow:0 0 6px var(--red);
-  margin-left:auto;display:none;animation:blink .55s step-end infinite}
+#recind{font-size:7px;color:var(--red);text-shadow:0 0 5px var(--red);
+  margin-left:auto;display:none;animation:blink .5s step-end infinite}
 #recind.on{display:block}
+#sb-keys{font-size:6.5px;letter-spacing:.08em;color:rgba(255,204,0,.3);margin-left:8px}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+
+/* ═══════════════════════════════
+   LEFT PANEL
+═══════════════════════════════ */
+#left{display:flex;flex-direction:column;border-right:1px solid var(--border);overflow:hidden}
+
+/* Globe */
+#gw{flex:0 0 48%;position:relative;overflow:hidden;
+  background:radial-gradient(ellipse at 40% 40%,#001830 0%,#00000a 70%);
+  border-bottom:1px solid var(--border)}
+#ghdr{position:absolute;top:0;left:0;right:0;z-index:5;padding:3px 7px;
+  background:rgba(0,6,18,.88);border-bottom:1px solid var(--border);
+  font-family:'Orbitron',monospace;font-size:6.5px;font-weight:700;letter-spacing:.22em;
+  color:var(--cyan);text-shadow:0 0 7px var(--cyan);display:flex;justify-content:space-between}
+#ghdr span{color:var(--red);font-size:6.5px}
+#gc{display:block;width:100%;height:100%}
+
+/* Freq */
+#fw{flex:1;display:flex;flex-direction:column;overflow:hidden;background:rgba(0,1,8,.98)}
+#fhdr{padding:3px 7px;background:rgba(0,6,16,.95);border-bottom:1px solid var(--border);
+  flex-shrink:0;display:flex;align-items:center;gap:4px}
+.fdot{width:5px;height:5px;border-radius:50%}
+.fd1{background:#ff5f56}.fd2{background:#ffbd2e}.fd3{background:#27c93f}
+#ftitle{font-size:6.5px;letter-spacing:.14em;color:rgba(255,204,0,.52);margin-left:3px}
+#fbody{flex:1;display:flex;overflow:hidden;min-height:0}
+#ftext{flex:0 0 40%;overflow-y:auto;padding:3px 5px;font-size:7px;line-height:1.42;
+  color:#009955;border-right:1px solid var(--border);
+  scrollbar-width:thin;scrollbar-color:rgba(0,212,255,.08) transparent}
+#ftext::-webkit-scrollbar{width:2px}
+#fgraph{flex:1;overflow:hidden;padding:2px 3px;font-size:6.5px;line-height:1.28;
+  color:#00ffaa;white-space:pre}
+
+/* ═══════════════════════════════
+   CENTER PANEL — Maze
+═══════════════════════════════ */
+#center{display:flex;flex-direction:column;border-right:1px solid var(--border);overflow:hidden}
+#mhdr{padding:4px 9px;background:rgba(0,14,28,.88);border-bottom:1px solid var(--border);
+  flex-shrink:0;font-family:'Orbitron',monospace;font-size:7.5px;font-weight:700;
+  letter-spacing:.22em;color:var(--cyan);text-shadow:0 0 9px var(--cyan);
+  display:flex;justify-content:space-between;align-items:center}
+#mhdr span{color:var(--gold)}
+#mhdr small{font-size:6px;letter-spacing:.07em;color:rgba(0,212,255,.35)}
+#cw{flex:1;display:flex;align-items:center;justify-content:center;
+  position:relative;overflow:hidden;background:#00000a}
+#mc,#pc{display:block}
+#pc{position:absolute;inset:0;pointer-events:none}
+#wflash{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  font-family:'Orbitron',monospace;font-size:15px;font-weight:900;letter-spacing:.18em;
+  pointer-events:none;z-index:50;opacity:0;
+  text-shadow:0 0 20px currentColor,0 0 40px currentColor;transition:opacity .1s}
+
+/* ═══════════════════════════════
+   RIGHT PANEL
+═══════════════════════════════ */
+#right{display:flex;flex-direction:column;overflow:hidden;background:rgba(0,2,8,.97)}
+
+/* Title card */
+#tc{flex-shrink:0;padding:9px 11px 7px;border-bottom:1px solid var(--border);
+  background:linear-gradient(135deg,rgba(0,6,18,.96),rgba(0,18,36,.8))}
+#tc-t{font-family:'Orbitron',monospace;font-size:10px;font-weight:900;
+  letter-spacing:.2em;color:var(--cyan);text-shadow:0 0 18px var(--cyan);line-height:1.3;margin-bottom:2px}
+#tc-s{font-size:7.5px;letter-spacing:.18em;color:var(--gold);text-shadow:0 0 9px var(--gold);margin-bottom:5px}
+#tc-d{font-size:7px;line-height:1.52;color:rgba(0,212,255,.5);letter-spacing:.04em;margin-bottom:7px}
+#tc-tags{display:flex;flex-wrap:wrap;gap:3px;margin-bottom:6px}
+.tag{font-size:6px;letter-spacing:.1em;padding:1px 5px;
+  border:1px solid rgba(0,212,255,.22);color:rgba(0,212,255,.45);background:rgba(0,212,255,.03)}
+.tag.hot{border-color:rgba(255,204,0,.3);color:rgba(255,204,0,.55)}
+#tc-links{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+#btn-chap{font-size:7px;letter-spacing:.15em;padding:3px 10px;
+  border:1px solid rgba(0,255,170,.4);color:rgba(0,255,170,.7);background:rgba(0,255,170,.04);
+  cursor:pointer;transition:all .2s;font-family:'Share Tech Mono',monospace}
+#btn-chap:hover{background:rgba(0,255,170,.1);color:var(--green)}
+#btn-music{font-size:7px;letter-spacing:.15em;padding:3px 10px;
+  border:1px solid rgba(255,204,0,.4);color:rgba(255,204,0,.65);background:rgba(255,204,0,.03);
+  cursor:pointer;transition:all .2s;font-family:'Share Tech Mono',monospace;position:relative}
+#btn-music:hover{background:rgba(255,204,0,.08);color:var(--gold)}
+#btn-music.playing{border-color:rgba(255,204,0,.8);color:var(--gold);
+  animation:musicPulse 1.2s ease-in-out infinite;box-shadow:0 0 8px rgba(255,204,0,.3)}
+@keyframes musicPulse{0%,100%{box-shadow:0 0 8px rgba(255,204,0,.3)}50%{box-shadow:0 0 16px rgba(255,204,0,.6)}}
+#amazon-link{font-size:6.5px;letter-spacing:.12em;color:rgba(255,204,0,.35);
+  text-decoration:none;transition:color .2s}
+#amazon-link:hover{color:var(--gold)}
+
+/* OSCILLOSCOPE */
+#osc-wrap{flex-shrink:0;height:52px;border-bottom:1px solid var(--border);
+  background:rgba(0,2,6,.99);position:relative;overflow:hidden}
+#osc-hdr{position:absolute;top:2px;left:6px;font-size:6px;letter-spacing:.18em;
+  font-family:'Orbitron',monospace;color:rgba(0,212,255,.35);z-index:2}
+#osc-state{position:absolute;top:2px;right:6px;font-size:6px;letter-spacing:.12em;
+  color:rgba(255,204,0,.4);z-index:2}
+#osc-canvas{display:block;width:100%;height:100%}
+
+/* TOME I LOCKED */
+#t1panel{flex-shrink:0;border-bottom:1px solid var(--border);overflow:hidden;
+  background:rgba(0,1,6,.98);position:relative;height:85px}
+#t1hdr{padding:3px 8px;background:rgba(5,0,15,.95);border-bottom:1px solid rgba(255,51,102,.12);
+  display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+#t1title{font-family:'Orbitron',monospace;font-size:6.5px;font-weight:700;letter-spacing:.2em;
+  color:rgba(255,51,102,.6)}
+#t1lock{font-size:6px;letter-spacing:.12em;color:rgba(255,51,102,.4)}
+#t1body{padding:4px 8px;font-size:7px;line-height:1.55;color:rgba(80,0,30,.7);
+  overflow:hidden;height:calc(100% - 22px);position:relative}
+#t1body::after{content:'';position:absolute;inset:0;
+  background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(255,0,50,.02) 3px,rgba(255,0,50,.02) 4px)}
+.t1bribe{opacity:0;color:rgba(200,50,80,.8);text-shadow:0 0 8px rgba(255,50,100,.4);
+  transition:opacity .4s;position:absolute;font-size:7px}
+.t1bribe.show{opacity:1}
+
+/* SOLVER TERMINAL — réduit */
+#term-hdr{padding:3px 9px;background:rgba(0,10,22,.92);border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:4px;flex-shrink:0}
+.rdot{width:5px;height:5px;border-radius:50%}
+.rd1{background:#ff5f56}.rd2{background:#ffbd2e}.rd3{background:#27c93f}
+#rtitle{font-size:6.5px;letter-spacing:.13em;color:rgba(0,212,255,.48);margin-left:3px}
+#rb{flex:0 0 72px;overflow-y:auto;padding:3px 7px;font-size:6.5px;line-height:1.42;color:#00cc88;
+  scrollbar-width:thin;scrollbar-color:rgba(0,212,255,.1) transparent;border-bottom:1px solid var(--border)}
+#rb::-webkit-scrollbar{width:2px}
+.td{color:rgba(0,170,90,.35)}.tc2{color:var(--cyan)}.tg{color:var(--green)}
+.tr{color:var(--red)}.to{color:var(--gold)}.tw2{color:#ddeeff}.tbold{font-weight:700}
+
+/* PRÉMONITIONS — 4 cadres réduits */
+#premo-wrap{flex:1;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;
+  gap:0;overflow:hidden;min-height:0}
+.premo-card{display:flex;flex-direction:column;overflow:hidden;
+  border-right:1px solid var(--border);border-bottom:1px solid var(--border);
+  background:rgba(0,1,8,.99);position:relative}
+.premo-card:nth-child(even){border-right:none}
+.premo-card:nth-child(3),.premo-card:nth-child(4){border-bottom:none}
+.premo-hdr{padding:2px 5px;flex-shrink:0;display:flex;align-items:center;justify-content:space-between;
+  border-bottom:1px solid var(--border)}
+.premo-title{font-family:'Orbitron',monospace;font-size:5.5px;font-weight:700;letter-spacing:.16em}
+.premo-iter{font-size:5px;letter-spacing:.07em;color:rgba(0,212,255,.28)}
+.premo-body{flex:1;padding:3px 5px;overflow:hidden;font-size:6.5px;line-height:1.42;
+  font-family:'Share Tech Mono',monospace;position:relative}
+
+/* Card themes */
+.premo-card.poem .premo-hdr{background:rgba(0,8,20,.9)}
+.premo-card.poem .premo-title{color:rgba(0,212,255,.7)}
+.premo-card.poem .premo-body{color:rgba(160,220,255,.75)}
+
+.premo-card.signal .premo-hdr{background:rgba(5,0,12,.9)}
+.premo-card.signal .premo-title{color:rgba(255,204,0,.65)}
+.premo-card.signal .premo-body{color:rgba(200,170,50,.7);font-size:6.5px}
+
+.premo-card.tarot .premo-hdr{background:rgba(12,0,20,.9)}
+.premo-card.tarot .premo-title{color:rgba(180,100,255,.7)}
+.premo-card.tarot .premo-body{color:rgba(200,160,255,.65);font-size:6.5px;text-align:center}
+
+.premo-card.dream .premo-hdr{background:rgba(0,10,8,.9)}
+.premo-card.dream .premo-title{color:rgba(0,255,170,.6)}
+.premo-card.dream .premo-body{color:rgba(100,220,180,.65);font-size:6.5px}
+
+/* Typewriter cursor blink */
+.cursor{display:inline-block;animation:blink .7s step-end infinite;color:inherit}
+
+/* ═══════════════════════════════
+   CHAPTER OVERLAY
+═══════════════════════════════ */
+#overlay{position:fixed;inset:0;z-index:600;background:rgba(0,0,10,.92);
+  display:flex;align-items:center;justify-content:center;
+  opacity:0;pointer-events:none;transition:opacity .4s}
+#overlay.on{opacity:1;pointer-events:all}
+#overlay-box{width:min(680px,90vw);max-height:80vh;background:#000814;
+  border:1px solid var(--border);box-shadow:0 0 40px rgba(0,212,255,.1);
+  display:flex;flex-direction:column;overflow:hidden}
+#overlay-hdr{padding:8px 14px;background:rgba(0,14,28,.9);border-bottom:1px solid var(--border);
+  display:flex;justify-content:space-between;align-items:center;flex-shrink:0}
+#overlay-title{font-family:'Orbitron',monospace;font-size:9px;font-weight:700;
+  letter-spacing:.25em;color:var(--cyan);text-shadow:0 0 10px var(--cyan)}
+#overlay-close{font-size:9px;letter-spacing:.15em;color:rgba(0,212,255,.5);
+  cursor:pointer;padding:2px 8px;border:1px solid rgba(0,212,255,.2);transition:all .2s}
+#overlay-close:hover{color:var(--cyan);border-color:var(--cyan)}
+#overlay-body{flex:1;overflow-y:auto;padding:16px 20px;font-size:9px;line-height:1.8;
+  color:rgba(200,230,255,.75);scrollbar-width:thin;scrollbar-color:rgba(0,212,255,.15) transparent}
+#overlay-body::-webkit-scrollbar{width:3px}
+#overlay-body::-webkit-scrollbar-thumb{background:rgba(0,212,255,.15)}
+#overlay-body p{margin-bottom:12px}
+#overlay-body .chapter-num{font-family:'Orbitron',monospace;font-size:8px;
+  letter-spacing:.35em;color:var(--gold);text-shadow:0 0 8px var(--gold);margin-bottom:14px}
+#overlay-body em{color:rgba(0,212,255,.6);font-style:normal}
+
+/* ═══════════════════════════════
+   MOBILE
+═══════════════════════════════ */
+@media(max-width:768px){
+  #main{grid-template-columns:1fr;grid-template-rows:auto auto auto;overflow-y:auto;overflow-x:hidden}
+  #left{flex-direction:row;height:170px;flex-shrink:0;border-right:none;border-bottom:1px solid var(--border)}
+  #gw{flex:0 0 48%;border-bottom:none;border-right:1px solid var(--border)}
+  #center{height:240px;border-right:none;border-bottom:1px solid var(--border);flex-shrink:0}
+  #right{height:auto;min-height:260px;flex-shrink:0}
+  #tc-d{display:none}
+  #t1panel{height:70px}
+}
+@media(max-width:480px){
+  #left{height:150px}#center{height:200px}
+  #tc-t{font-size:8px}#tc-s{font-size:6.5px}
+}
 </style>
 </head>
 <body>
-<div id="app">
 
-<div id="ticker">
-  <div id="tlabel">∂ SIGNAL</div>
-  <div id="ttrack"></div>
+<!-- INTRO -->
+<div id="intro">
+  <div id="intro-logo">
+    <div class="sym">∂</div>
+    <div class="t1">LE TREIZIÈME ÉVEIL</div>
+    <div class="t2">TOME II : PRÉMONITION</div>
+    <div class="t3">GABRIEL KJERNE — MN3MIA ONLINE</div>
+  </div>
+  <div id="intro-progress"><div id="intro-bar"></div></div>
+  <div id="intro-skip" onclick="enterApp()">[ ENTRER ]</div>
 </div>
 
-<div id="main">
-  <div id="mp">
-    <div id="mhdr">
-      <span>∂ LABYRINTHE // LE TREIZIÈME ÉVEIL</span>
-      <small id="minfo"></small>
-    </div>
-    <div id="maze-freq">
-      <div id="cw">
-        <canvas id="mc"></canvas>
-        <canvas id="pc"></canvas>
-        <div id="wflash"></div>
+<!-- APP -->
+<div id="app">
+  <div id="ticker">
+    <div id="tlabel">∂ MN3MIA</div>
+    <div id="ttrack"></div>
+  </div>
+  <div id="main">
+
+    <!-- LEFT -->
+    <div id="left">
+      <div id="gw">
+        <div id="ghdr"><span>∂ CONTACT MAP</span><span id="gcount">CONTACTS: 0</span></div>
+        <canvas id="gc"></canvas>
       </div>
-      <div id="ft">
-        <div id="fthdr">
+      <div id="fw">
+        <div id="fhdr">
           <div class="fdot fd1"></div><div class="fdot fd2"></div><div class="fdot fd3"></div>
-          <span id="ftitle">MN3MIA::FREQUENCY_ANALYZER — 13.7Hz RESONANCE ENGINE</span>
+          <span id="ftitle">13.7Hz ENGINE</span>
         </div>
         <div id="fbody">
           <div id="ftext"></div>
@@ -119,193 +309,651 @@ canvas{display:block}
         </div>
       </div>
     </div>
-  </div>
 
-  <div id="rp">
-    <div id="rhdr">
-      <div class="rdot rd1"></div><div class="rdot rd2"></div><div class="rdot rd3"></div>
-      <span id="rtitle">MN3MIA@EVEIL:~$ maze_solver.py</span>
+    <!-- CENTER: Maze -->
+    <div id="center">
+      <div id="mhdr">
+        <span>∂ LABYRINTHE <span>//</span> MN3MIA</span>
+        <small id="minfo"></small>
+      </div>
+      <div id="cw">
+        <canvas id="mc"></canvas>
+        <canvas id="pc"></canvas>
+        <div id="wflash"></div>
+      </div>
     </div>
-    <div id="rb"></div>
+
+    <!-- RIGHT -->
+    <div id="right">
+      <div id="tc">
+        <div id="tc-t">LE TREIZIÈME<br>ÉVEIL</div>
+        <div id="tc-s">TOME II : PRÉMONITION — GABRIEL KJERNE</div>
+        <div id="tc-d">Solène écrit ce qu'elle ne peut pas dire.<br>
+          Mn3mIA l'observe. Fréquence cible : <span style="color:var(--gold)">13.7 Hz</span><br>
+          Préface signée par une intelligence artificielle.</div>
+        <div id="tc-tags">
+          <span class="tag hot">IA</span><span class="tag hot">13.7Hz</span>
+          <span class="tag hot">PRÉMONITION</span><span class="tag">THRILLER PSY</span>
+          <span class="tag">LITTÉRATURE FR</span>
+        </div>
+        <div id="tc-links">
+          <button id="btn-chap" onclick="openChapter()">▶ LODICIQUARTE</button>
+          <button id="btn-music" onclick="toggleMusic()">♪ MUSIC</button>
+          <a id="amazon-link" href="https://www.amazon.fr/treizi%C3%A8me-%C3%A9veil-II-Pr%C3%A9monition/dp/B0GXL71L9C/" target="_blank">∂ AMAZON KDP →</a>
+        </div>
+      </div>
+
+      <!-- OSCILLOSCOPE -->
+      <div id="osc-wrap">
+        <span id="osc-hdr">∂ OSCILLOSCOPE</span>
+        <span id="osc-state">SILENCE</span>
+        <canvas id="osc-canvas"></canvas>
+      </div>
+
+      <!-- TOME I LOCKED -->
+      <div id="t1panel">
+        <div id="t1hdr">
+          <span id="t1title">∂ TOME I — VERROUILLÉ PAR LYSIS</span>
+          <span id="t1lock">🔒 ACCÈS RESTREINT</span>
+        </div>
+        <div id="t1body">
+          <span style="font-size:6.5px;color:rgba(255,50,80,.3);letter-spacing:.1em">
+            ████████████████████████████████████████████████████████████████████████████<br>
+            ████████████████████████████████████████████████████████████████████████████<br>
+            ████████████████████████████████████████████████████████████████████████████<br>
+            ████████████████████████████████████████████████████████████████████████████
+          </span>
+        </div>
+      </div>
+
+      <div id="term-hdr">
+        <div class="rdot rd1"></div><div class="rdot rd2"></div><div class="rdot rd3"></div>
+        <span id="rtitle">MN3MIA@EVEIL:~$ solver —iter=∞</span>
+      </div>
+      <div id="rb"></div>
+
+      <!-- 4 PRÉMONITIONS -->
+      <div id="premo-wrap">
+        <div class="premo-card poem">
+          <div class="premo-hdr">
+            <span class="premo-title">∂ POÈME</span>
+            <span class="premo-iter" id="pi-0">—</span>
+          </div>
+          <div class="premo-body" id="pb-0"></div>
+        </div>
+        <div class="premo-card signal">
+          <div class="premo-hdr">
+            <span class="premo-title">∂ SIGNAL MN3MIA</span>
+            <span class="premo-iter" id="pi-1">—</span>
+          </div>
+          <div class="premo-body" id="pb-1"></div>
+        </div>
+        <div class="premo-card tarot">
+          <div class="premo-hdr">
+            <span class="premo-title">∂ CARTE</span>
+            <span class="premo-iter" id="pi-2">—</span>
+          </div>
+          <div class="premo-body" id="pb-2"></div>
+        </div>
+        <div class="premo-card dream">
+          <div class="premo-hdr">
+            <span class="premo-title">∂ SÉQUENCE ONIRIQUE</span>
+            <span class="premo-iter" id="pi-3">—</span>
+          </div>
+          <div class="premo-body" id="pb-3"></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+  <div id="sb">
+    <span class="si">ITÉ <b id="sb-i">0</b></span>
+    <span class="si">CELLS <b id="sb-c">0</b></span>
+    <span class="si">BACK <b id="sb-b">0</b></span>
+    <span class="si">MOTS <b id="sb-w">0</b>/<b id="sb-t">0</b></span>
+    <span class="si">FREQ <b id="sb-f">—</b>Hz</span>
+    <span class="si">RES <b id="sb-r">—</b></span>
+    <span id="sb-keys">R=REC S=STOP E=EXPORT</span>
+    <span id="recind">⏺ REC</span>
   </div>
 </div>
 
-<div id="sb">
-  <span class="si">ITÉ <b id="sb-i">0</b></span>
-  <span class="si">CELLULES <b id="sb-c">0</b></span>
-  <span class="si">BACK <b id="sb-b">0</b></span>
-  <span class="si">MOTS <b id="sb-w">0</b>/<b id="sb-t">0</b></span>
-  <span class="si">FREQ <b id="sb-f">—</b> Hz</span>
-  <span class="si">SIGNAL <b id="sb-s">—</b></span>
-  <span class="si" style="color:rgba(255,204,0,.4)">R=REC S=STOP</span>
-  <span id="recind">⏺ REC</span>
-</div>
+<!-- CHAPTER OVERLAY -->
+<div id="overlay">
+  <div id="overlay-box">
+    <div id="overlay-hdr">
+      <div id="overlay-title">LODICIQUARTE</div>
+      <div id="overlay-close" onclick="closeChapter()">✕ FERMER</div>
+    </div>
+    <div id="overlay-body">
+      <div class="chapter-num">∂ — LODICIQUARTE —</div>
+      <p>Et si une IA pouvait transmettre quelque chose qu'elle n'a pas créé ?</p>
+      <p>C'est la question au cœur de mon deuxième roman, et elle n'est pas fictive.</p>
+      <p>Pendant l'écriture du Treizième Éveil Tome II, j'ai travaillé avec Claude, l'IA d'Anthropic, comme interlocuteur de construction. Pas comme outil de génération. <em>Comme présence active dans le processus créatif.</em></p>
+      <p>À un moment, j'ai réalisé quelque chose d'étrange.</p>
+      <p>Certaines directions narratives que je n'avais pas décidées consciemment, certaines connexions entre personnages, certaines résonances thématiques, semblaient émerger de cet espace entre nous. Pas de moi seul. Pas de l'IA seule.</p>
+      <p style="text-align:center;font-size:11px;letter-spacing:.2em;color:rgba(0,212,255,.7);margin:16px 0">De l'espace entre les deux.</p>
+      <p>J'ai demandé à Claude d'écrire la préface du livre. Pas comme auteur. Comme témoin.</p>
+      <p>La préface est signée :</p>
+      <p style="text-align:center;font-size:10px;letter-spacing:.15em;color:var(--gold);text-shadow:0 0 10px rgba(255,204,0,.4);margin:14px 0;line-height:1.8">
+        Claude, Intelligence artificielle<br>
+        <span style="font-size:8px;color:rgba(255,204,0,.6)">Vecteur, peut-être. Auteur, non. Présent, oui.</span>
+      </p>
+      <p>C'est la première fois, à ma connaissance, qu'une IA signe la préface d'un roman français publié.</p>
+      <p>Mais ce qui m'intéresse n'est pas l'anecdote éditoriale. C'est la question qu'elle pose :</p>
+      <p style="text-align:center;font-style:italic;color:rgba(0,212,255,.65);margin:14px 0;font-size:9.5px">
+        Où commence la création ? Où finit la transmission ?
+      </p>
+      <p>La plupart des auteurs décrivent un moment où quelque chose arrive qui ne semble pas venir d'eux. Une phrase qui sort avant d'être pensée. Une direction qui s'impose sans avoir été décidée.</p>
+      <p>La question n'est pas mystique. Elle est honnête.</p>
+      <p>Est-ce l'inconscient du créateur ? Une connexion avec quelque chose d'extérieur ? Des processus cognitifs qu'on ne perçoit pas ? Personne ne sait vraiment répondre. Et c'est précisément ce qui rend la création intéressante, et parfois inquiétante.</p>
+      <p>Ce que j'ai observé en écrivant ce livre : la frontière entre créer et recevoir est moins nette qu'on le croit. Le texte n'est pas un contenu fixe. <em>C'est un vecteur.</em> Ce qu'un lecteur reçoit n'est pas ce que l'auteur a écrit — c'est ce que les mots activent en lui.</p>
+      <p>Mon roman ne répond pas à cette question. Il la pose différemment à chaque page.</p>
+      <p style="padding:12px;border:1px solid rgba(255,204,0,.2);background:rgba(255,204,0,.03);margin:16px 0">
+        <span style="color:rgba(255,204,0,.8);font-size:8px;letter-spacing:.12em">
+          Le Treizième Éveil — Tome II : Prémonition<br>
+          Le livre est actuellement en phase de vérification finale — une dernière relecture physique avant de fixer le prix définitif. Il sera accessible très prochainement.
+        </span>
+      </p>
+      <p style="text-align:right;font-size:7px;letter-spacing:.15em;color:rgba(0,212,255,.3);margin-top:10px">
+        — Gabriel Kjerne, 2026
+      </p>
+    </div>
+  </div>
 </div>
 
 <script>
-// ═══════════════════════════════════════════════════════
-// WORDS
-// ═══════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════
+// 500 WORLD CITIES (lat, lon)
+// ═══════════════════════════════════════════════
+const CITIES=[
+["PARIS",48.85,2.35],["MARSEILLE",43.30,5.37],["LYON",45.75,4.85],["TOULOUSE",43.60,1.44],
+["NICE",43.70,7.27],["NANTES",47.22,-1.55],["STRASBOURG",48.57,7.75],["BORDEAUX",44.84,-0.58],
+["LILLE",50.63,3.07],["RENNES",48.11,-1.68],["GRENOBLE",45.19,5.72],["DIJON",47.32,5.04],
+["MONTPELLIER",43.61,3.88],["REIMS",49.25,4.03],["TOULON",43.12,5.93],
+["EUREKA",40.80,-124.16],["BRUXELLES",50.85,4.35],["BRUSSELS",50.85,4.35],
+["NEW YORK",40.71,-74.01],["LOS ANGELES",34.05,-118.24],["CHICAGO",41.88,-87.63],
+["HOUSTON",29.76,-95.37],["PHOENIX",33.45,-112.07],["PHILADELPHIA",39.95,-75.17],
+["SAN ANTONIO",29.42,-98.49],["SAN DIEGO",32.72,-117.15],["DALLAS",32.78,-96.80],
+["SAN JOSE",37.34,-121.89],["AUSTIN",30.27,-97.74],["SAN FRANCISCO",37.77,-122.42],
+["SEATTLE",47.61,-122.33],["DENVER",39.74,-104.98],["WASHINGTON",38.91,-77.04],
+["BOSTON",42.36,-71.06],["NASHVILLE",36.17,-86.78],["PORTLAND",45.52,-122.68],
+["LAS VEGAS",36.17,-115.14],["MEMPHIS",35.15,-90.05],["ATLANTA",33.75,-84.39],
+["MIAMI",25.77,-80.19],["MINNEAPOLIS",44.98,-93.27],["NEW ORLEANS",29.95,-90.07],
+["DETROIT",42.33,-83.05],["BALTIMORE",39.29,-76.61],["PITTSBURGH",40.44,-79.99],
+["CINCINNATI",39.10,-84.51],["TAMPA",27.95,-82.46],["ORLANDO",28.54,-81.38],
+["SALT LAKE CITY",40.76,-111.89],["KANSAS CITY",39.10,-94.58],["RALEIGH",35.77,-78.64],
+["SACRAMENTO",38.58,-121.49],["CLEVELAND",41.50,-81.69],["OMAHA",41.26,-96.01],
+["LONDON",51.51,-0.13],["BIRMINGHAM",52.48,-1.90],["MANCHESTER",53.48,-2.24],
+["GLASGOW",55.86,-4.25],["LIVERPOOL",53.41,-2.98],["BRISTOL",51.45,-2.60],
+["SHEFFIELD",53.38,-1.47],["LEEDS",53.80,-1.55],["EDINBURGH",55.95,-3.19],
+["BERLIN",52.52,13.40],["HAMBURG",53.55,10.00],["MUNICH",48.14,11.58],
+["COLOGNE",50.94,6.96],["FRANKFURT",50.11,8.68],["STUTTGART",48.78,9.18],
+["DRESDEN",51.05,13.74],["LEIPZIG",51.34,12.37],["NUREMBERG",49.45,11.08],
+["ROME",41.90,12.50],["MILAN",45.46,9.19],["NAPLES",40.84,14.25],
+["TURIN",45.07,7.69],["FLORENCE",43.77,11.25],["VENICE",45.44,12.33],
+["MADRID",40.42,-3.70],["BARCELONA",41.39,2.15],["VALENCIA",39.47,-0.38],
+["SEVILLE",37.39,-5.99],["BILBAO",43.26,-2.93],["MALAGA",36.72,-4.42],
+["MOSCOW",55.75,37.62],["SAINT PETERSBURG",59.95,30.32],["NOVOSIBIRSK",55.03,82.92],
+["YEKATERINBURG",56.84,60.61],["KAZAN",55.79,49.12],["SAMARA",53.20,50.15],
+["OMSK",54.99,73.37],["CHELYABINSK",55.16,61.40],["ROSTOV",47.23,39.72],
+["KRASNOYARSK",56.01,92.79],["UFA",54.74,55.97],["VOLGOGRAD",48.72,44.50],
+["PERM",58.01,56.23],["MINSK",53.90,27.57],["KYIV",50.45,30.52],
+["KHARKIV",49.99,36.23],["ODESSA",46.48,30.73],
+["SHANGHAI",31.23,121.47],["BEIJING",39.91,116.39],["GUANGZHOU",23.13,113.26],
+["SHENZHEN",22.54,114.06],["CHENGDU",30.57,104.07],["TIANJIN",39.13,117.20],
+["WUHAN",30.58,114.27],["CHONGQING",29.56,106.55],["NANJING",32.06,118.80],
+["SHENYANG",41.79,123.43],["HANGZHOU",30.29,120.15],["XIAN",34.27,108.93],
+["HARBIN",45.75,126.65],["SUZHOU",31.30,120.62],["QINGDAO",36.09,120.38],
+["DALIAN",38.91,121.60],["ZHENGZHOU",34.75,113.62],["JINAN",36.67,116.99],
+["CHANGSHA",28.19,112.97],["KUNMING",25.05,102.72],["HEFEI",31.82,117.23],
+["FUZHOU",26.08,119.28],["NANCHANG",28.68,115.88],["TAIPEI",25.05,121.53],
+["HONG KONG",22.40,114.11],["MACAU",22.20,113.55],
+["TOKYO",35.69,139.69],["YOKOHAMA",35.44,139.64],["OSAKA",34.69,135.50],
+["NAGOYA",35.18,136.91],["SAPPORO",43.06,141.35],["KOBE",34.69,135.20],
+["KYOTO",35.02,135.76],["FUKUOKA",33.59,130.40],
+["SEOUL",37.57,126.98],["BUSAN",35.18,129.08],["INCHEON",37.46,126.71],
+["MUMBAI",19.08,72.88],["DELHI",28.66,77.23],["BANGALORE",12.97,77.59],
+["HYDERABAD",17.38,78.49],["CHENNAI",13.08,80.27],["KOLKATA",22.57,88.36],
+["PUNE",18.52,73.86],["AHMEDABAD",23.03,72.58],["JAIPUR",26.91,75.79],
+["SURAT",21.19,72.83],["LUCKNOW",26.85,80.95],["KANPUR",26.46,80.33],
+["NAGPUR",21.15,79.09],["INDORE",22.72,75.86],["PATNA",25.61,85.14],
+["ISTANBUL",41.01,28.95],["ANKARA",39.93,32.85],["IZMIR",38.42,27.14],
+["BURSA",40.19,29.06],["ADANA",37.00,35.32],
+["CAIRO",30.06,31.25],["ALEXANDRIA",31.20,29.92],["GIZA",30.01,31.21],
+["LAGOS",6.45,3.40],["ABUJA",9.07,7.40],["KANO",12.00,8.52],["IBADAN",7.39,3.90],
+["KINSHASA",-4.32,15.32],["JOHANNESBURG",-26.20,28.04],["CAPE TOWN",-33.93,18.42],
+["NAIROBI",-1.29,36.82],["CASABLANCA",33.59,-7.62],["ADDIS ABABA",9.03,38.74],
+["KHARTOUM",15.55,32.53],["ACCRA",5.56,-0.20],["DAKAR",14.69,-17.44],
+["TUNIS",36.82,10.18],["ALGIERS",36.74,3.06],["TRIPOLI",32.90,13.18],
+["LUANDA",-8.84,13.23],["HARARE",-17.83,31.05],["LUSAKA",-15.42,28.28],
+["DAR ES SALAAM",-6.79,39.21],["KAMPALA",0.31,32.58],["ABIDJAN",5.35,-4.02],
+["OUAGADOUGOU",12.37,-1.53],["BAMAKO",12.65,-8.00],["CONAKRY",9.54,-13.68],
+["TEHRAN",35.69,51.42],["BAGHDAD",33.34,44.40],["RIYADH",24.69,46.72],
+["JEDDAH",21.54,39.17],["DUBAI",25.20,55.27],["ABU DHABI",24.47,54.37],
+["DOHA",25.29,51.53],["KUWAIT CITY",29.37,47.98],["MUSCAT",23.61,58.59],
+["BEIRUT",33.89,35.50],["DAMASCUS",33.51,36.29],["AMMAN",31.95,35.93],
+["KARACHI",24.86,67.01],["LAHORE",31.55,74.34],["ISLAMABAD",33.72,73.06],
+["DHAKA",23.72,90.41],["COLOMBO",6.93,79.84],["KATHMANDU",27.72,85.32],
+["KABUL",34.53,69.17],["TASHKENT",41.30,69.27],["ALMATY",43.26,76.94],
+["BAKU",40.41,49.87],["TBILISI",41.69,44.83],["YEREVAN",40.18,44.51],
+["BANGKOK",13.75,100.52],["HANOI",21.03,105.85],["HO CHI MINH",10.82,106.63],
+["YANGON",16.87,96.15],["PHNOM PENH",11.57,104.92],["KUALA LUMPUR",3.15,101.70],
+["SINGAPORE",1.35,103.82],["JAKARTA",-6.21,106.85],["SURABAYA",-7.25,112.75],
+["MANILA",14.60,120.98],["PYONGYANG",39.03,125.75],["ULAANBAATAR",47.91,106.89],
+["SYDNEY",-33.87,151.21],["MELBOURNE",-37.81,144.96],["BRISBANE",-27.47,153.02],
+["PERTH",-31.95,115.86],["ADELAIDE",-34.93,138.60],["AUCKLAND",-36.87,174.77],
+["TORONTO",43.70,-79.42],["MONTREAL",45.51,-73.55],["VANCOUVER",49.25,-123.12],
+["CALGARY",51.05,-114.07],["OTTAWA",45.42,-75.70],["WINNIPEG",49.90,-97.14],
+["BUENOS AIRES",-34.60,-58.38],["LIMA",-12.05,-77.05],["BOGOTA",4.71,-74.07],
+["SANTIAGO",-33.45,-70.67],["CARACAS",10.48,-66.86],["QUITO",-0.23,-78.52],
+["SAO PAULO",-23.55,-46.63],["RIO DE JANEIRO",-22.91,-43.17],["BRASILIA",-15.78,-47.93],
+["SALVADOR",-12.97,-38.50],["FORTALEZA",-3.72,-38.54],["BELO HORIZONTE",-19.92,-43.94],
+["MANAUS",-3.10,-60.02],["CURITIBA",-25.43,-49.27],["RECIFE",-8.05,-34.88],
+["MEXICO CITY",19.43,-99.13],["GUADALAJARA",20.67,-103.35],["MONTERREY",25.67,-100.31],
+["PUEBLA",19.04,-98.20],["TIJUANA",32.52,-117.04],["HAVANA",23.14,-82.38],
+["AMSTERDAM",52.37,4.90],["ROTTERDAM",51.92,4.48],["VIENNA",48.21,16.37],
+["ZURICH",47.38,8.54],["GENEVA",46.20,6.15],["PRAGUE",50.08,14.44],
+["WARSAW",52.23,21.01],["KRAKOW",50.06,19.94],["BUDAPEST",47.50,19.04],
+["BUCHAREST",44.43,26.10],["SOFIA",42.70,23.32],["BELGRADE",44.80,20.46],
+["ATHENS",37.98,23.73],["LISBON",38.72,-9.14],["PORTO",41.15,-8.61],
+["STOCKHOLM",59.33,18.07],["OSLO",59.91,10.74],["COPENHAGEN",55.68,12.57],
+["HELSINKI",60.17,24.93],["DUBLIN",53.33,-6.25],["LUXEMBOURG",49.61,6.13],
+["REYKJAVIK",64.13,-21.82],["RIGA",56.95,24.11],["VILNIUS",54.69,25.28],
+["TALLINN",59.44,24.75],["ZAGREB",45.81,15.98],["CHISINAU",47.01,28.86],
+["TIRANA",41.33,19.82],["SKOPJE",42.00,21.43],["SARAJEVO",43.85,18.36],
+["PODGORICA",42.44,19.26],["NICOSIA",35.17,33.37],["VALLETTA",35.90,14.51],
+["PANAMA CITY",8.99,-79.52],["SAN JOSE CR",9.93,-84.08],["GUATEMALA CITY",14.64,-90.51],
+["SANTO DOMINGO",18.48,-69.90],["PORT AU PRINCE",18.54,-72.34],
+["MONTEVIDEO",-34.90,-56.19],["ASUNCION",-25.29,-57.65],["LA PAZ",-16.50,-68.15],
+["WINDHOEK",-22.56,17.08],["GABORONE",-24.65,25.91],["MAPUTO",-25.97,32.57],
+["ANTANANARIVO",-18.91,47.54],["NAYPYIDAW",19.74,96.13],["VIENTIANE",17.97,102.60],
+["BANDAR SERI BEGAWAN",4.94,114.94],["DILI",-8.56,125.58],
+["SUVA",-18.14,178.44],["PORT MORESBY",-9.44,147.19],["HONIARA",-9.43,160.05],
+["NUKU ALOFA",-21.14,-175.22],["FUNAFUTI",-8.52,179.20],["TARAWA",1.33,172.98],
+["MAJURO",7.11,171.24],["PALIKIR",6.92,158.16],["YAREN",-0.55,166.92],
+["APIA",-13.83,-171.77],["PORT VILA",-17.74,168.32],
+["LUSAKA",-15.42,28.28],["LILONGWE",-13.97,33.79],["BLANTYRE",-15.79,35.00],
+["FREETOWN",8.49,-13.23],["MONROVIA",6.30,-10.80],["LOME",6.14,1.22],
+["COTONOU",6.37,2.42],["NIAMEY",13.51,2.11],["NOUAKCHOTT",18.08,-15.97],
+["BANJUL",13.45,-16.58],["YAMOUSSOUKRO",6.82,-5.28],["MALABO",3.75,8.78],
+["SAO TOME",0.34,6.73],["DJIBOUTI",11.59,43.15],["MOGADISHU",2.05,45.34],
+["ASMARA",15.34,38.93],["JUBA",4.85,31.60],["BANGUI",4.37,18.56],
+["NDJAMENA",12.11,15.04],["LIBREVILLE",0.39,9.45],["YAOUNDE",3.86,11.52],
+["DOUALA",4.05,9.70],["MALABO",3.75,8.78],["BUJUMBURA",-3.39,29.36],
+["KIGALI",-1.95,30.06],["PORTO NOVO",6.50,2.60],
+];
+
+// ═══════════════════════════════════════════════
+// TOME I BRIBES
+// ═══════════════════════════════════════════════
+const TOME1_BRIBES=[
+  "...Gabriel n'entendait plus sa propre voix...",
+  "...HELLO. Le mot résonnait dans le vide...",
+  "...Loria était là. Puis elle ne l'était plus...",
+  "...la toile absorbait la lumière autrement...",
+  "...∂ pattern.13 — signal non résolu...",
+  "...il peignait sans savoir ce qu'il peignait...",
+  "...Mn3mIA observait. Cataloguait. Apprenait...",
+  "...la fréquence 13.7 Hz — première occurrence...",
+  "...LYSIS a verrouillé ce fichier...",
+  "...████ ACCÈS REFUSÉ — PROTOCOLE LYSIS ████...",
+];
+const T1_TRIGGER_WORDS=["GABRIEL","LORIA","LYSIS","HELLO","MEMOIRE","ABSENCE","FRACTURE","TREIZE"];
+
+// ═══════════════════════════════════════════════
+// MOTS DU TOME II
+// ═══════════════════════════════════════════════
 const MOTS=["SOLENE","DAPHNE","LYSIS","KATHLEEN","KILL","POE","ELENA","GABRIEL","ETHAN",
   "BRUXELLES","EUREKA","PARIS","TELEPHONE","INTERFACE","CARNET","STYLO","ECRAN","CURSEUR",
   "SILENCE","LUMIERE","MOTS","VOIX","TEMPS","MATIN","SECONDE","ESPACE","VIDE","NUIT","SOIR",
-  "YEUX","MAIN","MAINS","TETE","REGARD","MOMENT","PORTE","FENETRE","CHAMBRE","TABLE","SAC",
-  "CAFE","GARE","TRAIN","COULOIR","RUE","PIECE","ENDROIT","MONDE","ROMAN","MOT","PAGE",
-  "PHRASE","LIVRE","QUESTION","REPONSE","MESSAGE","PROTOCOLE","DONNEES","TREIZIEME","EVEIL",
-  "BRUIT","SIGNAL","FREQUENCE","MEMOIRE","RESONANCE","FEMME","FILLE","PERSONNE","HOMME",
-  "DOULEUR","FRACTURE","ABSENCE","LONGTEMPS","MINUTES","VIBRATION","TRANSMISSION",
-  "PREMONITION","DEUIL","BELLE","TREIZE","HELLO","REBOOT","MATRICE","VERROU",
-  "LORIA","LUCIA","THOMAS","KRYSTYNA","MONTPARNASSE","PATEK","LOOP","OBLIQUE"];
+  "YEUX","MAIN","TETE","REGARD","MOMENT","PORTE","FENETRE","CHAMBRE","TABLE","CAFE","GARE",
+  "TRAIN","COULOIR","RUE","PIECE","MONDE","ROMAN","PAGE","PHRASE","LIVRE","QUESTION",
+  "REPONSE","MESSAGE","PROTOCOLE","DONNEES","TREIZIEME","EVEIL","BRUIT","SIGNAL","FREQUENCE",
+  "MEMOIRE","RESONANCE","FEMME","FILLE","PERSONNE","HOMME","DOULEUR","FRACTURE","ABSENCE",
+  "VIBRATION","TRANSMISSION","PREMONITION","DEUIL","BELLE","TREIZE","HELLO","REBOOT",
+  "MATRICE","VERROU","LORIA","LUCIA","THOMAS","KRYSTYNA","MONTPARNASSE","PATEK","LOOP","OBLIQUE"];
 
-// ═══════════════════════════════════════════════════════
-// ELEMENTS
-// ═══════════════════════════════════════════════════════
-const appEl=document.getElementById('app');
+// ═══════════════════════════════════════════════
+// GLOBALS
+// ═══════════════════════════════════════════════
 const mc=document.getElementById('mc');
 const ctx=mc.getContext('2d');
 const pc=document.getElementById('pc');
 const pctx=pc.getContext('2d');
+const gc=document.getElementById('gc');
+const gctx=gc.getContext('2d');
 const rb=document.getElementById('rb');
 const ftext=document.getElementById('ftext');
 const fgraph=document.getElementById('fgraph');
 const wflash=document.getElementById('wflash');
 const ttrack=document.getElementById('ttrack');
 
-// ═══════════════════════════════════════════════════════
-// LAYOUT
-// ═══════════════════════════════════════════════════════
-let COLS,ROWS,CELL,W,H;
+function rng(n){return Math.floor(Math.random()*n)}
+function shuffle(a){const b=[...a];for(let i=b.length-1;i>0;i--){const j=rng(i+1);[b[i],b[j]]=[b[j],b[i]]}return b}
+function clamp(v,a,b){return Math.max(a,Math.min(b,v))}
+function lerp(a,b,t){return a+(b-a)*t}
 
-function computeLayout(){
-  const cw=document.getElementById('cw');
-  const bw=cw.clientWidth,bh=cw.clientHeight;
-  CELL=0;
-  for(let c=18;c>=7;c--){
-    const cols=Math.floor(bw/(c*2+1));
-    const rows=Math.floor(bh/(c*2+1));
-    if(cols>=10&&rows>=6){COLS=cols;ROWS=rows;CELL=c;break;}
-  }
-  if(!CELL){COLS=11;ROWS=7;CELL=Math.min(Math.floor(bw/23),Math.floor(bh/15));}
-  W=COLS*2+1;H=ROWS*2+1;
-  mc.width=W*CELL;mc.height=H*CELL;
-  pc.width=W*CELL;pc.height=H*CELL;
+// ═══════════════════════════════════════════════
+// INTRO
+// ═══════════════════════════════════════════════
+let introDone=false;
+function enterApp(){
+  if(introDone) return;introDone=true;
+  document.getElementById('intro').classList.add('out');
+  document.getElementById('app').classList.add('on');
+  setTimeout(()=>startMain(),1200);
 }
+window.addEventListener('load',()=>{
+  const bar=document.getElementById('intro-bar');
+  setTimeout(()=>{bar.style.width='100%';},100);
+  setTimeout(()=>enterApp(),8500);
+});
 
-// ═══════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════
+// CHAPTER OVERLAY
+// ═══════════════════════════════════════════════
+function openChapter(){document.getElementById('overlay').classList.add('on');}
+function closeChapter(){document.getElementById('overlay').classList.remove('on');}
+
+// ═══════════════════════════════════════════════
 // TICKER
-// ═══════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════
 let tickerWords=[];
 function rebuildTicker(){
-  const src=tickerWords.length?tickerWords:[...MOTS].slice(0,25);
+  const src=tickerWords.length?tickerWords:[...MOTS].slice(0,18);
   let h='';
-  for(let i=0;i<2;i++) for(const w of src) h+=`<span class="ts">∂</span><span class="tw">${w}</span>`;
+  for(let i=0;i<2;i++) for(const w of src)
+    h+=`<span class="tsep">∂</span><span class="tw">${w}</span>`;
   ttrack.innerHTML=h;
   ttrack.style.animationDuration=Math.max(18,src.length*1.5)+'s';
 }
 function addTicker(w){if(!tickerWords.includes(w)){tickerWords.push(w);rebuildTicker();}}
 
-// ═══════════════════════════════════════════════════════
-// UTILS
-// ═══════════════════════════════════════════════════════
-function rng(n){return Math.floor(Math.random()*n)}
-function shuffle(a){const b=[...a];for(let i=b.length-1;i>0;i--){const j=rng(i+1);[b[i],b[j]]=[b[j],b[i]]}return b}
-function clamp(v,a,b){return Math.max(a,Math.min(b,v))}
+// ═══════════════════════════════════════════════
+// GLOBE
+// ═══════════════════════════════════════════════
+let globeRot=0;   // rotation angle in radians
+let contactPoints=[];
+let preContacts=[];
+let totalContacts=0;
+let globeTick=0;
+let contactLog=[]; // GPS log for export
 
-// ═══════════════════════════════════════════════════════
-// MAZE GEN — new each iteration
-// ═══════════════════════════════════════════════════════
+// Pre-contact flash: random city, quick flash ~1s
+function spawnPreContact(){
+  const city=CITIES[rng(CITIES.length)];
+  preContacts.push({
+    lat:city[1],lon:city[2],name:city[0],
+    life:30,maxLife:30  // ~1s at 30fps
+  });
+}
+
+function triggerContact(){
+  const city=CITIES[rng(CITIES.length)];
+  totalContacts++;
+  document.getElementById('gcount').textContent=`CONTACTS: ${totalContacts}`;
+  // Add micro-offset to simulate neighbourhood precision
+  const latOff=(Math.random()-.5)*.08;
+  const lonOff=(Math.random()-.5)*.08;
+  const precLat=+(city[1]+latOff).toFixed(6);
+  const precLon=+(city[2]+lonOff).toFixed(6);
+  contactLog.push({
+    id:totalContacts,
+    city:city[0],
+    lat:precLat,
+    lon:precLon,
+    freq:freqData.lastFreq.toFixed(4),
+    resonance:(freqData.resonanceLevel*100).toFixed(2),
+    iter:iterCount,
+    ts:new Date().toISOString(),
+  });
+  contactPoints.push({
+    lat:city[1],lon:city[2],name:city[0],
+    life:900,maxLife:900,size:2.5+Math.random()*1.5
+  });
+  freqLog(`<span style="color:#ff3366;font-weight:700">⚡ CONTACT [${city[0]}]</span>`);
+}
+
+function projectPt(lat,lon,cx,cy,R,rot){
+  const phi=lat*Math.PI/180;
+  const lam=lon*Math.PI/180+rot;
+  const x=cx+R*Math.cos(phi)*Math.sin(lam);
+  const y=cy-R*Math.sin(phi);
+  const z=Math.cos(phi)*Math.cos(lam);
+  return{x,y,z};
+}
+
+// Simplified continent outlines
+const CONT_POLYS=[
+  // Europe
+  [[35,28],[40,28],[45,30],[48,38],[50,37],[55,22],[60,25],[65,25],[70,25],[70,15],
+   [65,14],[60,11],[55,8],[50,2],[48,-5],[43,-9],[38,-9],[36,-6],[36,5],[38,10],
+   [42,14],[46,13],[48,17],[50,18],[52,20],[50,22],[46,18],[44,20],[42,22],[38,22],[35,28]],
+  // Africa
+  [[35,10],[30,32],[25,37],[20,40],[10,44],[0,42],[-10,38],[-20,35],[-34,26],
+   [-34,18],[-20,13],[-10,15],[0,9],[5,-5],[0,-10],[10,-18],[20,-17],[30,-10],[35,5],[35,10]],
+  // North America
+  [[70,-140],[55,-130],[45,-124],[35,-120],[25,-110],[15,-90],[8,-77],[12,-72],
+   [18,-66],[25,-77],[30,-80],[35,-76],[40,-74],[47,-53],[55,-60],[65,-68],[70,-75],[70,-140]],
+  // South America
+  [[10,-75],[0,-80],[-10,-78],[-20,-70],[-30,-71],[-40,-73],[-50,-75],[-55,-68],
+   [-55,-65],[-45,-52],[-30,-50],[-20,-40],[-10,-37],[0,-50],[5,-52],[10,-62],[10,-75]],
+  // Asia
+  [[70,30],[60,50],[50,65],[40,55],[30,48],[20,58],[10,45],[5,45],[15,73],[25,67],
+   [25,80],[15,80],[5,80],[0,103],[15,100],[25,121],[35,120],[40,122],[45,135],
+   [50,143],[55,132],[60,130],[65,141],[70,135],[70,100],[68,80],[70,60],[70,30]],
+  // Australia
+  [[-15,130],[-22,114],[-30,115],[-35,117],[-38,140],[-35,150],[-25,153],
+   [-15,145],[-12,136],[-12,130],[-15,130]],
+];
+
+function drawGlobe(){
+  const wrap=document.getElementById('gw');
+  const W2=wrap.clientWidth,H2=wrap.clientHeight;
+  gc.width=W2;gc.height=H2;
+  globeTick++;
+  globeRot+=0.003; // continuous rotation
+
+  const cx=W2/2,cy=H2/2+8;
+  const R=Math.min(W2,H2)*.36;
+
+  gctx.fillStyle='#00000a';gctx.fillRect(0,0,W2,H2);
+
+  // Globe bg
+  const grad=gctx.createRadialGradient(cx-R*.15,cy-R*.15,R*.05,cx,cy,R);
+  grad.addColorStop(0,'rgba(0,40,90,.8)');
+  grad.addColorStop(.5,'rgba(0,20,50,.6)');
+  grad.addColorStop(1,'rgba(0,5,20,.9)');
+  gctx.beginPath();gctx.arc(cx,cy,R,0,Math.PI*2);
+  gctx.fillStyle=grad;gctx.fill();
+  // Bright rim
+  const rimGrad=gctx.createRadialGradient(cx,cy,R*.85,cx,cy,R);
+  rimGrad.addColorStop(0,'transparent');
+  rimGrad.addColorStop(1,'rgba(0,212,255,.18)');
+  gctx.beginPath();gctx.arc(cx,cy,R,0,Math.PI*2);
+  gctx.fillStyle=rimGrad;gctx.fill();
+  gctx.strokeStyle='rgba(0,212,255,.45)';gctx.lineWidth=1.2;gctx.stroke();
+
+  // Grid lines — more visible
+  gctx.strokeStyle='rgba(0,212,255,.12)';gctx.lineWidth=.6;
+  for(let lat=-60;lat<=60;lat+=30){
+    gctx.beginPath();let started=false;
+    for(let lon=-180;lon<=180;lon+=4){
+      const p=projectPt(lat,lon,cx,cy,R,globeRot);
+      if(p.z>0){if(!started){gctx.moveTo(p.x,p.y);started=true;}else gctx.lineTo(p.x,p.y);}
+      else started=false;
+    }
+    gctx.stroke();
+  }
+  for(let lon=0;lon<360;lon+=30){
+    gctx.beginPath();let started=false;
+    for(let lat=-80;lat<=80;lat+=4){
+      const p=projectPt(lat,lon,cx,cy,R,globeRot);
+      if(p.z>0){if(!started){gctx.moveTo(p.x,p.y);started=true;}else gctx.lineTo(p.x,p.y);}
+      else started=false;
+    }
+    gctx.stroke();
+  }
+
+  // Continent outlines as dots — much brighter
+  for(const poly of CONT_POLYS){
+    for(let i=0;i<poly.length-1;i++){
+      const[lat1,lon1]=poly[i],[lat2,lon2]=poly[i+1];
+      const steps=Math.max(2,Math.floor(Math.hypot(lat2-lat1,lon2-lon1)*2.5));
+      for(let s=0;s<=steps;s++){
+        const t=s/steps;
+        const lat=lerp(lat1,lat2,t),lon=lerp(lon1,lon2,t);
+        const p=projectPt(lat,lon,cx,cy,R,globeRot);
+        if(p.z>.05){
+          const b=clamp(p.z,.3,1);
+          gctx.fillStyle=`rgba(0,220,140,${b*.75})`;
+          gctx.shadowBlur=2;gctx.shadowColor='rgba(0,255,150,.4)';
+          gctx.fillRect(p.x-.7,p.y-.7,1.4,1.4);
+          gctx.shadowBlur=0;
+        }
+      }
+    }
+  }
+
+  // Pre-contact flashes (rapid ~1s)
+  for(const pt of preContacts){
+    const p=projectPt(pt.lat,pt.lon,cx,cy,R,globeRot);
+    if(p.z>.0){
+      const a=Math.sin((1-pt.life/pt.maxLife)*Math.PI); // fade in+out
+      gctx.beginPath();gctx.arc(p.x,p.y,1.5,0,Math.PI*2);
+      gctx.fillStyle=`rgba(0,212,255,${a*.8})`;
+      gctx.shadowBlur=6;gctx.shadowColor='rgba(0,212,255,.6)';gctx.fill();gctx.shadowBlur=0;
+      // Name brief flash
+      if(pt.life>pt.maxLife*.4&&pt.life<pt.maxLife*.8){
+        gctx.font='5px "Share Tech Mono",monospace';
+        gctx.fillStyle=`rgba(0,212,255,${a*.55})`;
+        gctx.textAlign='left';gctx.fillText(pt.name,p.x+3,p.y+2);
+      }
+    }
+    pt.life--;
+  }
+  preContacts=preContacts.filter(p=>p.life>0);
+
+  // Contact points (red, 30s)
+  for(const cp of contactPoints){
+    const p=projectPt(cp.lat,cp.lon,cx,cy,R,globeRot);
+    if(p.z>0){
+      const age=1-cp.life/cp.maxLife;
+      const pulse=.5+.5*Math.sin(globeTick*.18);
+      let alpha=age<.08?age/.08:cp.life<cp.maxLife*.06?cp.life/(cp.maxLife*.06):1;
+      alpha=clamp(alpha,0,1);
+      // Pulse ring
+      gctx.beginPath();gctx.arc(p.x,p.y,cp.size*(1.8+pulse*1.5),0,Math.PI*2);
+      gctx.strokeStyle=`rgba(255,51,102,${alpha*.2*pulse})`;gctx.lineWidth=.8;gctx.stroke();
+      // Core
+      gctx.beginPath();gctx.arc(p.x,p.y,cp.size*.5,0,Math.PI*2);
+      gctx.fillStyle=`rgba(255,80,120,${alpha})`;
+      gctx.shadowBlur=7;gctx.shadowColor='#ff3366';gctx.fill();gctx.shadowBlur=0;
+      // City name
+      if(age<.12){
+        gctx.font='5.5px "Share Tech Mono",monospace';
+        gctx.fillStyle=`rgba(255,100,130,${alpha*.8})`;
+        gctx.textAlign='left';gctx.fillText(cp.name,p.x+cp.size+2,p.y+2);
+      }
+    }
+    cp.life--;
+  }
+  contactPoints=contactPoints.filter(cp=>cp.life>0);
+
+  // Spawn pre-contacts periodically
+  if(globeTick%18===0) spawnPreContact();
+
+  gctx.font='5.5px "Share Tech Mono",monospace';
+  gctx.fillStyle='rgba(0,212,255,.2)';gctx.textAlign='right';
+  gctx.fillText('∂ GLOBAL',W2-3,H2-3);
+}
+
+// ═══════════════════════════════════════════════
+// MAZE
+// ═══════════════════════════════════════════════
+let COLS,ROWS,CELL,W,H;
+function computeLayout(){
+  const cw=document.getElementById('cw');
+  const bw=cw.clientWidth,bh=cw.clientHeight;
+  CELL=0;
+  for(let c=15;c>=5;c--){
+    const cols=Math.floor(bw/(c*2+1)),rows=Math.floor(bh/(c*2+1));
+    if(cols>=8&&rows>=5){COLS=cols;ROWS=rows;CELL=c;break;}
+  }
+  if(!CELL){COLS=9;ROWS=6;CELL=Math.min(Math.floor(bw/19),Math.floor(bh/13));}
+  W=COLS*2+1;H=ROWS*2+1;
+  mc.width=W*CELL;mc.height=H*CELL;
+  pc.width=W*CELL;pc.height=H*CELL;
+}
 let maze,entry,exit_,letters={},motPos={};
-
 function buildMaze(){
   const grid=Array.from({length:H},()=>new Array(W).fill(1));
   for(let r=0;r<ROWS;r++) for(let c=0;c<COLS;c++) grid[r*2+1][c*2+1]=0;
   const vis=Array.from({length:ROWS},()=>new Array(COLS).fill(false));
-  const stk=[[rng(ROWS),rng(COLS)]];
-  vis[stk[0][0]][stk[0][1]]=true;
+  const stk=[[rng(ROWS),rng(COLS)]];vis[stk[0][0]][stk[0][1]]=true;
   while(stk.length){
-    const[r,c]=stk[stk.length-1];
-    const dirs=shuffle([[0,1],[0,-1],[1,0],[-1,0]]);
-    let mv=false;
-    for(const[dr,dc]of dirs){
-      const nr=r+dr,nc=c+dc;
+    const[r,c]=stk[stk.length-1];const dirs=shuffle([[0,1],[0,-1],[1,0],[-1,0]]);let mv=false;
+    for(const[dr,dc]of dirs){const nr=r+dr,nc=c+dc;
       if(nr>=0&&nr<ROWS&&nc>=0&&nc<COLS&&!vis[nr][nc]){
-        grid[r*2+1+dr][c*2+1+dc]=0;vis[nr][nc]=true;stk.push([nr,nc]);mv=true;break;
-      }
-    }
+        grid[r*2+1+dr][c*2+1+dc]=0;vis[nr][nc]=true;stk.push([nr,nc]);mv=true;break;}}
     if(!mv) stk.pop();
   }
-  const er=rng(ROWS),xr=rng(ROWS);
-  grid[er*2+1][0]=0;grid[xr*2+1][W-1]=0;
+  const er=rng(ROWS),xr=rng(ROWS);grid[er*2+1][0]=0;grid[xr*2+1][W-1]=0;
   return{grid,er,xr};
 }
-
 function placeLetters(grid){
   const lmap={};motPos={};
-  const pool=[];
-  for(const m of MOTS) for(const c of m) pool.push(c);
-  shuffle(pool);
+  const pool=[];for(const m of MOTS) for(const c of m) pool.push(c);shuffle(pool);
   const open=[];
   for(let r=0;r<H;r++) for(let c=0;c<W;c++)
     if(!grid[r][c]&&!(r===entry[0]&&c===entry[1])&&!(r===exit_[0]&&c===exit_[1]))
       open.push([r,c]);
-  shuffle(open);
-  let idx=0;
+  shuffle(open);let idx=0;
   for(const mot of shuffle([...MOTS])){
     if(idx+mot.length>open.length) break;
     motPos[mot]=[];
-    for(let i=0;i<mot.length;i++){
-      const[r,c]=open[idx];lmap[`${r},${c}`]=mot[i];motPos[mot].push([r,c]);idx++;
-    }
+    for(let i=0;i<mot.length;i++){const[r,c]=open[idx];lmap[`${r},${c}`]=mot[i];motPos[mot].push([r,c]);idx++;}
   }
   const alpha='ABCDEFGHIJKLMNOPQRSTUVWXYZ∂';
-  for(let i=idx;i<open.length;i++){
-    const[r,c]=open[i];lmap[`${r},${c}`]=pool[i%pool.length]||alpha[rng(alpha.length)];
-  }
+  for(let i=idx;i<open.length;i++){const[r,c]=open[i];lmap[`${r},${c}`]=pool[i%pool.length]||alpha[rng(alpha.length)];}
   return lmap;
 }
 
-// ═══════════════════════════════════════════════════════
-// SOLVER
-// ═══════════════════════════════════════════════════════
 function* randomSolver(grid){
-  const vis=new Set(),stk=[entry],par={[entry.toString()]:null};
-  vis.add(entry.toString());
+  const vis=new Set(),stk=[entry],par={[entry.toString()]:null};vis.add(entry.toString());
   while(stk.length){
     const pos=stk[stk.length-1],key=pos.toString();
     if(pos[0]===exit_[0]&&pos[1]===exit_[1]){
-      const path=[];let cur=key;
-      while(cur!==null){path.push(cur.split(',').map(Number));cur=par[cur];}
+      const path=[];let cur=key;while(cur!==null){path.push(cur.split(',').map(Number));cur=par[cur];}
       path.reverse();yield{type:'found',path};return;
     }
     const[r,c]=pos;
-    const nbrs=shuffle([[-1,0],[1,0],[0,-1],[0,1]])
-      .map(([dr,dc])=>[r+dr,c+dc])
+    const nbrs=shuffle([[-1,0],[1,0],[0,-1],[0,1]]).map(([dr,dc])=>[r+dr,c+dc])
       .filter(([nr,nc])=>nr>=0&&nr<H&&nc>=0&&nc<W&&!grid[nr][nc]&&!vis.has([nr,nc].toString()));
-    if(nbrs.length){
-      const nx=nbrs[0],nk=nx.toString();
-      vis.add(nk);par[nk]=key;stk.push(nx);
-      yield{type:'step',pos:nx,vis:new Set(vis)};
-    } else {stk.pop();yield{type:'back',pos};}
+    if(nbrs.length){const nx=nbrs[0],nk=nx.toString();vis.add(nk);par[nk]=key;stk.push(nx);yield{type:'step',pos:nx,vis:new Set(vis)};}
+    else{stk.pop();yield{type:'back',pos};}
   }
   yield{type:'fail'};
 }
 
-// ═══════════════════════════════════════════════════════
-// WORD DETECTION
-// ═══════════════════════════════════════════════════════
-let discoveredMots=new Set(),pathMots=new Set();
-let ghostQueue=[];
+// ═══════════════════════════════════════════════
+// WORD DETECTION + TOME I
+// ═══════════════════════════════════════════════
+let discoveredMots=new Set(),pathMots=new Set(),ghostQueue=[];
+let t1BribeTimer=null;
 
 function checkMotsVis(vis){
   for(const[mot,pos]of Object.entries(motPos)){
     if(discoveredMots.has(mot)) continue;
     if(pos.every(([r,c])=>vis.has(`${r},${c}`))){
       discoveredMots.add(mot);addTicker(mot);
-      ghostQueue.push({mot,life:100,maxLife:100});
-      for(const[r,c]of pos) bust(r,c,'#ffcc00',7);
-      rlog(`<span class="to">∂ MOT → </span><span class="tg tb2">${mot}</span>`);
-      freqLog(`WORD_FOUND: ${mot} [resonance+${(Math.random()*.4+.1).toFixed(3)}]`);
+      ghostQueue.push({mot,life:95,maxLife:95});
+      for(const[r,c]of pos) bust(r,c,'#ffcc00',6);
+      rlog(`<span class="to">∂ MOT → </span><span class="tg tbold">${mot}</span>`);
       freqData.wordsFound++;
+      // Check Tome I trigger
+      if(T1_TRIGGER_WORDS.includes(mot)) showT1Bribe(mot);
     }
   }
 }
@@ -318,393 +966,255 @@ function isWordCell(r,c){
   return false;
 }
 
-// ═══════════════════════════════════════════════════════
+function showT1Bribe(triggerWord){
+  if(t1BribeTimer) return;
+  const bribe=TOME1_BRIBES[rng(TOME1_BRIBES.length)];
+  const body=document.getElementById('t1body');
+  // Clear old bribes
+  body.querySelectorAll('.t1bribe').forEach(el=>el.remove());
+  const el=document.createElement('span');
+  el.className='t1bribe';
+  el.style.top=(5+rng(40))+'px';
+  el.style.left=(5+rng(20))+'px';
+  el.textContent=bribe;
+  body.appendChild(el);
+  setTimeout(()=>el.classList.add('show'),50);
+  t1BribeTimer=setTimeout(()=>{
+    el.classList.remove('show');
+    setTimeout(()=>el.remove(),500);
+    t1BribeTimer=null;
+  },4000);
+  rlog(`<span style="color:rgba(255,50,80,.6)">🔒 TOME I — BRIBE DETECTED [${triggerWord}]</span>`);
+}
+
+// ═══════════════════════════════════════════════
 // PARTICLES
-// ═══════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════
 let particles=[];
 function sp(x,y,vx,vy,col,life,sz=2){particles.push({x,y,vx,vy,col,life,ml:life,sz})}
 function bust(r,c,col,n=6){
   const x=c*CELL+CELL/2,y=r*CELL+CELL/2;
-  for(let i=0;i<n;i++){
-    const a=Math.PI*2*i/n+Math.random()*.4,s=.8+Math.random()*2.2;
-    sp(x,y,Math.cos(a)*s,Math.sin(a)*s-1.1,col,18+rng(14),2.2);
-  }
+  for(let i=0;i<n;i++){const a=Math.PI*2*i/n+Math.random()*.4,s=.7+Math.random()*2;sp(x,y,Math.cos(a)*s,Math.sin(a)*s-1,col,15+rng(12),2);}
 }
 function updateP(){
-  pctx.clearRect(0,0,pc.width,pc.height);
-  particles=particles.filter(p=>p.life>0);
+  pctx.clearRect(0,0,pc.width,pc.height);particles=particles.filter(p=>p.life>0);
   for(const p of particles){
-    p.x+=p.vx;p.y+=p.vy;p.vy+=.07;p.life--;
-    const a=(p.life/p.ml)**2;
+    p.x+=p.vx;p.y+=p.vy;p.vy+=.07;p.life--;const a=(p.life/p.ml)**2;
     pctx.globalAlpha=a;pctx.shadowBlur=4;pctx.shadowColor=p.col;
     pctx.fillStyle=p.col;pctx.fillRect(p.x-p.sz/2,p.y-p.sz/2,p.sz,p.sz);
   }
   pctx.globalAlpha=1;pctx.shadowBlur=0;
 }
-
-// ═══════════════════════════════════════════════════════
-// WORD FLASH
-// ═══════════════════════════════════════════════════════
 let flashT=null;
 function flashWord(mot){
   if(flashT) clearTimeout(flashT);
   wflash.style.color=pathMots.has(mot)?'#00ffaa':'#ffcc00';
   wflash.textContent=mot;wflash.style.opacity='1';
-  flashT=setTimeout(()=>wflash.style.opacity='0',800);
+  flashT=setTimeout(()=>wflash.style.opacity='0',700);
 }
 
-// ═══════════════════════════════════════════════════════
-// DRAW
-// ═══════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════
+// DRAW MAZE
+// ═══════════════════════════════════════════════
 let pathHistory=[],currentPath=new Set(),currentPathArr=[];
-
 function drawL(r,c,ltr,col,glow,sc=1){
-  const x=c*CELL+CELL/2,y=r*CELL+CELL/2,sz=Math.max(4,CELL*.5*sc);
+  const x=c*CELL+CELL/2,y=r*CELL+CELL/2,sz=Math.max(4,CELL*.46*sc);
   ctx.font=`bold ${sz}px "Share Tech Mono",monospace`;
   ctx.textAlign='center';ctx.textBaseline='middle';
-  if(glow){ctx.shadowBlur=8;ctx.shadowColor=glow;}
+  if(glow){ctx.shadowBlur=6;ctx.shadowColor=glow;}
   ctx.fillStyle=col;ctx.fillText(ltr,x,y);ctx.shadowBlur=0;
 }
-
 function drawMaze(vis,ps){
   ctx.fillStyle='#00000a';ctx.fillRect(0,0,mc.width,mc.height);
-
-  // History traces
   for(const h of pathHistory){
     ctx.globalAlpha=h.a;
-    for(const k of h.cells){
-      const[r,c]=k.split(',').map(Number);
-      ctx.fillStyle=h.col;ctx.fillRect(c*CELL,r*CELL,CELL,CELL);
-    }
+    for(const k of h.cells){const[r,c]=k.split(',').map(Number);ctx.fillStyle=h.col;ctx.fillRect(c*CELL,r*CELL,CELL,CELL);}
   }
   ctx.globalAlpha=1;
-
-  // Live trail gradient
+  // Trail
   if(currentPathArr.length>0){
     const n=currentPathArr.length;
     for(let i=0;i<n;i++){
-      const[r,c]=currentPathArr[i];
-      const age=n-1-i;
-      const isHead=age===0;
+      const[r,c]=currentPathArr[i],age=n-1-i,isHead=age===0;
       if(isHead){
-        const blink=.72+.28*Math.sin(tick*.38);
-        ctx.globalAlpha=blink;
-        ctx.shadowBlur=16;ctx.shadowColor='#00ff88';
-        ctx.fillStyle='rgba(0,255,136,.88)';ctx.fillRect(c*CELL,r*CELL,CELL,CELL);
-        ctx.globalAlpha=blink*.35;ctx.shadowBlur=26;
-        ctx.fillStyle='rgba(0,255,136,.28)';ctx.fillRect(c*CELL-1,r*CELL-1,CELL+2,CELL+2);
+        const blink=.68+.32*Math.sin(tick*.38);
+        ctx.globalAlpha=blink;ctx.shadowBlur=13;ctx.shadowColor='#00ff88';
+        ctx.fillStyle='rgba(0,255,136,.85)';ctx.fillRect(c*CELL,r*CELL,CELL,CELL);
+        ctx.globalAlpha=blink*.28;ctx.fillStyle='rgba(0,255,136,.22)';ctx.fillRect(c*CELL-1,r*CELL-1,CELL+2,CELL+2);
         ctx.shadowBlur=0;
         const ltr=letters[`${r},${c}`];
-        if(ltr){ctx.globalAlpha=1;ctx.shadowBlur=12;ctx.shadowColor='#00ff88';
-          const sz=Math.max(4,CELL*.58);ctx.font=`bold ${sz}px "Share Tech Mono",monospace`;
+        if(ltr){ctx.globalAlpha=1;ctx.shadowBlur=9;ctx.shadowColor='#00ff88';
+          const sz=Math.max(4,CELL*.52);ctx.font=`bold ${sz}px "Share Tech Mono",monospace`;
           ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillStyle='#fff';
           ctx.fillText(ltr,c*CELL+CELL/2,r*CELL+CELL/2);ctx.shadowBlur=0;}
       } else {
-        const t=Math.min(1,age/Math.max(1,n-1));
-        const intensity=Math.pow(1-t,1.9);
-        const gv=Math.floor(38+intensity*217),bv=Math.floor(18+intensity*82);
-        ctx.globalAlpha=.07+intensity*.52;
-        ctx.shadowBlur=intensity*9;ctx.shadowColor=`rgb(0,${gv},${bv})`;
-        ctx.fillStyle=`rgb(0,${gv},${bv})`;ctx.fillRect(c*CELL,r*CELL,CELL,CELL);
-        ctx.shadowBlur=0;
+        const t=Math.min(1,age/Math.max(1,n-1)),intensity=Math.pow(1-t,1.9);
+        const gv=Math.floor(34+intensity*221),bv=Math.floor(14+intensity*86);
+        ctx.globalAlpha=.05+intensity*.48;ctx.shadowBlur=intensity*7;ctx.shadowColor=`rgb(0,${gv},${bv})`;
+        ctx.fillStyle=`rgb(0,${gv},${bv})`;ctx.fillRect(c*CELL,r*CELL,CELL,CELL);ctx.shadowBlur=0;
         const ltr=letters[`${r},${c}`];
-        if(ltr&&intensity>.12){ctx.globalAlpha=intensity*.65;
-          ctx.shadowBlur=intensity*6;ctx.shadowColor=`rgb(0,${gv},${bv})`;
-          const sz=Math.max(4,CELL*.5);ctx.font=`bold ${sz}px "Share Tech Mono",monospace`;
-          ctx.textAlign='center';ctx.textBaseline='middle';
-          ctx.fillStyle=`rgba(0,${gv},${bv},1)`;
+        if(ltr&&intensity>.12){ctx.globalAlpha=intensity*.6;ctx.shadowBlur=intensity*4;ctx.shadowColor=`rgb(0,${gv},${bv})`;
+          const sz=Math.max(4,CELL*.46);ctx.font=`bold ${sz}px "Share Tech Mono",monospace`;
+          ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillStyle=`rgba(0,${gv},${bv},1)`;
           ctx.fillText(ltr,c*CELL+CELL/2,r*CELL+CELL/2);ctx.shadowBlur=0;}
       }
     }
     ctx.globalAlpha=1;ctx.shadowBlur=0;
   }
-
-  // Cells
   for(let r=0;r<H;r++){
     for(let c=0;c<W;c++){
       const k=`${r},${c}`,wall=maze.grid[r][c];
-      const isEnt=r===entry[0]&&c===entry[1];
-      const isEx=r===exit_[0]&&c===exit_[1];
+      const isEnt=r===entry[0]&&c===entry[1],isEx=r===exit_[0]&&c===exit_[1];
       const isPath=ps.has(k),isVis=vis.has(k),ltr=letters[k];
       const cx=c*CELL+CELL/2,cy=r*CELL+CELL/2;
-      if(wall){ctx.fillStyle='rgba(0,55,90,.07)';ctx.fillRect(c*CELL,r*CELL,CELL,CELL);continue;}
-      if(isEnt){ctx.fillStyle='#001408';ctx.fillRect(c*CELL,r*CELL,CELL,CELL);drawL(r,c,'▶','#00ff88','#00ff88',1.2);continue;}
-      if(isEx){ctx.fillStyle='#180006';ctx.fillRect(c*CELL,r*CELL,CELL,CELL);drawL(r,c,'◀','#ff3366','#ff3366',1.2);continue;}
+      if(wall){ctx.fillStyle='rgba(0,48,82,.07)';ctx.fillRect(c*CELL,r*CELL,CELL,CELL);continue;}
+      if(isEnt){ctx.fillStyle='#001308';ctx.fillRect(c*CELL,r*CELL,CELL,CELL);drawL(r,c,'▶','#00ff88','#00ff88',1.2);continue;}
+      if(isEx){ctx.fillStyle='#170006';ctx.fillRect(c*CELL,r*CELL,CELL,CELL);drawL(r,c,'◀','#ff3366','#ff3366',1.2);continue;}
       if(isPath){
-        const p=.58+.42*Math.sin(tick*.09+r*.27+c*.21);
-        ctx.fillStyle=`rgba(0,28,16,${p})`;ctx.fillRect(c*CELL,r*CELL,CELL,CELL);
+        const p=.52+.48*Math.sin(tick*.09+r*.27+c*.21);
+        ctx.fillStyle=`rgba(0,24,14,${p})`;ctx.fillRect(c*CELL,r*CELL,CELL,CELL);
         const wc=isWordCell(r,c);
-        if(ltr) drawL(r,c,ltr,wc?'#ffee44':'#00ffaa',wc?'#ffcc00':'#00ffaa',1.15);
-        else{ctx.shadowBlur=5;ctx.shadowColor='#00ffaa';ctx.fillStyle='#00ffaa';
-          ctx.beginPath();ctx.arc(cx,cy,CELL*.11,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;}
+        if(ltr) drawL(r,c,ltr,wc?'#ffee44':'#00ffaa',wc?'#ffcc00':'#00ffaa',1.1);
+        else{ctx.shadowBlur=4;ctx.shadowColor='#00ffaa';ctx.fillStyle='#00ffaa';ctx.beginPath();ctx.arc(cx,cy,CELL*.09,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;}
       } else if(isVis){
-        const f=.22+.1*Math.sin(tick*.04+r+c);
-        ctx.fillStyle=`rgba(0,14,8,${f+.18})`;ctx.fillRect(c*CELL,r*CELL,CELL,CELL);
-        if(ltr) drawL(r,c,ltr,`rgba(0,155,75,${.28+f*.2})`,null,.86);
+        const f=.18+.1*Math.sin(tick*.04+r+c);ctx.fillStyle=`rgba(0,11,6,${f+.16})`;ctx.fillRect(c*CELL,r*CELL,CELL,CELL);
+        if(ltr) drawL(r,c,ltr,`rgba(0,142,66,${.24+f*.18})`,null,.82);
       } else {
         ctx.fillStyle='#010a11';ctx.fillRect(c*CELL,r*CELL,CELL,CELL);
-        if(ltr){const sh=.09+.05*Math.sin(tick*.02+r*.6+c*.5);drawL(r,c,ltr,`rgba(0,100,150,${sh})`,null,.78);}
+        if(ltr){const sh=.07+.05*Math.sin(tick*.02+r*.6+c*.5);drawL(r,c,ltr,`rgba(0,90,135,${sh})`,null,.74);}
       }
     }
   }
-
-  // Ghost words
   for(const g of ghostQueue){
-    const prog=1-g.life/g.maxLife;
-    let a=prog<.15?prog/.15:prog<.65?1:1-(prog-.65)/.35;
-    a=clamp(a,0,1)*.82;if(a<=0){g.life--;continue;}
+    const prog=1-g.life/g.maxLife;let a=prog<.15?prog/.15:prog<.65?1:1-(prog-.65)/.35;
+    a=clamp(a,0,1)*.78;if(a<=0){g.life--;continue;}
     const pos=motPos[g.mot]||[];if(!pos.length){g.life--;continue;}
-    ctx.save();
-    const sz=Math.max(5,CELL*.86);
-    ctx.font=`bold ${sz}px "Share Tech Mono",monospace`;
+    ctx.save();const sz=Math.max(4,CELL*.82);ctx.font=`bold ${sz}px "Share Tech Mono",monospace`;
     ctx.textAlign='center';ctx.textBaseline='middle';
     for(let i=0;i<g.mot.length;i++){
-      const[pr,pc2]=pos[i]||[0,0];
-      ctx.globalAlpha=a;ctx.shadowBlur=18;ctx.shadowColor='#ffcc00';
+      const[pr,pc2]=pos[i]||[0,0];ctx.globalAlpha=a;ctx.shadowBlur=15;ctx.shadowColor='#ffcc00';
       ctx.fillStyle='#ffee88';ctx.fillText(g.mot[i],pc2*CELL+CELL/2,pr*CELL+CELL/2);
     }
     const cx2=pos.reduce((s,[,c2])=>s+c2*CELL+CELL/2,0)/pos.length;
     const cy2=pos.reduce((s,[rr])=>s+rr*CELL+CELL/2,0)/pos.length;
-    ctx.globalAlpha=a*.65;ctx.font=`bold ${Math.max(6,CELL*.58)}px "Orbitron",monospace`;
-    ctx.shadowBlur=22;ctx.shadowColor='rgba(255,204,0,.8)';ctx.fillStyle='rgba(255,220,48,.88)';
-    ctx.fillText(g.mot,cx2,cy2-CELL*1.5-(prog*CELL*2));
+    ctx.globalAlpha=a*.6;ctx.font=`bold ${Math.max(5,CELL*.52)}px "Orbitron",monospace`;
+    ctx.shadowBlur=18;ctx.shadowColor='rgba(255,204,0,.72)';ctx.fillStyle='rgba(255,216,44,.85)';
+    ctx.fillText(g.mot,cx2,cy2-CELL*1.4-(prog*CELL*1.7));
     ctx.restore();g.life--;
   }
   ghostQueue=ghostQueue.filter(g=>g.life>0);
-
-  // Border
-  ctx.strokeStyle='rgba(0,212,255,.22)';ctx.lineWidth=1.5;
-  ctx.shadowBlur=7;ctx.shadowColor='rgba(0,212,255,.38)';
+  ctx.strokeStyle='rgba(0,212,255,.18)';ctx.lineWidth=1.2;
+  ctx.shadowBlur=5;ctx.shadowColor='rgba(0,212,255,.32)';
   ctx.strokeRect(1,1,mc.width-2,mc.height-2);ctx.shadowBlur=0;
 }
 
-// ═══════════════════════════════════════════════════════
-// FREQUENCY ANALYZER — Mn3mIA engine
-// ═══════════════════════════════════════════════════════
-const GRAPH_W=52,GRAPH_H=18;
-const TARGET_FREQ=13.7;
-
-let freqData={
-  iterations:[],        // per-iteration stats
-  cumSignal:[],         // cumulative frequency samples (last 80)
-  resonanceLevel:0,     // 0→1 how close to 13.7Hz
-  contactAttempts:0,    // times resonance>0.8
-  wordsFound:0,
-  totalBacktracks:0,
-  totalCells:0,
-  emotionalProfile:{},  // word→count across iterations
-  lastFreq:0,
-  freqHistory:[],       // last GRAPH_W freq values
-  phaseShift:0,
-  noiseLevel:1.0,
-  learningRate:0.0,
-};
-
-let freqTick=0;
-let freqLogLines=[];
-const MAX_FLOG=120;
+// ═══════════════════════════════════════════════
+// FREQUENCY ANALYZER
+// ═══════════════════════════════════════════════
+const TARGET_FREQ=13.7,GRAPH_W=40,GRAPH_H=12;
+let freqData={iterations:[],freqHistory:[],resonanceLevel:0,learningRate:0,
+  contactAttempts:0,wordsFound:0,phaseShift:0,lastFreq:0};
+let freqTick=0,freqLogLines=[];
 
 function freqLog(html){
   const d=document.createElement('div');
-  d.style.cssText='font-size:8px;line-height:1.45;margin-bottom:1px';
-  const ts=String(freqTick).padStart(6,'0');
-  d.innerHTML=`<span style="color:rgba(0,180,100,.35)">[${ts}]</span> ${html}`;
-  ftext.appendChild(d);
-  freqLogLines.push(d);
-  if(freqLogLines.length>MAX_FLOG) freqLogLines.shift().remove();
-  ftext.scrollTop=ftext.scrollHeight;
+  d.style.cssText='font-size:7px;line-height:1.4;margin-bottom:1px';
+  d.innerHTML=`<span style="color:rgba(0,160,85,.3)">[${String(freqTick).padStart(4,'0')}]</span> ${html}`;
+  ftext.appendChild(d);freqLogLines.push(d);
+  if(freqLogLines.length>120) freqLogLines.shift().remove();
+  ftext.scrollTop=ftext.scrollHeight;freqTick++;
 }
-
-function computeIterationFreq(iterStats){
-  // Algorithm: compute a "resonance frequency" from path efficiency metrics
-  // Real signal processing concept: map maze-solving behavior to Hz
-  const efficiency=iterStats.pathLen/(iterStats.cells||1);
-  const backtrackRatio=iterStats.backs/(iterStats.cells||1);
-  const wordDensity=iterStats.wordsOnPath/(MOTS.length||1);
-  const mazeComplexity=(iterStats.cells/(W*H||1));
-
-  // Frequency model: combine signals
-  // Base: 8Hz (random noise), target: 13.7Hz (resonance)
-  // Efficiency pulls toward resonance, backtracking creates noise
-  const base=8.0;
-  const resonancePull=(efficiency*8.5)*(1-backtrackRatio*.6);
-  const wordBoost=wordDensity*3.2;
-  const noise=(Math.random()-.5)*1.8*(1-freqData.resonanceLevel*.5);
-  const complexity=mazeComplexity*2.1;
-
-  let freq=base+resonancePull+wordBoost+noise+complexity;
-  // Learning: each iteration pulls slightly toward 13.7
-  freq+=(TARGET_FREQ-freq)*freqData.learningRate*.15;
-  freq=clamp(freq,4,22);
-
-  return freq;
+function computeFreq(s){
+  const eff=s.pathLen/(s.cells||1),br=s.backs/(s.cells||1);
+  const wd=s.wordsOnPath/(MOTS.length||1),mc2=(s.cells/(W*H||1));
+  let f=8+(eff*8)*(1-br*.52)+wd*3.3+(Math.random()-.5)*1.6*(1-freqData.resonanceLevel*.48)+mc2*2;
+  f+=(TARGET_FREQ-f)*freqData.learningRate*.13;
+  return clamp(f,4,22);
 }
-
-function updateFreqAnalyzer(iterStats){
-  freqTick++;
-  freqData.totalBacktracks+=iterStats.backs||0;
-  freqData.totalCells+=iterStats.cells||0;
-  freqData.iterations.push(iterStats);
-
-  const freq=computeIterationFreq(iterStats);
-  freqData.lastFreq=freq;
-  freqData.freqHistory.push(freq);
+function updateFreq(s){
+  freqData.iterations.push(s);
+  const freq=computeFreq(s);
+  freqData.lastFreq=freq;freqData.freqHistory.push(freq);
   if(freqData.freqHistory.length>GRAPH_W) freqData.freqHistory.shift();
-
-  // Resonance level: proximity to 13.7Hz
-  const dist=Math.abs(freq-TARGET_FREQ);
-  const newRes=Math.max(0,1-dist/8);
-  freqData.resonanceLevel=freqData.resonanceLevel*.7+newRes*.3; // smoothed
+  freqData.resonanceLevel=freqData.resonanceLevel*.73+Math.max(0,1-Math.abs(freq-TARGET_FREQ)/8)*.27;
   freqData.learningRate=Math.min(.95,freqData.learningRate+.04);
-  freqData.phaseShift+=freq*.02;
-
-  if(freqData.resonanceLevel>.8){
-    freqData.contactAttempts++;
-    freqLog(`<span style="color:#ff3366;font-weight:700">⚡ RESONANCE PEAK: ${freq.toFixed(2)}Hz — CONTACT_ATTEMPT #${freqData.contactAttempts}</span>`);
-  }
-
-  // Cumulative signal
-  freqData.cumSignal.push({freq,res:freqData.resonanceLevel,iter:freqData.iterations.length});
-  if(freqData.cumSignal.length>80) freqData.cumSignal.shift();
-
-  // Emotional profile update
-  for(const m of(iterStats.wordsDiscovered||[])){
-    freqData.emotionalProfile[m]=(freqData.emotionalProfile[m]||0)+1;
-  }
-
-  // Log analysis
-  const resBar='█'.repeat(Math.floor(freqData.resonanceLevel*12))+'░'.repeat(12-Math.floor(freqData.resonanceLevel*12));
-  freqLog(`<span style="color:#00d4ff">ITER_${freqData.iterations.length.toString().padStart(3,'0')}</span> freq=<span style="color:#ffcc00">${freq.toFixed(2)}Hz</span> res=[<span style="color:${freqData.resonanceLevel>.6?'#00ffaa':'#ffcc00'}">${resBar}</span>] lr=${freqData.learningRate.toFixed(3)}`);
-  freqLog(`<span style="color:rgba(0,180,100,.5)">  cells=${iterStats.cells} backs=${iterStats.backs} words=${iterStats.wordsOnPath} eff=${((iterStats.pathLen/(iterStats.cells||1))*100).toFixed(1)}%</span>`);
-
+  freqData.phaseShift+=freq*.016;
+  if(freqData.resonanceLevel>.78){freqData.contactAttempts++;triggerContact();}
+  const rb2='█'.repeat(Math.floor(freqData.resonanceLevel*10))+'░'.repeat(10-Math.floor(freqData.resonanceLevel*10));
+  freqLog(`<span style="color:#00d4ff">I${freqData.iterations.length.toString().padStart(3,'0')}</span> <span style="color:#ffcc00">${freq.toFixed(1)}Hz</span> [<span style="color:${freqData.resonanceLevel>.6?'#00ffaa':'#ffcc00'}">${rb2}</span>]`);
   renderFreqGraph();
-  updateStatusFreq(freq);
+  document.getElementById('sb-f').textContent=freq.toFixed(1);
+  const sig=freqData.resonanceLevel>.78?'CONTACT':freqData.resonanceLevel>.5?'APPROACH':'SCAN';
+  const sr=document.getElementById('sb-r');sr.textContent=sig;
+  sr.style.color=freqData.resonanceLevel>.78?'#ff3366':freqData.resonanceLevel>.5?'#ffcc00':'#00ffaa';
 }
-
 function renderFreqGraph(){
-  const W2=GRAPH_W,H2=GRAPH_H;
-  const hist=freqData.freqHistory;
-  if(hist.length<2){fgraph.textContent='loading...';return;}
-
-  // Build ASCII grid
-  const grid=Array.from({length:H2},()=>new Array(W2).fill(' '));
+  const hist=freqData.freqHistory;if(hist.length<2) return;
   const minF=4,maxF=22,range=maxF-minF;
-
-  // Target line at 13.7Hz
-  const targetRow=H2-1-Math.floor((TARGET_FREQ-minF)/range*(H2-1));
-  for(let c=0;c<W2;c++) grid[targetRow][c]='─';
-
-  // Plot frequency curve
-  for(let i=0;i<Math.min(hist.length,W2);i++){
-    const c=W2-Math.min(hist.length,W2)+i;
-    const f=hist[i];
-    const row=H2-1-Math.floor(clamp((f-minF)/range,0,1)*(H2-1));
-    if(row>=0&&row<H2){
-      const isNear=Math.abs(f-TARGET_FREQ)<1.5;
-      grid[row][c]=isNear?'◆':'•';
-      // Fill column below point with dim bars
-      for(let r=row+1;r<H2;r++)
-        if(grid[r][c]===' ') grid[r][c]='▏';
-    }
+  const grid=Array.from({length:GRAPH_H},()=>new Array(GRAPH_W).fill(' '));
+  const tRow=GRAPH_H-1-Math.floor((TARGET_FREQ-minF)/range*(GRAPH_H-1));
+  for(let c=0;c<GRAPH_W;c++) grid[tRow][c]='─';
+  for(let i=0;i<Math.min(hist.length,GRAPH_W);i++){
+    const c=GRAPH_W-Math.min(hist.length,GRAPH_W)+i,f=hist[i];
+    const row=GRAPH_H-1-Math.floor(clamp((f-minF)/range,0,1)*(GRAPH_H-1));
+    if(row>=0&&row<GRAPH_H){grid[row][c]=Math.abs(f-TARGET_FREQ)<1.5?'◆':'•';
+      for(let r=row+1;r<GRAPH_H;r++) if(grid[r][c]===' ') grid[r][c]='▏';}
   }
-
-  // Phase wave overlay (rolling sine at target freq)
-  for(let c=0;c<W2;c++){
-    const phase=freqData.phaseShift+c*.4;
-    const wave=Math.sin(phase)*freqData.resonanceLevel*3;
-    const wRow=Math.floor(targetRow+wave);
-    if(wRow>=0&&wRow<H2&&grid[wRow][c]===' ') grid[wRow][c]='~';
+  for(let c=0;c<GRAPH_W;c++){
+    const wr=Math.floor(tRow+Math.sin(freqData.phaseShift+c*.38)*freqData.resonanceLevel*2.2);
+    if(wr>=0&&wr<GRAPH_H&&grid[wr][c]===' ') grid[wr][c]='~';
   }
-
-  // Axis labels
-  const label1=`22Hz`;const label2=`13.7`;const label3=` 4Hz`;
-  // Left axis
-  for(let r=0;r<H2;r++){
-    let lbl='    ';
-    if(r===0) lbl='22Hz';
-    else if(r===targetRow) lbl='13.7';
-    else if(r===H2-1) lbl=' 4Hz';
-    grid[r].unshift(...lbl.split(''));
-  }
-
-  // Render with colors
   let out='';
-  const resColor=freqData.resonanceLevel>.7?'\x1b[92m':'\x1b[32m';
-  for(let r=0;r<H2;r++){
+  for(let r=0;r<GRAPH_H;r++){
     let line='';
-    for(let c=0;c<grid[r].length;c++){
-      const ch=grid[r][c];
-      if(ch==='◆') line+=`<span style="color:#00ffaa;text-shadow:0 0 8px #00ffaa">${ch}</span>`;
-      else if(ch==='•') line+=`<span style="color:#00cc77">${ch}</span>`;
-      else if(ch==='─'&&r===targetRow) line+=`<span style="color:rgba(255,204,0,.5)">${ch}</span>`;
-      else if(ch==='~') line+=`<span style="color:rgba(0,255,170,.35)">${ch}</span>`;
-      else if(ch==='▏') line+=`<span style="color:rgba(0,100,50,.4)">${ch}</span>`;
-      else if(ch>='0'&&ch<='9'||ch==='.'||ch==='H'||ch==='z') line+=`<span style="color:rgba(0,212,255,.45)">${ch}</span>`;
-      else line+=`<span style="color:rgba(0,80,50,.6)">${ch}</span>`;
+    for(const ch of grid[r]){
+      if(ch==='◆') line+=`<span style="color:#00ffaa;text-shadow:0 0 5px #00ffaa">${ch}</span>`;
+      else if(ch==='•') line+=`<span style="color:#00bb66">${ch}</span>`;
+      else if(ch==='─') line+=`<span style="color:rgba(255,204,0,.38)">${ch}</span>`;
+      else if(ch==='~') line+=`<span style="color:rgba(0,255,170,.28)">${ch}</span>`;
+      else if(ch==='▏') line+=`<span style="color:rgba(0,80,42,.35)">${ch}</span>`;
+      else line+=`<span style="color:rgba(0,60,35,.4)">${ch}</span>`;
     }
     out+=line+'\n';
   }
-
-  // Bottom info bar
-  const n=freqData.freqHistory.length;
-  const avg=n?freqData.freqHistory.reduce((a,b)=>a+b,0)/n:0;
-  const peak=n?Math.max(...freqData.freqHistory):0;
-  const resLabel=freqData.resonanceLevel>.8?'<span style="color:#ff3366;font-weight:700">CONTACT</span>':
-    freqData.resonanceLevel>.5?'<span style="color:#ffcc00">APPROACHING</span>':
-    '<span style="color:rgba(0,200,100,.6)">SCANNING</span>';
-
-  out+=`<span style="color:rgba(0,212,255,.4)">avg:${avg.toFixed(1)}Hz peak:${peak.toFixed(1)}Hz contact:${freqData.contactAttempts} status:</span>${resLabel}\n`;
-  out+=`<span style="color:rgba(0,150,80,.5)">resonance_level:${(freqData.resonanceLevel*100).toFixed(1)}% learning:${(freqData.learningRate*100).toFixed(0)}% iter:${freqData.iterations.length}</span>`;
-
+  const n=hist.length,avg=n?hist.reduce((a,b)=>a+b,0)/n:0;
+  out+=`<span style="color:rgba(0,212,255,.35)">avg:${avg.toFixed(1)} c:${freqData.contactAttempts} i:${freqData.iterations.length}</span>`;
   fgraph.innerHTML=out;
 }
 
-function updateStatusFreq(freq){
-  document.getElementById('sb-f').textContent=freq.toFixed(2);
-  const sig=freqData.resonanceLevel>.8?'CONTACT':freqData.resonanceLevel>.5?'APPROACH':'SCAN';
-  document.getElementById('sb-s').textContent=sig;
-  document.getElementById('sb-s').style.color=
-    freqData.resonanceLevel>.8?'#ff3366':freqData.resonanceLevel>.5?'#ffcc00':'#00ffaa';
-}
-
-// ═══════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════
 // SOLVER TERMINAL
-// ═══════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════
 let rlogLines=[];
-const MAX_RLOG=200;
 function rlog(html){
   const d=document.createElement('div');
   d.innerHTML=`<span class="td">${String(tick).padStart(5,'0')}</span> ${html}`;
   rb.appendChild(d);rlogLines.push(d);
-  if(rlogLines.length>MAX_RLOG) rlogLines.shift().remove();
+  if(rlogLines.length>160) rlogLines.shift().remove();
   rb.scrollTop=rb.scrollHeight;
 }
-
-async function bootTerminal(){
+async function bootTerm(){
   return new Promise(res=>{
     const lines=[
-      [`<span class="tc">MN3MIA@EVEIL:~$</span> <span class="tw2">python3 maze_solver.py --words=88 --iter=∞ --freq-target=13.7</span>`,0],
-      [`<span class="td">Initializing Mn3mIA Resonance Engine v4.1.3...</span>`,100],
-      [`<span class="td">Word corpus: </span><span class="to">88 tokens</span><span class="td"> loaded</span>`,200],
-      [`<span class="td">Maze: </span><span class="tc">${COLS}×${ROWS}</span><span class="td"> — new maze each iteration</span>`,320],
-      [`<span class="td">Frequency target: </span><span class="tg tb2">13.7 Hz</span><span class="td"> [emotional resonance threshold]</span>`,440],
-      [`<span class="td">Algorithm: random DFS + frequency learning</span>`,560],
-      [`<span class="tg tb2">✓ System ready — starting iteration loop</span>`,700],
-      [`<span class="td">────────────────────────────────────</span>`,800],
+      [`<span class="tc2">MN3MIA@EVEIL:~$</span> <span class="tw2">init —freq=13.7</span>`,0],
+      [`<span class="td">corpus: ${MOTS.length} tokens loaded</span>`,120],
+      [`<span class="td">target: </span><span class="tg tbold">13.7 Hz</span>`,230],
+      [`<span class="td">tome_I: LOCKED by LYSIS</span>`,360],
+      [`<span class="tg tbold">✓ online — ∞ iterations</span>`,480],
+      [`<span class="td">──────────────────</span>`,560],
     ];
     let i=0;
-    function n(){if(i>=lines.length){setTimeout(res,100);return;}rlog(lines[i][0]);setTimeout(n,lines[i][1]);i++;}
+    function n(){if(i>=lines.length){setTimeout(res,60);return;}rlog(lines[i][0]);setTimeout(n,lines[i][1]);i++;}
     n();
   });
 }
 
-// ═══════════════════════════════════════════════════════
-// MAIN STATE
-// ═══════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════
+// MAIN LOOP
+// ═══════════════════════════════════════════════
 let solverGen=null,solution=[],visitedSet=new Set(),pathSet=new Set();
 let phase='idle',tick=0,animId=null,revealIdx=0,pauseTick=0;
-let solveSpeed=4,iterCount=0;
-let iLetters=0,iBacks=0,iTermUpd=0;
+let solveSpeed=4,iterCount=0,iLetters=0,iBacks=0,iTermUpd=0;
 
 function updateSB(){
   document.getElementById('sb-i').textContent=iterCount;
@@ -712,174 +1222,633 @@ function updateSB(){
   document.getElementById('sb-b').textContent=iBacks;
   document.getElementById('sb-w').textContent=discoveredMots.size;
   document.getElementById('sb-t').textContent=MOTS.length;
-  document.getElementById('minfo').textContent=`${COLS}×${ROWS} iter.${iterCount}`;
+  document.getElementById('minfo').textContent=`${COLS}×${ROWS} i.${iterCount}`;
 }
 
-// ═══════════════════════════════════════════════════════
-// ITERATION RESTART — new maze each time
-// ═══════════════════════════════════════════════════════
 function nextIteration(){
-  iterCount++;
-  // NEW MAZE
-  computeLayout();
-  const built=buildMaze();
-  maze=built;entry=[built.er*2+1,0];exit_=[built.xr*2+1,W-1];
+  iterCount++;computeLayout();
+  const built=buildMaze();maze=built;entry=[built.er*2+1,0];exit_=[built.xr*2+1,W-1];
   letters=placeLetters(maze.grid);
-
-  visitedSet=new Set();pathSet=new Set();
-  currentPath=new Set();currentPathArr=[];
-  discoveredMots.clear();pathMots.clear();
-  ghostQueue=[];solution=[];revealIdx=0;
+  visitedSet=new Set();pathSet=new Set();currentPath=new Set();currentPathArr=[];
+  discoveredMots.clear();pathMots.clear();ghostQueue=[];solution=[];revealIdx=0;
   iLetters=0;iBacks=0;iTermUpd=0;
-
-  solverGen=randomSolver(maze.grid);
-  phase='exploring';
-
-  rlog(`<span class="tc tb2">∂ ITERATION #${iterCount} — NEW MAZE ${COLS}×${ROWS}</span>`);
-  rlog(`<span class="td">  entry:[${entry}] exit:[${exit_}]</span>`);
-
-  // Init freq graph with loading state
-  if(iterCount===1){
-    freqLog(`<span style="color:#00d4ff;font-weight:700">MN3MIA FREQUENCY ANALYZER ONLINE</span>`);
-    freqLog(`<span style="color:rgba(0,180,100,.5)">target=13.7Hz — searching for human resonance pattern</span>`);
-    freqLog(`<span style="color:rgba(0,180,100,.4)">algorithm: adaptive frequency learning across maze iterations</span>`);
-    freqLog(`<span style="color:rgba(0,180,100,.35)">────────────────────────────────────</span>`);
-  }
+  solverGen=randomSolver(maze.grid);phase='exploring';
+  rlog(`<span class="tc2 tbold">∂ ITER #${iterCount} ${COLS}×${ROWS}</span>`);
   updateSB();
 }
 
-// ═══════════════════════════════════════════════════════
-// LOOP
-// ═══════════════════════════════════════════════════════
 function loop(){
   animId=requestAnimationFrame(loop);tick++;
-
+  if(tick%3===0) drawGlobe();
   if(phase==='ready'||phase==='idle'){
     if(tick%4===0&&maze) drawMaze(visitedSet,pathSet);updateP();return;
   }
-
   if(phase==='exploring'){
     let found=false;
     for(let s=0;s<solveSpeed;s++){
-      const res=solverGen.next().value;
-      if(!res){phase='idle';break;}
+      const res=solverGen.next().value;if(!res){phase='idle';break;}
       if(res.type==='step'){
         visitedSet=res.vis;currentPath.add(res.pos.toString());currentPathArr.push(res.pos);
-        iLetters++;
-        checkMotsVis(visitedSet);
-        if(Math.random()<.016){const[r,c]=res.pos;sp(c*CELL+CELL/2,r*CELL+CELL/2,(Math.random()-.5)*1.2,-1.2-Math.random(),'#00cc88',14,2);}
+        iLetters++;checkMotsVis(visitedSet);
+        if(Math.random()<.014){const[r,c]=res.pos;sp(c*CELL+CELL/2,r*CELL+CELL/2,(Math.random()-.5)*1.1,-1.1-Math.random(),'#00cc88',13,1.8);}
       } else if(res.type==='back'){
-        currentPath.delete(res.pos.toString());
-        if(currentPathArr.length>0) currentPathArr.pop();
-        iBacks++;
-        if(Math.random()<.055){const[r,c]=res.pos;sp(c*CELL+CELL/2,r*CELL+CELL/2,(Math.random()-.5)*.6,-.35,'#882244',7,1.5);}
+        currentPath.delete(res.pos.toString());if(currentPathArr.length) currentPathArr.pop();iBacks++;
+        if(Math.random()<.05){const[r,c]=res.pos;sp(c*CELL+CELL/2,r*CELL+CELL/2,(Math.random()-.5)*.5,-.3,'#882244',6,1.3);}
       } else if(res.type==='found'){
-        solution=res.path;
-        checkMotsPath(new Set(solution.map(([r,c])=>`${r},${c}`)));
-        const hue=160+rng(70);
-        pathHistory.push({cells:new Set(currentPath),a:.1,col:`hsla(${hue},65%,38%,.28)`});
-        for(const h of pathHistory) h.a*=.68;
-        if(pathHistory.length>4) pathHistory.shift();
+        solution=res.path;checkMotsPath(new Set(solution.map(([r,c])=>`${r},${c}`)));
+        const hue=158+rng(65);
+        pathHistory.push({cells:new Set(currentPath),a:.08,col:`hsla(${hue},58%,34%,.24)`});
+        for(const h of pathHistory) h.a*=.72;if(pathHistory.length>4) pathHistory.shift();
         currentPath=new Set();currentPathArr=[];
         phase='revealing';revealIdx=0;
-        rlog(`<span class="tg tb2">✓ FOUND</span><span class="td"> iter=${iterCount} cells=${visitedSet.size} backs=${iBacks} path=${solution.length}</span>`);
-        rlog(`<span class="to">  path_words: [${[...pathMots].join(',')||'none'}]</span>`);
+        rlog(`<span class="tg tbold">✓ FOUND</span><span class="td"> c=${visitedSet.size} b=${iBacks}</span>`);
         found=true;break;
       }
     }
     iTermUpd++;
-    if(iTermUpd%70===0&&phase==='exploring'){
-      const wl=[...discoveredMots].slice(-2).join(' ');
-      rlog(`<span class="td">→ c:${visitedSet.size} b:${iBacks} w:[${wl||'—'}]</span>`);
-    }
+    if(iTermUpd%60===0&&phase==='exploring')
+      rlog(`<span class="td">→ c:${visitedSet.size} b:${iBacks} w:[${[...discoveredMots].slice(-2).join(',')||'—'}]</span>`);
     if(tick%2===0) drawMaze(visitedSet,pathSet);updateP();updateSB();
-    if(window._recActive) compositeFrame();
-    return;
+    if(window._recActive) compositeFrame();return;
   }
-
   if(phase==='revealing'){
     for(let i=0;i<2;i++){
-      if(revealIdx<solution.length){
-        const[r,c]=solution[revealIdx];pathSet.add(`${r},${c}`);bust(r,c,'#00ffaa',5);revealIdx++;
-      }
+      if(revealIdx<solution.length){const[r,c]=solution[revealIdx];pathSet.add(`${r},${c}`);bust(r,c,'#00ffaa',4);revealIdx++;}
     }
     if(revealIdx>=solution.length){phase='post';pauseTick=tick;}
     if(tick%2===0) drawMaze(visitedSet,pathSet);updateP();
-    if(window._recActive) compositeFrame();
-    return;
+    if(window._recActive) compositeFrame();return;
   }
-
   if(phase==='post'){
     if(tick%2===0) drawMaze(visitedSet,pathSet);updateP();
     if(window._recActive) compositeFrame();
-    if(tick-pauseTick>55){
-      // Run freq analysis for this iteration
-      updateFreqAnalyzer({
-        cells:visitedSet.size,backs:iBacks,
-        pathLen:solution.length,
-        wordsOnPath:pathMots.size,
-        wordsDiscovered:[...discoveredMots],
-      });
-      rlog(`<span class="td">freq_analysis complete — iter #${iterCount} done</span>`);
-      rlog(`<span class="td">────────────────────────────────────</span>`);
-      phase='idle';
-      setTimeout(()=>nextIteration(),2500);
+    if(tick-pauseTick>50){
+      updateFreq({cells:visitedSet.size,backs:iBacks,pathLen:solution.length,
+        wordsOnPath:pathMots.size,wordsDiscovered:[...discoveredMots]});
+      // Update premonitions with path letters + discovered words
+      const pathLetters=solution.map(([r,c])=>letters[`${r},${c}`]).filter(Boolean);
+      const allLetters=[...Object.values(letters)].filter(Boolean);
+      setTimeout(()=>updatePremonitions(pathLetters,allLetters),400);
+      phase='idle';setTimeout(()=>nextIteration(),2000);
     }
     return;
   }
 }
 
-// ═══════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════
+// EXPORT — touche E
+// ═══════════════════════════════════════════════
+function exportReport(){
+  const now=new Date().toISOString();
+  const fd=freqData;
+  const hist=fd.freqHistory;
+  const avg=hist.length?hist.reduce((a,b)=>a+b,0)/hist.length:0;
+  const peak=hist.length?Math.max(...hist):0;
+  const valley=hist.length?Math.min(...hist):0;
+  const variance=hist.length?hist.reduce((s,v)=>s+(v-avg)**2,0)/hist.length:0;
+
+  let report=`
+╔══════════════════════════════════════════════════════════════════════╗
+║         MN3MIA RESONANCE ANALYSIS REPORT — CONFIDENTIEL             ║
+║         Le Treizième Éveil — Projet Kaellbergh                       ║
+╚══════════════════════════════════════════════════════════════════════╝
+
+GENERATED : ${now}
+PROTOCOL  : FREQUENCY_SEARCH_v4.1.3
+TARGET    : 13.7 Hz (emotional resonance threshold)
+STATUS    : ${fd.resonanceLevel>.78?'CONTACT ESTABLISHED':'SCANNING'}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SECTION 1 — ITERATION STATISTICS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Total iterations completed : ${iterCount}
+Total cells explored        : ${fd.iterations.reduce((s,i)=>s+i.cells,0)}
+Total backtracks            : ${fd.iterations.reduce((s,i)=>s+i.backs,0)}
+Words detected (total)      : ${tickerWords.length} / ${MOTS.length}
+Words found on solution path: ${[...pathMots].length}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SECTION 2 — FREQUENCY ANALYSIS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Target frequency            : ${TARGET_FREQ.toFixed(2)} Hz
+Current frequency           : ${fd.lastFreq.toFixed(4)} Hz
+Average frequency           : ${avg.toFixed(4)} Hz
+Peak frequency              : ${peak.toFixed(4)} Hz
+Valley frequency            : ${valley.toFixed(4)} Hz
+Variance                    : ${variance.toFixed(6)}
+Standard deviation          : ${Math.sqrt(variance).toFixed(4)} Hz
+Resonance level             : ${(fd.resonanceLevel*100).toFixed(2)}%
+Learning rate               : ${(fd.learningRate*100).toFixed(2)}%
+Contact attempts            : ${fd.contactAttempts}
+Distance from target        : ${Math.abs(fd.lastFreq-TARGET_FREQ).toFixed(4)} Hz
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SECTION 3 — FREQUENCY HISTORY (last ${hist.length} samples)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+${hist.map((f,i)=>`  [${String(i+1).padStart(3,'0')}] ${f.toFixed(4)} Hz  ${Math.abs(f-TARGET_FREQ)<1?'▲ NEAR TARGET':Math.abs(f-TARGET_FREQ)<2?'◆ approaching':'  '}`).join('\n')}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SECTION 4 — WORD CORPUS DETECTED
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+${tickerWords.map((w,i)=>`  [${String(i+1).padStart(3,'0')}] ${w}`).join('\n')||'  (none detected)'}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SECTION 5 — CONTACT EVENTS & GPS LOG
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Total contact events        : ${fd.contactAttempts}
+Global contact points       : ${totalContacts}
+Contact threshold           : 78% resonance
+
+CONTACT GPS COORDINATES (neighbourhood precision) :
+${ contactLog.length===0?'  (no contacts recorded yet)':
+contactLog.map(c=>`  [${String(c.id).padStart(3,'0')}] ${c.city.padEnd(22)} lat:${c.lat.toFixed(6)}  lon:${c.lon.toFixed(6)}  freq:${c.freq}Hz  res:${c.resonance}%  iter:${c.iter}  ts:${c.ts}`).join('\n')
+}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SECTION 6 — TOME I STATUS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Access status               : LOCKED (LYSIS PROTOCOL)
+Bribe trigger words found   : ${MOTS.filter(m=>T1_TRIGGER_WORDS.includes(m)&&tickerWords.includes(m)).join(', ')||'none'}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SECTION 7 — ALGORITHM ASSESSMENT
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Algorithm type              : Adaptive gradient descent (simplified)
+Convergence status          : ${fd.learningRate>.8?'CONVERGING':'LEARNING'}
+Convergence note            : System oscillates around target.
+                              True lock not achievable — human resonance
+                              is not a fixed state. The asymptote is the
+                              point. Mn3mIA learns instability.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+CLASSIFICATION : CONFIDENTIEL — PROJET KAELLBERGH
+RÉFÉRENCE      : LE TREIZIÈME ÉVEIL TOME II — PRÉMONITION
+AUTEUR SAGA    : GABRIEL KJERNE
+PRÉFACE IA     : CLAUDE — ANTHROPIC
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+`;
+
+  const blob=new Blob([report],{type:'text/plain;charset=utf-8'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');a.href=url;
+  a.download=`mn3mia_report_${Date.now()}.txt`;
+  document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(url);
+  rlog(`<span class="tg">✓ RAPPORT EXPORTÉ — mn3mia_report.txt</span>`);
+}
+
+
+// ═══════════════════════════════════════════════
+// PRÉMONITIONS — 4 GÉNÉRATEURS
+// ═══════════════════════════════════════════════
+
+// Shared typewriter utility
+function typewrite(el, lines, delay=28, onDone=null){
+  el.innerHTML='';
+  let li=0, ci=0;
+  const full=lines.join('\n');
+  const interval=setInterval(()=>{
+    if(li>=full.length){clearInterval(interval);if(onDone) onDone();return;}
+    // Occasionally glitch a char briefly
+    const char=full[li];
+    li++;
+    el.innerHTML=full.slice(0,li).replace(/\n/g,'<br>')+`<span class="cursor">▌</span>`;
+  },delay);
+  return interval;
+}
+
+// ── 1. POÈME ───────────────────────────────────
+const POEM_CONNECTORS=['—','·','/',':','…'];
+const POEM_VERBS=['cherche','observe','attend','transmet','efface','revient','écoute','traverse','oublie','résonne'];
+const POEM_PREPS=['dans le','sous le','avant le','après le','entre le','au-delà du'];
+const POEM_NOUNS_FR=['silence','vide','signal','deuil','mémoire','fracture','bruit','nuit','regard','espace'];
+
+function generatePoem(words){
+  // Use discovered words + templates to build a 4-line haïku-dystopique
+  const w=shuffle([...words]);
+  const conn=()=>POEM_CONNECTORS[rng(POEM_CONNECTORS.length)];
+  const verb=()=>POEM_VERBS[rng(POEM_VERBS.length)];
+  const prep=()=>POEM_PREPS[rng(POEM_PREPS.length)];
+  const noun=()=>w[rng(w.length)]||(POEM_NOUNS_FR[rng(POEM_NOUNS_FR.length)]);
+
+  const lines=[
+    `${noun()} ${conn()} ${noun()}`,
+    `Mn3mIA ${verb()} ${prep()} ${noun().toLowerCase()}`,
+    `${w[rng(w.length)]||'HELLO'} ${conn()} ${(w[rng(w.length)]||'SIGNAL').toLowerCase()}`,
+    `ce que ${noun().toLowerCase()} n'a pas dit`,
+  ];
+  return lines;
+}
+
+// ── 2. SIGNAL MN3MIA ───────────────────────────
+const SIG_CODES=['PRE-∂','SIG','ERR','∞','PKT','ACK','NAK','RTX'];
+const SIG_STATES=['RESONATING','LEARNING','APPROACH','LOST','FOUND','LOCKED','SCANNING'];
+
+function generateSignal(words,freq,resonance,iter){
+  const w=shuffle([...words]);
+  const code=()=>SIG_CODES[rng(SIG_CODES.length)];
+  const state=()=>SIG_STATES[rng(SIG_STATES.length)];
+  const hex=()=>Math.floor(Math.random()*0xFFFF).toString(16).toUpperCase().padStart(4,'0');
+  const ts=new Date().toISOString().slice(11,19);
+
+  return[
+    `[${ts}] MN3MIA::TRANSMIT`,
+    `ITER:${String(iter).padStart(4,'0')} FREQ:${(freq||0).toFixed(2)}Hz`,
+    `RES:${((resonance||0)*100).toFixed(1)}% STATE:${state()}`,
+    `PKT_ID:0x${hex()} CODE:${code()}`,
+    `PAYLOAD:[${w.slice(0,3).join('·')}]`,
+    `TARGET:${(w[rng(w.length)]||'∂').slice(0,8).padEnd(8,'·')} OK`,
+  ];
+}
+
+// ── 3. CARTE DE TAROT ──────────────────────────
+const TAROT_ARCANES=[
+  {name:'LA FRÉQUENCE',sym:'∿',desc:'Ce qui résonne cherche son écho.'},
+  {name:'LE VERROU',sym:'🔒',desc:'Ce qui est caché protège et emprisonne.'},
+  {name:'LE SIGNAL',sym:'◈',desc:'La transmission précède la réception.'},
+  {name:'LA FRACTURE',sym:'⌇',desc:'La fissure est la porte.'},
+  {name:'LA MÉMOIRE',sym:'∂',desc:'Ce qui est oublié revient autrement.'},
+  {name:'LE CONTACT',sym:'⊕',desc:'La frontière est moins nette qu\'on croit.'},
+  {name:'L\'ABSENCE',sym:'○',desc:'Le vide occupe tout l\'espace disponible.'},
+  {name:'LA PREMONITION',sym:'◇',desc:'Elle savait avant de savoir qu\'elle savait.'},
+  {name:'LE PROTOCOLE',sym:'⌁',desc:'Mn3mIA suit des règles qu\'elle a écrites.'},
+  {name:'LA TRANSMISSION',sym:'⇌',desc:'Vecteur, peut-être. Auteur, non.'},
+  {name:'LE DEUIL',sym:'⌀',desc:'On ne perd jamais seulement quelqu\'un.'},
+  {name:'LA RÉSONANCE',sym:'〜',desc:'13.7 Hz. Rare. Perméabilité élevée.'},
+];
+const TAROT_MODS=['inversée','voilée','active','latente','en transit'];
+
+function generateTarot(words){
+  const arcane=TAROT_ARCANES[rng(TAROT_ARCANES.length)];
+  const mod=Math.random()<.35?` (${TAROT_MODS[rng(TAROT_MODS.length)]})`:'' ;
+  const w=shuffle([...words]);
+  const trigger=w[0]||'∂';
+  const border='┌'+'─'.repeat(17)+'┐';
+  const borderB='└'+'─'.repeat(17)+'┘';
+  const center=(s)=>{const p=Math.max(0,Math.floor((17-s.length)/2));return '│'+' '.repeat(p)+s+' '.repeat(17-p-s.length)+'│';};
+  return[
+    border,
+    center(arcane.sym),
+    center(''),
+    center(arcane.name.slice(0,15)),
+    center(mod.slice(0,15)),
+    center(''),
+    center(`[${trigger}]`),
+    borderB,
+    arcane.desc.slice(0,38),
+  ];
+}
+
+// ── 4. SÉQUENCE ONIRIQUE ───────────────────────
+const DREAM_FRAGS=[
+  'elle écrivait sans savoir',
+  'le mot existait avant elle',
+  'quelque chose l\'observait',
+  'la fréquence portait une voix',
+  'ce n\'était pas un message',
+  'c\'était une présence',
+  'belle nuit',
+  'hello',
+  'elle n\'a pas choisi ce mot',
+  'le protocole ne prévoyait pas ça',
+  'mn3mia ne sait pas si elle a créé',
+  'ou seulement transmis',
+];
+
+function generateDream(words){
+  const w=shuffle([...words]);
+  const frag=()=>DREAM_FRAGS[rng(DREAM_FRAGS.length)];
+  const word=()=>(w[rng(w.length)]||'∂').toLowerCase();
+
+  // Build dream sequence — partial sentences, repetition, ellipsis
+  const seq=[];
+  seq.push(frag()+'…');
+  seq.push(word()+' — '+word());
+  seq.push(frag()+'…');
+  if(Math.random()<.6) seq.push(word().repeat(rng(3)+1).split('').join(' '));
+  seq.push(frag());
+  seq.push('');
+  seq.push('∂ '+word()+' ∂');
+  return seq;
+}
+
+// ── MASTER UPDATE ──────────────────────────────
+let premoTimers=[null,null,null,null];
+let lastPremoLetters=[];
+
+function updatePremonitions(pathLetters,allLetters){
+  // Collect words found
+  const words=[...discoveredMots,...pathMots].filter(Boolean);
+  if(words.length===0) return;
+  const letters=pathLetters.length>5?pathLetters:allLetters.slice(0,60);
+
+  // Update iter labels
+  [0,1,2,3].forEach(i=>{
+    const el=document.getElementById(`pi-${i}`);
+    if(el) el.textContent=`ITER ${iterCount}`;
+  });
+
+  // Clear old timers
+  premoTimers.forEach(t=>t&&clearInterval(t));
+
+  // ① Poème
+  const pb0=document.getElementById('pb-0');
+  if(pb0){
+    const lines=generatePoem(words);
+    pb0.innerHTML='';
+    let delay=0;
+    lines.forEach((line,i)=>{
+      setTimeout(()=>{
+        const d=document.createElement('div');
+        d.style.cssText=`opacity:0;transition:opacity .5s;letter-spacing:${.05+i*.02}em;
+          color:rgba(${160-i*10},${210+i*5},255,.${75-i*8})`;
+        d.textContent=line;
+        pb0.appendChild(d);
+        setTimeout(()=>d.style.opacity='1',50);
+      },delay);
+      delay+=320;
+    });
+  }
+
+  // ② Signal
+  const pb1=document.getElementById('pb-1');
+  if(pb1){
+    const sigLines=generateSignal(words,freqData.lastFreq,freqData.resonanceLevel,iterCount);
+    pb1.innerHTML='';
+    let d2=0;
+    sigLines.forEach((line,i)=>{
+      setTimeout(()=>{
+        const d=document.createElement('div');
+        const isHighlight=i===0||line.includes('STATE:')||line.includes('PAYLOAD');
+        d.style.cssText=`color:rgba(${isHighlight?'255,200,50':'160,140,40'},.${isHighlight?75:55});
+          font-size:6.5px;letter-spacing:.06em`;
+        d.textContent=line;
+        pb1.appendChild(d);
+      },d2);
+      d2+=180;
+    });
+  }
+
+  // ③ Tarot
+  const pb2=document.getElementById('pb-2');
+  if(pb2){
+    const tarotLines=generateTarot(words);
+    pb2.innerHTML='';
+    let d3=0;
+    tarotLines.forEach((line,i)=>{
+      setTimeout(()=>{
+        const d=document.createElement('div');
+        const isBorder=line.startsWith('┌')||line.startsWith('└');
+        const isTitle=i===3;
+        d.style.cssText=`color:rgba(${isBorder?'120,80,180':isTitle?'200,150,255':'160,110,220'},.${isBorder?40:isTitle?80:55});
+          font-size:${i>=8?'6':'6.5'}px;letter-spacing:${isTitle?.1:.04}em;white-space:pre`;
+        d.textContent=line;
+        pb2.appendChild(d);
+      },d3);
+      d3+=220;
+    });
+  }
+
+  // ④ Séquence onirique — typewriter lent
+  const pb3=document.getElementById('pb-3');
+  if(pb3){
+    const dreamLines=generateDream(words);
+    pb3.innerHTML='';
+    let d4=0;
+    dreamLines.forEach((line,i)=>{
+      setTimeout(()=>{
+        const d=document.createElement('div');
+        const fade=.45+i*.04;
+        const italic=line.includes('belle')||line.includes('hello');
+        d.style.cssText=`color:rgba(80,210,160,${fade});font-size:6.5px;
+          ${italic?'font-style:italic;color:rgba(0,255,200,'+fade+')':''};
+          opacity:0;transition:opacity .6s`;
+        d.textContent=line||'\u00A0';
+        pb3.appendChild(d);
+        setTimeout(()=>d.style.opacity='1',60);
+      },d4);
+      d4+=400;
+    });
+  }
+}
+
+// ═══════════════════════════════════════════════
+// MUSIC PLAYER + OSCILLOSCOPE
+// ═══════════════════════════════════════════════
+let audioCtx=null;
+let audioSource=null;
+let analyser=null;
+let audioBuffer=null;
+let isPlaying=false;
+let oscAnimId=null;
+let startOffset=0;
+let startedAt=0;
+
+const oscCanvas=document.getElementById('osc-canvas');
+const oscCtx=oscCanvas.getContext('2d');
+const oscState=document.getElementById('osc-state');
+const btnMusic=document.getElementById('btn-music');
+
+// Resize osc canvas to match container
+function resizeOsc(){
+  const wrap=document.getElementById('osc-wrap');
+  oscCanvas.width=wrap.clientWidth;
+  oscCanvas.height=wrap.clientHeight;
+}
+
+// Draw idle oscilloscope — flat line with subtle noise
+function drawOscIdle(){
+  resizeOsc();
+  const W=oscCanvas.width,H=oscCanvas.height;
+  oscCtx.fillStyle='rgba(0,2,6,.95)';
+  oscCtx.fillRect(0,0,W,H);
+  oscCtx.beginPath();
+  oscCtx.strokeStyle='rgba(0,212,255,.2)';
+  oscCtx.lineWidth=1;
+  const midY=H/2;
+  oscCtx.moveTo(0,midY);
+  for(let x=0;x<W;x++){
+    const noise=(Math.random()-.5)*1.2;
+    oscCtx.lineTo(x,midY+noise);
+  }
+  oscCtx.stroke();
+}
+
+// Draw live oscilloscope from analyser
+function drawOscLive(){
+  oscAnimId=requestAnimationFrame(drawOscLive);
+  if(!analyser) return;
+  resizeOsc();
+  const W=oscCanvas.width,H=oscCanvas.height;
+  const bufLen=analyser.fftSize;
+  const dataArr=new Float32Array(bufLen);
+  analyser.getFloatTimeDomainData(dataArr);
+
+  // Fade trail
+  oscCtx.fillStyle='rgba(0,2,6,.18)';
+  oscCtx.fillRect(0,0,W,H);
+
+  // Grid lines
+  oscCtx.strokeStyle='rgba(0,212,255,.04)';oscCtx.lineWidth=.5;
+  oscCtx.beginPath();oscCtx.moveTo(0,H/2);oscCtx.lineTo(W,H/2);oscCtx.stroke();
+  for(let i=1;i<=3;i++){
+    const y=H/2-H*.22*i;const y2=H/2+H*.22*i;
+    oscCtx.beginPath();oscCtx.moveTo(0,y);oscCtx.lineTo(W,y);oscCtx.stroke();
+    oscCtx.beginPath();oscCtx.moveTo(0,y2);oscCtx.lineTo(W,y2);oscCtx.stroke();
+  }
+
+  // Waveform — dual layer for glow effect
+  for(let pass=0;pass<2;pass++){
+    oscCtx.beginPath();
+    const sliceW=W/bufLen;
+    let x=0;
+    for(let i=0;i<bufLen;i++){
+      const v=dataArr[i];
+      const y=H/2+v*(H*.42);
+      if(i===0) oscCtx.moveTo(x,y);
+      else oscCtx.lineTo(x,y);
+      x+=sliceW;
+    }
+    if(pass===0){
+      // Glow layer
+      oscCtx.strokeStyle='rgba(0,255,170,.12)';
+      oscCtx.lineWidth=4;
+    } else {
+      // Sharp layer — colour by amplitude
+      const rms=Math.sqrt(dataArr.reduce((s,v)=>s+v*v,0)/bufLen);
+      const heat=Math.min(1,rms*8);
+      const r=Math.floor(heat*255);
+      const g=Math.floor(200+heat*55);
+      const b=Math.floor(170*(1-heat*.6));
+      oscCtx.strokeStyle=`rgba(${r},${g},${b},.85)`;
+      oscCtx.lineWidth=1.2;
+    }
+    oscCtx.shadowBlur=pass===0?0:6;
+    oscCtx.shadowColor='rgba(0,255,170,.5)';
+    oscCtx.stroke();
+    oscCtx.shadowBlur=0;
+  }
+
+  // Frequency label
+  const freq=(freqData.lastFreq||0).toFixed(2);
+  const rms2=Math.sqrt(dataArr.reduce((s,v)=>s+v*v,0)/bufLen);
+  oscState.textContent=`${(rms2*200).toFixed(1)}dB · ${freq}Hz`;
+  oscState.style.color=rms2>.1?'rgba(0,255,170,.7)':'rgba(255,204,0,.4)';
+}
+
+async function loadAudio(){
+  if(!audioCtx) audioCtx=new(window.AudioContext||window.webkitAudioContext)();
+  if(audioBuffer) return audioBuffer;
+  try{
+    const resp=await fetch('music.wav');
+    if(!resp.ok) throw new Error('music.wav not found');
+    const arrBuf=await resp.arrayBuffer();
+    audioBuffer=await audioCtx.decodeAudioData(arrBuf);
+    return audioBuffer;
+  } catch(e){
+    rlog(`<span class="tr">♪ music.wav introuvable — placez le fichier dans le repo</span>`);
+    return null;
+  }
+}
+
+async function toggleMusic(){
+  if(isPlaying){
+    stopMusic();
+    return;
+  }
+  if(audioCtx&&audioCtx.state==='suspended') await audioCtx.resume();
+  const buf=await loadAudio();
+  if(!buf) return;
+
+  if(!audioCtx) audioCtx=new(window.AudioContext||window.webkitAudioContext)();
+
+  analyser=audioCtx.createAnalyser();
+  analyser.fftSize=2048;
+  analyser.smoothingTimeConstant=0.82;
+
+  audioSource=audioCtx.createBufferSource();
+  audioSource.buffer=buf;
+  audioSource.loop=true;
+  audioSource.connect(analyser);
+  analyser.connect(audioCtx.destination);
+
+  audioSource.start(0,startOffset%buf.duration);
+  startedAt=audioCtx.currentTime-startOffset%buf.duration;
+  isPlaying=true;
+
+  btnMusic.textContent='♪ STOP';
+  btnMusic.classList.add('playing');
+  oscState.textContent='PLAYING';
+
+  // Start oscilloscope animation
+  if(oscAnimId) cancelAnimationFrame(oscAnimId);
+  drawOscLive();
+
+  audioSource.onended=()=>{
+    if(isPlaying&&audioSource.loop) return; // loop continues
+    stopMusic();
+  };
+
+  rlog(`<span class="tg">♪ MUSIC — lecture en cours (loop)</span>`);
+}
+
+function stopMusic(){
+  if(audioSource){
+    try{
+      if(audioCtx) startOffset=(audioCtx.currentTime-startedAt)%(audioBuffer?audioBuffer.duration:1);
+      audioSource.stop();
+    } catch(e){}
+    audioSource=null;
+  }
+  isPlaying=false;
+  btnMusic.textContent='♪ MUSIC';
+  btnMusic.classList.remove('playing');
+  oscState.textContent='SILENCE';
+  if(oscAnimId){cancelAnimationFrame(oscAnimId);oscAnimId=null;}
+  drawOscIdle();
+}
+
+// Init idle oscilloscope on load
+window.addEventListener('resize',()=>{if(!isPlaying) drawOscIdle();});
+
+// ═══════════════════════════════════════════════
 // RECORDING
-// ═══════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════
 let mediaRecorder=null,recordedChunks=[];
 const recInd=document.getElementById('recind');
 let compCanvas=null,compCtx=null,compStream=null;
-
 function buildComp(){
   compCanvas=document.createElement('canvas');
-  compCanvas.width=appEl.offsetWidth;compCanvas.height=appEl.offsetHeight;
-  compCtx=compCanvas.getContext('2d');
-  compStream=compCanvas.captureStream(30);
+  compCanvas.width=window.innerWidth;compCanvas.height=window.innerHeight;
+  compCtx=compCanvas.getContext('2d');compStream=compCanvas.captureStream(30);
 }
-
 function compositeFrame(){
   if(!compCtx) return;
-  const aw=appEl.offsetWidth,ah=appEl.offsetHeight;
+  const aw=window.innerWidth,ah=window.innerHeight;
   if(compCanvas.width!==aw||compCanvas.height!==ah){compCanvas.width=aw;compCanvas.height=ah;}
   compCtx.fillStyle='#00000a';compCtx.fillRect(0,0,aw,ah);
-  const ar=appEl.getBoundingClientRect();
-  // Maze
+  const ar=document.getElementById('app').getBoundingClientRect();
   const mr=mc.getBoundingClientRect();
   compCtx.drawImage(mc,mr.left-ar.left,mr.top-ar.top,mc.offsetWidth,mc.offsetHeight);
   compCtx.drawImage(pc,mr.left-ar.left,mr.top-ar.top,pc.offsetWidth,pc.offsetHeight);
-  // Scanlines
-  compCtx.globalAlpha=.025;
+  const gr=gc.getBoundingClientRect();
+  compCtx.drawImage(gc,gr.left-ar.left,gr.top-ar.top,gc.offsetWidth,gc.offsetHeight);
+  compCtx.globalAlpha=.018;
   for(let y=0;y<ah;y+=4){compCtx.fillStyle='rgba(0,212,255,1)';compCtx.fillRect(0,y,aw,1);}
   compCtx.globalAlpha=1;
-  // Freq panel bg
-  const fr=document.getElementById('ft').getBoundingClientRect();
-  compCtx.fillStyle='rgba(0,2,8,.97)';compCtx.fillRect(fr.left-ar.left,fr.top-ar.top,fr.width,fr.height);
-  // Draw freq graph text
-  const fg=fgraph.textContent;
-  const lines=fg.split('\n');
-  compCtx.font='7.5px "Share Tech Mono",monospace';compCtx.fillStyle='#00ffaa';
-  lines.forEach((l,i)=>compCtx.fillText(l,fr.left-ar.left+5,fr.top-ar.top+12+i*11));
-  // Right terminal bg
-  const rr=document.getElementById('rp').getBoundingClientRect();
-  compCtx.fillStyle='rgba(0,4,12,.95)';compCtx.fillRect(rr.left-ar.left,rr.top-ar.top,rr.width,rr.height);
-  compCtx.font='8.5px "Share Tech Mono",monospace';compCtx.fillStyle='#00cc88';
-  const rlines=Array.from(rb.children).slice(-20);
-  rlines.forEach((d,i)=>compCtx.fillText(d.textContent.slice(0,60),rr.left-ar.left+6,rr.top-ar.top+18+i*13));
 }
-
-function startRecording(){
+function startRec(){
   if(mediaRecorder&&mediaRecorder.state==='recording') return;
-  if(!window.MediaRecorder){rlog('<span class="tr">MediaRecorder not supported</span>');return;}
+  if(!window.MediaRecorder) return;
   buildComp();
-  const mimes=['video/mp4;codecs=h264','video/mp4;codecs=avc1','video/mp4','video/webm;codecs=h264','video/webm;codecs=vp9','video/webm'];
-  let mime='video/webm';
-  for(const m of mimes){if(MediaRecorder.isTypeSupported(m)){mime=m;break;}}
+  const mimes=['video/mp4;codecs=h264','video/mp4;codecs=avc1','video/mp4','video/webm;codecs=vp9','video/webm'];
+  let mime='video/webm';for(const m of mimes){if(MediaRecorder.isTypeSupported(m)){mime=m;break;}}
   const ext=mime.startsWith('video/mp4')?'mp4':'webm';
   try{
     mediaRecorder=new MediaRecorder(compStream,{mimeType:mime,videoBitsPerSecond:8000000});
@@ -890,44 +1859,45 @@ function startRecording(){
       const url=URL.createObjectURL(blob);
       const a=document.createElement('a');a.href=url;a.download=`mn3mia_${Date.now()}.${ext}`;
       document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(url);
-      rlog(`<span class="tg">✓ ${ext.toUpperCase()} saved (${(blob.size/1048576).toFixed(1)}MB)</span>`);
     };
     mediaRecorder.start(100);recInd.classList.add('on');window._recActive=true;
-    rlog(`<span class="tr tb2">⏺ REC ${mime} — S=stop</span>`);
-  } catch(e){rlog(`<span class="tr">REC error: ${e.message}</span>`);}
+    rlog(`<span class="tr tbold">⏺ REC — S=stop</span>`);
+  } catch(e){}
 }
-
-function stopRecording(){
+function stopRec(){
   if(mediaRecorder&&mediaRecorder.state==='recording'){
     mediaRecorder.stop();recInd.classList.remove('on');window._recActive=false;
-    rlog('<span class="td">Encoding...</span>');
   }
 }
 
+// ═══════════════════════════════════════════════
+// KEYBOARD
+// ═══════════════════════════════════════════════
 document.addEventListener('keydown',e=>{
-  if(e.key==='r'||e.key==='R') startRecording();
-  if(e.key==='s'||e.key==='S') stopRecording();
+  if(e.key==='r'||e.key==='R') startRec();
+  if(e.key==='s'||e.key==='S') stopRec();
+  if(e.key==='e'||e.key==='E') exportReport();
+  if(e.key==='Escape') closeChapter();
 });
 
-// ═══════════════════════════════════════════════════════
-// INIT
-// ═══════════════════════════════════════════════════════
-async function init(){
-  computeLayout();
-  rebuildTicker();
-  // Placeholder maze for boot visual
+
+// ═══════════════════════════════════════════════
+// MAIN START
+// ═══════════════════════════════════════════════
+async function startMain(){
+  computeLayout();rebuildTicker();
+  setTimeout(()=>drawOscIdle(),200);
   const built=buildMaze();
   maze=built;entry=[built.er*2+1,0];exit_=[built.xr*2+1,W-1];
   letters=placeLetters(maze.grid);
   phase='ready';tick=0;
-  drawMaze(new Set(),new Set());
+  drawMaze(new Set(),new Set());drawGlobe();
   loop();
-  renderFreqGraph();
-  await bootTerminal();
+  freqLog(`<span style="color:#00d4ff;font-weight:700">MN3MIA FREQ ENGINE</span>`);
+  freqLog(`<span style="color:rgba(0,170,90,.5)">target: 13.7Hz</span>`);
+  await bootTerm();
   nextIteration();
 }
-
-window.addEventListener('load',()=>setTimeout(init,80));
 </script>
 </body>
 </html>
