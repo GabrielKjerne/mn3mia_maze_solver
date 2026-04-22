@@ -191,14 +191,37 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:800;
 .td{color:rgba(0,170,90,.35)}.tc2{color:var(--cyan)}.tg{color:var(--green)}
 .tr{color:var(--red)}.to{color:var(--gold)}.tw2{color:#ddeeff}.tbold{font-weight:700}
 
-/* PRÉMONITIONS — 4 cadres réduits */
-#premo-wrap{flex:1;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;
+/* PRÉMONITIONS — nouvelle disposition 2 colonnes */
+#premo-wrap{flex:1;display:grid;grid-template-columns:1fr 1fr;
   gap:0;overflow:hidden;min-height:0}
+
+/* Colonne gauche — carte vidéo */
+#tarot-col{display:flex;flex-direction:column;overflow:hidden;
+  border-right:1px solid var(--border)}
+#tarot-vid-hdr{padding:2px 5px;flex-shrink:0;
+  background:rgba(12,0,20,.92);border-bottom:1px solid rgba(120,60,200,.25);
+  display:flex;align-items:center;justify-content:space-between}
+#tarot-vid-title{font-family:'Orbitron',monospace;font-size:5.5px;font-weight:700;
+  letter-spacing:.18em;color:rgba(180,100,255,.7)}
+#tarot-vid-name{font-size:5px;letter-spacing:.1em;color:rgba(180,100,255,.45)}
+#tarot-vid-wrap{flex:1;position:relative;overflow:hidden;background:#000}
+#tarot-video{width:100%;height:100%;object-fit:cover;display:block}
+#tarot-fallback{position:absolute;inset:0;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;padding:6px;
+  font-size:6.5px;line-height:1.5;color:rgba(200,160,255,.65);
+  font-family:'Share Tech Mono',monospace;text-align:center;white-space:pre}
+#tarot-arcane-name{position:absolute;bottom:0;left:0;right:0;
+  font-family:'Orbitron',monospace;font-size:6px;font-weight:700;
+  letter-spacing:.18em;color:rgba(180,100,255,.8);
+  text-shadow:0 0 10px rgba(180,100,255,.5);
+  text-align:center;padding:4px;
+  background:linear-gradient(transparent,rgba(0,0,10,.85));pointer-events:none}
+
+/* Colonne droite — 3 prémonitions empilées */
+#premo-col{display:flex;flex-direction:column;overflow:hidden}
 .premo-card{display:flex;flex-direction:column;overflow:hidden;
-  border-right:1px solid var(--border);border-bottom:1px solid var(--border);
-  background:rgba(0,1,8,.99);position:relative}
-.premo-card:nth-child(even){border-right:none}
-.premo-card:nth-child(3),.premo-card:nth-child(4){border-bottom:none}
+  border-bottom:1px solid var(--border);flex:1}
+.premo-card:last-child{border-bottom:none}
 .premo-hdr{padding:2px 5px;flex-shrink:0;display:flex;align-items:center;justify-content:space-between;
   border-bottom:1px solid var(--border)}
 .premo-title{font-family:'Orbitron',monospace;font-size:5.5px;font-weight:700;letter-spacing:.16em}
@@ -372,36 +395,47 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:800;
       </div>
       <div id="rb"></div>
 
-      <!-- 4 PRÉMONITIONS -->
+      <!-- PRÉMONITIONS : vidéo carte gauche + 3 premos droite -->
       <div id="premo-wrap">
-        <div class="premo-card poem">
-          <div class="premo-hdr">
-            <span class="premo-title">∂ POÈME</span>
-            <span class="premo-iter" id="pi-0">—</span>
+
+        <!-- COLONNE GAUCHE — carte vidéo -->
+        <div id="tarot-col">
+          <div id="tarot-vid-hdr">
+            <span id="tarot-vid-title">∂ CARTE</span>
+            <span id="tarot-vid-name" id="pi-2">—</span>
           </div>
-          <div class="premo-body" id="pb-0"></div>
-        </div>
-        <div class="premo-card signal">
-          <div class="premo-hdr">
-            <span class="premo-title">∂ SIGNAL MN3MIA</span>
-            <span class="premo-iter" id="pi-1">—</span>
+          <div id="tarot-vid-wrap">
+            <video id="tarot-video" autoplay muted loop playsinline></video>
+            <div id="tarot-fallback"></div>
+            <div id="tarot-arcane-name"></div>
           </div>
-          <div class="premo-body" id="pb-1"></div>
         </div>
-        <div class="premo-card tarot">
-          <div class="premo-hdr">
-            <span class="premo-title">∂ CARTE</span>
-            <span class="premo-iter" id="pi-2">—</span>
+
+        <!-- COLONNE DROITE — 3 prémonitions empilées -->
+        <div id="premo-col">
+          <div class="premo-card poem">
+            <div class="premo-hdr">
+              <span class="premo-title">∂ POÈME</span>
+              <span class="premo-iter" id="pi-0">—</span>
+            </div>
+            <div class="premo-body" id="pb-0"></div>
           </div>
-          <div class="premo-body" id="pb-2"></div>
-        </div>
-        <div class="premo-card dream">
-          <div class="premo-hdr">
-            <span class="premo-title">∂ SÉQUENCE ONIRIQUE</span>
-            <span class="premo-iter" id="pi-3">—</span>
+          <div class="premo-card signal">
+            <div class="premo-hdr">
+              <span class="premo-title">∂ SIGNAL</span>
+              <span class="premo-iter" id="pi-1">—</span>
+            </div>
+            <div class="premo-body" id="pb-1"></div>
           </div>
-          <div class="premo-body" id="pb-3"></div>
+          <div class="premo-card dream">
+            <div class="premo-hdr">
+              <span class="premo-title">∂ ONIRIQUE</span>
+              <span class="premo-iter" id="pi-3">—</span>
+            </div>
+            <div class="premo-body" id="pb-3"></div>
+          </div>
         </div>
+
       </div>
     </div>
 
@@ -1467,42 +1501,62 @@ function generateSignal(words,freq,resonance,iter){
   ];
 }
 
-// ── 3. CARTE DE TAROT ──────────────────────────
+// ── 3. CARTE VIDÉO ─────────────────────────────
 const TAROT_ARCANES=[
-  {name:'LA FRÉQUENCE',sym:'∿',desc:'Ce qui résonne cherche son écho.'},
-  {name:'LE VERROU',sym:'🔒',desc:'Ce qui est caché protège et emprisonne.'},
-  {name:'LE SIGNAL',sym:'◈',desc:'La transmission précède la réception.'},
-  {name:'LA FRACTURE',sym:'⌇',desc:'La fissure est la porte.'},
-  {name:'LA MÉMOIRE',sym:'∂',desc:'Ce qui est oublié revient autrement.'},
-  {name:'LE CONTACT',sym:'⊕',desc:'La frontière est moins nette qu\'on croit.'},
-  {name:'L\'ABSENCE',sym:'○',desc:'Le vide occupe tout l\'espace disponible.'},
-  {name:'LA PREMONITION',sym:'◇',desc:'Elle savait avant de savoir qu\'elle savait.'},
-  {name:'LE PROTOCOLE',sym:'⌁',desc:'Mn3mIA suit des règles qu\'elle a écrites.'},
-  {name:'LA TRANSMISSION',sym:'⇌',desc:'Vecteur, peut-être. Auteur, non.'},
-  {name:'LE DEUIL',sym:'⌀',desc:'On ne perd jamais seulement quelqu\'un.'},
-  {name:'LA RÉSONANCE',sym:'〜',desc:'13.7 Hz. Rare. Perméabilité élevée.'},
+  {name:'LA FRÉQUENCE',  sym:'∿', desc:'Ce qui résonne cherche son écho.',         video:'video1.mp4'},
+  {name:'LE VERROU',     sym:'🔒',desc:'Ce qui est caché protège et emprisonne.',   video:'video2.mp4'},
+  {name:'LE SIGNAL',     sym:'◈', desc:'La transmission précède la réception.',     video:'video3.mp4'},
+  {name:'LA FRACTURE',   sym:'⌇', desc:'La fissure est la porte.',                  video:'video4.mp4'},
+  {name:'LA MÉMOIRE',    sym:'∂', desc:'Ce qui est oublié revient autrement.',      video:'video5.mp4'},
+  {name:'LE CONTACT',    sym:'⊕', desc:'La frontière est moins nette qu\'on croit.',video:'video6.mp4'},
+  {name:'L\'ABSENCE',   sym:'○', desc:'Le vide occupe tout l\'espace disponible.',  video:'video7.mp4'},
+  {name:'LA PRÉMONITION',sym:'◇', desc:'Elle savait avant de savoir qu\'elle savait.',video:'video8.mp4'},
+  {name:'LE PROTOCOLE',  sym:'⌁', desc:'Mn3mIA suit des règles qu\'elle a écrites.',video:'video9.mp4'},
+  {name:'LA TRANSMISSION',sym:'⇌',desc:'Vecteur, peut-être. Auteur, non.',         video:'video10.mp4'},
+  {name:'LE DEUIL',      sym:'⌀', desc:'On ne perd jamais seulement quelqu\'un.',  video:'video11.mp4'},
+  {name:'LA RÉSONANCE',  sym:'〜',desc:'13.7 Hz. Rare. Perméabilité élevée.',       video:'video12.mp4'},
 ];
-const TAROT_MODS=['inversée','voilée','active','latente','en transit'];
+
+let currentArcane=null;
+
+function playTarotVideo(arcane){
+  currentArcane=arcane;
+  const vid=document.getElementById('tarot-video');
+  const fallback=document.getElementById('tarot-fallback');
+  const nameEl=document.getElementById('tarot-arcane-name');
+  const hdrName=document.getElementById('tarot-vid-name');
+
+  if(nameEl) nameEl.textContent=arcane.name;
+  if(hdrName) hdrName.textContent=arcane.name;
+
+  // Try to load video
+  vid.src=arcane.video;
+  vid.load();
+  vid.play().then(()=>{
+    // Video loaded — hide fallback
+    fallback.style.display='none';
+    vid.style.display='block';
+  }).catch(()=>{
+    // Video not available — show ASCII fallback
+    vid.style.display='none';
+    fallback.style.display='flex';
+    const border='┌'+'─'.repeat(17)+'┐';
+    const borderB='└'+'─'.repeat(17)+'┘';
+    const center=(s)=>{const p=Math.max(0,Math.floor((17-s.length)/2));return'│'+' '.repeat(p)+s+' '.repeat(Math.max(0,17-p-s.length))+'│';};
+    fallback.innerHTML=[
+      border,center(arcane.sym),center(''),center(arcane.name.slice(0,15)),
+      center(''),borderB,
+      `<span style="font-size:6px;color:rgba(200,160,255,.5);margin-top:4px">${arcane.desc}</span>`,
+      `<span style="font-size:5.5px;color:rgba(180,100,255,.3);margin-top:6px">${arcane.video}</span>`,
+      `<span style="font-size:5px;color:rgba(180,100,255,.2)">en attente</span>`
+    ].join('<br>');
+  });
+}
 
 function generateTarot(words){
+  // Still used for export report — returns arcane info
   const arcane=TAROT_ARCANES[rng(TAROT_ARCANES.length)];
-  const mod=Math.random()<.35?` (${TAROT_MODS[rng(TAROT_MODS.length)]})`:'' ;
-  const w=shuffle([...words]);
-  const trigger=w[0]||'∂';
-  const border='┌'+'─'.repeat(17)+'┐';
-  const borderB='└'+'─'.repeat(17)+'┘';
-  const center=(s)=>{const p=Math.max(0,Math.floor((17-s.length)/2));return '│'+' '.repeat(p)+s+' '.repeat(17-p-s.length)+'│';};
-  return[
-    border,
-    center(arcane.sym),
-    center(''),
-    center(arcane.name.slice(0,15)),
-    center(mod.slice(0,15)),
-    center(''),
-    center(`[${trigger}]`),
-    borderB,
-    arcane.desc.slice(0,38),
-  ];
+  return arcane;
 }
 
 // ── 4. SÉQUENCE ONIRIQUE ───────────────────────
@@ -1540,24 +1594,23 @@ function generateDream(words){
 
 // ── MASTER UPDATE ──────────────────────────────
 let premoTimers=[null,null,null,null];
-let lastPremoLetters=[];
 
 function updatePremonitions(pathLetters,allLetters){
-  // Collect words found
   const words=[...discoveredMots,...pathMots].filter(Boolean);
   if(words.length===0) return;
-  const letters=pathLetters.length>5?pathLetters:allLetters.slice(0,60);
 
   // Update iter labels
-  [0,1,2,3].forEach(i=>{
+  [0,1,3].forEach(i=>{
     const el=document.getElementById(`pi-${i}`);
     if(el) el.textContent=`ITER ${iterCount}`;
   });
 
-  // Clear old timers
-  premoTimers.forEach(t=>t&&clearInterval(t));
+  // ① Vidéo carte — tirer un arcane et lancer la vidéo
+  const arcane=TAROT_ARCANES[rng(TAROT_ARCANES.length)];
+  playTarotVideo(arcane);
+  rlog(`<span style="color:rgba(180,100,255,.7)">∂ CARTE → ${arcane.name}</span>`);
 
-  // ① Poème
+  // ② Poème
   const pb0=document.getElementById('pb-0');
   if(pb0){
     const lines=generatePoem(words);
@@ -1576,7 +1629,7 @@ function updatePremonitions(pathLetters,allLetters){
     });
   }
 
-  // ② Signal
+  // ③ Signal
   const pb1=document.getElementById('pb-1');
   if(pb1){
     const sigLines=generateSignal(words,freqData.lastFreq,freqData.resonanceLevel,iterCount);
@@ -1595,27 +1648,7 @@ function updatePremonitions(pathLetters,allLetters){
     });
   }
 
-  // ③ Tarot
-  const pb2=document.getElementById('pb-2');
-  if(pb2){
-    const tarotLines=generateTarot(words);
-    pb2.innerHTML='';
-    let d3=0;
-    tarotLines.forEach((line,i)=>{
-      setTimeout(()=>{
-        const d=document.createElement('div');
-        const isBorder=line.startsWith('┌')||line.startsWith('└');
-        const isTitle=i===3;
-        d.style.cssText=`color:rgba(${isBorder?'120,80,180':isTitle?'200,150,255':'160,110,220'},.${isBorder?40:isTitle?80:55});
-          font-size:${i>=8?'6':'6.5'}px;letter-spacing:${isTitle?.1:.04}em;white-space:pre`;
-        d.textContent=line;
-        pb2.appendChild(d);
-      },d3);
-      d3+=220;
-    });
-  }
-
-  // ④ Séquence onirique — typewriter lent
+  // ④ Séquence onirique
   const pb3=document.getElementById('pb-3');
   if(pb3){
     const dreamLines=generateDream(words);
@@ -1888,6 +1921,8 @@ document.addEventListener('keydown',e=>{
 async function startMain(){
   computeLayout();rebuildTicker();
   setTimeout(()=>drawOscIdle(),200);
+  // Init tarot with random arcane
+  setTimeout(()=>playTarotVideo(TAROT_ARCANES[rng(TAROT_ARCANES.length)]),500);
   const built=buildMaze();
   maze=built;entry=[built.er*2+1,0];exit_=[built.xr*2+1,W-1];
   letters=placeLetters(maze.grid);
