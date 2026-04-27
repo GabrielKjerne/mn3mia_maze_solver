@@ -3434,7 +3434,7 @@ function generateVisitCard(){
 function downloadCard(){
   // Use offscreen canvas with forDownload=true (no video = no CORS taint)
   var offscreen=document.createElement('canvas');
-  offscreen.width=480;offscreen.height=820;
+  offscreen.width=480;offscreen.height=900;
   renderVisitCardToCanvas(offscreen, true);
   try{
     var url=offscreen.toDataURL('image/png');
@@ -3628,7 +3628,7 @@ function renderVisitCardToCanvas(canvas, forDownload){
   // Fixed layout - no dynamic positioning
   // Card is 460px wide x 780px tall
   // Sections: Header(0-55) | TarotStats(55-285) | Separator | Sparkline(300-390) | Separator | Gauges(410-530) | Separator | Words(545-590) | GPS(605-660 if data) | Footer(670-780)
-  var W=480, H=820;
+  var W=480, H=620;
   canvas.width=W; canvas.height=H;
   if(!forDownload){
     canvas.style.width=Math.min(W,window.innerWidth-40)+'px';
@@ -3874,21 +3874,17 @@ function renderVisitCardToCanvas(canvas, forDownload){
     });
   }
 
-  // ── FOOTER QR + INFO (y:648-768) ────────────────────────
+  // ── FOOTER ──────────────────────────────────────────────
   cx.strokeStyle='rgba(0,212,255,.14)'; cx.lineWidth=.8;
-  cx.beginPath(); cx.moveTo(18,648); cx.lineTo(W-18,648); cx.stroke();
-  var qSz=200;
-  drawQRCode(cx,20,656,qSz);
-  cx.font='10px "Share Tech Mono"'; cx.fillStyle='rgba(0,212,255,.65)';
-  cx.textAlign='left'; cx.textBaseline='top'; cx.fillText('letreiziemeeveil.com',20+qSz+14,660);
-  cx.font='9px "Share Tech Mono"'; cx.fillStyle='rgba(0,212,255,.42)'; cx.fillText('Gabriel Kjerne \u00b7 2026',20+qSz+14,676);
-  cx.font='9px "Share Tech Mono"'; cx.fillStyle='rgba(180,100,255,.5)'; cx.fillText('\u2202 Amazon KDP \u2192',20+qSz+14,692);
-  cx.font='8px "Share Tech Mono"'; cx.fillStyle='rgba(180,100,255,.3)'; cx.fillText('amazon.fr/author/B0FQ61M4TR',20+qSz+14,708);
-  cx.font='7.5px "Share Tech Mono"'; cx.fillStyle='rgba(0,212,255,.25)'; cx.fillText('Page Auteur — Gabriel Kjerne',20+qSz+14,724);
-  // Final bar
-  cx.fillStyle='rgba(180,100,255,.1)'; cx.fillRect(18,H-24,W-36,18);
+  cx.beginPath(); cx.moveTo(18,H-65); cx.lineTo(W-18,H-65); cx.stroke();
+  cx.font='10px "Share Tech Mono"'; cx.fillStyle='rgba(0,212,255,.5)';
+  cx.textAlign='center'; cx.textBaseline='top';
+  cx.fillText('letreiziemeeveil.com  ·  amazon.fr/author/B0FQ61M4TR',W/2,H-58);
+  cx.fillStyle='rgba(180,100,255,.1)'; cx.fillRect(18,H-30,W-36,20);
   cx.font='bold 9px "Orbitron"'; cx.fillStyle='rgba(0,212,255,.55)';
-  cx.textAlign='center'; cx.textBaseline='middle'; cx.fillText('LE TREIZI\u00c8ME \u00c9VEIL \u2014 GABRIEL KJERNE',W/2,H-15);
+  cx.textAlign='center'; cx.textBaseline='middle';
+  cx.fillText('LE TREIZIÈME ÉVEIL — GABRIEL KJERNE',W/2,H-20);
+
   // Scanlines
   cx.globalAlpha=.014;
   for(var i=0;i<H;i+=3){cx.fillStyle='rgba(0,0,0,1)';cx.fillRect(0,i,W,1);}
@@ -3937,17 +3933,24 @@ function drawQRCode(ctx,x,y,size){
     [1,1,1,1,1,1,1,0,0,1,1,1,0,0,1,0,1,0,0,1,1,1,0,0,1,1,0,1,0,1,1,1,1],
   ];
   var cells=M.length;
-  var cs=Math.max(5,Math.floor(size/cells));  // min 5px per module for scannability
+  var cs=Math.max(6,Math.floor(size/cells));  // min 6px per module
   var actualSize=cells*cs;
-  var quiet=8;  // larger quiet zone improves scanning
+  var quiet=cs*4;  // quiet zone = 4 modules minimum (QR spec requirement)
   // White background + quiet zone
   ctx.fillStyle='#ffffff';
   ctx.fillRect(x-quiet,y-quiet,actualSize+quiet*2,actualSize+quiet*2);
-  // Black modules
+  // Black modules — no anti-aliasing, pixel-perfect
   ctx.fillStyle='#000000';
+  ctx.imageSmoothingEnabled=false;
   for(var r=0;r<cells;r++){
     for(var cc=0;cc<cells;cc++){
-      if(M[r][cc]) ctx.fillRect(x+cc*cs,y+r*cs,cs,cs);
+      if(M[r][cc]){
+        ctx.fillRect(
+          Math.round(x+cc*cs),
+          Math.round(y+r*cs),
+          cs, cs
+        );
+      }
     }
   }
   // Border
