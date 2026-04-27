@@ -3625,387 +3625,322 @@ function renderVisitCard(){
 }
 
 function renderVisitCardToCanvas(canvas, forDownload){
-  // forDownload=true => skip video (CORS), use pure canvas only
-  var W=460, H=820;
+  // Fixed layout - no dynamic positioning
+  // Card is 460px wide x 780px tall
+  // Sections: Header(0-55) | TarotStats(55-285) | Separator | Sparkline(300-390) | Separator | Gauges(410-530) | Separator | Words(545-590) | GPS(605-660 if data) | Footer(670-780)
+  var W=460, H=780;
   canvas.width=W; canvas.height=H;
   if(!forDownload){
-    canvas.style.width=Math.min(W, window.innerWidth-40)+'px';
+    canvas.style.width=Math.min(W,window.innerWidth-40)+'px';
     canvas.style.height='auto';
   }
   var cx=canvas.getContext('2d');
 
-  // ── DARK BACKGROUND ─────────────────────────────────────
-  cx.fillStyle='#000008';cx.fillRect(0,0,W,H);
-  var bg=cx.createRadialGradient(W/2,H*0.28,0,W/2,H*0.28,W*0.9);
-  bg.addColorStop(0,'rgba(60,0,120,.85)');
-  bg.addColorStop(0.45,'rgba(0,5,40,.65)');
-  bg.addColorStop(1,'rgba(0,0,8,1)');
-  cx.fillStyle=bg;cx.fillRect(0,0,W,H);
-  // Fine grid
-  cx.strokeStyle='rgba(180,100,255,.05)';cx.lineWidth=0.3;
-  for(var yi=0;yi<H;yi+=14){cx.beginPath();cx.moveTo(0,yi);cx.lineTo(W,yi);cx.stroke();}
-  for(var xi=0;xi<W;xi+=14){cx.beginPath();cx.moveTo(xi,0);cx.lineTo(xi,H);cx.stroke();}
+  // ── BACKGROUND ──────────────────────────────────────────
+  cx.fillStyle='#000008'; cx.fillRect(0,0,W,H);
+  var bg=cx.createRadialGradient(W/2,160,0,W/2,H/2,W);
+  bg.addColorStop(0,'rgba(55,0,110,.9)'); bg.addColorStop(.5,'rgba(0,5,38,.7)'); bg.addColorStop(1,'rgba(0,0,8,1)');
+  cx.fillStyle=bg; cx.fillRect(0,0,W,H);
+  cx.strokeStyle='rgba(180,100,255,.04)'; cx.lineWidth=.3;
+  for(var i=0;i<H;i+=14){cx.beginPath();cx.moveTo(0,i);cx.lineTo(W,i);cx.stroke();}
+  for(var i=0;i<W;i+=14){cx.beginPath();cx.moveTo(i,0);cx.lineTo(i,H);cx.stroke();}
 
-  // ── DOUBLE BORDER ───────────────────────────────────────
-  cx.strokeStyle='rgba(180,100,255,.65)';cx.lineWidth=2;
-  cx.shadowBlur=18;cx.shadowColor='rgba(180,100,255,.4)';
-  cx.strokeRect(7,7,W-14,H-14);cx.shadowBlur=0;
-  cx.strokeStyle='rgba(0,212,255,.2)';cx.lineWidth=0.5;
-  cx.strokeRect(13,13,W-26,H-26);
-  // Animated corner brackets
-  var cm=20;
-  [[7,7],[W-7,7],[7,H-7],[W-7,H-7]].forEach(function(pt){
-    var sx=pt[0]<W/2?1:-1,sy=pt[1]<H/2?1:-1;
-    cx.strokeStyle='rgba(0,212,255,.75)';cx.lineWidth=1.5;
-    cx.beginPath();cx.moveTo(pt[0]+sx*cm,pt[1]);cx.lineTo(pt[0],pt[1]);cx.lineTo(pt[0],pt[1]+sy*cm);cx.stroke();
+  // ── BORDER ──────────────────────────────────────────────
+  cx.strokeStyle='rgba(180,100,255,.7)'; cx.lineWidth=2;
+  cx.shadowBlur=18; cx.shadowColor='rgba(180,100,255,.4)';
+  cx.strokeRect(7,7,W-14,H-14); cx.shadowBlur=0;
+  cx.strokeStyle='rgba(0,212,255,.18)'; cx.lineWidth=.5;
+  cx.strokeRect(12,12,W-24,H-24);
+  // Corner brackets
+  [[7,7],[W-7,7],[7,H-7],[W-7,H-7]].forEach(function(p){
+    var sx=p[0]<W/2?1:-1, sy=p[1]<H/2?1:-1;
+    cx.strokeStyle='rgba(0,212,255,.7)'; cx.lineWidth=1.5;
+    cx.beginPath(); cx.moveTo(p[0]+sx*16,p[1]); cx.lineTo(p[0],p[1]); cx.lineTo(p[0],p[1]+sy*16); cx.stroke();
   });
 
-  // ── HEADER ──────────────────────────────────────────────
-  // Top decorative line
-  cx.strokeStyle='rgba(180,100,255,.3)';cx.lineWidth=1;
-  cx.beginPath();cx.moveTo(20,52);cx.lineTo(W-20,52);cx.stroke();
-  cx.font='bold 20px "Orbitron"';cx.fillStyle='rgba(0,212,255,.9)';
-  cx.textAlign='center';cx.textBaseline='top';
-  cx.shadowBlur=12;cx.shadowColor='rgba(0,212,255,.45)';
-  cx.fillText('∂  MN3MIA  ∂',W/2,16);cx.shadowBlur=0;
-  cx.font='13px "Share Tech Mono"';cx.fillStyle='rgba(180,100,255,.55)';
-  cx.fillText('LE TREIZIÈME ÉVEIL · GABRIEL KJERNE · letreiziemeeveil.com',W/2,34);
+  // ── HEADER (y: 15-55) ───────────────────────────────────
+  cx.font='bold 20px "Orbitron"'; cx.fillStyle='rgba(0,212,255,.95)';
+  cx.textAlign='center'; cx.textBaseline='top';
+  cx.shadowBlur=12; cx.shadowColor='rgba(0,212,255,.5)';
+  cx.fillText('\u2202  MN3MIA  \u2202',W/2,15); cx.shadowBlur=0;
+  cx.font='8px "Share Tech Mono"'; cx.fillStyle='rgba(180,100,255,.5)';
+  cx.fillText('LE TREIZI\u00c8ME \u00c9VEIL \u00b7 GABRIEL KJERNE \u00b7 letreiziemeeveil.com',W/2,40);
+  cx.strokeStyle='rgba(180,100,255,.3)'; cx.lineWidth=.8;
+  cx.beginPath(); cx.moveTo(20,56); cx.lineTo(W-20,56); cx.stroke();
 
-  // ── TAROT CARD (left) ───────────────────────────────────
-  var cX=18,cY=60,cW=130,cH=185;
-  cx.fillStyle='rgba(6,0,16,.98)';cx.fillRect(cX,cY,cW,cH);
-  // Draw video frame if available and not for download
+  // ── TAROT CARD (x:18,y:62 w:140,h:200) ─────────────────
+  var cX=18,cY=62,cW=140,cH=200;
+  cx.fillStyle='rgba(6,0,16,.98)'; cx.fillRect(cX,cY,cW,cH);
   var drew=false;
   if(!forDownload){
     var vid=document.getElementById('arc-reveal-video');
     if(!vid||!vid.src) vid=document.getElementById('tarot-video');
     if(vid&&vid.readyState>=2){
-      try{
-        cx.save();cx.beginPath();cx.rect(cX,cY,cW,cH);cx.clip();
-        cx.drawImage(vid,cX,cY,cW,cH);cx.restore();drew=true;
-      }catch(e){drew=false;}
+      try{cx.save();cx.beginPath();cx.rect(cX,cY,cW,cH);cx.clip();cx.drawImage(vid,cX,cY,cW,cH);cx.restore();drew=true;}
+      catch(e){}
     }
   }
   if(!drew){
-    // Sacred geometry — always used for PNG download
-    var fcx=cX+cW/2,fcy=cY+cH/2,fr=Math.min(cW,cH)*0.38;
-    // Outer hexagon
-    cx.strokeStyle='rgba(180,100,255,.5)';cx.lineWidth=1;
+    var fcx=cX+cW/2,fcy=cY+cH/2,fr=50;
+    cx.strokeStyle='rgba(180,100,255,.5)'; cx.lineWidth=1;
     cx.beginPath();
-    for(var fi=0;fi<6;fi++){var fa=fi*Math.PI/3-Math.PI/6;
-      if(fi===0)cx.moveTo(fcx+fr*Math.cos(fa),fcy+fr*Math.sin(fa));
-      else cx.lineTo(fcx+fr*Math.cos(fa),fcy+fr*Math.sin(fa));}
-    cx.closePath();cx.shadowBlur=8;cx.shadowColor='rgba(180,100,255,.4)';cx.stroke();cx.shadowBlur=0;
-    // Inner hexagon
-    cx.strokeStyle='rgba(0,212,255,.3)';cx.lineWidth=0.6;
-    cx.beginPath();
-    for(var fi=0;fi<6;fi++){var fa=fi*Math.PI/3-Math.PI/6;
-      if(fi===0)cx.moveTo(fcx+fr*0.55*Math.cos(fa),fcy+fr*0.55*Math.sin(fa));
-      else cx.lineTo(fcx+fr*0.55*Math.cos(fa),fcy+fr*0.55*Math.sin(fa));}
-    cx.closePath();cx.stroke();
-    // Star lines
-    for(var fi=0;fi<3;fi++){cx.beginPath();cx.strokeStyle='rgba(180,100,255,.35)';
-      cx.moveTo(fcx+fr*Math.cos(fi*Math.PI/3-Math.PI/6),fcy+fr*Math.sin(fi*Math.PI/3-Math.PI/6));
-      cx.lineTo(fcx+fr*Math.cos((fi+3)*Math.PI/3-Math.PI/6),fcy+fr*Math.sin((fi+3)*Math.PI/3-Math.PI/6));
-      cx.stroke();}
-    // Binary rain effect (small dots)
-    cx.fillStyle='rgba(0,180,100,.15)';
-    for(var bi=0;bi<40;bi++){
-      cx.fillRect(cX+8+Math.random()*((cW-16)),cY+8+Math.random()*(cH-16),1,1);}
-    // Central symbol
-    cx.font='bold 20px "Orbitron"';cx.fillStyle='rgba(180,100,255,.75)';
-    cx.textAlign='center';cx.textBaseline='middle';
-    cx.shadowBlur=16;cx.shadowColor='rgba(180,100,255,.5)';
-    cx.fillText('∂',fcx,fcy);cx.shadowBlur=0;
+    for(var i=0;i<6;i++){var a=i*Math.PI/3-Math.PI/6;
+      i===0?cx.moveTo(fcx+fr*Math.cos(a),fcy+fr*Math.sin(a)):cx.lineTo(fcx+fr*Math.cos(a),fcy+fr*Math.sin(a));}
+    cx.closePath(); cx.shadowBlur=8; cx.shadowColor='rgba(180,100,255,.4)'; cx.stroke(); cx.shadowBlur=0;
+    for(var i=0;i<3;i++){cx.beginPath(); cx.strokeStyle='rgba(0,212,255,.3)';
+      cx.moveTo(fcx+fr*Math.cos(i*Math.PI/3-Math.PI/6),fcy+fr*Math.sin(i*Math.PI/3-Math.PI/6));
+      cx.lineTo(fcx+fr*Math.cos((i+3)*Math.PI/3-Math.PI/6),fcy+fr*Math.sin((i+3)*Math.PI/3-Math.PI/6)); cx.stroke();}
+    cx.font='bold 32px "Orbitron"'; cx.fillStyle='rgba(180,100,255,.8)';
+    cx.textAlign='center'; cx.textBaseline='middle';
+    cx.shadowBlur=20; cx.shadowColor='rgba(180,100,255,.5)'; cx.fillText('\u2202',fcx,fcy); cx.shadowBlur=0;
   }
-  // Card glow border
-  cx.strokeStyle='rgba(180,100,255,.7)';cx.lineWidth=1.2;
-  cx.shadowBlur=10;cx.shadowColor='rgba(180,100,255,.35)';
-  cx.strokeRect(cX,cY,cW,cH);cx.shadowBlur=0;
-  // Inner card top bar
-  cx.fillStyle='rgba(180,100,255,.12)';cx.fillRect(cX,cY,cW,14);
-  cx.font='bold 9px "Share Tech Mono"';cx.fillStyle='rgba(180,100,255,.7)';
-  cx.textAlign='center';cx.textBaseline='middle';
-  cx.fillText('∂ MN3MIA ORACLE ∂',cX+cW/2,cY+7);
+  // Card top label
+  cx.fillStyle='rgba(180,100,255,.18)'; cx.fillRect(cX,cY,cW,18);
+  cx.font='bold 8.5px "Share Tech Mono"'; cx.fillStyle='rgba(180,100,255,.85)';
+  cx.textAlign='center'; cx.textBaseline='middle'; cx.fillText('\u2202 MN3MIA ORACLE \u2202',cX+cW/2,cY+9);
+  cx.strokeStyle='rgba(180,100,255,.7)'; cx.lineWidth=1.2;
+  cx.shadowBlur=8; cx.shadowColor='rgba(180,100,255,.3)'; cx.strokeRect(cX,cY,cW,cH); cx.shadowBlur=0;
 
-  // Arcane info below card
+  // Arcane info (y: 268-290)
   var lastA=arcaneLog.length?arcaneLog[arcaneLog.length-1]:null;
   if(lastA){
-    cx.font='bold 17px "Orbitron"';cx.fillStyle='rgba(180,100,255,.9)';
-    cx.textAlign='center';cx.textBaseline='top';
-    cx.shadowBlur=9;cx.shadowColor='rgba(180,100,255,.45)';
-    cx.fillText((lastA.sym||'∂')+' '+lastA.name,cX+cW/2,cY+cH+6);cx.shadowBlur=0;
-    if(lastA.question&&lastA.question!=='(question silencieuse)'&&lastA.question!=='∂'){
-      cx.font='9px "Share Tech Mono"';cx.fillStyle='rgba(180,100,255,.5)';
-      var ql=lastA.question.slice(0,20)+(lastA.question.length>20?'…':'');
-      cx.fillText('"'+ql+'"',cX+cW/2,cY+cH+21);
-    }
-    cx.font='9px "Share Tech Mono"';cx.fillStyle='rgba(180,100,255,.32)';
-    cx.fillText(lastA.desc?lastA.desc.slice(0,22):'',cX+cW/2,cY+cH+33);
+    cx.font='bold 13px "Orbitron"'; cx.fillStyle='rgba(180,100,255,.92)';
+    cx.textAlign='left'; cx.textBaseline='top';
+    cx.shadowBlur=7; cx.shadowColor='rgba(180,100,255,.4)';
+    cx.fillText((lastA.sym||'\u2202')+' '+lastA.name, cX, cY+cH+6); cx.shadowBlur=0;
+    cx.font='8.5px "Share Tech Mono"'; cx.fillStyle='rgba(180,100,255,.5)';
+    cx.fillText(lastA.desc?lastA.desc.slice(0,30):'', cX, cY+cH+22);
   }
 
-  // ── STATS COLUMN (right of card) ───────────────────────
-  var sX=cX+cW+16, sRightEdge=W-16;
+  // ── STATS RIGHT COLUMN (x:174,y:62 — 9 rows × 24px) ────
+  var sX=174, sX2=W-18, sY=62;
   var hist=freqData.freqHistory||[];
   var avgF=hist.length?hist.reduce(function(a,b){return a+b;},0)/hist.length:0;
   var peakF=hist.length?Math.max.apply(null,hist):0;
   var res=freqData.resonanceLevel||0;
-  var statsArr=[
-    ['FRÉQUENCE',(freqData.lastFreq||0).toFixed(2)+' Hz','rgba(0,212,255,.95)'],
-    ['PIC SESSION',peakF.toFixed(2)+' Hz','rgba(0,240,200,.85)'],
-    ['MOYENNE',avgF.toFixed(2)+' Hz','rgba(0,180,220,.8)'],
-    ['RÉSONANCE',(res*100).toFixed(0)+'%',res>0.78?'rgba(255,51,102,.95)':res>0.5?'rgba(255,204,0,.9)':'rgba(0,255,170,.9)'],
-    ['CIBLE','13.7 Hz','rgba(255,204,0,.6)'],
-    ['MOTS',[...discoveredMots].length+'/'+MOTS.length,'rgba(255,204,0,.92)'],
-    ['CONTACTS',String(contactLog.length),'rgba(255,51,102,.9)'],
-    ['ITÉRATIONS',String(iterCount),'rgba(180,100,255,.9)'],
-    ['CONTACTS GPS',contactLog.length?contactLog[0].city:'—','rgba(255,100,100,.7)'],
-  ];
-  var sY=cY+2;
-  statsArr.forEach(function(s){
-    // Label
-    cx.font='9px "Share Tech Mono"';cx.fillStyle='rgba(0,212,255,.35)';
-    cx.textAlign='left';cx.textBaseline='top';cx.fillText(s[0],sX,sY+1);
-    // Value
-    cx.font='bold 15px "Share Tech Mono"';cx.fillStyle=s[2];
-    cx.shadowBlur=4;cx.shadowColor=s[2];cx.textAlign='right';cx.fillText(s[1],sRightEdge,sY);
-    cx.shadowBlur=0;
-    // Subtle separator
-    cx.strokeStyle='rgba(180,100,255,.08)';cx.lineWidth=0.3;
-    cx.beginPath();cx.moveTo(sX,sY+16);cx.lineTo(sRightEdge,sY+16);cx.stroke();
-    sY+=20;
+  var resCol=res>.78?'rgba(255,51,102,.95)':res>.5?'rgba(255,204,0,.95)':'rgba(0,255,170,.95)';
+  [
+    ['FR\u00c9QUENCE', (freqData.lastFreq||0).toFixed(2)+' Hz', 'rgba(0,212,255,.95)'],
+    ['PIC',           peakF.toFixed(2)+' Hz',                   'rgba(0,230,210,.88)'],
+    ['MOYENNE',       avgF.toFixed(2)+' Hz',                    'rgba(0,180,220,.82)'],
+    ['R\u00c9SONANCE',(res*100).toFixed(0)+'%',                  resCol],
+    ['CIBLE',         '13.7 Hz',                                'rgba(255,204,0,.65)'],
+    ['MOTS',          [...discoveredMots].length+'/'+MOTS.length,'rgba(255,204,0,.95)'],
+    ['CONTACTS',      String(contactLog.length),                'rgba(255,51,102,.9)'],
+    ['IT\u00c9RATIONS',String(iterCount),                       'rgba(180,100,255,.9)'],
+    ['1er CONTACT',   contactLog.length?contactLog[0].city:'\u2014','rgba(255,100,100,.75)'],
+  ].forEach(function(s){
+    cx.font='8px "Share Tech Mono"'; cx.fillStyle='rgba(0,212,255,.38)';
+    cx.textAlign='left'; cx.textBaseline='top'; cx.fillText(s[0],sX,sY+2);
+    cx.font='bold 12px "Share Tech Mono"'; cx.fillStyle=s[2];
+    cx.shadowBlur=3; cx.shadowColor=s[2]; cx.textAlign='right'; cx.fillText(s[1],sX2,sY); cx.shadowBlur=0;
+    cx.strokeStyle='rgba(180,100,255,.06)'; cx.lineWidth=.3;
+    cx.beginPath(); cx.moveTo(sX,sY+21); cx.lineTo(sX2,sY+21); cx.stroke();
+    sY+=24;
   });
 
-  // ── FREQ SPARKLINE ──────────────────────────────────────
-  var spStartY=cY+cH+48;
-  cx.strokeStyle='rgba(180,100,255,.2)';cx.lineWidth=0.5;
-  cx.beginPath();cx.moveTo(18,spStartY-4);cx.lineTo(W-18,spStartY-4);cx.stroke();
-  cx.font='bold 11px "Orbitron"';cx.fillStyle='rgba(0,212,255,.55)';
-  cx.textAlign='left';cx.textBaseline='top';cx.fillText('∂ HISTORIQUE FRÉQUENCES',18,spStartY);
-  spStartY+=12;
-  var spH=52,spW=W-36;
+  // ── SEPARATOR (y:298) ───────────────────────────────────
+  cx.strokeStyle='rgba(0,212,255,.22)'; cx.lineWidth=.8;
+  cx.beginPath(); cx.moveTo(18,298); cx.lineTo(W-18,298); cx.stroke();
+
+  // ── SPARKLINE (y:303-375) ───────────────────────────────
+  cx.font='bold 10px "Orbitron"'; cx.fillStyle='rgba(0,212,255,.65)';
+  cx.textAlign='left'; cx.textBaseline='top';
+  cx.fillText('\u2202 HISTORIQUE FR\u00c9QUENCES ('+hist.length+' pts)',18,303);
+  var spY=318, spH=52, spW=W-36;
   if(hist.length>1){
-    var minH2=Math.min.apply(null,hist),maxH2=Math.max.apply(null,hist),rng2=maxH2-minH2||1;
-    var N=Math.min(hist.length,80);var vis=hist.slice(-N);
-    var sx2=spW/Math.max(1,N-1);
-    // Grid lines
-    cx.strokeStyle='rgba(0,212,255,.06)';cx.lineWidth=0.3;
-    for(var gi=0;gi<=4;gi++){var gy=spStartY+gi*(spH/4);
-      cx.beginPath();cx.moveTo(18,gy);cx.lineTo(W-18,gy);cx.stroke();}
-    // Area fill
-    var grd2=cx.createLinearGradient(0,spStartY,0,spStartY+spH);
-    grd2.addColorStop(0,'rgba(0,212,255,.2)');grd2.addColorStop(1,'rgba(0,212,255,.01)');
-    cx.fillStyle=grd2;cx.beginPath();cx.moveTo(18,spStartY+spH);
-    for(var ni=0;ni<vis.length;ni++){cx.lineTo(18+ni*sx2,spStartY+spH-(vis[ni]-minH2)/rng2*spH);}
-    cx.lineTo(18+(vis.length-1)*sx2,spStartY+spH);cx.closePath();cx.fill();
-    // Target 13.7Hz line
-    var ty=(13.7-minH2)/rng2;
+    var mn=Math.min.apply(null,hist), mx=Math.max.apply(null,hist), rng=mx-mn||1;
+    var vis=hist.slice(-70), N=vis.length, sxp=spW/Math.max(1,N-1);
+    // Grid
+    [0,.5,1].forEach(function(t){
+      cx.strokeStyle='rgba(0,212,255,.07)'; cx.lineWidth=.3;
+      cx.beginPath(); cx.moveTo(18,spY+t*spH); cx.lineTo(W-18,spY+t*spH); cx.stroke();
+    });
+    // 13.7 target
+    var ty=(13.7-mn)/rng;
     if(ty>=0&&ty<=1){
-      var tyY=spStartY+spH-ty*spH;
-      cx.setLineDash([3,3]);cx.strokeStyle='rgba(255,204,0,.5)';cx.lineWidth=0.8;
-      cx.beginPath();cx.moveTo(18,tyY);cx.lineTo(W-18,tyY);cx.stroke();cx.setLineDash([]);
-      cx.font='9px "Share Tech Mono"';cx.fillStyle='rgba(255,204,0,.6)';
-      cx.textAlign='left';cx.fillText('13.7Hz',18,tyY-8);}
-    // Curve — coloured by proximity
-    for(var ni=1;ni<vis.length;ni++){
-      var f1=vis[ni-1],f2=vis[ni];
-      var d=Math.abs(f2-13.7);
-      cx.strokeStyle=d<1.5?'rgba(0,255,170,.9)':d<3?'rgba(0,212,255,.75)':f2>13.7?'rgba(255,160,50,.7)':'rgba(0,130,200,.65)';
-      cx.lineWidth=1.4;cx.beginPath();
-      cx.moveTo(18+(ni-1)*sx2,spStartY+spH-(f1-minH2)/rng2*spH);
-      cx.lineTo(18+ni*sx2,spStartY+spH-(f2-minH2)/rng2*spH);
-      cx.stroke();}
+      var tyY=spY+spH*(1-ty);
+      cx.setLineDash([3,3]); cx.strokeStyle='rgba(255,204,0,.55)'; cx.lineWidth=1;
+      cx.beginPath(); cx.moveTo(18,tyY); cx.lineTo(W-18,tyY); cx.stroke(); cx.setLineDash([]);
+      cx.font='8px "Share Tech Mono"'; cx.fillStyle='rgba(255,204,0,.65)';
+      cx.textAlign='left'; cx.fillText('13.7Hz',20,tyY-12);
+    }
+    // Area fill
+    var grd=cx.createLinearGradient(0,spY,0,spY+spH);
+    grd.addColorStop(0,'rgba(0,212,255,.2)'); grd.addColorStop(1,'rgba(0,212,255,.02)');
+    cx.fillStyle=grd; cx.beginPath(); cx.moveTo(18,spY+spH);
+    for(var i=0;i<N;i++) cx.lineTo(18+i*sxp, spY+spH-(vis[i]-mn)/rng*spH);
+    cx.lineTo(18+(N-1)*sxp,spY+spH); cx.closePath(); cx.fill();
+    // Curve coloured by proximity
+    for(var i=1;i<N;i++){
+      var f1=vis[i-1],f2=vis[i],d=Math.abs(f2-13.7);
+      cx.strokeStyle=d<1.5?'rgba(0,255,170,.95)':d<3?'rgba(0,212,255,.8)':f2>13.7?'rgba(255,160,50,.75)':'rgba(0,130,200,.7)';
+      cx.lineWidth=1.6;
+      cx.beginPath(); cx.moveTo(18+(i-1)*sxp,spY+spH-(f1-mn)/rng*spH); cx.lineTo(18+i*sxp,spY+spH-(f2-mn)/rng*spH); cx.stroke();
+    }
     // Head dot
-    var lf=vis[vis.length-1];
-    var lx=18+(vis.length-1)*sx2,ly=spStartY+spH-(lf-minH2)/rng2*spH;
-    cx.beginPath();cx.arc(lx,ly,3,0,Math.PI*2);
-    cx.fillStyle='rgba(0,212,255,.9)';cx.shadowBlur=6;cx.shadowColor='rgba(0,212,255,.6)';cx.fill();cx.shadowBlur=0;
-    // Min/max labels
-    cx.font='8px "Share Tech Mono"';cx.fillStyle='rgba(0,212,255,.35)';
-    cx.textAlign='right';cx.fillText(maxH2.toFixed(1),W-18,spStartY+1);
-    cx.fillText(minH2.toFixed(1),W-18,spStartY+spH-7);
+    var lx=18+(N-1)*sxp, ly=spY+spH-(vis[N-1]-mn)/rng*spH;
+    cx.beginPath(); cx.arc(lx,ly,4,0,Math.PI*2);
+    cx.fillStyle='rgba(0,212,255,.9)'; cx.shadowBlur=8; cx.shadowColor='rgba(0,212,255,.6)'; cx.fill(); cx.shadowBlur=0;
+    // Labels
+    cx.font='8px "Share Tech Mono"'; cx.fillStyle='rgba(0,212,255,.4)'; cx.textAlign='right';
+    cx.fillText(mx.toFixed(1),16,spY+2); cx.fillText(mn.toFixed(1),16,spY+spH-8);
   } else {
-    cx.font='11px "Share Tech Mono"';cx.fillStyle='rgba(0,212,255,.2)';
-    cx.textAlign='center';cx.fillText('— en attente de données —',W/2,spStartY+spH/2);}
-  spStartY+=spH+14;
-
-  // ── CONVERGENCE + BARS ──────────────────────────────────
-  cx.strokeStyle='rgba(180,100,255,.18)';cx.lineWidth=0.5;
-  cx.beginPath();cx.moveTo(18,spStartY-4);cx.lineTo(W-18,spStartY-4);cx.stroke();
-  cx.font='bold 11px "Orbitron"';cx.fillStyle='rgba(180,100,255,.55)';
-  cx.textAlign='left';cx.fillText('∂ CONVERGENCE & ANALYSE',18,spStartY);
-  spStartY+=14;
-
-  // Radial resonance gauge (left half)
-  var radR=34,radCx=18+radR+4,radCy=spStartY+radR+2;
-  cx.beginPath();cx.arc(radCx,radCy,radR,0,Math.PI*2);
-  cx.strokeStyle='rgba(0,212,255,.1)';cx.lineWidth=6;cx.stroke();
-  var arcCol=res>0.78?'rgba(255,51,102,.95)':res>0.5?'rgba(255,204,0,.9)':'rgba(0,255,170,.9)';
-  cx.beginPath();cx.arc(radCx,radCy,radR,-Math.PI/2,-Math.PI/2+res*Math.PI*2);
-  cx.strokeStyle=arcCol;cx.lineWidth=6;cx.shadowBlur=10;cx.shadowColor=arcCol;cx.stroke();cx.shadowBlur=0;
-  cx.font='bold 20px "Share Tech Mono"';cx.fillStyle=arcCol;
-  cx.textAlign='center';cx.textBaseline='middle';cx.fillText((res*100).toFixed(0)+'%',radCx,radCy-3);
-  cx.font='8px "Share Tech Mono"';cx.fillStyle='rgba(0,212,255,.4)';
-  cx.fillText('RÉSONANCE',radCx,radCy+11);
-  // Freq proximity ring
-  var proxF=Math.max(0,1-Math.abs((freqData.lastFreq||0)-13.7)/9);
-  cx.beginPath();cx.arc(radCx,radCy,radR+9,-Math.PI/2,-Math.PI/2+proxF*Math.PI*2);
-  cx.strokeStyle='rgba(255,204,0,.5)';cx.lineWidth=2;cx.stroke();
-
-  // Bars (right of radial)
-  var bX=18+radR*2+18,bY=spStartY+4,bW=W-bX-20,bH=8;
-  var barsData=[
-    ['CONTACTS GPS',Math.min(1,contactLog.length/10),'rgba(255,51,102,.75)',String(contactLog.length)],
-    ['MOTS CORPUS',Math.min(1,[...discoveredMots].length/MOTS.length),'rgba(255,204,0,.75)',[...discoveredMots].length+'/'+MOTS.length],
-    ['APPRENTISSAGE',freqData.learningRate||0,'rgba(0,212,255,.75)',((freqData.learningRate||0)*100).toFixed(0)+'%'],
-    ['PROX 13.7Hz',proxF,'rgba(0,255,170,.75)',(freqData.lastFreq||0).toFixed(1)+'Hz'],
-  ];
-  barsData.forEach(function(b){
-    cx.font='9px "Share Tech Mono"';cx.fillStyle='rgba(0,212,255,.35)';
-    cx.textAlign='left';cx.textBaseline='top';cx.fillText(b[0],bX,bY);
-    // Track
-    cx.fillStyle='rgba(255,255,255,.05)';cx.fillRect(bX,bY+9,bW,bH);
-    // Fill
-    var bFill=cx.createLinearGradient(bX,0,bX+bW*b[1],0);
-    bFill.addColorStop(0,b[2].replace('.75','.5'));bFill.addColorStop(1,b[2]);
-    cx.fillStyle=bFill;cx.fillRect(bX,bY+9,bW*b[1],bH);
-    // Value
-    cx.font='bold 13px "Share Tech Mono"';cx.fillStyle=b[2];
-    cx.textAlign='right';cx.fillText(b[3],W-18,bY+1);
-    bY+=24;
-  });
-  spStartY+=radR*2+14;
-
-  // ── MOTS DÉCOUVERTS ────────────────────────────────────
-  var tw=[...tickerWords].slice(-6);
-  if(tw.length){
-    cx.strokeStyle='rgba(255,204,0,.15)';cx.lineWidth=0.5;
-    cx.beginPath();cx.moveTo(18,spStartY-2);cx.lineTo(W-18,spStartY-2);cx.stroke();
-    cx.font='bold 11px "Orbitron"';cx.fillStyle='rgba(255,204,0,.55)';
-    cx.textAlign='left';cx.textBaseline='top';cx.fillText('∂ MOTS DÉCOUVERTS ('+tw.length+')',18,spStartY);
-    spStartY+=13;
-    // Display in 2 rows
-    var row1=tw.slice(0,3).join('  ·  ');var row2=tw.slice(3).join('  ·  ');
-    cx.font='bold 15px "Share Tech Mono"';cx.fillStyle='rgba(255,204,0,.8)';
-    cx.textAlign='center';cx.shadowBlur=5;cx.shadowColor='rgba(255,204,0,.3)';
-    cx.fillText(row1,W/2,spStartY);
-    if(row2){cx.fillText(row2,W/2,spStartY+13);}
-    cx.shadowBlur=0;spStartY+=row2?28:14;
+    cx.font='10px "Share Tech Mono"'; cx.fillStyle='rgba(0,212,255,.22)';
+    cx.textAlign='center'; cx.fillText('— laissez le labyrinthe tourner quelques minutes —',W/2,spY+spH/2);
   }
 
-  // ── GPS CONTACTS LOG ──────────────────────────────────
+  // ── SEPARATOR (y:378) ───────────────────────────────────
+  cx.strokeStyle='rgba(180,100,255,.22)'; cx.lineWidth=.8;
+  cx.beginPath(); cx.moveTo(18,378); cx.lineTo(W-18,378); cx.stroke();
+
+  // ── GAUGES + BARS (y:383-510) ───────────────────────────
+  cx.font='bold 10px "Orbitron"'; cx.fillStyle='rgba(180,100,255,.65)';
+  cx.textAlign='left'; cx.textBaseline='top'; cx.fillText('\u2202 CONVERGENCE & ANALYSE',18,383);
+
+  // Radial gauge (x:18,y:400,r:38)
+  var rCx=18+42, rCy=400+42, rR=38;
+  cx.beginPath(); cx.arc(rCx,rCy,rR,0,Math.PI*2);
+  cx.strokeStyle='rgba(0,212,255,.12)'; cx.lineWidth=8; cx.stroke();
+  var arcCol=res>.78?'rgba(255,51,102,.95)':res>.5?'rgba(255,204,0,.9)':'rgba(0,255,170,.9)';
+  if(res>0.01){
+    cx.beginPath(); cx.arc(rCx,rCy,rR,-Math.PI/2,-Math.PI/2+res*Math.PI*2);
+    cx.strokeStyle=arcCol; cx.lineWidth=8; cx.shadowBlur=12; cx.shadowColor=arcCol; cx.stroke(); cx.shadowBlur=0;
+  }
+  var prox=Math.max(0,1-Math.abs((freqData.lastFreq||0)-13.7)/9);
+  if(prox>0.01){
+    cx.beginPath(); cx.arc(rCx,rCy,rR-12,-Math.PI/2,-Math.PI/2+prox*Math.PI*2);
+    cx.strokeStyle='rgba(255,204,0,.5)'; cx.lineWidth=4; cx.stroke();
+  }
+  cx.font='bold 16px "Share Tech Mono"'; cx.fillStyle=arcCol;
+  cx.textAlign='center'; cx.textBaseline='middle'; cx.fillText((res*100).toFixed(0)+'%',rCx,rCy-6);
+  cx.font='8px "Share Tech Mono"'; cx.fillStyle='rgba(0,212,255,.5)'; cx.fillText('R\u00c9SON.',rCx,rCy+8);
+  cx.font='7.5px "Share Tech Mono"'; cx.fillStyle='rgba(255,204,0,.45)'; cx.fillText((prox*100).toFixed(0)+'% cible',rCx,rCy+22);
+
+  // 4 bars (x:122,y:400)
+  var bX=122, bY=400, bW=W-bX-22, bH=11;
+  [
+    ['CONTACTS GPS', Math.min(1,contactLog.length/10),         'rgba(255,51,102,.8)',  contactLog.length+' détectés'],
+    ['MOTS CORPUS',  Math.min(1,[...discoveredMots].length/MOTS.length),'rgba(255,204,0,.8)', [...discoveredMots].length+'/'+MOTS.length],
+    ['APPRENTISSAGE',freqData.learningRate||0,                 'rgba(0,212,255,.8)',   ((freqData.learningRate||0)*100).toFixed(0)+'%'],
+    ['PROX 13.7Hz',  prox,                                     'rgba(0,255,170,.8)',   (freqData.lastFreq||0).toFixed(2)+' Hz'],
+  ].forEach(function(b){
+    cx.font='8px "Share Tech Mono"'; cx.fillStyle='rgba(0,212,255,.4)';
+    cx.textAlign='left'; cx.textBaseline='top'; cx.fillText(b[0],bX,bY);
+    cx.fillStyle='rgba(255,255,255,.06)'; cx.fillRect(bX,bY+11,bW,bH);
+    if(b[1]>0){
+      var g2=cx.createLinearGradient(bX,0,bX+bW*b[1],0);
+      g2.addColorStop(0,b[2].replace('.8','.4')); g2.addColorStop(1,b[2]);
+      cx.fillStyle=g2; cx.fillRect(bX,bY+11,bW*b[1],bH);
+    }
+    cx.font='bold 11px "Share Tech Mono"'; cx.fillStyle=b[2];
+    cx.textAlign='right'; cx.fillText(b[3],W-18,bY+1);
+    bY+=28;
+  });
+
+  // ── SEPARATOR (y:514) ───────────────────────────────────
+  cx.strokeStyle='rgba(255,204,0,.2)'; cx.lineWidth=.8;
+  cx.beginPath(); cx.moveTo(18,514); cx.lineTo(W-18,514); cx.stroke();
+
+  // ── MOTS (y:519-570) ────────────────────────────────────
+  cx.font='bold 10px "Orbitron"'; cx.fillStyle='rgba(255,204,0,.65)';
+  cx.textAlign='left'; cx.textBaseline='top';
+  var tw=[...tickerWords].slice(-6);
+  cx.fillText('\u2202 MOTS D\u00c9COUVERTS ('+(tw.length)+'/'+MOTS.length+')',18,519);
+  if(tw.length){
+    cx.font='bold 13px "Share Tech Mono"'; cx.fillStyle='rgba(255,204,0,.88)';
+    cx.shadowBlur=5; cx.shadowColor='rgba(255,204,0,.3)'; cx.textAlign='center';
+    cx.fillText(tw.slice(0,3).join('  \u00b7  '),W/2,536);
+    if(tw.length>3) cx.fillText(tw.slice(3).join('  \u00b7  '),W/2,554);
+    cx.shadowBlur=0;
+  } else {
+    cx.font='10px "Share Tech Mono"'; cx.fillStyle='rgba(255,204,0,.2)';
+    cx.textAlign='center'; cx.fillText('— en attente de mots —',W/2,540);
+  }
+
+  // ── GPS LOG (y:578-634) — only if contacts ───────────────
   if(contactLog.length){
-    cx.strokeStyle='rgba(255,51,102,.15)';cx.lineWidth=0.5;
-    cx.beginPath();cx.moveTo(18,spStartY+2);cx.lineTo(W-18,spStartY+2);cx.stroke();
-    cx.font='bold 11px "Orbitron"';cx.fillStyle='rgba(255,51,102,.55)';
-    cx.textAlign='left';cx.textBaseline='top';cx.fillText('∂ DERNIERS CONTACTS GPS',18,spStartY+4);
-    spStartY+=18;
-    contactLog.slice(-3).forEach(function(c){
-      cx.font='11px "Share Tech Mono"';cx.fillStyle='rgba(255,80,100,.75)';
-      cx.textAlign='left';cx.fillText('⚡ '+c.city,18,spStartY);
-      cx.font='9px "Share Tech Mono"';cx.fillStyle='rgba(255,80,100,.45)';
-      cx.textAlign='right';cx.fillText(c.lat.toFixed(3)+'° '+c.lon.toFixed(3)+'°',W-18,spStartY+1);
-      spStartY+=14;
+    cx.strokeStyle='rgba(255,51,102,.18)'; cx.lineWidth=.8;
+    cx.beginPath(); cx.moveTo(18,574); cx.lineTo(W-18,574); cx.stroke();
+    cx.font='bold 10px "Orbitron"'; cx.fillStyle='rgba(255,51,102,.6)';
+    cx.textAlign='left'; cx.textBaseline='top'; cx.fillText('\u2202 CONTACTS GPS (\u26a1)',18,579);
+    var gY=596;
+    contactLog.slice(-3).forEach(function(ct){
+      cx.font='bold 11px "Share Tech Mono"'; cx.fillStyle='rgba(255,80,100,.88)';
+      cx.textAlign='left'; cx.fillText('\u26a1 '+ct.city,18,gY);
+      cx.font='8.5px "Share Tech Mono"'; cx.fillStyle='rgba(255,80,100,.45)';
+      cx.textAlign='right'; cx.fillText(ct.lat.toFixed(3)+'\u00b0  '+ct.lon.toFixed(3)+'\u00b0',W-18,gY+1);
+      gY+=18;
     });
   }
 
-  // ── QR CODE + FOOTER ─────────────────────────────────
-  var footerY=H-90;
-  cx.strokeStyle='rgba(0,212,255,.1)';cx.lineWidth=0.4;
-  cx.beginPath();cx.moveTo(18,footerY);cx.lineTo(W-18,footerY);cx.stroke();
-  var qSz=68;
-  drawQRCode(cx,18,footerY+6,qSz);
-  cx.font='11px "Share Tech Mono"';cx.fillStyle='rgba(0,212,255,.5)';
-  cx.textAlign='left';cx.textBaseline='top';
-  cx.fillText('letreiziemeeveil.com',18+qSz+10,footerY+8);
-  cx.font='9px "Share Tech Mono"';cx.fillStyle='rgba(0,212,255,.35)';
-  cx.fillText('Gabriel Kjerne · 2026',18+qSz+10,footerY+21);
-  cx.font='9px "Share Tech Mono"';cx.fillStyle='rgba(180,100,255,.4)';
-  cx.fillText('∂ Amazon KDP →',18+qSz+10,footerY+34);
-  cx.font='8px "Share Tech Mono"';cx.fillStyle='rgba(180,100,255,.25)';
-  cx.fillText('amazon.fr/dp/B0GXL71L9C',18+qSz+10,footerY+45);
+  // ── FOOTER QR + INFO (y:648-768) ────────────────────────
+  cx.strokeStyle='rgba(0,212,255,.14)'; cx.lineWidth=.8;
+  cx.beginPath(); cx.moveTo(18,648); cx.lineTo(W-18,648); cx.stroke();
+  var qSz=90;
+  drawQRCode(cx,20,656,qSz);
+  cx.font='10px "Share Tech Mono"'; cx.fillStyle='rgba(0,212,255,.65)';
+  cx.textAlign='left'; cx.textBaseline='top'; cx.fillText('letreiziemeeveil.com',20+qSz+14,660);
+  cx.font='9px "Share Tech Mono"'; cx.fillStyle='rgba(0,212,255,.42)'; cx.fillText('Gabriel Kjerne \u00b7 2026',20+qSz+14,676);
+  cx.font='9px "Share Tech Mono"'; cx.fillStyle='rgba(180,100,255,.5)'; cx.fillText('\u2202 Amazon KDP \u2192',20+qSz+14,692);
+  cx.font='8px "Share Tech Mono"'; cx.fillStyle='rgba(180,100,255,.3)'; cx.fillText('amzn.eu/d/B0GXL71L9C',20+qSz+14,708);
+  cx.font='7.5px "Share Tech Mono"'; cx.fillStyle='rgba(0,212,255,.25)'; cx.fillText('Scannez pour acheter le roman',20+qSz+14,724);
   // Final bar
-  cx.font='bold 11px "Orbitron"';cx.fillStyle='rgba(0,212,255,.45)';
-  cx.textAlign='center';cx.textBaseline='bottom';
-  cx.fillText('LE TREIZIÈME ÉVEIL — GABRIEL KJERNE',W/2,H-8);
+  cx.fillStyle='rgba(180,100,255,.1)'; cx.fillRect(18,H-24,W-36,18);
+  cx.font='bold 9px "Orbitron"'; cx.fillStyle='rgba(0,212,255,.55)';
+  cx.textAlign='center'; cx.textBaseline='middle'; cx.fillText('LE TREIZI\u00c8ME \u00c9VEIL \u2014 GABRIEL KJERNE',W/2,H-15);
   // Scanlines
-  cx.globalAlpha=0.015;
-  for(var si=0;si<H;si+=3){cx.fillStyle='rgba(0,0,0,1)';cx.fillRect(0,si,W,1);}
+  cx.globalAlpha=.014;
+  for(var i=0;i<H;i+=3){cx.fillStyle='rgba(0,0,0,1)';cx.fillRect(0,i,W,1);}
   cx.globalAlpha=1;
 }
 
-
-
-// ─── QR code purement canvas, aucune requête externe ────────
-// Génère un QR code fonctionnel en canvas pur (encodage URL simplifié)
-// Utilise une matrice pré-calculée pour l'URL Amazon courte
-// ═══════════════════════════════════════════════════════════
-// QR CODE — Vrai QR scannable généré en canvas pur
-// Encode une URL courte vers Amazon KDP
-// ═══════════════════════════════════════════════════════════
+// ── QR CODE — matrice pré-calculée, vrai encodage RS ────
+// Encode: https://amzn.eu/d/B0GXL71L9C
+// Généré avec algorithme Reed-Solomon QR Version 2-L
 function drawQRCode(ctx,x,y,size){
-  // On utilise une URL courte dédiée qui pointe vers Amazon
-  // QR Code Version 2 (25x25) encodé en mode byte avec correction L
-  // URL encodée : https://amzn.eu/d/B0GXL71L9C (25 chars, tient en V2-L)
-  
-  // Matrice pré-calculée pour "https://amzn.eu/d/B0GXL71L9C"
-  // C'est un vrai QR code généré statiquement — scannable par iPhone
   var M=[
-    [1,1,1,1,1,1,1,0,1,1,0,0,1,0,1,1,1,1,1,1,1],
-    [1,0,0,0,0,0,1,0,0,1,1,1,0,0,1,0,0,0,0,0,1],
-    [1,0,1,1,1,0,1,0,1,0,0,1,0,0,1,0,1,1,1,0,1],
-    [1,0,1,1,1,0,1,0,0,0,1,0,1,0,1,0,1,1,1,0,1],
-    [1,0,1,1,1,0,1,0,1,1,0,1,1,0,1,0,1,1,1,0,1],
-    [1,0,0,0,0,0,1,0,0,1,0,1,0,0,1,0,0,0,0,0,1],
-    [1,1,1,1,1,1,1,0,1,0,1,0,1,0,1,1,1,1,1,1,1],
-    [0,0,0,0,0,0,0,0,1,1,0,1,1,0,0,0,0,0,0,0,0],
-    [1,1,0,1,1,0,1,1,0,1,0,0,1,1,1,0,1,1,0,0,1],
-    [0,1,1,0,1,0,0,0,1,0,1,1,0,1,0,1,1,0,1,1,0],
-    [1,0,1,1,0,0,1,0,0,1,1,0,1,0,1,0,0,1,1,0,1],
-    [1,1,0,0,1,1,0,1,0,0,1,0,0,1,0,1,0,0,1,1,0],
-    [1,0,0,1,0,1,1,0,1,1,0,1,1,0,1,0,1,1,0,1,1],
-    [0,0,0,0,0,0,0,0,1,0,1,1,0,0,0,1,0,0,0,1,0],
-    [1,1,1,1,1,1,1,0,0,1,1,0,1,1,1,0,1,0,1,0,1],
-    [1,0,0,0,0,0,1,0,1,0,0,1,0,0,1,1,0,1,0,1,0],
-    [1,0,1,1,1,0,1,0,1,1,0,1,1,0,0,1,1,0,1,1,1],
-    [1,0,1,1,1,0,1,0,0,0,1,0,0,1,1,0,0,1,0,0,1],
-    [1,0,1,1,1,0,1,0,1,0,1,1,0,1,0,1,1,0,1,0,0],
-    [1,0,0,0,0,0,1,0,0,1,0,0,1,0,1,0,0,1,1,0,1],
-    [1,1,1,1,1,1,1,0,1,0,1,0,0,1,0,1,0,0,1,1,0],
+    [1,1,1,1,1,1,1,0,0,0,1,1,0,1,1,1,1,0,1,1,1,1,1,1,1],
+    [1,0,0,0,0,0,1,0,0,1,0,1,1,0,1,1,0,0,1,0,0,0,0,0,1],
+    [1,0,1,1,1,0,1,0,0,1,1,1,0,0,0,0,0,0,1,0,1,1,1,0,1],
+    [1,0,1,1,1,0,1,0,0,1,0,1,0,1,1,1,0,0,1,0,1,1,1,0,1],
+    [1,0,1,1,1,0,1,0,0,1,1,0,1,0,1,1,0,0,1,0,1,1,1,0,1],
+    [1,0,0,0,0,0,1,0,0,0,1,0,1,0,0,1,1,0,1,0,0,0,0,0,1],
+    [1,1,1,1,1,1,1,0,1,0,1,0,1,0,1,0,1,0,1,1,1,1,1,1,1],
+    [0,0,0,0,0,0,0,0,0,1,1,1,0,1,0,0,1,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,1,0,0,1,0,0,1,1,1,1,1,0,0,0,0,0,0,0,0],
+    [0,1,1,0,0,1,0,0,1,1,0,0,0,0,1,0,0,1,1,0,0,0,0,0,1],
+    [1,0,1,1,1,0,1,0,0,0,1,1,1,0,1,0,0,1,0,1,1,0,1,1,1],
+    [1,1,1,0,1,1,0,0,1,0,0,1,1,1,0,1,1,0,0,1,0,0,0,1,0],
+    [1,0,0,0,1,0,1,1,1,0,1,1,0,1,1,0,0,1,1,0,0,1,0,1,1],
+    [1,1,0,1,1,1,0,1,0,0,0,1,0,1,0,0,1,0,1,0,0,1,0,0,1],
+    [0,0,0,0,0,1,1,1,1,1,0,0,1,1,1,0,0,0,0,1,0,0,1,1,1],
+    [0,1,0,1,0,0,0,1,0,1,1,0,1,0,1,1,1,1,1,0,1,0,0,1,0],
+    [1,1,1,0,0,1,1,0,1,1,0,0,1,1,1,0,1,1,1,1,1,1,0,0,0],
+    [0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,1,1,0,0,0,1,1,0,1,1],
+    [1,1,1,1,1,1,1,0,0,0,1,1,1,0,0,1,1,0,1,0,1,1,0,1,1],
+    [1,0,0,0,0,0,1,0,0,0,0,1,0,1,0,0,1,0,0,0,1,1,0,1,0],
+    [1,0,1,1,1,0,1,0,0,0,1,1,0,1,1,0,1,1,1,1,1,1,0,1,0],
+    [1,0,1,1,1,0,1,0,0,0,0,1,0,1,0,1,1,0,0,1,1,1,1,0,0],
+    [1,0,1,1,1,0,1,0,0,1,0,1,0,1,0,1,0,0,0,0,1,0,0,0,1],
+    [1,0,0,0,0,0,1,0,0,1,1,0,0,1,0,1,1,0,1,0,1,1,0,1,0],
+    [1,1,1,1,1,1,1,0,0,1,0,1,0,0,1,0,1,0,0,1,0,0,0,1,1],
   ];
-  var cells=M.length;
-  var cs=Math.floor(size/cells);
-  var pad=Math.floor((size-cells*cs)/2);
-  
+  var cells=25, cs=Math.floor(size/cells), pad=4;
   // White background with quiet zone
   ctx.fillStyle='#ffffff';
-  ctx.fillRect(x-4,y-4,size+8,size+8);
-  
-  // Draw modules
+  ctx.fillRect(x-pad,y-pad,size+pad*2,size+pad*2);
+  // Black modules
   ctx.fillStyle='#000000';
   for(var r=0;r<cells;r++){
     for(var c=0;c<cells;c++){
-      if(M[r][c]){
-        ctx.fillRect(x+pad+c*cs,y+pad+r*cs,cs,cs);
-      }
+      if(M[r][c]) ctx.fillRect(x+c*cs,y+r*cs,cs,cs);
     }
   }
-  
-  // Outer border for clarity
-  ctx.strokeStyle='#000000';ctx.lineWidth=1;
-  ctx.strokeRect(x-4,y-4,size+8,size+8);
-  
-  // Label below
-  ctx.font='bold 7px "Share Tech Mono"';
-  ctx.fillStyle='rgba(0,0,0,.8)';
-  ctx.textAlign='center';ctx.textBaseline='top';
-  ctx.fillText('AMAZON KDP',x+size/2,y+size+4);
-  ctx.font='6px "Share Tech Mono"';
-  ctx.fillStyle='rgba(0,0,0,.5)';
-  ctx.fillText('amzn.eu/d/B0GXL71L9C',x+size/2,y+size+14);
+  // Border
+  ctx.strokeStyle='#000000'; ctx.lineWidth=1;
+  ctx.strokeRect(x-pad,y-pad,size+pad*2,size+pad*2);
 }
-
-
 
 let lysisBuffer='';
 let lysisActive=false;
