@@ -3434,7 +3434,7 @@ function generateVisitCard(){
 function downloadCard(){
   // Use offscreen canvas with forDownload=true (no video = no CORS taint)
   var offscreen=document.createElement('canvas');
-  offscreen.width=460;offscreen.height=820;
+  offscreen.width=480;offscreen.height=820;
   renderVisitCardToCanvas(offscreen, true);
   try{
     var url=offscreen.toDataURL('image/png');
@@ -3628,7 +3628,7 @@ function renderVisitCardToCanvas(canvas, forDownload){
   // Fixed layout - no dynamic positioning
   // Card is 460px wide x 780px tall
   // Sections: Header(0-55) | TarotStats(55-285) | Separator | Sparkline(300-390) | Separator | Gauges(410-530) | Separator | Words(545-590) | GPS(605-660 if data) | Footer(670-780)
-  var W=460, H=780;
+  var W=480, H=820;
   canvas.width=W; canvas.height=H;
   if(!forDownload){
     canvas.style.width=Math.min(W,window.innerWidth-40)+'px';
@@ -3877,7 +3877,7 @@ function renderVisitCardToCanvas(canvas, forDownload){
   // ── FOOTER QR + INFO (y:648-768) ────────────────────────
   cx.strokeStyle='rgba(0,212,255,.14)'; cx.lineWidth=.8;
   cx.beginPath(); cx.moveTo(18,648); cx.lineTo(W-18,648); cx.stroke();
-  var qSz=90;
+  var qSz=200;
   drawQRCode(cx,20,656,qSz);
   cx.font='10px "Share Tech Mono"'; cx.fillStyle='rgba(0,212,255,.65)';
   cx.textAlign='left'; cx.textBaseline='top'; cx.fillText('letreiziemeeveil.com',20+qSz+14,660);
@@ -3937,11 +3937,12 @@ function drawQRCode(ctx,x,y,size){
     [1,1,1,1,1,1,1,0,0,1,1,1,0,0,1,0,1,0,0,1,1,1,0,0,1,1,0,1,0,1,1,1,1],
   ];
   var cells=M.length;
-  var cs=Math.floor(size/cells);
-  var quiet=4;
+  var cs=Math.max(5,Math.floor(size/cells));  // min 5px per module for scannability
+  var actualSize=cells*cs;
+  var quiet=8;  // larger quiet zone improves scanning
   // White background + quiet zone
   ctx.fillStyle='#ffffff';
-  ctx.fillRect(x-quiet,y-quiet,cells*cs+quiet*2,cells*cs+quiet*2);
+  ctx.fillRect(x-quiet,y-quiet,actualSize+quiet*2,actualSize+quiet*2);
   // Black modules
   ctx.fillStyle='#000000';
   for(var r=0;r<cells;r++){
@@ -3950,8 +3951,8 @@ function drawQRCode(ctx,x,y,size){
     }
   }
   // Border
-  ctx.strokeStyle='#000000';ctx.lineWidth=1;
-  ctx.strokeRect(x-quiet,y-quiet,cells*cs+quiet*2,cells*cs+quiet*2);
+  ctx.strokeStyle='#000000';ctx.lineWidth=2;
+  ctx.strokeRect(x-quiet,y-quiet,actualSize+quiet*2,actualSize+quiet*2);
 }
 
 let lysisBuffer='';
