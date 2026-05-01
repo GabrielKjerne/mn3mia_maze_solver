@@ -602,8 +602,153 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:800;
   100%{transform:translate(0,0)}}
 
 
+
+/* ═══════════════════════════════
+   GLOBE CONTACTS MODAL
+═══════════════════════════════ */
+#globe-modal{position:fixed;inset:0;z-index:700;background:rgba(0,0,10,.95);
+  display:flex;align-items:center;justify-content:center;
+  opacity:0;pointer-events:none;transition:opacity .35s}
+#globe-modal.on{opacity:1;pointer-events:all}
+#globe-modal-box{width:min(800px,95vw);max-height:88vh;
+  display:flex;flex-direction:column;
+  border:1px solid rgba(255,51,102,.35);background:rgba(0,3,14,.98)}
+#globe-modal-hdr{display:flex;justify-content:space-between;align-items:center;
+  padding:8px 14px;background:rgba(255,51,102,.08);
+  border-bottom:1px solid rgba(255,51,102,.2);flex-shrink:0}
+#globe-modal-title{font-family:'Orbitron',monospace;font-size:10px;font-weight:700;
+  letter-spacing:.25em;color:rgba(255,80,100,.9);
+  text-shadow:0 0 10px rgba(255,51,102,.4)}
+#globe-modal-close{font-size:9px;color:rgba(255,51,102,.5);cursor:pointer;
+  padding:2px 8px;border:1px solid rgba(255,51,102,.25)}
+#globe-modal-close:hover{color:rgba(255,80,100,.9);background:rgba(255,51,102,.1)}
+#globe-modal-subtitle{font-size:7px;letter-spacing:.12em;
+  color:rgba(0,212,255,.35);padding:5px 14px;flex-shrink:0}
+#globe-contact-list{display:flex;flex-wrap:wrap;gap:6px;padding:10px 14px;
+  flex-shrink:0;border-bottom:1px solid rgba(255,51,102,.12);overflow-y:auto;
+  max-height:160px}
+.globe-contact-btn{font-family:'Share Tech Mono',monospace;font-size:8px;
+  letter-spacing:.12em;padding:6px 12px;cursor:pointer;transition:all .2s;
+  border:1px solid rgba(255,51,102,.35);color:rgba(255,80,100,.75);
+  background:rgba(255,51,102,.04);text-align:left}
+.globe-contact-btn:hover,.globe-contact-btn.active{
+  background:rgba(255,51,102,.15);color:rgba(255,120,140,.95);
+  border-color:rgba(255,51,102,.7);box-shadow:0 0 10px rgba(255,51,102,.2)}
+.globe-contact-freq{font-size:6px;color:rgba(255,51,102,.4);
+  display:block;margin-top:2px}
+#globe-map-wrap{flex:1;position:relative;min-height:320px;background:#000814}
+#globe-map-placeholder{position:absolute;inset:0;display:flex;
+  flex-direction:column;align-items:center;justify-content:center;gap:8px;
+  font-family:'Share Tech Mono',monospace;font-size:9px;
+  letter-spacing:.15em;color:rgba(0,212,255,.2)}
+#globe-map-frame{position:absolute;inset:0;width:100%;height:100%;
+  display:none;border:none}
+#globe-contact-detail{position:absolute;bottom:0;left:0;right:0;
+  background:rgba(0,3,14,.85);padding:6px 12px;
+  font-family:'Share Tech Mono',monospace;font-size:7.5px;
+  color:rgba(255,80,100,.7);letter-spacing:.08em;
+  border-top:1px solid rgba(255,51,102,.15);display:none}
+
 @media(max-width:768px){
-  html,body{overflow:hidden}
+  #globe-modal-box{max-height:92vh}
+  #globe-map-wrap{min-height:220px}
+  .globe-contact-btn{font-size:7px;padding:4px 8px}
+}
+
+
+/* ═══════════════════════════════
+   TUTORIAL SYSTEM
+═══════════════════════════════ */
+#tuto-invite{position:fixed;inset:0;z-index:800;
+  background:rgba(0,0,10,.92);backdrop-filter:blur(4px);
+  display:flex;align-items:center;justify-content:center;
+  opacity:0;pointer-events:none;transition:opacity .6s}
+#tuto-invite.on{opacity:1;pointer-events:all}
+#tuto-invite-box{
+  border:1px solid rgba(0,212,255,.35);background:rgba(0,5,20,.97);
+  padding:32px 36px;max-width:480px;width:90vw;
+  display:flex;flex-direction:column;align-items:center;gap:14px;
+  box-shadow:0 0 60px rgba(0,212,255,.08),0 0 120px rgba(180,100,255,.06)}
+#tuto-invite-sym{font-family:'Orbitron',monospace;font-size:36px;
+  color:rgba(180,100,255,.8);
+  text-shadow:0 0 30px rgba(180,100,255,.5);
+  animation:glitch 4s infinite}
+#tuto-invite-title{font-family:'Orbitron',monospace;font-size:13px;font-weight:900;
+  letter-spacing:.35em;color:rgba(0,212,255,.9);text-align:center;
+  text-shadow:0 0 15px rgba(0,212,255,.4)}
+#tuto-invite-sub{font-size:7px;letter-spacing:.18em;
+  color:rgba(0,255,170,.45);text-align:center}
+#tuto-invite-msg{font-family:'Share Tech Mono',monospace;font-size:11px;
+  line-height:1.7;color:rgba(200,220,255,.7);text-align:center;letter-spacing:.05em}
+#tuto-invite-btns{display:flex;flex-direction:column;gap:8px;width:100%;align-items:center}
+#tuto-yes{font-family:'Orbitron',monospace;font-size:9px;font-weight:700;
+  letter-spacing:.25em;padding:11px 28px;width:100%;
+  background:rgba(0,212,255,.07);border:1px solid rgba(0,212,255,.5);
+  color:rgba(0,212,255,.9);cursor:pointer;transition:all .3s}
+#tuto-yes:hover{background:rgba(0,212,255,.16);box-shadow:0 0 20px rgba(0,212,255,.2)}
+#tuto-no{font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:.2em;
+  padding:7px 20px;background:transparent;border:1px solid rgba(180,100,255,.2);
+  color:rgba(180,100,255,.4);cursor:pointer;transition:all .2s}
+#tuto-no:hover{color:rgba(180,100,255,.7);border-color:rgba(180,100,255,.4)}
+
+/* Tutorial terminal + highlight */
+#tuto-terminal{position:fixed;inset:0;z-index:790;
+  pointer-events:none;opacity:0;transition:opacity .4s}
+#tuto-terminal.on{opacity:1;pointer-events:all}
+
+#tuto-highlight{
+  position:fixed;
+  border:2px solid rgba(0,212,255,.9);
+  box-shadow:0 0 0 4000px rgba(0,0,10,.72),0 0 30px rgba(0,212,255,.5),inset 0 0 20px rgba(0,212,255,.08);
+  border-radius:3px;transition:all .45s cubic-bezier(.23,1,.32,1);
+  pointer-events:none;z-index:791;
+}
+#tuto-highlight::before{content:'';position:absolute;inset:-6px;
+  border:1px solid rgba(0,212,255,.3);border-radius:5px;
+  animation:tutoPulse 1.5s ease-in-out infinite}
+@keyframes tutoPulse{0%,100%{opacity:.4}50%{opacity:1}}
+
+#tuto-panel{
+  position:fixed;z-index:795;
+  width:min(380px,88vw);
+  background:rgba(0,5,18,.97);
+  border:1px solid rgba(0,212,255,.4);
+  box-shadow:0 0 40px rgba(0,212,255,.12);
+  display:flex;flex-direction:column;
+  transition:all .4s cubic-bezier(.23,1,.32,1);
+  pointer-events:all;
+}
+#tuto-panel-hdr{display:flex;justify-content:space-between;align-items:center;
+  padding:6px 12px;background:rgba(0,212,255,.07);
+  border-bottom:1px solid rgba(0,212,255,.18);flex-shrink:0}
+#tuto-step-label{font-family:'Orbitron',monospace;font-size:7.5px;font-weight:700;
+  letter-spacing:.2em;color:rgba(0,212,255,.8)}
+#tuto-step-counter{font-family:'Share Tech Mono',monospace;font-size:7px;
+  color:rgba(0,212,255,.4)}
+#tuto-panel-body{padding:14px 14px 10px;min-height:80px;
+  font-family:'Share Tech Mono',monospace;font-size:9px;line-height:1.65;
+  color:rgba(180,210,255,.8);letter-spacing:.04em}
+#tuto-typewriter::after{content:'▋';animation:blink .7s step-end infinite;
+  color:rgba(0,212,255,.8)}
+#tuto-panel-nav{display:flex;gap:6px;padding:8px 12px;
+  border-top:1px solid rgba(0,212,255,.12);flex-shrink:0}
+#tuto-prev,#tuto-next,#tuto-done{font-family:'Share Tech Mono',monospace;
+  font-size:7px;letter-spacing:.15em;padding:5px 10px;
+  cursor:pointer;transition:all .2s;flex:1}
+#tuto-prev{border:1px solid rgba(0,212,255,.25);color:rgba(0,212,255,.55);background:transparent}
+#tuto-prev:hover{background:rgba(0,212,255,.08)}
+#tuto-prev:disabled{opacity:.25;cursor:default}
+#tuto-next{border:1px solid rgba(0,212,255,.45);color:rgba(0,212,255,.85);
+  background:rgba(0,212,255,.07)}
+#tuto-next:hover{background:rgba(0,212,255,.15)}
+#tuto-done{border:1px solid rgba(0,255,170,.3);color:rgba(0,255,170,.6);background:transparent}
+#tuto-done:hover{background:rgba(0,255,170,.08)}
+
+@media(max-width:768px){
+  #tuto-panel{width:92vw;font-size:8px}
+}
+
+@media(max-width:768px){
   #app{overflow:hidden;grid-template-rows:24px 1fr 20px}
   #main{grid-template-columns:1fr;
     overflow-y:scroll;overflow-x:hidden;-webkit-overflow-scrolling:touch;
@@ -997,6 +1142,57 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:800;
   </div>
 </div>
 
+<!-- GLOBE CONTACTS MODAL -->
+<div id="globe-modal">
+  <div id="globe-modal-box">
+    <div id="globe-modal-hdr">
+      <div id="globe-modal-title">⚡ CONTACTS GPS ÉTABLIS</div>
+      <div id="globe-modal-close" onclick="closeGlobeModal()">✕</div>
+    </div>
+    <div id="globe-modal-subtitle">Cliquez sur un contact pour voir la localisation exacte</div>
+    <div id="globe-contact-list"></div>
+    <div id="globe-map-wrap">
+      <div id="globe-map-placeholder">← Sélectionnez un contact</div>
+      <iframe id="globe-map-frame" frameborder="0" allowfullscreen></iframe>
+    </div>
+  </div>
+</div>
+
+<!-- TUTORIAL OVERLAY -->
+<div id="tuto-invite">
+  <div id="tuto-invite-box">
+    <div id="tuto-invite-sym">∂</div>
+    <div id="tuto-invite-title">BIENVENUE DANS MN3MIA</div>
+    <div id="tuto-invite-sub">Système en ligne · Protocole de navigation disponible</div>
+    <div id="tuto-invite-msg">Souhaitez-vous activer le protocole de découverte ?<br>
+      <span style="color:rgba(0,212,255,.45);font-size:7px;letter-spacing:.1em">Chaque module sera présenté avec ses fonctionnalités.</span>
+    </div>
+    <div id="tuto-invite-btns">
+      <button id="tuto-yes" onclick="startTutorial()">∂ ACTIVER LE PROTOCOLE</button>
+      <button id="tuto-no" onclick="closeTutoInvite()">[ ACCÈS DIRECT ]</button>
+    </div>
+  </div>
+</div>
+
+<!-- TUTORIAL TERMINAL -->
+<div id="tuto-terminal">
+  <div id="tuto-highlight"></div>
+  <div id="tuto-panel">
+    <div id="tuto-panel-hdr">
+      <span id="tuto-step-label">∂ PROTOCOLE MN3MIA</span>
+      <span id="tuto-step-counter"></span>
+    </div>
+    <div id="tuto-panel-body">
+      <div id="tuto-typewriter"></div>
+    </div>
+    <div id="tuto-panel-nav">
+      <button id="tuto-prev" onclick="tutoNav(-1)">← PRÉCÉDENT</button>
+      <button id="tuto-done" onclick="endTutorial()">✓ TERMINÉ</button>
+      <button id="tuto-next" onclick="tutoNav(1)">SUIVANT →</button>
+    </div>
+  </div>
+</div>
+
 <!-- CHAPTER OVERLAY -->
 <div id="overlay">
   <div id="overlay-box">
@@ -1221,6 +1417,7 @@ function enterApp(){
   document.getElementById('intro').classList.add('out');
   document.getElementById('app').classList.add('on');
   setTimeout(()=>startMain(),1200);
+  setTimeout(()=>showTutoInvite(),3500);
 }
 window.addEventListener('load',()=>{
   const bar=document.getElementById('intro-bar');
@@ -3845,34 +4042,54 @@ function renderVisitCardToCanvas(canvas, forDownload){
   // ── MOTS (y:519-570) ────────────────────────────────────
   cx.font='bold 10px "Orbitron"'; cx.fillStyle='rgba(255,204,0,.65)';
   cx.textAlign='left'; cx.textBaseline='top';
-  var tw=[...tickerWords].slice(-6);
+  // Top 13 mots les plus fréquents dans le corpus découvert
+  var allW=[...discoveredMots];
+  // Count frequency — words appear multiple times in MOTS array
+  var wFreq={};
+  MOTS.forEach(function(m){if(allW.indexOf(m)>=0){wFreq[m]=(wFreq[m]||0)+1;}});
+  var tw=Object.keys(wFreq).sort(function(a,b){return wFreq[b]-wFreq[a];}).slice(0,13);
+  if(!tw.length) tw=allW.slice(-13);
   cx.fillText('\u2202 MOTS D\u00c9COUVERTS ('+(tw.length)+'/'+MOTS.length+')',18,519);
   if(tw.length){
-    cx.font='bold 13px "Share Tech Mono"'; cx.fillStyle='rgba(255,204,0,.88)';
-    cx.shadowBlur=5; cx.shadowColor='rgba(255,204,0,.3)'; cx.textAlign='center';
-    cx.fillText(tw.slice(0,3).join('  \u00b7  '),W/2,536);
-    if(tw.length>3) cx.fillText(tw.slice(3).join('  \u00b7  '),W/2,554);
+    cx.font='bold 9px "Share Tech Mono"'; cx.fillStyle='rgba(255,204,0,.88)';
+    cx.shadowBlur=4; cx.shadowColor='rgba(255,204,0,.25)'; cx.textAlign='center';
+    var row1=tw.slice(0,7).join(' \u00b7 ');
+    var row2=tw.slice(7,13).join(' \u00b7 ');
+    // Auto-shrink if too wide
+    var fs=9;
+    cx.font='bold '+fs+'px "Share Tech Mono"';
+    while(cx.measureText(row1).width>W-36&&fs>6){fs--;cx.font='bold '+fs+'px "Share Tech Mono"';}
+    cx.fillText(row1,W/2,536);
+    if(row2) cx.fillText(row2,W/2,536+fs+4);
     cx.shadowBlur=0;
   } else {
     cx.font='10px "Share Tech Mono"'; cx.fillStyle='rgba(255,204,0,.2)';
     cx.textAlign='center'; cx.fillText('— en attente de mots —',W/2,540);
   }
 
-  // ── GPS LOG (y:578-634) — only if contacts ───────────────
+
+  // ── GPS LOG — inline, tous les contacts sur une ligne ──
   if(contactLog.length){
     cx.strokeStyle='rgba(255,51,102,.18)'; cx.lineWidth=.8;
     cx.beginPath(); cx.moveTo(18,574); cx.lineTo(W-18,574); cx.stroke();
-    cx.font='bold 10px "Orbitron"'; cx.fillStyle='rgba(255,51,102,.6)';
-    cx.textAlign='left'; cx.textBaseline='top'; cx.fillText('\u2202 CONTACTS GPS (\u26a1)',18,579);
-    var gY=596;
-    contactLog.slice(-3).forEach(function(ct){
-      cx.font='bold 11px "Share Tech Mono"'; cx.fillStyle='rgba(255,80,100,.88)';
-      cx.textAlign='left'; cx.fillText('\u26a1 '+ct.city,18,gY);
-      cx.font='8.5px "Share Tech Mono"'; cx.fillStyle='rgba(255,80,100,.45)';
-      cx.textAlign='right'; cx.fillText(ct.lat.toFixed(3)+'\u00b0  '+ct.lon.toFixed(3)+'\u00b0',W-18,gY+1);
-      gY+=18;
-    });
+    cx.font='bold 9px "Orbitron"'; cx.fillStyle='rgba(255,51,102,.6)';
+    cx.textAlign='left'; cx.textBaseline='top';
+    // Build inline string: "⚡ CONTACTS GPS — Macau - Almaty - Oslo"
+    var cities=contactLog.map(function(ct){return ct.city;}).join(' — ');
+    var label='\u26a1 CONTACTS GPS \u2014 '+cities;
+    // Truncate if too long
+    cx.font='bold 9px "Share Tech Mono"';
+    var maxW=W-36;
+    while(cx.measureText(label).width>maxW&&cities.length>0){
+      var parts=cities.split(' — ');
+      parts.pop();
+      cities=parts.join(' — ');
+      label='\u26a1 CONTACTS GPS \u2014 '+cities+(contactLog.length>parts.length?'…':'');
+    }
+    cx.fillStyle='rgba(255,80,100,.85)';
+    cx.fillText(label,18,582);
   }
+
 
   // ── FOOTER ──────────────────────────────────────────────
   cx.strokeStyle='rgba(0,212,255,.14)'; cx.lineWidth=.8;
@@ -3957,6 +4174,85 @@ function drawQRCode(ctx,x,y,size){
   ctx.strokeStyle='#000000';ctx.lineWidth=2;
   ctx.strokeRect(x-quiet,y-quiet,actualSize+quiet*2,actualSize+quiet*2);
 }
+
+
+// ═══════════════════════════════════════════════════════════
+// TUTORIAL SYSTEM — Protocole de découverte
+// ═══════════════════════════════════════════════════════════
+var TUTO_STEPS=[
+  {sel:'#gw',title:'∂ CONTACT MAP — LE GLOBE',
+   text:'Ce globe cartographie les connexions en temps réel.\n\nChaque point rouge = un contact GPS établi pendant votre session.\n\nCliquez sur le globe pour ouvrir la fenêtre des contacts et visualiser chaque localisation sur une carte interactive sombre.',pos:'right'},
+  {sel:'#fw',title:'∂ 13.7Hz ENGINE — FRÉQUENCE',
+   text:'Mn3mIA mesure en permanence la fréquence émotionnelle de votre session.\n\nCible : 13.7 Hz — fréquence de perméabilité émotionnelle élevée. Rare.\n\nPlus vous interagissez avec le labyrinthe, plus la fréquence converge.',pos:'right'},
+  {sel:'#center',title:'∂ LABYRINTHE — CORPUS DU ROMAN',
+   text:'Généré à chaque itération depuis les mots du roman.\n\nMn3mIA le résout par backtracking. Chaque mot découvert appartient au corpus de la saga.\n\nLes mots alimentent l\'Oracle et votre carte de session.',pos:'left'},
+  {sel:'#tc-links',title:'∂ MODULES DE SESSION',
+   text:'▶ LODICIQUARTE — texte de l\'auteur\n♪ MUSIC — oscilloscope audio\n∂ ARCANES — Oracle, 13 arcanes, 169 réponses\n⬡ MA CARTE — carte personnalisée téléchargeable\n⌘ JOURNAL — export session\n∿ EMPREINTE — votre fréquence rendue audible',pos:'below'},
+  {sel:'#t1panel',title:'∂ TOME I — VERROUILLÉ PAR LYSIS',
+   text:'Le Tome I est verrouillé par Lysis.\n\nUn Easter Egg est caché dans ce programme.\n\nIndice : 5 lettres. Un nom. Celle qui verrouille le Tome I.',pos:'right'},
+  {sel:'#t3panel',title:'∂ TOME III — NON ENCORE ÉCRIT',
+   text:'Ce tome n\'existe pas encore.\nMais sa fréquence est déjà là.\n\nMn3mIA détecte une onde fantôme entre 8 et 11 Hz — instable, non convergée.',pos:'right'},
+  {sel:'#rb',title:'∂ TERMINAL MN3MIA',
+   text:'Enregistre en temps réel tous les événements :\n— Mots découverts\n— Contacts GPS\n— Arcanes tirés\n— Protocoles activés\n\nTouche J = Journal complet exportable.',pos:'left'},
+  {sel:'#premo-wrap',title:'∂ PRÉMONITIONS',
+   text:'4 générateurs analysent votre session :\n\n∂ CARTE — arcane + localisation\n∂ POÈME — poème depuis les mots\n∂ SIGNAL — transmission codée\n∂ ONIRIQUE — fragment du Tome II\n\nChaque prémonition est unique à votre session.',pos:'above'},
+];
+
+var tutoIdx=0,tutoTypeTimer=null,tutoActive=false;
+
+function showTutoInvite(){document.getElementById('tuto-invite').classList.add('on');}
+function closeTutoInvite(){document.getElementById('tuto-invite').classList.remove('on');}
+function startTutorial(){
+  closeTutoInvite();tutoActive=true;tutoIdx=0;
+  document.getElementById('tuto-terminal').classList.add('on');
+  renderTutoStep(0);
+}
+function endTutorial(){
+  tutoActive=false;
+  document.getElementById('tuto-terminal').classList.remove('on');
+  document.getElementById('tuto-highlight').style.cssText='border:none;box-shadow:none;width:0;height:0';
+  if(tutoTypeTimer) clearTimeout(tutoTypeTimer);
+}
+function renderTutoStep(idx){
+  var step=TUTO_STEPS[idx]; if(!step) return;
+  var el=document.querySelector(step.sel);
+  var hl=document.getElementById('tuto-highlight');
+  if(el){
+    var r=el.getBoundingClientRect(),pad=8;
+    hl.style.cssText='position:fixed;left:'+(r.left-pad)+'px;top:'+(r.top-pad)+'px;'+
+      'width:'+(r.width+pad*2)+'px;height:'+(r.height+pad*2)+'px;'+
+      'border:2px solid rgba(0,212,255,.95);z-index:791;pointer-events:none;border-radius:3px;'+
+      'box-shadow:0 0 0 4000px rgba(0,0,10,.75),0 0 28px rgba(0,212,255,.5),inset 0 0 16px rgba(0,212,255,.06);'+
+      'transition:all .4s cubic-bezier(.23,1,.32,1);';
+  }
+  var panel=document.getElementById('tuto-panel');
+  var vw=window.innerWidth,vh=window.innerHeight,pw=Math.min(360,vw*0.88),ph=240;
+  var px=vw/2-pw/2,py=vh/2-ph/2;
+  if(el){
+    var r2=el.getBoundingClientRect();
+    if(step.pos==='right'&&r2.right+pw+16<vw){px=r2.right+12;py=Math.max(8,r2.top);}
+    else if(step.pos==='left'&&r2.left-pw-16>0){px=r2.left-pw-12;py=Math.max(8,r2.top);}
+    else if(step.pos==='below'){px=Math.max(8,Math.min(r2.left,vw-pw-8));py=r2.bottom+12;}
+    else if(step.pos==='above'){px=Math.max(8,Math.min(r2.left,vw-pw-8));py=Math.max(8,r2.top-ph-12);}
+    px=Math.max(8,Math.min(px,vw-pw-8));py=Math.max(8,Math.min(py,vh-ph-8));
+  }
+  panel.style.cssText='position:fixed;z-index:795;width:'+pw+'px;left:'+px+'px;top:'+py+'px;'+
+    'background:rgba(0,5,18,.97);border:1px solid rgba(0,212,255,.4);'+
+    'box-shadow:0 0 40px rgba(0,212,255,.12);display:flex;flex-direction:column;'+
+    'transition:left .4s,top .4s;pointer-events:all;';
+  document.getElementById('tuto-step-label').textContent=step.title;
+  document.getElementById('tuto-step-counter').textContent=(idx+1)+' / '+TUTO_STEPS.length;
+  var tw=document.getElementById('tuto-typewriter');
+  tw.textContent='';if(tutoTypeTimer) clearTimeout(tutoTypeTimer);
+  var i=0,txt=step.text;
+  function type(){if(i<txt.length){tw.textContent=txt.slice(0,i+1);i++;tutoTypeTimer=setTimeout(type,i<30?28:12);}}
+  type();
+  document.getElementById('tuto-prev').disabled=(idx===0);
+  document.getElementById('tuto-next').style.display=idx===TUTO_STEPS.length-1?'none':'inline-block';
+  document.getElementById('tuto-done').style.display=idx===TUTO_STEPS.length-1?'inline-block':'none';
+  if(el) el.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+function tutoNav(dir){tutoIdx=Math.max(0,Math.min(TUTO_STEPS.length-1,tutoIdx+dir));renderTutoStep(tutoIdx);}
 
 let lysisBuffer='';
 let lysisActive=false;
@@ -4088,6 +4384,142 @@ document.addEventListener('click',e=>{
 });
 
 // ═══════════════════════════════════════════════
+
+// ═══════════════════════════════════════════════════════════
+// GLOBE CONTACTS MODAL
+// ═══════════════════════════════════════════════════════════
+function openGlobeModal(){
+  if(!contactLog.length){
+    rlog('<span style="color:rgba(255,51,102,.6)">⚡ Aucun contact GPS établi</span>');
+    return;
+  }
+  buildGlobeContactList();
+  document.getElementById('globe-modal').classList.add('on');
+}
+function closeGlobeModal(){
+  document.getElementById('globe-modal').classList.remove('on');
+  var frame=document.getElementById('globe-map-frame');
+  frame.style.display='none';
+  frame.src='';
+  var det=document.getElementById('globe-contact-detail');
+  if(det) det.style.display='none';
+}
+
+function buildGlobeContactList(){
+  var list=document.getElementById('globe-contact-list');
+  if(!list) return;
+  list.innerHTML='';
+  // Header count
+  var title=document.getElementById('globe-modal-title');
+  if(title) title.textContent='⚡ CONTACTS GPS — '+contactLog.length+' ÉTABLI'+(contactLog.length>1?'S':'');
+
+  contactLog.forEach(function(ct,i){
+    var btn=document.createElement('button');
+    btn.className='globe-contact-btn';
+    btn.innerHTML='⚡ <b>'+ct.city+'</b><span class="globe-contact-freq">'+
+      ct.lat.toFixed(4)+'° '+ct.lon.toFixed(4)+'° · '+ct.freq+'Hz</span>';
+    btn.onclick=function(){
+      // Remove active from all
+      list.querySelectorAll('.globe-contact-btn').forEach(function(b){b.classList.remove('active');});
+      btn.classList.add('active');
+      openContactMap(ct);
+    };
+    list.appendChild(btn);
+  });
+}
+
+function openContactMap(ct){
+  var placeholder=document.getElementById('globe-map-placeholder');
+  var detail=document.getElementById('globe-contact-detail');
+  var wrap=document.getElementById('globe-map-wrap');
+
+  // Replace iframe with Leaflet map for beautiful dark tiled map
+  var existing=document.getElementById('globe-leaflet-div');
+  if(existing) existing.remove();
+
+  var div=document.createElement('div');
+  div.id='globe-leaflet-div';
+  div.style.cssText='position:absolute;inset:0;z-index:2';
+  wrap.appendChild(div);
+
+  if(placeholder) placeholder.style.display='none';
+
+  // Load Leaflet if not already loaded
+  function initLeaflet(){
+    var map=L.map('globe-leaflet-div',{
+      center:[ct.lat,ct.lon],zoom:14,
+      zoomControl:true,attributionControl:true
+    });
+    // CartoDB Dark Matter — free, beautiful, dark
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{
+      attribution:'© <a href="https://www.openstreetmap.org/copyright">OSM</a> © <a href="https://carto.com/">CARTO</a>',
+      subdomains:'abcd',maxZoom:19
+    }).addTo(map);
+    // Custom red marker
+    var icon=L.divIcon({
+      html:'<div style="width:14px;height:14px;background:rgba(255,51,102,.9);border:2px solid #fff;border-radius:50%;box-shadow:0 0 12px rgba(255,51,102,.8),0 0 24px rgba(255,51,102,.4)"></div>',
+      iconSize:[14,14],iconAnchor:[7,7],className:''
+    });
+    var marker=L.marker([ct.lat,ct.lon],{icon:icon}).addTo(map);
+    marker.bindPopup(
+      '<div style="font-family:Share Tech Mono,monospace;font-size:11px;color:#ff5066;background:#000814;border:1px solid rgba(255,51,102,.4);padding:6px 10px">'+
+      '<b>⚡ '+ct.city+'</b><br>'+
+      '<span style="color:rgba(0,212,255,.8)">'+ct.lat.toFixed(5)+'° '+ct.lon.toFixed(5)+'°</span><br>'+
+      '<span style="color:rgba(255,204,0,.7)">'+ct.freq+' Hz</span>'+
+      '</div>',
+      {className:'mn3mia-popup'}
+    ).openPopup();
+  }
+
+  if(typeof L !== 'undefined'){
+    initLeaflet();
+  } else {
+    // Load Leaflet CSS + JS dynamically
+    if(!document.getElementById('leaflet-css')){
+      var lc=document.createElement('link');
+      lc.id='leaflet-css';lc.rel='stylesheet';
+      lc.href='https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
+      document.head.appendChild(lc);
+    }
+    if(!document.getElementById('leaflet-js')){
+      var ls=document.createElement('script');
+      ls.id='leaflet-js';
+      ls.src='https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
+      ls.onload=initLeaflet;
+      document.head.appendChild(ls);
+    } else {
+      setTimeout(initLeaflet,300);
+    }
+  }
+
+  if(detail){
+    detail.style.display='block';
+    detail.innerHTML='⚡ <b style="color:rgba(255,120,140,.9)">'+ct.city+'</b>'+
+      ' &nbsp;·&nbsp; '+ct.lat.toFixed(5)+'° '+ct.lon.toFixed(5)+'°'+
+      ' &nbsp;·&nbsp; '+ct.freq+' Hz'+
+      ' &nbsp; <a href="https://maps.google.com/?q='+ct.lat+','+ct.lon+'" target="_blank" '+
+      'style="color:rgba(0,212,255,.6);text-decoration:none;font-size:7px">↗ Google Maps</a>'+
+      ' &nbsp; <a href="https://www.google.com/maps/@?api=1&map_action=pano&viewpoint='+ct.lat+','+ct.lon+'" target="_blank" '+
+      'style="color:rgba(0,255,170,.5);text-decoration:none;font-size:7px">↗ Street View</a>';
+  }
+}
+
+// Click on globe canvas to open modal
+document.addEventListener('DOMContentLoaded',function(){
+  var gc2=document.getElementById('gc');
+  if(gc2){
+    gc2.style.cursor='pointer';
+    gc2.addEventListener('click',function(){openGlobeModal();});
+    gc2.title='Cliquez pour voir les contacts GPS';
+  }
+  var ghdr=document.getElementById('ghdr');
+  if(ghdr){
+    ghdr.style.cursor='pointer';
+    ghdr.addEventListener('click',function(){openGlobeModal();});
+  }
+});
+
+// ═══════════════════════════════════════════════════════════
 // KEYBOARD — update
 // ═══════════════════════════════════════════════
 document.addEventListener('keydown',e=>{
@@ -4097,7 +4529,7 @@ document.addEventListener('keydown',e=>{
   if((e.key==='j'||e.key==='J')&&!isTyping) openJournal();
   if(e.key==='Escape'){
     closeChapter();closeArcane();closeJournal();closeCard();
-    closeSonic();closeShareModal();
+    closeSonic();closeShareModal();closeGlobeModal();
     if(lysisActive) deactivateLysis();
   }
   // LYSIS easter egg — type L-Y-S-I-S — only when not typing
