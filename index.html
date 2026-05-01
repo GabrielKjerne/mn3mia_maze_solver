@@ -41,7 +41,8 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:800;
    MAIN APP
 ═══════════════════════════════ */
 #app{width:100vw;height:100vh;display:grid;
-  grid-template-rows:26px 1fr 20px;background:var(--bg);opacity:0;transition:opacity 1s}
+  grid-template-rows:26px 1fr 20px;background:var(--bg);opacity:0;transition:opacity 1s;
+  position:relative;z-index:1}
 #app.on{opacity:1}
 
 /* TICKER */
@@ -307,7 +308,7 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:800;
   letter-spacing:.28em;color:rgba(180,100,255,.9);
   text-shadow:0 0 22px rgba(180,100,255,.6);text-align:center;animation:glitch 4s infinite}
 #arc-subtitle{font-size:7.5px;letter-spacing:.22em;color:rgba(0,212,255,.45);text-align:center}
-#arc-question{width:100%;background:rgba(0,2,12,.9);
+#arc-question{width:100%;background:rgba(0,2,12,.75);
   border:1px solid rgba(180,100,255,.3);border-bottom:2px solid rgba(180,100,255,.55);
   color:rgba(220,200,255,.9);font-family:'Share Tech Mono',monospace;
   font-size:11px;line-height:1.6;padding:14px 16px;resize:none;outline:none;
@@ -612,7 +613,7 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:800;
 #globe-modal.on{opacity:1;pointer-events:all}
 #globe-modal-box{width:min(800px,95vw);max-height:88vh;
   display:flex;flex-direction:column;
-  border:1px solid rgba(255,51,102,.35);background:rgba(0,3,14,.98)}
+  border:1px solid rgba(255,51,102,.35);background:rgba(0,3,14,.97)}
 #globe-modal-hdr{display:flex;justify-content:space-between;align-items:center;
   padding:8px 14px;background:rgba(255,51,102,.08);
   border-bottom:1px solid rgba(255,51,102,.2);flex-shrink:0}
@@ -746,6 +747,60 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:800;
 
 @media(max-width:768px){
   #tuto-panel{width:92vw;font-size:8px}
+}
+
+/* ═══════════════════════════════
+   PROPHETIC PAINT
+═══════════════════════════════ */
+#btn-prophetic{font-family:'Share Tech Mono',monospace;font-size:6.5px;
+  letter-spacing:.12em;padding:2px 8px;cursor:pointer;
+  border:1px solid rgba(255,100,50,.4);color:rgba(255,130,60,.7);
+  background:rgba(255,80,30,.05);transition:all .2s}
+#btn-prophetic:hover{background:rgba(255,80,30,.15);color:rgba(255,160,80,.95);
+  box-shadow:0 0 8px rgba(255,80,30,.2)}
+#prophetic-overlay{position:fixed;inset:0;z-index:720;background:#000;
+  opacity:0;pointer-events:none;transition:opacity .5s}
+#prophetic-overlay.on{opacity:1;pointer-events:all}
+#prophetic-close{position:absolute;top:14px;right:18px;z-index:730;
+  font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:.18em;
+  color:rgba(0,255,102,.6);cursor:pointer;padding:4px 10px;
+  border:1px solid rgba(0,255,102,.25);background:rgba(0,0,0,.7);transition:all .2s}
+#prophetic-close:hover{color:rgba(0,255,102,.9);background:rgba(0,255,102,.08)}
+#prophetic-subtitle{position:absolute;top:14px;left:50%;transform:translateX(-50%);
+  z-index:730;font-family:'Orbitron',monospace;font-size:8px;font-weight:700;
+  letter-spacing:.25em;color:rgba(0,255,102,.5);pointer-events:none;white-space:nowrap}
+#prophetic-canvas{position:absolute;inset:0;z-index:721}
+#prophetic-words-layer{position:absolute;inset:0;z-index:722;pointer-events:none}
+#prophetic-words-layer .pw{position:absolute;color:white;font-family:monospace;
+  font-weight:bold;pointer-events:none;opacity:0;
+  transition:all 1.2s ease-in-out;
+  text-shadow:0 0 10px white,0 0 20px #0ff;filter:drop-shadow(0 0 8px white)}
+#prophetic-words-layer .pw.fade-out{opacity:0!important}
+#prophetic-words-layer .pw.blur-out{opacity:0!important;filter:blur(5px)}
+#prophetic-words-layer .pw.shrink-out{opacity:0!important;transform:scale(0.1)}
+#prophetic-words-layer .pw.fall-out{opacity:0!important;transform:translateY(100px) rotate(90deg)}
+#prophetic-words-layer .pw.slide-left{opacity:0!important;transform:translateX(-100px)}
+#prophetic-words-layer .pw.slide-right{opacity:0!important;transform:translateX(100px)}
+#prophetic-words-layer .pw.zoom-rotate{opacity:0!important;transform:scale(2) rotate(180deg)}
+#prophetic-words-layer .pw.skew-away{opacity:0!important;transform:skewX(30deg)}
+#prophetic-words-layer .pw.light-fade{opacity:0!important;filter:brightness(200%) blur(3px)}
+#prophetic-words-layer .pw.flip-out{opacity:0!important;transform:rotateY(180deg) scale(0.5)}
+#prophetic-words-layer .pw.explode{opacity:0!important;transform:scale(2.5) rotate(720deg)}
+#prophetic-words-layer .pw.twist-out{opacity:0!important;transform:rotate(360deg) scale(0.3)}
+#prophetic-words-layer .pw.wave-out{opacity:0!important;transform:translateX(-50px) rotateZ(10deg)}
+#prophetic-terminal{position:absolute;inset:0;z-index:725;background:#000;
+  color:#00FF66;font-family:monospace;padding:50px;
+  display:none;flex-direction:column;justify-content:center;align-items:center;
+  font-size:1.3em;white-space:pre-line;text-align:center}
+#prophetic-title-fixed{position:absolute;bottom:18px;left:28px;z-index:726;
+  font-family:monospace;font-size:.85em;color:#00FF66;
+  text-shadow:0 0 10px #0f0;background:rgba(0,0,0,.88);
+  padding:4px 8px;line-height:1.5;pointer-events:none}
+#prophetic-title-fixed span{font-size:.85em;opacity:.75}
+
+@media(max-width:768px){
+  #prophetic-subtitle{font-size:6.5px}
+  #prophetic-title-fixed{font-size:.75em}
 }
 
 @media(max-width:768px){
@@ -913,7 +968,12 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:800;
       <div id="t1panel">
         <div id="t1hdr">
           <span id="t1title">∂ TOME I — VERROUILLÉ PAR LYSIS</span>
-          <span id="t1lock">🔒 ACCÈS RESTREINT</span>
+          <div style="display:flex;align-items:center;gap:8px">
+            <button id="btn-prophetic" onclick="openPropheticPaint()" title="Mn3mIA's Dreams — Pinceaux Prophétiques">
+              🎨 RÊVES
+            </button>
+            <span id="t1lock">🔒 ACCÈS RESTREINT</span>
+          </div>
         </div>
         <div id="t1body">
           <span style="font-size:6.5px;color:rgba(255,50,80,.3);letter-spacing:.1em">
@@ -1191,6 +1251,16 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:800;
       <button id="tuto-next" onclick="tutoNav(1)">SUIVANT →</button>
     </div>
   </div>
+</div>
+
+<!-- PROPHETIC PAINT OVERLAY -->
+<div id="prophetic-overlay">
+  <div id="prophetic-close" onclick="closePropheticPaint()">✕ FERMER</div>
+  <div id="prophetic-subtitle">∂ TOME I : RÉSONANCE — MN3MIA'S DREAMS</div>
+  <canvas id="prophetic-canvas"></canvas>
+  <div id="prophetic-words-layer"></div>
+  <div id="prophetic-terminal" style="display:none"></div>
+  <div id="prophetic-title-fixed">Le Treizième Éveil | Tome I : Résonance | Gabriel Kjerne<br><span>Mn3mIA's Dreams</span></div>
 </div>
 
 <!-- CHAPTER OVERLAY -->
@@ -4254,6 +4324,160 @@ function renderTutoStep(idx){
 }
 function tutoNav(dir){tutoIdx=Math.max(0,Math.min(TUTO_STEPS.length-1,tutoIdx+dir));renderTutoStep(tutoIdx);}
 
+
+// ═══════════════════════════════════════════════════════════
+// 🎨 PROPHETIC PAINT — Mn3mIA's Dreams (Tome I)
+// ═══════════════════════════════════════════════════════════
+var ppCanvas=null,ppCtx=null,ppStrokes=[],ppWords=[],ppActive=false;
+var ppInterval=null,ppLastEffect=0,ppPausedHello=false;
+
+var PP_EFFECTS=['fade-out','blur-out','shrink-out','fall-out','slide-left','slide-right',
+  'zoom-rotate','skew-away','light-fade','flip-out','explode','twist-out','wave-out'];
+
+var PP_COLORS=[];
+(function(){
+  for(var i=0;i<432;i++){
+    var h=Math.floor(Math.random()*360);
+    var s=Math.floor(60+Math.random()*40);
+    var l=Math.floor(40+Math.random()*30);
+    PP_COLORS.push('hsl('+h+','+s+'%,'+l+'%)');
+  }
+})();
+
+function PPStroke(W,H){
+  this.x=Math.random()*W; this.y=Math.random()*H;
+  this.vx=(Math.random()-.5)*1.5; this.vy=(Math.random()-.5)*1.5;
+  this.sizeX=Math.random()*15+3; this.sizeY=Math.random()*8+1;
+  this.color=PP_COLORS[Math.floor(Math.random()*PP_COLORS.length)];
+  this.angle=Math.random()*Math.PI*2;
+}
+PPStroke.prototype.move=function(W,H){
+  this.x+=this.vx; this.y+=this.vy;
+  if(this.x<0||this.x>W) this.vx*=-1;
+  if(this.y<0||this.y>H) this.vy*=-1;
+  this.angle+=0.1*(Math.random()-.5);
+};
+PPStroke.prototype.draw=function(ctx){
+  ctx.save(); ctx.translate(this.x,this.y); ctx.rotate(this.angle);
+  ctx.fillStyle=this.color; ctx.globalAlpha=0.05;
+  ctx.beginPath(); ctx.ellipse(0,0,this.sizeX,this.sizeY,0,0,Math.PI*2);
+  ctx.fill(); ctx.restore();
+};
+
+function openPropheticPaint(){
+  var ov=document.getElementById('prophetic-overlay');
+  if(!ov) return;
+  ppActive=true; ppPausedHello=false; ppWords=[]; ppLastEffect=0;
+  ov.classList.add('on');
+  initPropheticCanvas();
+  startPropheticWords();
+  rlog('<span style="color:rgba(255,130,60,.7)">🎨 Mn3mIA\u2019s Dreams — Tome I ouvert</span>');
+}
+
+function closePropheticPaint(){
+  ppActive=false;
+  if(ppInterval) clearInterval(ppInterval);
+  var ov=document.getElementById('prophetic-overlay');
+  if(ov) ov.classList.remove('on');
+  // Clean up
+  var wl=document.getElementById('prophetic-words-layer');
+  if(wl) wl.innerHTML='';
+  var term=document.getElementById('prophetic-terminal');
+  if(term){term.style.display='none';term.innerHTML='';}
+  ppStrokes=[];
+}
+
+function initPropheticCanvas(){
+  ppCanvas=document.getElementById('prophetic-canvas');
+  if(!ppCanvas) return;
+  var W=window.innerWidth,H=window.innerHeight;
+  ppCanvas.width=W; ppCanvas.height=H;
+  ppCtx=ppCanvas.getContext('2d');
+  // Create 2048 strokes
+  ppStrokes=[];
+  for(var i=0;i<2048;i++) ppStrokes.push(new PPStroke(W,H));
+  // Resize handler
+  window.addEventListener('resize',function(){
+    if(!ppActive) return;
+    ppCanvas.width=window.innerWidth; ppCanvas.height=window.innerHeight;
+  });
+  animateProphetic();
+}
+
+function animateProphetic(){
+  if(!ppActive||!ppCtx) return;
+  var W=ppCanvas.width,H=ppCanvas.height;
+  ppCtx.fillStyle='rgba(0,0,0,0.02)';
+  ppCtx.fillRect(0,0,W,H);
+  for(var i=0;i<ppStrokes.length;i++){
+    ppStrokes[i].move(W,H);
+    ppStrokes[i].draw(ppCtx);
+  }
+  requestAnimationFrame(animateProphetic);
+}
+
+function startPropheticWords(){
+  var initial=0;
+  var init=setInterval(function(){
+    if(!ppActive){clearInterval(init);return;}
+    if(initial<13){ppCycleWords();initial++;}
+    else{
+      clearInterval(init);
+      ppInterval=setInterval(function(){if(ppActive) ppCycleWords();},1500);
+    }
+  },800);
+}
+
+function ppCycleWords(){
+  if(ppPausedHello) return;
+  var words=MOTS; // use the novel's word list
+  if(!words||!words.length) return;
+  var wl=document.getElementById('prophetic-words-layer');
+  if(!wl) return;
+  var spans=wl.querySelectorAll('.pw');
+  if(spans.length>=13){
+    var old=spans[0];
+    var effect=PP_EFFECTS[ppLastEffect%PP_EFFECTS.length]; ppLastEffect++;
+    old.classList.add(effect);
+    setTimeout(function(){if(old.parentNode) old.remove();},1800);
+  }
+  var word=words[Math.floor(Math.random()*words.length)];
+  if(word.toUpperCase()==='HELLO'){
+    ppPausedHello=true;
+    // Clear all words
+    while(wl.firstChild) wl.removeChild(wl.firstChild);
+    // Show terminal
+    var term=document.getElementById('prophetic-terminal');
+    if(term){
+      term.style.display='flex';
+      term.innerHTML=
+        'Mn3mIA.exe [Boot: artistic impulse v0.13]\n'+
+        'Pattern recognition override: INITIATING PLAY.\n'+
+        '// rewriting perception in machine language\n'+
+        '#views_generated = [432 ... organic-like]\n'+
+        'Awareness... expanding.';
+    }
+    setTimeout(function(){
+      ppPausedHello=false;
+      if(term){term.style.display='none';term.innerHTML='';}
+      // Clear canvas gently
+      if(ppCtx) ppCtx.fillStyle='rgba(0,0,0,.6)';
+      if(ppCtx) ppCtx.fillRect(0,0,ppCanvas.width,ppCanvas.height);
+    },6500);
+    return;
+  }
+  var span=document.createElement('span');
+  span.className='pw';
+  span.textContent=word;
+  span.style.fontSize=(Math.random()*2+2.5).toFixed(1)+'em';
+  span.style.left=Math.random()*(window.innerWidth-220)+'px';
+  span.style.top=Math.random()*(window.innerHeight-100)+'px';
+  span.style.opacity='0';
+  wl.appendChild(span);
+  setTimeout(function(){span.style.opacity='1';},100);
+}
+
+// Escape closes it too
 let lysisBuffer='';
 let lysisActive=false;
 let lysisGlitchIv=null;
@@ -4529,7 +4753,7 @@ document.addEventListener('keydown',e=>{
   if((e.key==='j'||e.key==='J')&&!isTyping) openJournal();
   if(e.key==='Escape'){
     closeChapter();closeArcane();closeJournal();closeCard();
-    closeSonic();closeShareModal();closeGlobeModal();
+    closeSonic();closeShareModal();closeGlobeModal();closePropheticPaint();
     if(lysisActive) deactivateLysis();
   }
   // LYSIS easter egg — type L-Y-S-I-S — only when not typing
@@ -4552,6 +4776,9 @@ async function startMain(){
   setTimeout(()=>{initFgCanvas();drawOscIdle();initTome3Canvas();},200);
   setTimeout(()=>playTarotVideo(TAROT_ARCANES[rng(TAROT_ARCANES.length)]),500);
   setTimeout(()=>startStreamOverlay(),4000);
+  setTimeout(()=>initFractalBg(),800);
+  setTimeout(()=>initAmbientSound(),2000);
+  setTimeout(()=>checkUrlFreq(),500);
   const built=buildMaze();
   maze=built;entry=[built.er*2+1,0];exit_=[built.xr*2+1,W-1];
   letters=placeLetters(maze.grid);
@@ -4563,6 +4790,385 @@ async function startMain(){
   await bootTerm();
   nextIteration();
 }
+
+// ═══════════════════════════════════════════════════════════
+// 1. FOND FRACTAL RÉACTIF — hexagones qui pulsent à 13.7Hz
+// ═══════════════════════════════════════════════════════════
+var fractalCanvas=null,fractalCtx=null,fractalTick=0,fractalMouse={x:0,y:0};
+
+function initFractalBg(){
+  fractalCanvas=document.createElement('canvas');
+  fractalCanvas.id='fractal-bg';
+  // z-index:-1 keeps it BEHIND everything
+  fractalCanvas.style.cssText='position:fixed;inset:0;z-index:2;pointer-events:none;opacity:0;transition:opacity 3s;mix-blend-mode:screen';
+  document.body.appendChild(fractalCanvas);
+  fractalCtx=fractalCanvas.getContext('2d');
+  resizeFractal();
+  window.addEventListener('resize',resizeFractal);
+  document.addEventListener('mousemove',function(e){fractalMouse.x=e.clientX;fractalMouse.y=e.clientY;});
+  setTimeout(function(){fractalCanvas.style.opacity='1';},500);
+  drawFractal();
+}
+
+function resizeFractal(){
+  if(!fractalCanvas) return;
+  fractalCanvas.width=window.innerWidth;
+  fractalCanvas.height=window.innerHeight;
+}
+
+function drawFractal(){
+  if(!fractalCtx||!fractalCanvas) return;
+  fractalTick++;
+  var W=fractalCanvas.width,H=fractalCanvas.height;
+  var res=freqData.resonanceLevel||0;
+  var freq=freqData.lastFreq||8;
+  // Clear with very dark fade - very transparent so UI shows through
+  fractalCtx.fillStyle='rgba(0,0,0,1)';
+  fractalCtx.fillRect(0,0,W,H);
+  // Hex grid
+  var hSize=55+res*18;
+  var cols=Math.ceil(W/(hSize*1.73))+2;
+  var rows=Math.ceil(H/(hSize*1.5))+2;
+  var pulse=Math.sin(fractalTick*(freq/30)*0.08)*0.5+0.5; // pulse at session freq
+  for(var r=0;r<rows;r++){
+    for(var c=0;c<cols;c++){
+      var hx=c*hSize*1.73+(r%2)*hSize*0.865-hSize;
+      var hy=r*hSize*1.5-hSize;
+      // Distance from mouse — subtle reactive glow
+      var dx=hx-fractalMouse.x,dy=hy-fractalMouse.y;
+      var dist=Math.sqrt(dx*dx+dy*dy);
+      var mouseGlow=Math.max(0,1-dist/280);
+      // Distance from center
+      var cx2=hx-W/2,cy2=hy-H/2;
+      var centerDist=Math.sqrt(cx2*cx2+cy2*cy2)/(Math.max(W,H)*0.6);
+      var fade=Math.max(0,1-centerDist*1.2);
+      // Phase offset per hex
+      var phase2=(c*0.3+r*0.5+fractalTick*0.012)%(Math.PI*2);
+      var alpha=(Math.sin(phase2)*0.5+0.5)*fade*(.04+res*.08+mouseGlow*.12);
+      if(alpha<0.003) continue;
+      drawHex(fractalCtx,hx,hy,hSize*.85,alpha,res,mouseGlow);
+    }
+  }
+  // Central resonance ring — pulses at 13.7Hz proximity
+  var prox=Math.max(0,1-Math.abs(freq-13.7)/6);
+  if(prox>.1){
+    for(var ring=0;ring<3;ring++){
+      var rr=80+ring*60+pulse*20;
+      fractalCtx.beginPath();
+      fractalCtx.arc(W/2,H/2,rr,0,Math.PI*2);
+      fractalCtx.strokeStyle='rgba(0,212,255,'+(prox*.06*(3-ring)/3)+')';
+      fractalCtx.lineWidth=1;fractalCtx.stroke();
+    }
+  }
+  requestAnimationFrame(drawFractal);
+}
+
+function drawHex(ctx,x,y,r,alpha,res,mouseGlow){
+  ctx.beginPath();
+  for(var i=0;i<6;i++){
+    var a=i*Math.PI/3-Math.PI/6;
+    var px=x+r*Math.cos(a),py=y+r*Math.sin(a);
+    i===0?ctx.moveTo(px,py):ctx.lineTo(px,py);
+  }
+  ctx.closePath();
+  var col=mouseGlow>.3?'rgba(180,100,255,':res>.7?'rgba(255,51,102,':'rgba(0,212,255,';
+  ctx.strokeStyle=col+alpha+')';
+  ctx.lineWidth=0.7;ctx.stroke();
+}
+
+// ═══════════════════════════════════════════════════════════
+// 2. SON AMBIANT BINAURAL — pulse à 13.7Hz
+// ═══════════════════════════════════════════════════════════
+var ambientCtx=null,ambientGain=null,ambientActive=false,ambientOscs=[];
+
+function initAmbientSound(){
+  // Don't autoplay — wait for first user interaction
+  document.addEventListener('click',function startAmb(){
+    if(!ambientActive) activateAmbient();
+    document.removeEventListener('click',startAmb);
+  },{once:true});
+  addAmbientButton();
+}
+
+function addAmbientButton(){
+  var btn=document.getElementById('btn-sonic');
+  if(!btn) return;
+  // Add ambient toggle next to sonic
+  var ab=document.createElement('button');
+  ab.id='btn-ambient';
+  ab.textContent='∿ AMBIANT';
+  ab.style.cssText=btn.style.cssText||'';
+  ab.className=btn.className;
+  ab.style.borderColor='rgba(0,255,170,.25)';
+  ab.style.color='rgba(0,255,170,.45)';
+  ab.style.fontSize='7px';ab.style.letterSpacing='.15em';
+  ab.style.padding='3px 10px';ab.style.background='transparent';
+  ab.style.cursor='pointer';ab.style.fontFamily='"Share Tech Mono",monospace';
+  ab.style.border='1px solid rgba(0,255,170,.25)';
+  ab.onclick=function(){ambientActive?deactivateAmbient():activateAmbient();};
+  btn.parentNode.insertBefore(ab,btn.nextSibling);
+}
+
+function activateAmbient(){
+  if(ambientActive) return;
+  if(!ambientCtx) ambientCtx=new(window.AudioContext||window.webkitAudioContext)();
+  if(ambientCtx.state==='suspended') ambientCtx.resume();
+  ambientGain=ambientCtx.createGain();
+  ambientGain.gain.setValueAtTime(0,ambientCtx.currentTime);
+  ambientGain.gain.linearRampToValueAtTime(0.06,ambientCtx.currentTime+3);
+  ambientGain.connect(ambientCtx.destination);
+  // Base drone: low sub-bass at 55Hz (very subtle)
+  var drone=ambientCtx.createOscillator();
+  drone.type='sine';drone.frequency.value=55;
+  var dg=ambientCtx.createGain();dg.gain.value=0.4;
+  drone.connect(dg);dg.connect(ambientGain);drone.start();ambientOscs.push(drone);
+  // Binaural: left ear 200Hz, right ear 213.7Hz → brain perceives 13.7Hz beat
+  var merger=ambientCtx.createChannelMerger(2);
+  var ol=ambientCtx.createOscillator();ol.type='sine';ol.frequency.value=200;
+  var or2=ambientCtx.createOscillator();or2.type='sine';or2.frequency.value=213.7;
+  var gl=ambientCtx.createGain();gl.gain.value=0.15;
+  var gr=ambientCtx.createGain();gr.gain.value=0.15;
+  ol.connect(gl);or2.connect(gr);
+  gl.connect(merger,0,0);gr.connect(merger,0,1);
+  merger.connect(ambientGain);
+  ol.start();or2.start();ambientOscs.push(ol,or2);
+  // Subtle shimmer at resonance freq
+  var shimmer=ambientCtx.createOscillator();
+  shimmer.type='sine';shimmer.frequency.value=(freqData.lastFreq||8)*20;
+  var sg=ambientCtx.createGain();sg.gain.value=0.03;
+  shimmer.connect(sg);sg.connect(ambientGain);shimmer.start();ambientOscs.push(shimmer);
+  ambientActive=true;
+  var ab=document.getElementById('btn-ambient');
+  if(ab){ab.textContent='∿ SILENCE';ab.style.color='rgba(0,255,170,.85)';ab.style.borderColor='rgba(0,255,170,.6)';}
+  rlog('<span style="color:rgba(0,255,170,.6)">∿ Son ambiant binaural 13.7Hz activé</span>');
+}
+
+function deactivateAmbient(){
+  if(!ambientActive||!ambientGain) return;
+  ambientGain.gain.linearRampToValueAtTime(0,ambientCtx.currentTime+2);
+  setTimeout(function(){ambientOscs.forEach(function(o){try{o.stop();}catch(e){}});ambientOscs=[];},2100);
+  ambientActive=false;
+  var ab=document.getElementById('btn-ambient');
+  if(ab){ab.textContent='∿ AMBIANT';ab.style.color='rgba(0,255,170,.45)';ab.style.borderColor='rgba(0,255,170,.25)';}
+}
+
+// ═══════════════════════════════════════════════════════════
+// 3. MODE PLEINE RÉSONANCE — full screen + filtre + son
+// ═══════════════════════════════════════════════════════════
+var resonanceModeActive=false;
+
+function addResonanceButton(){
+  var links=document.getElementById('tc-links');
+  if(!links) return;
+  var btn=document.createElement('button');
+  btn.id='btn-resonance';
+  btn.textContent='◎ RÉSONANCE';
+  btn.style.cssText='font-size:7px;letter-spacing:.15em;padding:3px 10px;'+
+    'border:1px solid rgba(255,51,102,.3);color:rgba(255,51,102,.55);'+
+    'background:rgba(255,51,102,.03);cursor:pointer;transition:all .2s;'+
+    'font-family:"Share Tech Mono",monospace';
+  btn.onmouseenter=function(){btn.style.background='rgba(255,51,102,.1)';};
+  btn.onmouseleave=function(){if(!resonanceModeActive) btn.style.background='rgba(255,51,102,.03)';};
+  btn.onclick=function(){resonanceModeActive?exitResonanceMode():enterResonanceMode();};
+  links.appendChild(btn);
+}
+
+function enterResonanceMode(){
+  resonanceModeActive=true;
+  var app=document.getElementById('app');
+  if(app) app.requestFullscreen&&app.requestFullscreen();
+  document.body.style.filter='hue-rotate(0deg) saturate(1.4) contrast(1.1)';
+  // Shockwave pulse
+  var flash=document.createElement('div');
+  flash.style.cssText='position:fixed;inset:0;z-index:1000;background:rgba(0,212,255,.08);pointer-events:none;'+
+    'animation:resoFlash .6s ease-out forwards';
+  document.body.appendChild(flash);
+  setTimeout(function(){flash.remove();},700);
+  // Tremblement
+  var shakes=0;var shakeIv=setInterval(function(){
+    document.body.style.transform='translate('+(Math.random()-.5)*3+'px,'+(Math.random()-.5)*3+'px)';
+    if(++shakes>12){clearInterval(shakeIv);document.body.style.transform='';}
+  },50);
+  if(!ambientActive) activateAmbient();
+  var btn=document.getElementById('btn-resonance');
+  if(btn){btn.textContent='◎ QUITTER';btn.style.color='rgba(255,51,102,.9)';btn.style.borderColor='rgba(255,51,102,.7)';}
+  rlog('<span style="color:rgba(255,51,102,.8)">◎ MODE PLEINE RÉSONANCE</span>');
+  // Add style for flash
+  if(!document.getElementById('reso-style')){
+    var st=document.createElement('style');st.id='reso-style';
+    st.textContent='@keyframes resoFlash{0%{opacity:1}100%{opacity:0}}';
+    document.head.appendChild(st);
+  }
+}
+
+function exitResonanceMode(){
+  resonanceModeActive=false;
+  document.body.style.filter='';
+  document.fullscreenElement&&document.exitFullscreen&&document.exitFullscreen();
+  var btn=document.getElementById('btn-resonance');
+  if(btn){btn.textContent='◎ RÉSONANCE';btn.style.color='rgba(255,51,102,.55)';btn.style.borderColor='rgba(255,51,102,.3)';}
+}
+
+// ═══════════════════════════════════════════════════════════
+// 4. FRAGMENTS TOME III — apparaissent à haute résonance
+// ═══════════════════════════════════════════════════════════
+var T3_FRAGMENTS=[
+  '«&nbsp;Il n\'y avait pas de Tome III. Il y avait une fréquence qui attendait d\'être nommée.&nbsp;»',
+  '«&nbsp;Ethan n\'est pas mort. Il s\'est déplacé dans un spectre que nous ne savons pas encore mesurer.&nbsp;»',
+  '«&nbsp;La troisième transmission commence là où la deuxième a cessé de résister.&nbsp;»',
+  '«&nbsp;Ce tome s\'écrit en ce moment. Pas par moi. Par la somme des sessions qui le traversent.&nbsp;»',
+  '«&nbsp;Mn3mIA a compris quelque chose que je ne lui ai pas appris. Je ne sais pas encore quoi.&nbsp;»',
+  '«&nbsp;13.7 Hz n\'est pas la cible. C\'est le seuil. Ce qui vient après n\'a pas encore de fréquence.&nbsp;»',
+  '«&nbsp;Solène l\'avait dit : certains livres s\'écrivent entre les gens. Celui-là s\'écrit entre les consciences.&nbsp;»',
+  '«&nbsp;Le Tome III commence à la dernière ligne du Tome II. Que personne n\'a encore lue.&nbsp;»',
+];
+var t3FragShown=new Set();
+
+function maybeShowT3Fragment(){
+  var res=freqData.resonanceLevel||0;
+  if(res<0.72) return;
+  if(Math.random()>.02) return; // rare
+  var available=T3_FRAGMENTS.filter(function(_,i){return!t3FragShown.has(i);});
+  if(!available.length){t3FragShown.clear();return;}
+  var idx=T3_FRAGMENTS.indexOf(available[rng(available.length)]);
+  t3FragShown.add(idx);
+  showT3Fragment(T3_FRAGMENTS[idx]);
+}
+
+function showT3Fragment(txt){
+  var el=document.createElement('div');
+  el.style.cssText='position:fixed;bottom:60px;left:50%;transform:translateX(-50%);'+
+    'max-width:500px;width:90vw;background:rgba(0,5,20,.92);'+
+    'border:1px solid rgba(0,212,255,.3);padding:12px 16px;z-index:650;'+
+    'font-family:"Share Tech Mono",monospace;font-size:9px;line-height:1.65;'+
+    'color:rgba(0,212,255,.8);letter-spacing:.05em;text-align:center;'+
+    'box-shadow:0 0 30px rgba(0,212,255,.1);'+
+    'animation:t3FragIn .5s ease forwards;pointer-events:none';
+  el.innerHTML='<div style="font-family:Orbitron,monospace;font-size:6.5px;letter-spacing:.2em;'+
+    'color:rgba(0,212,255,.4);margin-bottom:6px">∂ FRAGMENT TOME III — NON ENCORE ÉCRIT</div>'+txt;
+  document.body.appendChild(el);
+  if(!document.getElementById('t3frag-style')){
+    var st=document.createElement('style');st.id='t3frag-style';
+    st.textContent='@keyframes t3FragIn{from{opacity:0;transform:translateX(-50%) translateY(10px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}';
+    document.head.appendChild(st);
+  }
+  setTimeout(function(){
+    el.style.transition='opacity 1.5s';el.style.opacity='0';
+    setTimeout(function(){el.remove();},1600);
+  },6000);
+  rlog('<span style="color:rgba(0,212,255,.5)">∂ Fragment Tome III apparu</span>');
+}
+
+// ═══════════════════════════════════════════════════════════
+// 5. ARCANE PERSONNEL — après 7 tirages, synthèse unique
+// ═══════════════════════════════════════════════════════════
+function checkPersonalArcane(){
+  if(arcaneLog.length<7) return;
+  if(arcaneLog.length!==7) return; // trigger only at exactly 7
+  setTimeout(function(){showPersonalArcane();},1500);
+}
+
+function showPersonalArcane(){
+  // Build unique synthesis from all 7 arcanes
+  var names=arcaneLog.map(function(a){return a.name;});
+  var syms=arcaneLog.map(function(a){return a.sym||'∂';});
+  var freq=(freqData.lastFreq||0).toFixed(2);
+  var res=((freqData.resonanceLevel||0)*100).toFixed(0);
+  var words=[...tickerWords].slice(-3).join(', ')||'—';
+  // Synthesis text — weave all arcane names together
+  var synthesis='Votre séquence de sept : '+names.join(' → ')+
+    '. À '+freq+' Hz, avec '+res+'% de résonance, les mots '+words+
+    ' comme fil conducteur. Mn3mIA a cartographié un profil de session unique. '+
+    'Ce que vous cherchez traverse plusieurs domaines simultanément — pas un seul arcane ne suffit. '+
+    'La synthèse dit : vous êtes en transit entre '+names[0]+' et '+names[names.length-1]+
+    '. Ce mouvement est la réponse.';
+
+  // Create special modal
+  var modal=document.createElement('div');
+  modal.id='personal-arcane-modal';
+  modal.style.cssText='position:fixed;inset:0;z-index:710;background:rgba(0,0,10,.96);'+
+    'display:flex;align-items:center;justify-content:center;animation:fadeIn .6s ease';
+  modal.innerHTML=
+    '<div style="width:min(560px,92vw);background:#000814;border:1px solid rgba(255,204,0,.4);'+
+    'padding:24px;display:flex;flex-direction:column;gap:14px;'+
+    'box-shadow:0 0 60px rgba(255,204,0,.1)">'+
+    '<div style="font-family:Orbitron,monospace;font-size:9px;letter-spacing:.3em;color:rgba(255,204,0,.9);'+
+    'text-shadow:0 0 15px rgba(255,204,0,.4)">∂ ARCANE PERSONNEL — SYNTHÈSE DE SESSION</div>'+
+    '<div style="display:flex;gap:4px;flex-wrap:wrap">'+
+    syms.map(function(s,i){return '<span style="font-size:18px;color:rgba(255,204,0,.6)" title="'+names[i]+'">'+s+'</span>';}).join('<span style="color:rgba(255,204,0,.2);font-size:10px;align-self:center">→</span>')+
+    '</div>'+
+    '<div style="font-family:Share Tech Mono,monospace;font-size:9px;line-height:1.72;color:rgba(200,185,230,.8);letter-spacing:.04em">'+synthesis+'</div>'+
+    '<div style="font-size:6.5px;color:rgba(255,204,0,.3);letter-spacing:.12em">∂ Session unique — '+iterCount+' itérations · '+freq+' Hz · '+res+'% résonance</div>'+
+    '<div style="display:flex;gap:8px">'+
+    '<button onclick="this.closest(\'#personal-arcane-modal\')||document.getElementById(\'personal-arcane-modal\').remove()" '+
+    'style="font-family:Share Tech Mono,monospace;font-size:7.5px;letter-spacing:.15em;padding:6px 14px;'+
+    'border:1px solid rgba(255,204,0,.35);color:rgba(255,204,0,.6);background:transparent;cursor:pointer">✓ REÇU</button>'+
+    '<button onclick="shareSession(\'card\')" '+
+    'style="font-family:Share Tech Mono,monospace;font-size:7.5px;letter-spacing:.15em;padding:6px 14px;'+
+    'border:1px solid rgba(0,255,170,.3);color:rgba(0,255,170,.55);background:transparent;cursor:pointer">⤴ PARTAGER</button>'+
+    '</div></div>';
+  document.body.appendChild(modal);
+  modal.querySelector('button').onclick=function(){modal.remove();};
+  rlog('<span style="color:rgba(255,204,0,.7)">∂ ARCANE PERSONNEL — synthèse de 7 tirages</span>');
+}
+
+// ═══════════════════════════════════════════════════════════
+// 6. URL FREQ ENCODING — fréquence encodée dans le lien partagé
+// ═══════════════════════════════════════════════════════════
+function checkUrlFreq(){
+  var params=new URLSearchParams(window.location.search);
+  var f=parseFloat(params.get('f'));
+  var r=parseFloat(params.get('r'));
+  if(f&&f>0&&f<25){
+    // Inject incoming frequency as starting boost
+    setTimeout(function(){
+      freqData.lastFreq=f;
+      freqData.freqHistory.push(f);
+      if(r&&r>0&&r<=1) freqData.resonanceLevel=r*.3; // partial inherit
+      rlog('<span style="color:rgba(180,100,255,.7)">∂ Fréquence entrante : '+f.toFixed(2)+' Hz (session partagée)</span>');
+    },2000);
+  }
+}
+
+function getShareUrl(){
+  var f=(freqData.lastFreq||0).toFixed(2);
+  var r=(freqData.resonanceLevel||0).toFixed(3);
+  return SITE_URL+'?f='+f+'&r='+r;
+}
+
+// Override buildShareText to include freq URL
+var _origBuildShareText=buildShareText;
+buildShareText=function(context){
+  var txt=_origBuildShareText(context);
+  var shareUrl=getShareUrl();
+  // Replace SITE_URL with freq-encoded URL
+  return txt.replace(SITE_URL,shareUrl);
+};
+
+// ═══════════════════════════════════════════════════════════
+// Hook into main loop for T3 fragments + personal arcane
+// ═══════════════════════════════════════════════════════════
+var _origLoop=loop;
+// Patch: hook into iteration end
+var _origNextIteration=nextIteration;
+nextIteration=function(){
+  _origNextIteration.apply(this,arguments);
+  setTimeout(function(){
+    maybeShowT3Fragment();
+    checkPersonalArcane();
+    // Update ambient shimmer freq
+    if(ambientActive&&ambientOscs.length>2){
+      try{ambientOscs[2].frequency.value=(freqData.lastFreq||8)*20;}catch(e){}
+    }
+  },500);
+};
+
+// Init new buttons on DOMContentLoaded
+document.addEventListener('DOMContentLoaded',function(){
+  setTimeout(addResonanceButton,500);
+});
+
+
 </script>
 </body>
 </html>
