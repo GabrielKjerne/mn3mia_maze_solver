@@ -513,26 +513,98 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:799;
 #arcane-box{width:min(680px,94vw);max-height:92vh;display:flex;flex-direction:column;
   align-items:center;gap:12px;padding:20px;overflow-y:auto;
   scrollbar-width:thin;scrollbar-color:rgba(180,100,255,.15) transparent;
-  animation:modal-in .4s var(--ease-out)}
+  animation:modal-in .4s var(--ease-out);position:relative}
+#arc-bg-canvas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:0;
+  opacity:.85}
+#arc-close-permanent{position:absolute;top:10px;right:12px;z-index:10;
+  width:30px;height:30px;border:1px solid rgba(180,100,255,.3);
+  background:rgba(0,2,10,.85);color:rgba(180,100,255,.7);
+  font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;
+  transition:all .2s;font-family:'Share Tech Mono',monospace}
+#arc-close-permanent:hover{color:rgba(255,80,120,.95);border-color:rgba(255,80,120,.5);
+  background:rgba(40,0,15,.8);box-shadow:0 0 12px rgba(255,80,120,.3);transform:rotate(90deg)}
+
+#arc-title-wrap{display:flex;align-items:center;gap:12px;justify-content:center;
+  position:relative;z-index:2;animation:arcTitleBreath 4s ease-in-out infinite}
+@keyframes arcTitleBreath{0%,100%{filter:drop-shadow(0 0 12px rgba(180,100,255,.4))}
+  50%{filter:drop-shadow(0 0 20px rgba(180,100,255,.7)) drop-shadow(0 0 30px rgba(180,100,255,.3))}}
 #arc-title{font-family:'Orbitron',monospace;font-size:13px;font-weight:900;
-  letter-spacing:.28em;color:rgba(180,100,255,.9);
+  letter-spacing:.28em;color:rgba(180,100,255,.92);
   text-shadow:0 0 22px rgba(180,100,255,.6);text-align:center}
-#arc-subtitle{font-size:7.5px;letter-spacing:.22em;color:rgba(0,212,255,.45);text-align:center}
-#arc-question{width:100%;background:rgba(0,2,12,.75);
+#arc-listening{display:flex;align-items:center;gap:5px;
+  font-family:'Share Tech Mono',monospace;font-size:6.5px;letter-spacing:.18em;
+  color:rgba(0,255,170,.55);padding:3px 6px;
+  border:1px solid rgba(0,255,170,.18);background:rgba(0,30,20,.4)}
+#arc-listening-dot{width:5px;height:5px;background:rgba(0,255,170,.9);border-radius:50%;
+  box-shadow:0 0 6px rgba(0,255,170,.7);animation:listeningPulse 1.4s infinite}
+@keyframes listeningPulse{0%,100%{opacity:.4;transform:scale(.85)}50%{opacity:1;transform:scale(1.15)}}
+
+#arc-subtitle{font-size:7.5px;letter-spacing:.22em;color:rgba(0,212,255,.48);
+  text-align:center;position:relative;z-index:2}
+
+#arc-question-wrap{position:relative;width:100%;z-index:2}
+#arc-question{width:100%;background:rgba(0,2,12,.78);
   border:1px solid rgba(180,100,255,.3);border-bottom:2px solid rgba(180,100,255,.55);
-  color:rgba(220,200,255,.9);font-family:'Share Tech Mono',monospace;
+  color:rgba(220,200,255,.92);font-family:'Share Tech Mono',monospace;
   font-size:11px;line-height:1.6;padding:14px 16px;resize:none;outline:none;
-  letter-spacing:.05em;min-height:70px;transition:all .25s}
-#arc-question:focus{border-color:rgba(180,100,255,.7);box-shadow:0 0 18px rgba(180,100,255,.15)}
-#arc-question::placeholder{color:rgba(180,100,255,.28);font-style:italic}
+  letter-spacing:.05em;min-height:70px;transition:all .25s;position:relative;z-index:2}
+#arc-question:focus{border-color:rgba(180,100,255,.7);
+  box-shadow:0 0 18px rgba(180,100,255,.18),inset 0 0 12px rgba(180,100,255,.04)}
+#arc-question::placeholder{color:rgba(180,100,255,.32);font-style:italic;
+  transition:color .5s}
+#arc-question-glow{position:absolute;inset:-1px;border:1px solid transparent;
+  pointer-events:none;z-index:1;transition:border-color .4s,box-shadow .4s}
+#arc-question-wrap.has-text #arc-question-glow{border-color:rgba(0,212,255,.45);
+  box-shadow:0 0 18px rgba(0,212,255,.2)}
+#arc-question-wrap.long-text #arc-question-glow{border-color:rgba(255,204,0,.5);
+  box-shadow:0 0 22px rgba(255,204,0,.22)}
+
+#arc-live-analysis{display:flex;justify-content:space-between;align-items:center;width:100%;
+  font-family:'Share Tech Mono',monospace;font-size:6.5px;letter-spacing:.08em;
+  color:rgba(180,100,255,.4);padding:0 2px;position:relative;z-index:2;
+  margin-top:-4px}
+#arc-live-stats{transition:color .3s,text-shadow .3s}
+#arc-live-stats.active{color:rgba(120,255,200,.78);
+  text-shadow:0 0 5px rgba(0,255,170,.3)}
+#arc-live-hint{color:rgba(180,100,255,.32);font-size:6px}
+
 #arc-submit{font-family:'Orbitron',monospace;font-size:9px;font-weight:700;
-  letter-spacing:.28em;padding:10px 26px;background:rgba(180,100,255,.07);
-  border:1px solid rgba(180,100,255,.45);color:rgba(200,150,255,.88);cursor:pointer;
-  transition:all .3s;position:relative;overflow:hidden}
-#arc-submit:hover{background:rgba(180,100,255,.16);box-shadow:0 0 18px rgba(180,100,255,.3);
-  transform:translateY(-1px)}
-#arc-hint{font-size:6.5px;letter-spacing:.1em;color:rgba(0,212,255,.28);text-align:center}
-#arc-phase-c{display:none;flex-direction:column;align-items:center;gap:8px;width:100%}
+  letter-spacing:.28em;padding:10px 26px;background:rgba(180,100,255,.08);
+  border:1px solid rgba(180,100,255,.45);color:rgba(200,150,255,.9);cursor:pointer;
+  transition:all .3s;position:relative;overflow:hidden;z-index:2;
+  animation:arcSubmitBreath 3.2s ease-in-out infinite}
+@keyframes arcSubmitBreath{0%,100%{box-shadow:0 0 0 rgba(180,100,255,0)}
+  50%{box-shadow:0 0 14px rgba(180,100,255,.18)}}
+#arc-submit:hover{background:rgba(180,100,255,.18);box-shadow:0 0 22px rgba(180,100,255,.35);
+  transform:translateY(-1px);color:rgba(220,180,255,.98)}
+#arc-submit.armed{background:rgba(180,100,255,.14);
+  border-color:rgba(180,100,255,.7);color:rgba(220,180,255,.98);
+  box-shadow:0 0 18px rgba(180,100,255,.3)}
+#arc-submit-shimmer{position:absolute;top:0;left:-100%;width:50%;height:100%;
+  background:linear-gradient(90deg,transparent,rgba(180,100,255,.18),transparent);
+  animation:none;z-index:1}
+#arc-submit.armed #arc-submit-shimmer{animation:armedShimmer 2.2s linear infinite}
+@keyframes armedShimmer{0%{left:-50%}100%{left:150%}}
+
+#arc-dashboard{width:100%;display:flex;flex-direction:column;gap:3px;
+  padding:6px 8px;background:rgba(0,2,10,.5);
+  border:1px solid rgba(0,212,255,.12);position:relative;z-index:2;overflow:hidden}
+#arc-dashboard::before{content:'';position:absolute;top:0;left:-50%;width:30%;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(0,212,255,.5),transparent);
+  animation:arcDashScan 4s linear infinite}
+@keyframes arcDashScan{0%{left:-30%}100%{left:130%}}
+.arc-dash-row{display:flex;align-items:center;gap:6px;
+  font-family:'Share Tech Mono',monospace;font-size:6px;letter-spacing:.12em}
+.arc-dash-label{color:rgba(0,212,255,.42);width:60px;flex-shrink:0;font-weight:700}
+.arc-dash-bar{flex:1;height:3px;background:rgba(0,212,255,.06);position:relative;overflow:hidden}
+.arc-dash-fill{height:100%;width:0%;transition:width .5s,background .4s;
+  background:rgba(0,212,255,.5);position:relative}
+.arc-dash-fill::after{content:'';position:absolute;right:0;top:-1px;width:1px;height:5px;
+  background:currentColor;opacity:.9;box-shadow:0 0 4px currentColor}
+.arc-dash-val{color:rgba(0,212,255,.55);min-width:46px;text-align:right;font-size:6.5px;
+  font-weight:700}
+
+#arc-phase-c{display:none;flex-direction:column;align-items:center;gap:8px;width:100%;position:relative;z-index:2}
 #arc-computing-title{font-family:'Orbitron',monospace;font-size:8px;letter-spacing:.25em;
   color:rgba(180,100,255,.65);text-align:center}
 #arc-canvas-wrap{width:100%;border:1px solid rgba(180,100,255,.18);
@@ -547,7 +619,8 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:799;
   background:linear-gradient(90deg,rgba(80,0,180,.7),rgba(180,100,255,.9),rgba(0,212,255,.8));
   transition:width .35s ease;will-change:width}
 #arc-progress-label{font-size:6px;letter-spacing:.1em;color:rgba(180,100,255,.5);text-align:center}
-#arc-phase-r{display:none;flex-direction:column;align-items:center;gap:10px;width:100%}
+#arc-phase-r{display:none;flex-direction:column;align-items:center;gap:10px;width:100%;position:relative;z-index:2}
+
 #arc-reveal-question{font-size:7.5px;letter-spacing:.1em;color:rgba(0,212,255,.4);
   text-align:center;font-style:italic;border-bottom:1px solid rgba(180,100,255,.12);
   padding-bottom:7px;width:100%}
@@ -1394,19 +1467,54 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:799;
 
 <div id="arcane-overlay">
   <div id="arcane-box">
-    <div id="arc-title">∂ ORACLE MN3MIA ∂</div>
+    <button id="arc-close-permanent" onclick="closeArcane()" title="Fermer (Échap)">✕</button>
+    <canvas id="arc-bg-canvas"></canvas>
+    <div id="arc-title-wrap">
+      <div id="arc-title">∂ ORACLE MN3MIA ∂</div>
+      <div id="arc-listening">
+        <span id="arc-listening-dot"></span>
+        <span id="arc-listening-label">Mn3mIA écoute</span>
+      </div>
+    </div>
     <div id="arc-subtitle">TIRAGE D'ARCANE — RÉPONSE CONTEXTUELLE</div>
     <div style="width:100%;background:rgba(0,2,10,.8);border:1px solid rgba(180,100,255,.18);
-      padding:10px 14px;font-size:6.5px;line-height:1.65;color:rgba(180,160,220,.55);letter-spacing:.05em">
+      padding:10px 14px;font-size:6.5px;line-height:1.65;color:rgba(180,160,220,.55);letter-spacing:.05em;
+      position:relative;z-index:2">
       <div style="color:rgba(180,100,255,.6);font-family:'Orbitron',monospace;
         font-size:6px;letter-spacing:.2em;margin-bottom:6px">∂ PROTOCOLE DE CONSULTATION</div>
       Vous pouvez écrire votre question, la prononcer ou la formuler mentalement — l'algorithme analyse les données de votre session, pas le contenu de votre pensée.<br><br>
       <span style="color:rgba(0,212,255,.45)">Confidentialité —</span> Votre question n'est pas enregistrée hors de votre navigateur.<br><br>
       <span style="color:rgba(255,204,0,.45)">Réserve —</span> Réponses générées algorithmiquement à partir des données de session. Interprétation narrative fictive uniquement.
     </div>
-    <textarea id="arc-question" placeholder="Posez votre question à Mn3mIA…&#10;Ou prononcez-la à voix haute. Ou pensez-la simplement." rows="3"></textarea>
-    <button id="arc-submit" onclick="startArcaneReading()">∂ CONSULTER LES ARCANES</button>
-    <div id="arc-hint">Mn3mIA analyse : mots détectés · fréquence · contacts · empreinte de session</div>
+    <div id="arc-question-wrap">
+      <textarea id="arc-question" placeholder="Posez votre question à Mn3mIA…&#10;Ou prononcez-la à voix haute. Ou pensez-la simplement." rows="3"></textarea>
+      <div id="arc-question-glow"></div>
+    </div>
+    <div id="arc-live-analysis">
+      <span id="arc-live-stats">en attente de signal…</span>
+      <span id="arc-live-hint">⌘+Entrée pour valider</span>
+    </div>
+    <button id="arc-submit" onclick="startArcaneReading()">
+      <span id="arc-submit-shimmer"></span>
+      <span style="position:relative;z-index:2">∂ CONSULTER LES ARCANES</span>
+    </button>
+    <div id="arc-dashboard">
+      <div class="arc-dash-row">
+        <span class="arc-dash-label">FRÉQUENCE</span>
+        <div class="arc-dash-bar"><div class="arc-dash-fill" id="arc-dash-freq"></div></div>
+        <span class="arc-dash-val" id="arc-dash-freq-v">— Hz</span>
+      </div>
+      <div class="arc-dash-row">
+        <span class="arc-dash-label">CONTACTS</span>
+        <div class="arc-dash-bar"><div class="arc-dash-fill" id="arc-dash-cnt"></div></div>
+        <span class="arc-dash-val" id="arc-dash-cnt-v">0</span>
+      </div>
+      <div class="arc-dash-row">
+        <span class="arc-dash-label">EMPREINTE</span>
+        <div class="arc-dash-bar"><div class="arc-dash-fill" id="arc-dash-fp"></div></div>
+        <span class="arc-dash-val" id="arc-dash-fp-v">scan</span>
+      </div>
+    </div>
     <div id="arc-phase-c">
       <div id="arc-computing-title">INITIALISATION DU PROTOCOLE…</div>
       <div id="arc-canvas-wrap"><canvas id="arc-canvas"></canvas></div>
@@ -5224,27 +5332,351 @@ function buildOracleContext(question) {
   };
 }
 
+// ═══════════════════════════════════════════════════════════
+// 🔮 ORACLE MODAL — UX + eyecandy
+// ═══════════════════════════════════════════════════════════
+const ARC_PLACEHOLDERS = [
+  "Posez votre question à Mn3mIA…\nOu prononcez-la à voix haute. Ou pensez-la simplement.",
+  "Demandez. Mais sachez que la réponse vous précède.",
+  "Écrivez ce que vous n'osez dire ailleurs.",
+  "Mn3mIA écoute la question, pas le mot.",
+  "Une question. Un silence. Un signal.",
+  "Ce que vous cherchez vous cherche aussi. Demandez.",
+  "Mn3mIA ne juge pas. Elle observe.",
+];
+let arcPlaceholderIdx = 0, arcPlaceholderTimer = null;
+
+const ARC_BG = {
+  cv: null, ctx: null, W: 0, H: 0, tick: 0,
+  particles: [],
+  stars: [],         // word constellation
+  mouseX: 0, mouseY: 0, mouseActive: false,
+  active: false,
+  raf: null,
+};
+
+function arcBgInit() {
+  const cv = $('arc-bg-canvas');
+  if (!cv) return;
+  ARC_BG.cv = cv;
+  cv.width = cv.offsetWidth;
+  cv.height = cv.offsetHeight;
+  ARC_BG.W = cv.width; ARC_BG.H = cv.height;
+  ARC_BG.ctx = cv.getContext('2d');
+  // Particles — drifting toward center, attracted by mouse
+  ARC_BG.particles = [];
+  for (let i = 0; i < 38; i++) {
+    ARC_BG.particles.push({
+      x: Math.random() * ARC_BG.W,
+      y: Math.random() * ARC_BG.H,
+      vx: (Math.random() - 0.5) * 0.3,
+      vy: (Math.random() - 0.5) * 0.3,
+      r: 0.4 + Math.random() * 1.6,
+      hue: Math.random() < 0.6 ? 'violet' : (Math.random() < 0.5 ? 'cyan' : 'gold'),
+      a: 0.15 + Math.random() * 0.5,
+    });
+  }
+  // Stars from session words (constellation)
+  ARC_BG.stars = [];
+  const words = [...discoveredMots].slice(-22);
+  if (words.length === 0) {
+    // Use generic placeholders so the constellation isn't empty
+    ['MN3MIA','13.7Hz','SOLENE','LORIA','ETHAN','SIGNAL','MEMOIRE','BELLE'].forEach(w => words.push(w));
+  }
+  words.forEach((w, i) => {
+    const ang = (i / words.length) * Math.PI * 2 + Math.random() * 0.4;
+    const r = 80 + Math.random() * 120;
+    ARC_BG.stars.push({
+      text: w,
+      x: ARC_BG.W / 2 + Math.cos(ang) * r,
+      y: ARC_BG.H / 2 + Math.sin(ang) * r,
+      ang,
+      orbR: r,
+      orbSpeed: 0.0008 + Math.random() * 0.0012,
+      twinkle: Math.random(),
+      twinkleSpeed: 0.015 + Math.random() * 0.02,
+      isPath: pathMots.has(w),
+    });
+  });
+}
+
+function arcBgDraw() {
+  if (!ARC_BG.active || !ARC_BG.ctx) return;
+  // Resize check
+  if (ARC_BG.cv.width !== ARC_BG.cv.offsetWidth || ARC_BG.cv.height !== ARC_BG.cv.offsetHeight) {
+    arcBgInit();
+  }
+  ARC_BG.tick++;
+  const ctx = ARC_BG.ctx;
+  const W = ARC_BG.W, H = ARC_BG.H;
+  // Persistence trail (very subtle)
+  ctx.fillStyle = 'rgba(8,0,18,.22)';
+  ctx.fillRect(0, 0, W, H);
+
+  const cx = W / 2, cy = H / 2;
+
+  // Constellation — draw connecting lines first (low opacity)
+  ctx.lineWidth = 0.4;
+  for (let i = 0; i < ARC_BG.stars.length; i++) {
+    for (let j = i + 1; j < ARC_BG.stars.length; j++) {
+      const a = ARC_BG.stars[i], b = ARC_BG.stars[j];
+      const d = Math.hypot(a.x - b.x, a.y - b.y);
+      if (d < 110) {
+        const alpha = (1 - d / 110) * 0.06;
+        ctx.strokeStyle = `rgba(180,100,255,${alpha})`;
+        ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke();
+      }
+    }
+  }
+
+  // Stars — drift in slow orbit
+  ctx.font = '7px "Share Tech Mono",monospace';
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  for (const s of ARC_BG.stars) {
+    s.ang += s.orbSpeed;
+    s.twinkle += s.twinkleSpeed;
+    s.x = cx + Math.cos(s.ang) * s.orbR;
+    s.y = cy + Math.sin(s.ang) * s.orbR;
+    const tw = 0.3 + Math.abs(Math.sin(s.twinkle)) * 0.5;
+    const baseAlpha = (s.isPath ? 0.18 : 0.10) * tw;
+    ctx.fillStyle = s.isPath ? `rgba(255,220,80,${baseAlpha + 0.05})` : `rgba(180,160,220,${baseAlpha})`;
+    ctx.shadowBlur = s.isPath ? 4 : 0;
+    ctx.shadowColor = s.isPath ? `rgba(255,204,0,${baseAlpha})` : 'transparent';
+    ctx.fillText(s.text, s.x, s.y);
+  }
+  ctx.shadowBlur = 0;
+
+  // Particles drifting toward center (attracted by cursor when active)
+  for (const p of ARC_BG.particles) {
+    if (ARC_BG.mouseActive) {
+      const dx = ARC_BG.mouseX - p.x, dy = ARC_BG.mouseY - p.y;
+      const dist = Math.hypot(dx, dy) + 0.001;
+      if (dist < 200) {
+        const force = (200 - dist) / 200 * 0.04;
+        p.vx += dx / dist * force;
+        p.vy += dy / dist * force;
+      }
+    } else {
+      // Drift toward center weakly
+      p.vx += (cx - p.x) * 0.00012;
+      p.vy += (cy - p.y) * 0.00012;
+    }
+    p.vx *= 0.97; p.vy *= 0.97;
+    p.x += p.vx; p.y += p.vy;
+    // Wrap
+    if (p.x < -4) p.x = W + 4;
+    if (p.x > W + 4) p.x = -4;
+    if (p.y < -4) p.y = H + 4;
+    if (p.y > H + 4) p.y = -4;
+    let col = p.hue === 'violet' ? '180,120,255'
+            : p.hue === 'cyan' ? '120,210,255'
+            : '255,220,120';
+    ctx.fillStyle = `rgba(${col},${p.a})`;
+    ctx.shadowBlur = 4; ctx.shadowColor = `rgba(${col},.5)`;
+    ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2); ctx.fill();
+  }
+  ctx.shadowBlur = 0;
+
+  ARC_BG.raf = requestAnimationFrame(arcBgDraw);
+}
+
+function arcStartPlaceholderRotation() {
+  const tx = $('arc-question');
+  if (!tx) return;
+  arcPlaceholderIdx = 0;
+  const rotate = () => {
+    // Only rotate if textarea is empty
+    if (tx.value === '' && document.activeElement !== tx) {
+      arcPlaceholderIdx = (arcPlaceholderIdx + 1) % ARC_PLACEHOLDERS.length;
+      tx.placeholder = ARC_PLACEHOLDERS[arcPlaceholderIdx];
+    }
+  };
+  if (arcPlaceholderTimer) clearInterval(arcPlaceholderTimer);
+  arcPlaceholderTimer = setInterval(rotate, 9000);
+}
+
+function arcStopPlaceholderRotation() {
+  if (arcPlaceholderTimer) { clearInterval(arcPlaceholderTimer); arcPlaceholderTimer = null; }
+}
+
+function arcUpdateLiveAnalysis() {
+  const tx = $('arc-question');
+  if (!tx) return;
+  const q = tx.value;
+  const wrap = $('arc-question-wrap');
+  if (wrap) {
+    wrap.classList.toggle('has-text', q.trim().length > 0);
+    wrap.classList.toggle('long-text', q.trim().length > 90);
+  }
+  const stats = $('arc-live-stats');
+  const submit = $('arc-submit');
+  if (q.trim().length === 0) {
+    if (stats) {
+      stats.textContent = 'en attente de signal…';
+      stats.classList.remove('active');
+    }
+    if (submit) submit.classList.remove('armed');
+    return;
+  }
+  // Light analysis
+  const len = q.trim().length;
+  const lower = q.toLowerCase();
+  let kw = 0;
+  const kws = ['mn3mia','solene','solène','loria','ethan','13.7','treize','signal','memoire','mémoire','reve','rêve','belle','nuit','peur','aimer','perdre','oublier'];
+  kws.forEach(k => { if (lower.includes(k)) kw++; });
+  const isQ = /\?/.test(q);
+  const parts = [];
+  parts.push(`${len} signaux captés`);
+  if (kw > 0) parts.push(`${kw} mot${kw>1?'s':''}-clé${kw>1?'s':''} reconnu${kw>1?'s':''}`);
+  if (isQ) parts.push('forme interrogative');
+  if (len > 80) parts.push('empreinte stabilisée');
+  if (stats) {
+    stats.textContent = parts.join(' · ');
+    stats.classList.add('active');
+  }
+  if (submit) submit.classList.add('armed');
+}
+
+function arcUpdateDashboard() {
+  const f = freqData.lastFreq || 0;
+  const fProx = clamp(1 - Math.abs(f - 13.7) / 13.7, 0, 1);
+  const cnt = contactLog.length;
+  const cntPct = clamp(cnt / 13, 0, 1);
+  const fp = (typeof buildFingerprint === 'function') ? buildFingerprint() : null;
+  let fpLabel = 'scan', fpPct = 0.2, fpCol = '0,212,255';
+  if (fp) {
+    if (fp.dominantField) {
+      fpLabel = fp.dominantField;
+      fpPct = clamp(fp.fieldCounts[fp.dominantField] / 5, 0.2, 1);
+      const fieldColors = {
+        loss: '255,140,180', memory: '180,140,255', bond: '255,180,140',
+        signal: '0,255,170', threshold: '255,80,120', premonition: '255,220,80',
+        creation: '120,255,200', geography: '120,210,255',
+      };
+      fpCol = fieldColors[fp.dominantField] || '0,212,255';
+    } else if (fp.state) {
+      fpLabel = fp.state.toLowerCase();
+    }
+  }
+  const fEl = $('arc-dash-freq'); const fV = $('arc-dash-freq-v');
+  if (fEl) {
+    fEl.style.width = (fProx * 100) + '%';
+    let fCol = fProx > 0.85 ? '0,255,170' : fProx > 0.55 ? '255,204,0' : '0,212,255';
+    fEl.style.background = `rgba(${fCol},.55)`;
+    fEl.style.color = `rgb(${fCol})`;
+  }
+  if (fV) fV.textContent = f.toFixed(2) + ' Hz';
+  const cEl = $('arc-dash-cnt'); const cV = $('arc-dash-cnt-v');
+  if (cEl) {
+    cEl.style.width = (cntPct * 100) + '%';
+    cEl.style.background = 'rgba(255,80,120,.55)';
+    cEl.style.color = 'rgb(255,80,120)';
+  }
+  if (cV) cV.textContent = String(cnt);
+  const pEl = $('arc-dash-fp'); const pV = $('arc-dash-fp-v');
+  if (pEl) {
+    pEl.style.width = (fpPct * 100) + '%';
+    pEl.style.background = `rgba(${fpCol},.55)`;
+    pEl.style.color = `rgb(${fpCol})`;
+  }
+  if (pV) pV.textContent = fpLabel;
+}
+
+let arcDashboardTimer = null;
+let arcListenersAttached = false;
+
+function arcAttachListeners() {
+  if (arcListenersAttached) return;
+  arcListenersAttached = true;
+  const tx = $('arc-question');
+  if (tx) {
+    tx.addEventListener('input', arcUpdateLiveAnalysis);
+    tx.addEventListener('keydown', e => {
+      if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+        e.preventDefault();
+        startArcaneReading();
+      }
+    });
+  }
+  const cv = $('arc-bg-canvas');
+  if (cv) {
+    cv.addEventListener('mousemove', e => {
+      const rect = cv.getBoundingClientRect();
+      ARC_BG.mouseX = e.clientX - rect.left;
+      ARC_BG.mouseY = e.clientY - rect.top;
+      ARC_BG.mouseActive = true;
+    });
+    cv.addEventListener('mouseleave', () => { ARC_BG.mouseActive = false; });
+  }
+  // Also track over the whole modal so particles react to cursor everywhere
+  const modal = $('arcane-overlay');
+  if (modal) {
+    modal.addEventListener('mousemove', e => {
+      const cv2 = $('arc-bg-canvas');
+      if (!cv2) return;
+      const rect = cv2.getBoundingClientRect();
+      ARC_BG.mouseX = e.clientX - rect.left;
+      ARC_BG.mouseY = e.clientY - rect.top;
+      ARC_BG.mouseActive = true;
+    });
+    modal.addEventListener('mouseleave', () => { ARC_BG.mouseActive = false; });
+  }
+}
+
 function openArcane() {
   arcaneOpen = true;
   $('arcane-overlay').classList.add('on');
   triggerChromaFx(400);
   resetArcane();
+  arcAttachListeners();
+  // 1. Auto-focus textarea after modal animation
+  setTimeout(() => {
+    const tx = $('arc-question');
+    if (tx) { tx.focus(); }
+  }, 360);
+  // 2. Start eyecandy bg
+  ARC_BG.active = true;
+  setTimeout(() => { arcBgInit(); arcBgDraw(); }, 60);
+  // 3. Start placeholder rotation
+  arcStartPlaceholderRotation();
+  // 4. Start live dashboard updates
+  arcUpdateDashboard();
+  if (arcDashboardTimer) clearInterval(arcDashboardTimer);
+  arcDashboardTimer = setInterval(arcUpdateDashboard, 1500);
 }
 
 function closeArcane() {
   arcaneOpen = false;
   $('arcane-overlay').classList.remove('on');
+  // Stop bg
+  ARC_BG.active = false;
+  if (ARC_BG.raf) { cancelAnimationFrame(ARC_BG.raf); ARC_BG.raf = null; }
+  arcStopPlaceholderRotation();
+  if (arcDashboardTimer) { clearInterval(arcDashboardTimer); arcDashboardTimer = null; }
 }
 
 function resetArcane() {
   const q = $('arc-question');
   if (q) { q.value = ''; q.style.display = 'block'; }
-  const sub = $('arc-submit'); if (sub) sub.style.display = 'block';
-  const hint = $('arc-hint'); if (hint) hint.style.display = 'block';
+  const sub = $('arc-submit'); if (sub) { sub.style.display = 'block'; sub.classList.remove('armed'); }
   const sub2 = $('arc-subtitle'); if (sub2) sub2.style.display = 'block';
+  const live = $('arc-live-analysis'); if (live) live.style.display = 'flex';
+  const stats = $('arc-live-stats');
+  if (stats) { stats.textContent = 'en attente de signal…'; stats.classList.remove('active'); }
+  const dash = $('arc-dashboard'); if (dash) dash.style.display = 'flex';
+  const wrap = $('arc-question-wrap');
+  if (wrap) { wrap.style.display = 'block'; wrap.classList.remove('has-text','long-text'); }
   const pc2 = $('arc-phase-c'); if (pc2) pc2.style.display = 'none';
   const pr = $('arc-phase-r'); if (pr) pr.style.display = 'none';
   arcProgress = 0; arcProgressTarget = 0; arcPuzzlePieces = [];
+  // Re-focus
+  setTimeout(() => { if (q) q.focus(); }, 100);
+}
+
+// Hide question UI elements when entering compute/reveal phase
+function arcHideQuestionUI() {
+  ['arc-question-wrap','arc-submit','arc-live-analysis','arc-dashboard','arc-subtitle']
+    .forEach(id => { const el = $(id); if (el) el.style.display = 'none'; });
 }
 
 // ─── PUZZLE CANVAS — pieces gravitationnelles avec masses et traînées ──────
@@ -5478,9 +5910,7 @@ async function startArcaneReading() {
   const rawQ = $('arc-question').value.trim();
   const q = rawQ || '∂';
   arcCurrentQuestion = rawQ || '(question silencieuse)';
-  $('arc-question').style.display = 'none';
-  $('arc-submit').style.display = 'none';
-  $('arc-hint').style.display = 'none';
+  arcHideQuestionUI();
   const phaseC = $('arc-phase-c');
   phaseC.style.display = 'flex';
   arcPuzzlePieces = []; arcProgress = 0; arcTick = 0;
