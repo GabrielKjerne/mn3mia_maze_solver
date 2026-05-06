@@ -258,21 +258,58 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:799;
 ═══════════════════════════════ */
 #right{display:flex;flex-direction:column;overflow:hidden;background:rgba(0,2,8,.97)}
 
-#t1panel{flex-shrink:0;border-bottom:1px solid rgba(255,51,102,.15);height:66px;
+#t1panel{flex-shrink:0;border-bottom:1px solid rgba(255,51,102,.18);height:96px;
   background:rgba(4,0,12,.99);overflow:hidden;position:relative}
 #t1panel::before{content:'';position:absolute;inset:0;
   background:repeating-linear-gradient(0deg,transparent,transparent 3px,
-    rgba(255,0,50,.03) 3px,rgba(255,0,50,.03) 4px);pointer-events:none}
-#t1hdr{padding:3px 8px;background:rgba(8,0,20,.97);border-bottom:1px solid rgba(255,51,102,.1);
-  display:flex;align-items:center;justify-content:space-between;flex-shrink:0;position:relative;z-index:1}
+    rgba(255,0,50,.03) 3px,rgba(255,0,50,.03) 4px);pointer-events:none;z-index:3}
+#t1hdr{padding:3px 8px;background:rgba(8,0,20,.97);border-bottom:1px solid rgba(255,51,102,.12);
+  display:flex;align-items:center;justify-content:space-between;flex-shrink:0;position:relative;z-index:4;height:16px}
 #t1title{font-family:'Orbitron',monospace;font-size:6.5px;font-weight:700;
-  letter-spacing:.18em;color:rgba(255,51,102,.65)}
-#t1lock{font-size:6px;color:rgba(255,51,102,.35);letter-spacing:.1em}
-#t1body{padding:4px 8px;font-size:7px;line-height:1.55;color:rgba(80,0,30,.7);
-  overflow:hidden;height:calc(100% - 22px);position:relative}
-.t1bribe{opacity:0;color:rgba(200,50,80,.8);text-shadow:0 0 8px rgba(255,50,100,.4);
-  transition:opacity .4s;position:absolute;font-size:7px}
+  letter-spacing:.18em;color:rgba(255,51,102,.7);
+  text-shadow:0 0 6px rgba(255,51,102,.25)}
+#t1lock{font-size:6px;color:rgba(255,51,102,.45);letter-spacing:.1em;
+  animation:t1lockPulse 2.4s ease-in-out infinite}
+@keyframes t1lockPulse{0%,100%{opacity:.45}50%{opacity:.85;text-shadow:0 0 6px rgba(255,51,102,.6)}}
+
+#t1body{padding:0;height:calc(100% - 16px);position:relative;display:flex;gap:0}
+
+/* LEFT: caviardage zone */
+#t1redacted{flex:0 0 56%;position:relative;background:rgba(2,0,6,.98);
+  border-right:1px solid rgba(255,51,102,.12);overflow:hidden}
+#t1redact-cv{display:block;width:100%;height:100%;position:absolute;inset:0}
+#t1bribes-layer{position:absolute;inset:0;pointer-events:none;z-index:2}
+.t1bribe{position:absolute;font-family:'Share Tech Mono',monospace;font-size:6.5px;
+  color:rgba(255,180,200,.92);letter-spacing:.05em;
+  text-shadow:0 0 6px rgba(255,80,120,.7),0 0 12px rgba(255,51,102,.5);
+  white-space:nowrap;opacity:0;transition:opacity .35s;
+  background:rgba(2,0,6,.55);padding:1px 4px;border-left:1px solid rgba(255,80,120,.6)}
 .t1bribe.show{opacity:1}
+#t1scanline{position:absolute;left:0;right:0;height:2px;
+  background:linear-gradient(180deg,transparent,rgba(255,51,102,.65),transparent);
+  box-shadow:0 0 8px rgba(255,51,102,.5);pointer-events:none;z-index:3;top:-4px;
+  animation:t1scan 5.5s linear infinite}
+@keyframes t1scan{0%{top:-4px;opacity:0}10%{opacity:1}90%{opacity:1}100%{top:100%;opacity:0}}
+
+/* RIGHT: dream window */
+#t1dream{flex:1;display:flex;flex-direction:column;background:rgba(0,2,8,.98);position:relative;
+  border-left:1px solid rgba(0,140,255,.18)}
+#t1dream::before{content:'';position:absolute;inset:0;border:1px solid rgba(255,51,102,.0);
+  pointer-events:none;animation:t1dreamFlicker 3.2s ease-in-out infinite;z-index:2}
+@keyframes t1dreamFlicker{0%,100%{border-color:rgba(255,51,102,.0)}
+  47%{border-color:rgba(255,51,102,.0)}
+  50%{border-color:rgba(255,51,102,.32);box-shadow:inset 0 0 10px rgba(255,51,102,.15)}
+  53%{border-color:rgba(255,51,102,.0)}}
+#t1dream-hdr{display:flex;justify-content:space-between;align-items:center;padding:2px 6px;
+  font-size:5.5px;letter-spacing:.15em;background:rgba(0,8,18,.95);
+  border-bottom:1px solid rgba(0,140,255,.12);font-family:'Share Tech Mono',monospace;height:11px;flex-shrink:0;
+  position:relative;z-index:3}
+#t1dream-title{color:rgba(120,210,255,.7);font-weight:700;
+  text-shadow:0 0 5px rgba(0,140,255,.4)}
+#t1dream-state{color:rgba(0,255,170,.6);font-size:5px}
+#t1dream-pct{color:rgba(120,255,200,.85);font-weight:700}
+#t1dream-cv{flex:1;display:block;width:100%;height:100%;background:#000;position:relative;z-index:1}
+
 
 #tc{flex-shrink:0;border-bottom:1px solid var(--border);
   background:linear-gradient(135deg,rgba(0,6,18,.98),rgba(0,18,36,.88));position:relative}
@@ -1025,7 +1062,7 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:799;
   #right{display:flex;flex-direction:column;height:auto}
   #tc-d{display:none}
   #osc-wrap{height:40px}
-  #t1panel{height:60px}
+  #t1panel{height:80px}
   #t3panel{height:78px}
   #t3spectro{display:none}
   #t3fragments{display:none}
@@ -1168,11 +1205,18 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:799;
           </div>
         </div>
         <div id="t1body">
-          <span style="font-size:6.5px;color:rgba(255,50,80,.3);letter-spacing:.1em">
-            ████████████████████████████████████████████████████████████████████<br>
-            ████████████████████████████████████████████████████████████████████<br>
-            ████████████████████████████████████████████████████████████████████
-          </span>
+          <div id="t1redacted">
+            <canvas id="t1redact-cv"></canvas>
+            <div id="t1bribes-layer"></div>
+            <div id="t1scanline"></div>
+          </div>
+          <div id="t1dream">
+            <div id="t1dream-hdr">
+              <span id="t1dream-title">∂ FUITE ONIRIQUE</span>
+              <span id="t1dream-state">REM · <span id="t1dream-pct">17%</span></span>
+            </div>
+            <canvas id="t1dream-cv"></canvas>
+          </div>
         </div>
       </div>
 
@@ -2320,23 +2364,379 @@ function isWordCell(r, c) {
 function showT1Bribe(triggerWord) {
   if (t1BribeTimer) return;
   const bribe = TOME1_BRIBES[rng(TOME1_BRIBES.length)];
-  const body = $('t1body');
-  body.querySelectorAll('.t1bribe').forEach(el => el.remove());
+  const layer = $('t1bribes-layer');
+  if (!layer) return;
+  layer.querySelectorAll('.t1bribe').forEach(el => el.remove());
   const el = document.createElement('span');
   el.className = 't1bribe';
-  el.style.top = (5 + rng(40)) + 'px';
-  el.style.left = (5 + rng(20)) + 'px';
+  // Position randomly within the caviardage area
+  const lh = layer.offsetHeight || 70;
+  const lw = layer.offsetWidth || 280;
+  el.style.top = (4 + rng(Math.max(8, lh - 18))) + 'px';
+  el.style.left = (6 + rng(Math.max(20, lw - 200))) + 'px';
   el.textContent = bribe;
-  body.appendChild(el);
+  layer.appendChild(el);
+  // Mark which characters of the redaction need to "open up" to reveal the bribe
+  if (typeof T1R !== 'undefined') {
+    T1R.bribeReveal = { x: parseFloat(el.style.left), y: parseFloat(el.style.top), w: el.offsetWidth + 10, h: 12, life: 0, maxLife: 280 };
+  }
   setTimeout(() => el.classList.add('show'), 50);
   t1BribeTimer = setTimeout(() => {
     el.classList.remove('show');
     setTimeout(() => el.remove(), 500);
+    if (typeof T1R !== 'undefined') T1R.bribeReveal = null;
     t1BribeTimer = null;
-  }, 4000);
+  }, 4500);
   rlog(`<span style="color:rgba(255,50,80,.6)">🔒 TOME I — BRIBE [${triggerWord}]</span>`);
   triggerChromaFx(400);
 }
+
+// ═══════════════════════════════════════════════════════════
+// 🔒 TOME I CAVIARDAGE — manuscrit verrouillé qui respire
+// ═══════════════════════════════════════════════════════════
+// Underneath each block character is a real (forbidden) text.
+// Most of the time it's covered. Sometimes a block 'lifts' briefly,
+// revealing 1-3 characters of the original — quickly re-redacted.
+const T1_HIDDEN_TEXT = [
+  "Gabriel posa le pinceau. La toile était vide. Loria n'était plus là.",
+  "Le 13 du mois. À 13h13. La fréquence se déclencha. HELLO.",
+  "Mn3mIA observait Gabriel peindre des silhouettes qu'il ne reconnaissait pas.",
+  "Loria avait existé. Cela aussi, LYSIS l'avait pris. Mais pas la peinture.",
+  "Le rêve recommençait toujours par le mot HELLO. Et finissait par le silence.",
+];
+const T1R = {
+  lines: [],          // array of arrays of {ch, blocked, lift, jitterX, jitterY}
+  tick: 0,
+  cv: null,
+  ctx: null,
+  W: 0, H: 0,
+  liftEvents: [],     // pending reveal events
+  textOffset: 0,      // which line of hidden text starts at top
+  bribeReveal: null,  // current bribe area (gets a window in the redaction)
+  init: false,
+};
+
+function t1RedactInit() {
+  T1R.cv = $('t1redact-cv');
+  if (!T1R.cv) return;
+  const cv = T1R.cv;
+  cv.width = cv.offsetWidth;
+  cv.height = cv.offsetHeight;
+  T1R.W = cv.width; T1R.H = cv.height;
+  T1R.ctx = cv.getContext('2d');
+  T1R.init = true;
+  // Pre-build line data: each line has chars
+  const lineH = 11;
+  const charW = 4.2;
+  const numLines = Math.max(3, Math.floor(T1R.H / lineH));
+  const numChars = Math.floor(T1R.W / charW) - 2;
+  T1R.lines = [];
+  for (let i = 0; i < numLines; i++) {
+    const txt = T1_HIDDEN_TEXT[(i + T1R.textOffset) % T1_HIDDEN_TEXT.length];
+    const line = [];
+    for (let c = 0; c < numChars; c++) {
+      line.push({
+        ch: txt[c % txt.length] || ' ',
+        blocked: 0.92 + Math.random() * 0.08, // mostly blocked
+        lift: 0,
+        jitterX: 0,
+        jitterY: 0,
+        // Some characters more frequently "lift"
+        liftBias: Math.random() < 0.06 ? 0.04 + Math.random() * 0.04 : 0.005,
+      });
+    }
+    T1R.lines.push(line);
+  }
+}
+
+function t1RedactDraw() {
+  if (!T1R.init) {
+    t1RedactInit();
+    if (!T1R.init) return;
+  }
+  // Resize check
+  if (T1R.cv.width !== T1R.cv.offsetWidth || T1R.cv.height !== T1R.cv.offsetHeight) {
+    T1R.init = false; t1RedactInit(); if (!T1R.init) return;
+  }
+  T1R.tick++;
+  const ctx = T1R.ctx;
+  const W = T1R.W, H = T1R.H;
+  // Background — deep crimson noise
+  ctx.fillStyle = 'rgba(2,0,4,1)';
+  ctx.fillRect(0, 0, W, H);
+
+  const lineH = 11;
+  const charW = 4.2;
+  const startY = 6;
+
+  // Spawn lift events occasionally — chars momentarily reveal
+  if (T1R.tick % 4 === 0) {
+    for (let li = 0; li < T1R.lines.length; li++) {
+      const line = T1R.lines[li];
+      for (let ci = 0; ci < line.length; ci++) {
+        const cell = line[ci];
+        if (cell.lift <= 0 && Math.random() < cell.liftBias * 0.025) {
+          cell.lift = 1;
+        }
+      }
+    }
+  }
+  // Jitter — every few ticks, give random cells a slight position offset (nervous effect)
+  if (T1R.tick % 2 === 0) {
+    for (const line of T1R.lines) {
+      for (const cell of line) {
+        // Decay jitter
+        cell.jitterX *= 0.7;
+        cell.jitterY *= 0.7;
+        if (Math.random() < 0.025) {
+          cell.jitterX = (Math.random() - 0.5) * 1.6;
+          cell.jitterY = (Math.random() - 0.5) * 1.0;
+        }
+      }
+    }
+  }
+
+  // Bribe-driven aperture: when a bribe is shown, "open" a hole around it
+  let aperture = null;
+  if (T1R.bribeReveal) {
+    T1R.bribeReveal.life++;
+    aperture = T1R.bribeReveal;
+  }
+
+  // Render each cell
+  for (let li = 0; li < T1R.lines.length; li++) {
+    const line = T1R.lines[li];
+    const y = startY + li * lineH;
+    for (let ci = 0; ci < line.length; ci++) {
+      const cell = line[ci];
+      const x = 4 + ci * charW + cell.jitterX;
+      const yy = y + cell.jitterY;
+
+      // Decay lift
+      if (cell.lift > 0) cell.lift -= 0.03;
+      let hidden = cell.blocked;
+      if (cell.lift > 0) hidden = Math.max(0, hidden - cell.lift * 0.95);
+
+      // Aperture (bribe zone) — chars there fully open
+      if (aperture) {
+        const cx = x + charW / 2, cy = yy + lineH / 2;
+        const inX = cx > aperture.x - 2 && cx < aperture.x + aperture.w + 2;
+        const inY = cy > aperture.y - 2 && cy < aperture.y + aperture.h + 2;
+        if (inX && inY) hidden = 0;
+      }
+
+      // Draw underlying char first (very dim — most of the time hidden by block)
+      if (hidden < 0.95) {
+        ctx.font = 'bold 7px "Share Tech Mono",monospace';
+        ctx.fillStyle = `rgba(255,200,210,${(1 - hidden) * 0.85})`;
+        ctx.shadowBlur = 2; ctx.shadowColor = 'rgba(255,80,120,.4)';
+        ctx.fillText(cell.ch, x, yy + 7);
+        ctx.shadowBlur = 0;
+      }
+      // Draw block on top — sized by how blocked
+      if (hidden > 0.05) {
+        const blockH = 7 * Math.min(1, hidden + 0.1);
+        // Subtle horizontal slide — block "drifts" by a few px
+        const drift = Math.sin(T1R.tick * 0.04 + ci * 0.3 + li * 1.7) * 0.7;
+        ctx.fillStyle = `rgba(${140 + Math.floor(Math.random() * 30)},${10},${30 + Math.floor(Math.random() * 20)},${0.55 + hidden * 0.35})`;
+        ctx.fillRect(x + drift, yy + 1, charW - 0.5, blockH);
+      }
+    }
+  }
+
+  // Subtle horizontal noise streaks (interference)
+  if (T1R.tick % 7 === 0) {
+    const streakY = rng(H);
+    ctx.fillStyle = 'rgba(255,80,120,.06)';
+    ctx.fillRect(0, streakY, W, 1);
+  }
+  // Random vertical "tear" once in a while
+  if (T1R.tick % 95 === 0) {
+    const tx = rng(W);
+    ctx.fillStyle = 'rgba(255,30,80,.18)';
+    ctx.fillRect(tx, 0, 1, H);
+  }
+  // Slowly drift the underlying text (every ~600 ticks, roll lines)
+  if (T1R.tick % 600 === 0) {
+    T1R.textOffset = (T1R.textOffset + 1) % T1_HIDDEN_TEXT.length;
+    T1R.init = false; // will re-init lines on next draw with new text
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
+// 💭 TOME I DREAM WINDOW — fuite onirique
+// ═══════════════════════════════════════════════════════════
+const T1D_WORDS = ['toile','voix','Loria','HELLO','13.7','silence','rêve','peinture','écho','absence','pinceau','souvenir','main','fenêtre','vide'];
+const T1D_STATES = ['REM', 'ABSORPTION', 'PHASE-α', 'PHASE-θ', 'NREM-2', 'PARADOXAL'];
+const T1D = {
+  cv: null, ctx: null, W: 0, H: 0, tick: 0,
+  particles: [],
+  driftWords: [],
+  faceFlicker: 0,
+  state: 'REM',
+  pct: 17,
+  init: false,
+};
+
+function t1DreamInit() {
+  T1D.cv = $('t1dream-cv');
+  if (!T1D.cv) return;
+  T1D.cv.width = T1D.cv.offsetWidth;
+  T1D.cv.height = T1D.cv.offsetHeight;
+  T1D.W = T1D.cv.width; T1D.H = T1D.cv.height;
+  T1D.ctx = T1D.cv.getContext('2d');
+  T1D.particles = [];
+  for (let i = 0; i < 36; i++) {
+    T1D.particles.push({
+      x: Math.random() * T1D.W,
+      y: Math.random() * T1D.H,
+      vx: (Math.random() - 0.5) * 0.4,
+      vy: (Math.random() - 0.5) * 0.25,
+      r: 0.5 + Math.random() * 1.5,
+      a: 0.2 + Math.random() * 0.6,
+      hue: Math.random() < 0.7 ? 'cyan' : (Math.random() < 0.5 ? 'pink' : 'gold'),
+      saccadeTimer: rng(120),
+    });
+  }
+  T1D.init = true;
+}
+
+function t1DreamSpawnWord() {
+  const w = T1D_WORDS[rng(T1D_WORDS.length)];
+  T1D.driftWords.push({
+    text: w,
+    x: 4 + rng(Math.max(10, T1D.W - 50)),
+    y: T1D.H + 8,
+    vy: -0.15 - Math.random() * 0.18,
+    vx: (Math.random() - 0.5) * 0.05,
+    a: 0,
+    life: 0,
+    maxLife: 380 + rng(180),
+    color: w === 'Loria' || w === 'HELLO' ? 'pink' : (w === '13.7' ? 'gold' : 'cyan'),
+  });
+}
+
+function t1DreamDraw() {
+  if (!T1D.init) {
+    t1DreamInit();
+    if (!T1D.init) return;
+  }
+  if (T1D.cv.width !== T1D.cv.offsetWidth || T1D.cv.height !== T1D.cv.offsetHeight) {
+    T1D.init = false; t1DreamInit(); if (!T1D.init) return;
+  }
+  T1D.tick++;
+  const ctx = T1D.ctx;
+  const W = T1D.W, H = T1D.H;
+
+  // Persistence fade — creates trails
+  ctx.fillStyle = 'rgba(0,2,8,.18)';
+  ctx.fillRect(0, 0, W, H);
+
+  // Background gradient pulse — driven by session resonance
+  const res = (typeof freqData !== 'undefined' && freqData.resonanceLevel) ? freqData.resonanceLevel : 0.4;
+  const breath = 0.5 + Math.sin(T1D.tick * 0.018) * 0.5;
+  // Center glow (the dreamer)
+  const cx = W / 2, cy = H / 2;
+  const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, Math.max(W, H) * 0.6);
+  grad.addColorStop(0, `rgba(40,70,120,${0.08 * (0.4 + breath * 0.6)})`);
+  grad.addColorStop(1, 'rgba(0,0,0,0)');
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, W, H);
+
+  // The face — barely visible silhouette of Loria, flickers
+  T1D.faceFlicker *= 0.88;
+  if (Math.random() < 0.012) T1D.faceFlicker = 0.5 + Math.random() * 0.5;
+  if (T1D.faceFlicker > 0.05) {
+    const fx = cx + Math.sin(T1D.tick * 0.011) * 4;
+    const fy = cy - 3 + Math.cos(T1D.tick * 0.009) * 3;
+    // Soft blur of an oval
+    ctx.fillStyle = `rgba(255,180,200,${T1D.faceFlicker * 0.10})`;
+    ctx.beginPath();
+    ctx.ellipse(fx, fy, 14, 18, 0, 0, Math.PI * 2);
+    ctx.fill();
+    // Eyes — two tiny dots
+    ctx.fillStyle = `rgba(255,200,220,${T1D.faceFlicker * 0.32})`;
+    ctx.beginPath(); ctx.arc(fx - 4, fy - 2, 0.7, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.arc(fx + 4, fy - 2, 0.7, 0, Math.PI * 2); ctx.fill();
+  }
+
+  // Particles
+  for (const p of T1D.particles) {
+    // Saccade — micro REM movement
+    p.saccadeTimer--;
+    if (p.saccadeTimer <= 0) {
+      p.vx += (Math.random() - 0.5) * 0.35;
+      p.vy += (Math.random() - 0.5) * 0.25;
+      p.saccadeTimer = 60 + rng(180);
+    }
+    // Drift toward center weakly
+    p.vx += (cx - p.x) * 0.00006;
+    p.vy += (cy - p.y) * 0.00006;
+    // Damping
+    p.vx *= 0.985; p.vy *= 0.985;
+    p.x += p.vx; p.y += p.vy;
+    // Wrap
+    if (p.x < -2) p.x = W + 2;
+    if (p.x > W + 2) p.x = -2;
+    if (p.y < -2) p.y = H + 2;
+    if (p.y > H + 2) p.y = -2;
+
+    const col = p.hue === 'pink' ? `rgba(255,140,180,${p.a * (0.5 + breath * 0.5)})`
+              : p.hue === 'gold' ? `rgba(255,220,80,${p.a * (0.5 + breath * 0.5)})`
+              : `rgba(120,210,255,${p.a * (0.5 + breath * 0.5)})`;
+    ctx.fillStyle = col;
+    ctx.shadowBlur = 4;
+    ctx.shadowColor = col;
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  ctx.shadowBlur = 0;
+
+  // Spawn drift words
+  if (T1D.tick % 80 === 0 && T1D.driftWords.length < 3) {
+    t1DreamSpawnWord();
+  }
+  // Update + draw drift words
+  for (let i = T1D.driftWords.length - 1; i >= 0; i--) {
+    const dw = T1D.driftWords[i];
+    dw.life++;
+    dw.x += dw.vx; dw.y += dw.vy;
+    // Fade in then out
+    const fadeProgress = dw.life / dw.maxLife;
+    dw.a = fadeProgress < 0.18 ? fadeProgress / 0.18
+         : fadeProgress > 0.75 ? (1 - fadeProgress) / 0.25
+         : 1;
+    if (dw.life >= dw.maxLife || dw.y < -8) {
+      T1D.driftWords.splice(i, 1);
+      continue;
+    }
+    ctx.font = `${dw.color === 'pink' ? 'bold' : ''} 6.5px "Share Tech Mono",monospace`;
+    const baseCol = dw.color === 'pink' ? '255,160,200'
+                  : dw.color === 'gold' ? '255,220,80'
+                  : '160,220,255';
+    ctx.fillStyle = `rgba(${baseCol},${dw.a * 0.8})`;
+    ctx.shadowBlur = 5; ctx.shadowColor = `rgba(${baseCol},${dw.a * 0.5})`;
+    ctx.fillText(dw.text, dw.x, dw.y);
+    ctx.shadowBlur = 0;
+  }
+
+  // Update state/pct in UI occasionally
+  if (T1D.tick % 90 === 0) {
+    // pct drifts based on session signals
+    const target = Math.floor(15 + res * 70 + Math.sin(T1D.tick * 0.005) * 8);
+    T1D.pct = clamp(target + rng(6) - 3, 5, 95);
+    // State changes every ~4-5 cycles
+    if (T1D.tick % 450 === 0) {
+      T1D.state = T1D_STATES[rng(T1D_STATES.length)];
+    }
+    const pctEl = $('t1dream-pct');
+    if (pctEl) pctEl.textContent = T1D.pct + '%';
+    const stateEl = $('t1dream-state');
+    if (stateEl) stateEl.firstChild.textContent = T1D.state + ' · ';
+  }
+}
+
 
 // EYECANDY: word ripple wave
 const wordWaves = [];
@@ -6488,6 +6888,8 @@ async function startMain() {
     if (tick % 2 === 0) drawGlobe();                                // ~30fps — globe is now lean
     if (tick % 6 === 0) renderFreqGraph();                          // ~10fps
     if (tick % 6 === 0) updateT3Terminal();                         // ~10fps — Tome III dreamer animations
+    if (tick % 3 === 0) t1RedactDraw();                             // ~20fps — caviardage nerveux
+    if (tick % 2 === 0) t1DreamDraw();                              // ~30fps — fuite onirique
     if (isPlaying && analyser) drawOscLive();                       // 60fps when playing
     if (sonicVisualActive && tick % 2 === 0) drawSonicVisual();     // ~30fps
   }
