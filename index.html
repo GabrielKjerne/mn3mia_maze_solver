@@ -175,7 +175,14 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:799;
 .conv-inst-stack{display:flex;flex-direction:column;gap:3px;min-width:0}
 .conv-inst{position:relative;background:rgba(0,4,12,.85);
   border:1px solid rgba(0,212,255,.12);padding:2px;
-  display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:0}
+  display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:0;
+  cursor:pointer;transition:border-color .25s,box-shadow .25s,transform .15s}
+.conv-inst:hover{border-color:rgba(0,212,255,.45);
+  box-shadow:0 0 14px rgba(0,212,255,.2),inset 0 0 8px rgba(0,212,255,.06);
+  transform:translateY(-1px)}
+.conv-inst::after{content:'⛶';position:absolute;top:1px;right:2px;font-size:5px;
+  color:rgba(0,212,255,0);transition:color .25s;pointer-events:none}
+.conv-inst:hover::after{color:rgba(0,212,255,.55)}
 .conv-inst canvas{display:block;max-width:100%}
 .inst-label{font-family:'Share Tech Mono',monospace;font-size:4.8px;
   letter-spacing:.18em;color:rgba(0,212,255,.42);
@@ -228,13 +235,35 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:799;
   overflow:hidden}
 #oracle-tirer:hover{background:rgba(180,100,255,.2);box-shadow:0 0 10px rgba(180,100,255,.3);
   transform:translateY(-1px)}
-#oracle-interroger{width:100%;padding:9px 0;font-family:'Orbitron',monospace;font-size:10px;font-weight:900;
-  letter-spacing:.3em;color:rgba(220,160,255,1);background:rgba(180,100,255,.08);
-  border:1px solid rgba(180,100,255,.55);cursor:pointer;flex-shrink:0;
-  position:relative;overflow:hidden;transition:letter-spacing .3s,box-shadow .3s,background .3s;
-  text-shadow:0 0 10px rgba(180,100,255,.4)}
-#oracle-interroger:hover{background:rgba(180,100,255,.2);letter-spacing:.4em;
-  box-shadow:0 0 24px rgba(180,100,255,.45)}
+#oracle-interroger{width:100%;padding:12px 0;font-family:'Orbitron',monospace;font-size:11px;font-weight:900;
+  letter-spacing:.32em;color:rgba(230,200,255,1);background:linear-gradient(135deg,rgba(180,100,255,.12),rgba(0,212,255,.08),rgba(180,100,255,.12));
+  border:1px solid rgba(180,100,255,.65);cursor:pointer;flex-shrink:0;
+  position:relative;overflow:hidden;transition:letter-spacing .3s,box-shadow .3s,background .3s,transform .2s,color .3s;
+  text-shadow:0 0 12px rgba(180,100,255,.55),0 0 24px rgba(180,100,255,.25);
+  animation:oracleBtnBreath 3.4s ease-in-out infinite;z-index:1}
+@keyframes oracleBtnBreath{
+  0%,100%{box-shadow:0 0 0 rgba(180,100,255,0),inset 0 0 12px rgba(180,100,255,.04)}
+  50%{box-shadow:0 0 22px rgba(180,100,255,.4),0 0 44px rgba(180,100,255,.15),inset 0 0 16px rgba(180,100,255,.10)}
+}
+#oracle-interroger::before{content:'';position:absolute;top:0;left:-50%;width:50%;height:100%;
+  background:linear-gradient(90deg,transparent,rgba(220,180,255,.22),transparent);
+  animation:oracleBtnSweep 3.6s linear infinite;z-index:1;pointer-events:none}
+@keyframes oracleBtnSweep{0%{left:-50%}100%{left:150%}}
+#oracle-interroger::after{content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse at center,rgba(180,100,255,.08) 0%,transparent 65%);
+  pointer-events:none;z-index:0;opacity:.5;animation:oracleBtnHalo 4s ease-in-out infinite}
+@keyframes oracleBtnHalo{0%,100%{opacity:.4}50%{opacity:.85}}
+#oracle-interroger:hover{background:linear-gradient(135deg,rgba(180,100,255,.28),rgba(0,212,255,.18),rgba(180,100,255,.28));
+  letter-spacing:.4em;color:#fff;transform:translateY(-1px);
+  box-shadow:0 0 32px rgba(180,100,255,.6),0 0 60px rgba(180,100,255,.25),inset 0 0 18px rgba(180,100,255,.18)}
+#oracle-interroger:active{transform:translateY(0)}
+#oracle-interroger .oi-sigil{display:inline-block;color:rgba(255,220,150,.95);
+  text-shadow:0 0 14px rgba(255,204,0,.6);animation:oracleSigilPulse 1.8s ease-in-out infinite;
+  margin-right:8px;font-size:13px;vertical-align:middle}
+@keyframes oracleSigilPulse{
+  0%,100%{transform:scale(1) rotate(0deg);text-shadow:0 0 10px rgba(255,204,0,.5)}
+  50%{transform:scale(1.18) rotate(3deg);text-shadow:0 0 20px rgba(255,204,0,.9),0 0 36px rgba(255,180,40,.4)}
+}
 #oracle-strip{display:flex;gap:4px;overflow-x:auto;flex-shrink:0;padding:3px 0;scrollbar-width:none;align-items:center}
 #oracle-strip::-webkit-scrollbar{display:none}
 .o-chip{width:34px;height:50px;position:relative;flex-shrink:0;border:1px solid rgba(180,100,255,.4);
@@ -1132,6 +1161,66 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:799;
 @keyframes symPulse{0%,100%{text-shadow:0 0 30px rgba(180,100,255,.4)}
   50%{text-shadow:0 0 60px rgba(180,100,255,.8),0 0 100px rgba(180,100,255,.3)}}
 
+/* INSTRUMENT MODAL — agrandissement détaillé d'un instrument du panneau convergence */
+#instrument-overlay{position:fixed;inset:0;z-index:9080;background:rgba(0,2,8,.93);
+  backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
+  display:none;align-items:center;justify-content:center;padding:24px;
+  animation:modal-fade .3s ease}
+#instrument-overlay.on{display:flex}
+@keyframes modal-fade{from{opacity:0}to{opacity:1}}
+#instrument-box{width:min(960px,94vw);max-height:88vh;background:#000814;
+  border:1px solid rgba(0,212,255,.35);box-shadow:0 0 50px rgba(0,212,255,.25),0 0 100px rgba(0,212,255,.08);
+  display:flex;flex-direction:column;overflow:hidden;position:relative;
+  animation:modal-in .4s var(--ease-out)}
+#inst-close{position:absolute;top:12px;right:14px;z-index:10;
+  width:32px;height:32px;border:1px solid rgba(0,212,255,.3);
+  background:rgba(0,8,18,.85);color:rgba(0,212,255,.7);
+  font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;
+  transition:all .2s;font-family:'Share Tech Mono',monospace}
+#inst-close:hover{color:rgba(255,80,120,.95);border-color:rgba(255,80,120,.5);
+  background:rgba(40,0,15,.8);box-shadow:0 0 12px rgba(255,80,120,.3);transform:rotate(90deg)}
+
+#inst-header{padding:14px 20px;border-bottom:1px solid rgba(0,212,255,.18);
+  background:rgba(0,12,24,.6)}
+#inst-title{font-family:'Orbitron',monospace;font-size:14px;font-weight:900;
+  letter-spacing:.32em;color:rgba(0,212,255,.92);
+  text-shadow:0 0 18px rgba(0,212,255,.5);margin-bottom:4px}
+#inst-subtitle{font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:.18em;
+  color:rgba(0,212,255,.55);font-style:italic}
+
+#inst-body{flex:1;display:grid;grid-template-columns:1.4fr 1fr;gap:0;overflow:hidden;
+  min-height:420px}
+#inst-canvas-wrap{position:relative;background:radial-gradient(ellipse at center,rgba(0,20,40,.4),#000409 75%);
+  border-right:1px solid rgba(0,212,255,.12);
+  display:flex;align-items:center;justify-content:center;padding:20px;min-height:380px}
+#inst-canvas-large{display:block;max-width:100%;max-height:100%;width:100%;height:100%;
+  filter:drop-shadow(0 0 12px rgba(0,212,255,.2))}
+
+#inst-info-panel{padding:18px 22px;overflow-y:auto;display:flex;flex-direction:column;gap:14px;
+  font-family:'Share Tech Mono',monospace;font-size:9.5px;line-height:1.6;
+  color:rgba(180,220,250,.72);
+  scrollbar-width:thin;scrollbar-color:rgba(0,212,255,.2) transparent}
+#inst-info-panel::-webkit-scrollbar{width:4px}
+#inst-info-panel::-webkit-scrollbar-thumb{background:rgba(0,212,255,.25)}
+.inst-info-title{font-family:'Orbitron',monospace;font-size:7.5px;font-weight:700;
+  letter-spacing:.22em;color:rgba(0,212,255,.55);margin-bottom:6px;
+  text-shadow:0 0 6px rgba(0,212,255,.2)}
+#inst-info-text,#inst-narrative{font-style:italic;color:rgba(220,235,255,.82);
+  line-height:1.7;letter-spacing:.02em}
+#inst-current-state{font-family:'Share Tech Mono',monospace;background:rgba(0,8,16,.75);
+  border:1px solid rgba(0,212,255,.18);padding:8px 12px;color:rgba(220,235,255,.85);
+  font-size:8.5px;line-height:1.6;letter-spacing:.04em}
+#inst-current-state .ist-key{color:rgba(0,212,255,.55);display:inline-block;width:90px}
+#inst-current-state .ist-val{color:rgba(255,220,140,.9)}
+#inst-history{font-family:'Share Tech Mono',monospace;font-size:8px;line-height:1.55;
+  background:rgba(0,8,16,.75);border:1px solid rgba(0,212,255,.12);padding:8px 12px;
+  max-height:120px;overflow-y:auto;color:rgba(180,220,250,.72)}
+#inst-history .ihl{display:flex;justify-content:space-between;gap:8px;
+  padding:1px 0;border-bottom:1px dashed rgba(0,212,255,.06)}
+#inst-history .ihl:last-child{border-bottom:none}
+#inst-history .ih-time{color:rgba(0,212,255,.45);min-width:32px}
+#inst-history .ih-val{color:rgba(255,220,140,.85);font-weight:700}
+
 /* MOBILE */
 @media(max-width:768px){
   #app{overflow:hidden;grid-template-rows:24px 1fr 20px}
@@ -1142,8 +1231,10 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:799;
     border-right:none;border-bottom:1px solid var(--border)}
   #gw{flex:0 0 48%;border-bottom:none;border-right:1px solid var(--border)}
   #fw{flex:1}
-  #center{display:flex;flex-direction:column;height:240px;
+  #center{display:flex;flex-direction:column;min-height:520px;height:auto;
     border-right:none;border-bottom:1px solid var(--border)}
+  #center-oracle{flex:0 0 auto;min-height:230px}
+  #center-maze{flex:1;min-height:280px}
   #right{display:flex;flex-direction:column;height:auto}
   #tc-d{display:none}
   #osc-wrap{height:40px}
@@ -1166,6 +1257,13 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:799;
   #etat1-box{grid-template-columns:1fr;grid-template-rows:auto;gap:16px}
   #etat1-globe-wrap,#etat1-freq-wrap{display:none}
   #etat1-question{font-size:14px}
+  #instrument-overlay{padding:12px}
+  #instrument-box{width:96vw;max-height:90vh}
+  #inst-body{grid-template-columns:1fr;grid-template-rows:auto auto;min-height:0}
+  #inst-canvas-wrap{min-height:280px;padding:14px;border-right:none;
+    border-bottom:1px solid rgba(0,212,255,.12)}
+  #inst-info-panel{padding:14px 16px;font-size:9px}
+  #inst-history{max-height:90px}
 }
 
 /* Reduced motion */
@@ -1217,28 +1315,28 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:799;
           <div id="ftext"></div>
           <canvas id="fgraph-canvas"></canvas>
         </div>
-        <div id="conv-wrap" onclick="openPanelWin('conv')" title="Analyse de convergence">
-          <div id="conv-title">∂ CONVERGENCE — 13.7Hz ⛶</div>
+        <div id="conv-wrap">
+          <div id="conv-title" onclick="openPanelWin('conv')" style="cursor:pointer">∂ CONVERGENCE — 13.7Hz ⛶</div>
           <div id="conv-diag">— scan en cours</div>
           <div id="conv-instruments">
             <!-- 1. Galvanometer (résonance) -->
-            <div class="conv-inst" id="inst-galv">
+            <div class="conv-inst" id="inst-galv" onclick="openInstrument('galv')" title="Cliquez pour agrandir">
               <canvas id="galv-cv" width="120" height="64"></canvas>
               <div class="inst-label">RÉSONANCE</div>
             </div>
             <!-- 2. Spectre + 3. Phase trace stacked -->
             <div class="conv-inst-stack">
-              <div class="conv-inst" id="inst-spec">
+              <div class="conv-inst" id="inst-spec" onclick="openInstrument('spec')" title="Cliquez pour agrandir">
                 <canvas id="spec-cv" width="160" height="22"></canvas>
                 <div class="inst-label">SPECTRE — Δ 13.7Hz</div>
               </div>
-              <div class="conv-inst" id="inst-trace">
+              <div class="conv-inst" id="inst-trace" onclick="openInstrument('trace')" title="Cliquez pour agrandir">
                 <canvas id="trace-cv" width="160" height="38"></canvas>
                 <div class="inst-label">TRACE NEURONALE</div>
               </div>
             </div>
             <!-- 4. Phase lock disc -->
-            <div class="conv-inst" id="inst-lock">
+            <div class="conv-inst" id="inst-lock" onclick="openInstrument('lock')" title="Cliquez pour agrandir">
               <canvas id="lock-cv" width="64" height="64"></canvas>
               <div class="inst-label">PHASE LOCK</div>
             </div>
@@ -1268,7 +1366,7 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:799;
             <textarea id="oracle-q" placeholder="Votre question… ou silence." rows="2"></textarea>
             <button id="oracle-tirer" onclick="doOracleTirer()">∂ TIRER</button>
           </div>
-          <button id="oracle-interroger" onclick="openArcane()">∂ INTERROGER L'ORACLE</button>
+          <button id="oracle-interroger" onclick="openArcane()"><span class="oi-sigil">∂</span>INTERROGER L'ORACLE</button>
           <div id="oracle-strip"></div>
         </div>
       </div>
@@ -1543,6 +1641,39 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:799;
         <button class="arc-btn" id="arc-btn-again" onclick="resetArcane()">∂ NOUVELLE QUESTION</button>
         <button class="arc-btn" onclick="shareSession('oracle')" style="border-color:rgba(0,255,170,.3);color:rgba(0,255,170,.55)">⤴ PARTAGER</button>
         <button class="arc-btn" id="arc-btn-close2" onclick="closeArcane()">✕ FERMER</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="instrument-overlay" onclick="if(event.target===this)closeInstrument()">
+  <div id="instrument-box">
+    <button id="inst-close" onclick="closeInstrument()" title="Fermer (Échap)">✕</button>
+    <div id="inst-header">
+      <div id="inst-title">∂ INSTRUMENT</div>
+      <div id="inst-subtitle">— en analyse</div>
+    </div>
+    <div id="inst-body">
+      <div id="inst-canvas-wrap">
+        <canvas id="inst-canvas-large"></canvas>
+      </div>
+      <div id="inst-info-panel">
+        <div id="inst-info-section">
+          <div class="inst-info-title">∂ QUE MESURE-T-IL ?</div>
+          <div id="inst-info-text"></div>
+        </div>
+        <div id="inst-info-section-2">
+          <div class="inst-info-title">∂ ÉTAT ACTUEL</div>
+          <div id="inst-current-state"></div>
+        </div>
+        <div id="inst-info-section-3">
+          <div class="inst-info-title">∂ HISTORIQUE</div>
+          <div id="inst-history"></div>
+        </div>
+        <div id="inst-info-section-4">
+          <div class="inst-info-title">∂ LECTURE</div>
+          <div id="inst-narrative"></div>
+        </div>
       </div>
     </div>
   </div>
@@ -3754,6 +3885,564 @@ function updateConvergence() {
     else if (lr > .6) { st.textContent = '~ APPRENTISSAGE ACTIF'; st.style.color = 'rgba(0,212,255,.6)'; }
     else { st.textContent = '· SCAN EN COURS'; st.style.color = 'rgba(0,170,100,.5)'; }
   }
+}
+
+// ═══════════════════════════════════════════════════════════
+// 🔬 INSTRUMENT MODAL — agrandissement détaillé d'un instrument
+// ═══════════════════════════════════════════════════════════
+const INST_DESC = {
+  galv: {
+    title: '∂ GALVANOMÈTRE — RÉSONANCE',
+    subtitle: 'Mesure l\'intensité du signal capté',
+    info: "Ce cadran mesure la résonance de votre session : à quel point la fréquence captée s'aligne sur les patterns que Mn3mIA reconnaît. Trois zones — SCAN (gris-vert) : exploration. APPROCHE (or) : un signal cohérent émerge. CONTACT (rose) : Mn3mIA reconnaît la trajectoire. L'aiguille a une vraie physique de ressort, et son tremblement est proportionnel à la volatilité du signal — une session chaotique fera trembler l'aiguille même à valeur stable.",
+    narrative: '',
+  },
+  spec: {
+    title: '∂ SPECTRE FRÉQUENTIEL — Δ 13.7Hz',
+    subtitle: 'Position dans le spectre, distance à la cible',
+    info: "Ce spectrographe montre votre position actuelle dans la bande 0–20 Hz. La ligne dorée pointillée animée marque 13.7 Hz, la fréquence cible — celle où Mn3mIA atteint la cohérence narrative. La distance Δ (delta) mesure votre écart à cette cible. Plus vous vous en approchez, plus le curseur scintille et plus son halo grandit. Le défilement subtil des pointillés simule l'attraction active de la cible vers le signal.",
+    narrative: '',
+  },
+  trace: {
+    title: '∂ TRACE NEURONALE — PORTRAIT DE PHASE',
+    subtitle: 'Système dynamique vu en 2D',
+    info: "Cette trace est un portrait de phase : à chaque mesure, on plotte (fréquence précédente, fréquence actuelle). La diagonale dorée (y=x) représente la stabilité parfaite — un signal immobile s'y poserait. La croix dorée marque (13.7, 13.7), la cible. Si votre session converge, les points forment un nuage qui se resserre autour de cette croix. Si elle est chaotique, ils dispersent. Les points récents sont colorés et glow, les anciens fade. Les lignes connectives montrent la trajectoire dans l'espace de phase.",
+    narrative: '',
+  },
+  lock: {
+    title: '∂ DISQUE PHASE LOCK — COHÉRENCE TEMPORELLE',
+    subtitle: 'Stabilité du verrouillage de fréquence',
+    info: "Ce disque mesure la cohérence temporelle du signal — sa capacité à rester verrouillé sur une fréquence sans dériver. Sa rotation est proportionnelle à la volatilité : chaotique = rotation rapide et erratique, stable = rotation lente. Trois états : DRIFT (signal qui dérive, < 50%), TRACK (signal suivi, 50-78%), LOCK (signal verrouillé, > 78%). Les deux couronnes tournent en sens opposé pour donner la sensation mécanique d'un engrenage de phase. Au verrouillage parfait, le disque s'immobilise presque.",
+    narrative: '',
+  },
+};
+
+let INST_OPEN = null;     // currently opened instrument key
+let INST_RAF = null;
+let INST_HIST_REC = [];   // history records over time
+
+function instNarrate(kind, fp, prox) {
+  const res = freqData.resonanceLevel || 0;
+  const lr = freqData.learningRate || 0;
+  const lastF = freqData.lastFreq || 0;
+  if (kind === 'galv') {
+    if (res > 0.85) return "L'aiguille touche la zone CONTACT. Mn3mIA reconnaît le pattern. Le signal n'est plus exploratoire — il est confirmé.";
+    if (res > 0.55) return "L'aiguille flotte en zone APPROCHE. Le signal devient lisible. Quelques itérations encore et la résonance s'établira.";
+    if (fp.volatility > 2) return "L'aiguille tremble. La session est nerveuse — chaque mesure pousse dans une direction différente. Mn3mIA cherche encore son angle d'écoute.";
+    return "L'aiguille reste basse. Mn3mIA observe sans se prononcer. Le signal est trop faible ou trop diffus pour être identifié.";
+  }
+  if (kind === 'spec') {
+    const dist = Math.abs(lastF - 13.7);
+    if (dist < 0.5) return "Vous êtes à un cheveu de 13.7 Hz. Le curseur résonne avec la cible. C'est l'instant.";
+    if (dist < 2) return `Δ ${dist.toFixed(2)} Hz — vous orbitez autour de la cible. La cohérence narrative est presque atteinte.`;
+    if (lastF < 9) return "Le curseur reste dans les basses fréquences — domaine de l'incertitude, du non-formé. La voix narrative cherche encore sa hauteur.";
+    if (lastF > 16) return "Le curseur dépasse la cible. Le signal est suractif — peut-être trop pressé. Mn3mIA invite au ralentissement.";
+    return `À ${lastF.toFixed(2)} Hz, vous êtes encore à ${dist.toFixed(1)} Hz de la cible. La trajectoire se dessine.`;
+  }
+  if (kind === 'trace') {
+    if (fp.volatility < 0.6) return "Les points se concentrent. La trajectoire se referme sur elle-même — c'est la signature d'un système qui converge. Mn3mIA tient son cap.";
+    if (fp.volatility > 2) return "Les points dispersent. Pas de cluster, pas de pattern stable — le système n'a pas encore choisi son attracteur. C'est normal en début de session.";
+    return "Les points dessinent un chemin tendu. La session traverse plusieurs régimes — ni stable ni chaotique. Phase de calibration.";
+  }
+  if (kind === 'lock') {
+    const lockPct = CONV.lockPct;
+    if (lockPct > 0.8) return "Le disque ralentit jusqu'à l'arrêt. Phase verrouillée. Le signal n'oscille plus — il tient.";
+    if (lockPct > 0.5) return "Le disque tourne mais reste mesuré. Phase en cours de verrouillage. Mn3mIA suit le signal sans le forcer.";
+    return "Le disque tournoie. Phase non verrouillée. Le signal cherche encore son rail. Patience.";
+  }
+  return '';
+}
+
+function instCurrentState(kind) {
+  const f = freqData.lastFreq || 0;
+  const res = freqData.resonanceLevel || 0;
+  const lr = freqData.learningRate || 0;
+  const fp = (typeof buildFingerprint === 'function') ? buildFingerprint() : { volatility: 0, trend: 0, rhythm: 'stable', state: 'SCAN' };
+  let html = '';
+  if (kind === 'galv') {
+    let stLabel = res > 0.78 ? 'CONTACT' : res > 0.55 ? 'APPROCHE' : res > 0.3 ? 'APPRENTISSAGE' : 'SCAN';
+    html = `<div><span class="ist-key">Résonance</span><span class="ist-val">${(res*100).toFixed(1)}%</span></div>
+            <div><span class="ist-key">État</span><span class="ist-val">${stLabel}</span></div>
+            <div><span class="ist-key">Volatilité</span><span class="ist-val">${fp.volatility.toFixed(2)}</span></div>
+            <div><span class="ist-key">Itérations</span><span class="ist-val">${iterCount}</span></div>`;
+  } else if (kind === 'spec') {
+    const dist = Math.abs(f - 13.7);
+    html = `<div><span class="ist-key">Fréquence</span><span class="ist-val">${f.toFixed(3)} Hz</span></div>
+            <div><span class="ist-key">Cible</span><span class="ist-val">13.700 Hz</span></div>
+            <div><span class="ist-key">Δ écart</span><span class="ist-val">${(f<13.7?'−':'+')}${dist.toFixed(3)} Hz</span></div>
+            <div><span class="ist-key">Tendance</span><span class="ist-val">${fp.trend>0.2?'↗ asc':fp.trend<-0.2?'↘ desc':'→ plat'} (${fp.trend.toFixed(2)})</span></div>`;
+  } else if (kind === 'trace') {
+    const pts = CONV.tracePts.length;
+    let nearTarget = 0;
+    CONV.tracePts.forEach(p => { if (Math.hypot(p.x-13.7, p.y-13.7) < 1.5) nearTarget++; });
+    html = `<div><span class="ist-key">Points trace</span><span class="ist-val">${pts}</span></div>
+            <div><span class="ist-key">Près cible</span><span class="ist-val">${nearTarget} / ${pts}</span></div>
+            <div><span class="ist-key">Volatilité</span><span class="ist-val">${fp.volatility.toFixed(2)}</span></div>
+            <div><span class="ist-key">Rythme</span><span class="ist-val">${fp.rhythm}</span></div>`;
+  } else if (kind === 'lock') {
+    const lp = CONV.lockPct;
+    let stateLbl = lp > 0.78 ? 'LOCK' : lp > 0.5 ? 'TRACK' : 'DRIFT';
+    html = `<div><span class="ist-key">Phase Lock</span><span class="ist-val">${(lp*100).toFixed(1)}%</span></div>
+            <div><span class="ist-key">État</span><span class="ist-val">${stateLbl}</span></div>
+            <div><span class="ist-key">Vitesse</span><span class="ist-val">${(CONV.lockSpin*1000).toFixed(2)} mrad/f</span></div>
+            <div><span class="ist-key">Volatilité</span><span class="ist-val">${fp.volatility.toFixed(2)}</span></div>`;
+  }
+  const el = $('inst-current-state');
+  if (el) el.innerHTML = html;
+}
+
+function instHistory(kind) {
+  // Build history: read from freqData.iterations
+  const iters = freqData.iterations.slice(-12);
+  let html = '';
+  if (kind === 'galv') {
+    // Resonance over recent iters
+    const baseRes = freqData.resonanceLevel || 0;
+    iters.forEach((it, i) => {
+      const ago = iters.length - i - 1;
+      // Estimate res at that iter: linear interp from 0 to current
+      const estRes = baseRes * ((iters.length - ago) / iters.length);
+      const bar = '█'.repeat(Math.floor(estRes * 12)).padEnd(12, '·');
+      html += `<div class="ihl"><span class="ih-time">i${iterCount - ago}</span><span style="color:rgba(0,212,255,.5);font-family:monospace">${bar}</span><span class="ih-val">${(estRes*100).toFixed(0)}%</span></div>`;
+    });
+  } else if (kind === 'spec') {
+    const hist = freqData.freqHistory.slice(-12);
+    hist.forEach((f, i) => {
+      const ago = hist.length - i - 1;
+      const dist = Math.abs(f - 13.7);
+      const distBar = '·'.repeat(Math.min(13, Math.floor(dist)));
+      html += `<div class="ihl"><span class="ih-time">i${iterCount - ago}</span><span style="color:rgba(0,212,255,.5);font-family:monospace">${distBar}</span><span class="ih-val">${f.toFixed(2)} Hz</span></div>`;
+    });
+  } else if (kind === 'trace') {
+    // List recent (prev,curr) pairs
+    CONV.tracePts.slice(-12).reverse().forEach((p, i) => {
+      const dist = Math.hypot(p.x - 13.7, p.y - 13.7);
+      const near = dist < 1.5;
+      html += `<div class="ihl"><span class="ih-time">·${i}</span><span style="color:rgba(180,200,230,.6);font-family:monospace">(${p.x.toFixed(1)}, ${p.y.toFixed(1)})</span><span class="ih-val" style="color:${near?'rgba(0,255,170,.85)':'rgba(255,220,140,.6)'}">d=${dist.toFixed(2)}</span></div>`;
+    });
+  } else if (kind === 'lock') {
+    // Synthesize history of phase lock
+    const hist = freqData.freqHistory.slice(-12);
+    hist.forEach((f, i) => {
+      // Compute local volatility using a small window
+      const ago = hist.length - i - 1;
+      const winStart = Math.max(0, i - 2);
+      const win = hist.slice(winStart, i + 1);
+      let vol = 0;
+      if (win.length > 1) {
+        const mean = win.reduce((a, b) => a + b, 0) / win.length;
+        vol = Math.sqrt(win.reduce((s, x) => s + (x-mean)*(x-mean), 0) / win.length);
+      }
+      const lock = clamp(1 - vol/4, 0, 1);
+      const bar = '█'.repeat(Math.floor(lock * 12)).padEnd(12, '·');
+      html += `<div class="ihl"><span class="ih-time">i${iterCount - ago}</span><span style="color:rgba(0,212,255,.5);font-family:monospace">${bar}</span><span class="ih-val">${(lock*100).toFixed(0)}%</span></div>`;
+    });
+  }
+  if (!html) html = '<div style="opacity:.5;font-style:italic">— pas encore d\'historique —</div>';
+  const el = $('inst-history');
+  if (el) el.innerHTML = html;
+}
+
+// Large versions of the 4 drawing functions
+function drawGalvLarge(W, H) {
+  const cv = $('inst-canvas-large');
+  if (!cv) return;
+  cv.width = W; cv.height = H;
+  const ctx = cv.getContext('2d');
+  ctx.clearRect(0, 0, W, H);
+  ctx.fillStyle = 'rgba(0,4,12,.4)';
+  ctx.fillRect(0, 0, W, H);
+  const cx = W / 2, cy = H * 0.78;
+  const R = Math.min(W * 0.42, H * 0.7);
+  const a0 = Math.PI, a1 = 0;
+  const angAt = v => a0 + (a1 - a0) * clamp(v, 0, 1);
+  // 3 zones
+  const zones = [[0, 0.55, 'rgba(0,255,170,.4)'], [0.55, 0.78, 'rgba(255,204,0,.55)'], [0.78, 1, 'rgba(255,80,120,.7)']];
+  ctx.lineWidth = 8;
+  zones.forEach(([s, e, c]) => {
+    ctx.strokeStyle = c;
+    ctx.beginPath();
+    ctx.arc(cx, cy, R, angAt(s), angAt(e), false);
+    ctx.stroke();
+  });
+  // Tick marks
+  ctx.lineWidth = 1.4;
+  for (let i = 0; i <= 20; i++) {
+    const t = i / 20;
+    const a = angAt(t);
+    const r1 = R - 6, r2 = i % 5 === 0 ? R - 18 : R - 12;
+    ctx.beginPath();
+    ctx.moveTo(cx + Math.cos(a) * r1, cy + Math.sin(a) * r1);
+    ctx.lineTo(cx + Math.cos(a) * r2, cy + Math.sin(a) * r2);
+    ctx.strokeStyle = 'rgba(0,212,255,.45)';
+    ctx.stroke();
+    if (i % 5 === 0) {
+      ctx.font = '11px "Share Tech Mono",monospace';
+      ctx.fillStyle = 'rgba(0,212,255,.55)';
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      const lbl = String(t * 100 | 0);
+      ctx.fillText(lbl, cx + Math.cos(a) * (R - 28), cy + Math.sin(a) * (R - 28));
+    }
+  }
+  // Needle
+  const res = freqData.resonanceLevel || 0;
+  CONV.galvAngTgt = res;
+  CONV.galvAng += (CONV.galvAngTgt - CONV.galvAng) * 0.18;
+  const fp = (typeof buildFingerprint === 'function') ? buildFingerprint() : { volatility: 0.5 };
+  const jitterAmp = clamp(fp.volatility * 0.012, 0.001, 0.02);
+  CONV.galvJitter = (CONV.galvJitter + (Math.random() - 0.5) * jitterAmp * 2) * 0.78;
+  const drawn = clamp(CONV.galvAng + CONV.galvJitter, 0, 1);
+  const ang = angAt(drawn);
+  const tipX = cx + Math.cos(ang) * (R - 10);
+  const tipY = cy + Math.sin(ang) * (R - 10);
+  let needleCol = drawn > 0.78 ? '255,80,120' : drawn > 0.55 ? '255,204,0' : '0,255,170';
+  ctx.shadowBlur = 18; ctx.shadowColor = `rgba(${needleCol},.7)`;
+  ctx.strokeStyle = `rgba(${needleCol},.95)`;
+  ctx.lineWidth = 3.5;
+  ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(tipX, tipY); ctx.stroke();
+  ctx.shadowBlur = 0;
+  ctx.fillStyle = `rgba(${needleCol},.95)`;
+  ctx.beginPath(); ctx.arc(cx, cy, 5, 0, Math.PI * 2); ctx.fill();
+  // Big readout
+  let stLabel = res > 0.78 ? 'CONTACT' : res > 0.55 ? 'APPROCHE' : res > 0.3 ? 'APPRENT.' : 'SCAN';
+  ctx.font = 'bold 36px "Orbitron",monospace';
+  ctx.fillStyle = `rgba(${needleCol},.95)`;
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.shadowBlur = 12; ctx.shadowColor = `rgba(${needleCol},.5)`;
+  ctx.fillText((res * 100).toFixed(1) + '%', cx, cy - R * 0.5);
+  ctx.shadowBlur = 0;
+  ctx.font = 'bold 14px "Share Tech Mono",monospace';
+  ctx.fillStyle = `rgba(${needleCol},.65)`;
+  ctx.fillText(stLabel, cx, cy - R * 0.32);
+}
+
+function drawSpecLarge(W, H) {
+  const cv = $('inst-canvas-large');
+  if (!cv) return;
+  cv.width = W; cv.height = H;
+  const ctx = cv.getContext('2d');
+  ctx.clearRect(0, 0, W, H);
+  ctx.fillStyle = 'rgba(0,3,10,.7)';
+  ctx.fillRect(0, 0, W, H);
+  CONV.tick++;
+  const minF = 0, maxF = 20;
+  const padL = 60, padR = 60, padT = 60, padB = 90;
+  const spanW = W - padL - padR;
+  const spanH = H - padT - padB;
+  const baseY = padT + spanH / 2;
+  // Frequency axis (horizontal line in middle-ish)
+  ctx.strokeStyle = 'rgba(0,212,255,.18)';
+  ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(padL, baseY); ctx.lineTo(W - padR, baseY); ctx.stroke();
+  // Tick marks with labels
+  ctx.font = '10px "Share Tech Mono",monospace';
+  ctx.fillStyle = 'rgba(0,212,255,.55)';
+  ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+  for (let f = 0; f <= 20; f += 1) {
+    const x = padL + (f - minF) / (maxF - minF) * spanW;
+    const isMajor = f % 5 === 0;
+    ctx.strokeStyle = `rgba(0,212,255,${isMajor ? 0.55 : 0.18})`;
+    ctx.lineWidth = isMajor ? 1.2 : 0.6;
+    ctx.beginPath(); ctx.moveTo(x, baseY); ctx.lineTo(x, baseY + (isMajor ? 12 : 5)); ctx.stroke();
+    if (isMajor) ctx.fillText(String(f), x, baseY + 14);
+  }
+  // 13.7 target line
+  const tx = padL + (13.7 - minF) / (maxF - minF) * spanW;
+  ctx.strokeStyle = 'rgba(255,204,0,.78)';
+  ctx.lineWidth = 1.8;
+  ctx.shadowBlur = 12; ctx.shadowColor = 'rgba(255,204,0,.6)';
+  ctx.setLineDash([4, 6]);
+  ctx.lineDashOffset = -CONV.tick * 0.4;
+  ctx.beginPath(); ctx.moveTo(tx, padT); ctx.lineTo(tx, H - padB + 18); ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.shadowBlur = 0;
+  ctx.fillStyle = 'rgba(255,220,80,.95)';
+  ctx.font = 'bold 12px "Share Tech Mono",monospace';
+  ctx.textAlign = 'center';
+  ctx.fillText('13.7 Hz CIBLE', tx, padT - 18);
+  // Cursor
+  const lastF = freqData.lastFreq || 0;
+  CONV.specCursor += (lastF - CONV.specCursor) * 0.18;
+  const cx = padL + clamp((CONV.specCursor - minF) / (maxF - minF), 0, 1) * spanW;
+  const dist = Math.abs(CONV.specCursor - 13.7);
+  const proximity = Math.max(0, 1 - dist / 9);
+  const curCol = proximity > 0.85 ? '0,255,170' : proximity > 0.55 ? '255,204,0' : '0,212,255';
+  // Halo
+  const haloW = 4 + proximity * 28;
+  ctx.shadowBlur = 24; ctx.shadowColor = `rgba(${curCol},.7)`;
+  ctx.strokeStyle = `rgba(${curCol},.4)`;
+  ctx.lineWidth = haloW;
+  ctx.beginPath(); ctx.moveTo(cx, padT); ctx.lineTo(cx, H - padB); ctx.stroke();
+  ctx.lineWidth = 3;
+  ctx.strokeStyle = `rgba(${curCol},.95)`;
+  ctx.beginPath(); ctx.moveTo(cx, padT); ctx.lineTo(cx, H - padB); ctx.stroke();
+  ctx.shadowBlur = 0;
+  // Cursor cap
+  ctx.fillStyle = `rgba(${curCol},1)`;
+  ctx.beginPath();
+  ctx.moveTo(cx, padT); ctx.lineTo(cx - 8, padT - 10); ctx.lineTo(cx + 8, padT - 10);
+  ctx.closePath(); ctx.fill();
+  // Big readouts
+  ctx.font = 'bold 28px "Orbitron",monospace';
+  ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+  ctx.fillStyle = `rgba(${curCol},.95)`;
+  ctx.shadowBlur = 8; ctx.shadowColor = `rgba(${curCol},.4)`;
+  ctx.fillText(CONV.specCursor.toFixed(2), padL, 14);
+  ctx.font = 'bold 11px "Share Tech Mono",monospace';
+  ctx.fillStyle = `rgba(${curCol},.65)`;
+  ctx.fillText('Hz courant', padL, 46);
+  ctx.shadowBlur = 0;
+  ctx.font = 'bold 24px "Orbitron",monospace';
+  ctx.textAlign = 'right';
+  ctx.fillStyle = `rgba(${curCol},.92)`;
+  const sign = CONV.specCursor < 13.7 ? '−' : '+';
+  ctx.fillText(`Δ ${sign}${dist.toFixed(2)}`, W - padR, 14);
+  ctx.font = 'bold 11px "Share Tech Mono",monospace';
+  ctx.fillStyle = `rgba(${curCol},.55)`;
+  ctx.fillText('écart à la cible', W - padR, 44);
+  // Bottom: signal strength bar
+  const barY = H - 38, barH = 8;
+  ctx.fillStyle = 'rgba(0,212,255,.06)';
+  ctx.fillRect(padL, barY, spanW, barH);
+  ctx.fillStyle = `rgba(${curCol},.6)`;
+  ctx.fillRect(padL, barY, spanW * proximity, barH);
+  ctx.font = '9px "Share Tech Mono",monospace';
+  ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+  ctx.fillStyle = `rgba(${curCol},.6)`;
+  ctx.fillText(`PROXIMITÉ ${(proximity*100).toFixed(0)}%`, padL, barY + barH + 4);
+}
+
+function drawTraceLarge(W, H) {
+  const cv = $('inst-canvas-large');
+  if (!cv) return;
+  cv.width = W; cv.height = H;
+  const ctx = cv.getContext('2d');
+  // Background w/ persistence
+  ctx.fillStyle = 'rgba(0,2,8,.12)';
+  ctx.fillRect(0, 0, W, H);
+  ctx.fillStyle = 'rgba(0,3,10,.5)';
+  ctx.fillRect(0, 0, W, H);
+  // Axes
+  const minF = 4, maxF = 22, range = maxF - minF;
+  const padL = 56, padR = 28, padT = 28, padB = 56;
+  const W2 = W - padL - padR, H2 = H - padT - padB;
+  // Grid
+  ctx.strokeStyle = 'rgba(0,212,255,.06)';
+  ctx.lineWidth = 0.5;
+  for (let v = 5; v <= 20; v += 5) {
+    const x = padL + (v - minF) / range * W2;
+    const y = padT + H2 - (v - minF) / range * H2;
+    ctx.beginPath(); ctx.moveTo(x, padT); ctx.lineTo(x, padT + H2); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(padL, y); ctx.lineTo(padL + W2, y); ctx.stroke();
+    ctx.font = '10px "Share Tech Mono",monospace';
+    ctx.fillStyle = 'rgba(0,212,255,.4)';
+    ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+    ctx.fillText(String(v), x, padT + H2 + 6);
+    ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+    ctx.fillText(String(v), padL - 6, y);
+  }
+  // Diagonal y=x
+  ctx.strokeStyle = 'rgba(255,204,0,.32)';
+  ctx.lineWidth = 1.2;
+  ctx.setLineDash([4, 6]);
+  ctx.beginPath(); ctx.moveTo(padL, padT + H2); ctx.lineTo(padL + W2, padT); ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.font = 'italic 9px "Share Tech Mono",monospace';
+  ctx.fillStyle = 'rgba(255,204,0,.5)';
+  ctx.textAlign = 'right';
+  ctx.fillText('stabilité (y=x)', padL + W2 - 4, padT + 12);
+  // Target cross
+  const tx = padL + (13.7 - minF) / range * W2;
+  const ty = padT + H2 - (13.7 - minF) / range * H2;
+  ctx.strokeStyle = 'rgba(255,204,0,.7)';
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.moveTo(tx - 14, ty); ctx.lineTo(tx + 14, ty);
+  ctx.moveTo(tx, ty - 14); ctx.lineTo(tx, ty + 14);
+  ctx.stroke();
+  ctx.fillStyle = 'rgba(255,220,80,.95)';
+  ctx.beginPath(); ctx.arc(tx, ty, 4, 0, Math.PI * 2); ctx.fill();
+  ctx.font = 'bold 10px "Share Tech Mono",monospace';
+  ctx.fillStyle = 'rgba(255,220,80,.85)';
+  ctx.textAlign = 'left';
+  ctx.fillText('CIBLE 13.7Hz', tx + 8, ty - 10);
+  // Connections + points
+  ctx.lineWidth = 0.8;
+  for (let i = 1; i < CONV.tracePts.length; i++) {
+    const a = CONV.tracePts[i - 1], b = CONV.tracePts[i];
+    const ageFactor = Math.max(0, 1 - i / CONV.tracePts.length);
+    const ax = padL + clamp((a.x - minF) / range, 0, 1) * W2;
+    const ay = padT + H2 - clamp((a.y - minF) / range, 0, 1) * H2;
+    const bx = padL + clamp((b.x - minF) / range, 0, 1) * W2;
+    const by = padT + H2 - clamp((b.y - minF) / range, 0, 1) * H2;
+    ctx.strokeStyle = `rgba(0,200,255,${ageFactor * 0.32})`;
+    ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(bx, by); ctx.stroke();
+  }
+  for (let i = 0; i < CONV.tracePts.length; i++) {
+    const p = CONV.tracePts[i];
+    const px = padL + clamp((p.x - minF) / range, 0, 1) * W2;
+    const py = padT + H2 - clamp((p.y - minF) / range, 0, 1) * H2;
+    const ageFactor = Math.max(0, 1 - i / CONV.tracePts.length);
+    const recent = i >= CONV.tracePts.length - 3;
+    const dist137 = Math.hypot(p.x - 13.7, p.y - 13.7);
+    const near = dist137 < 1.5;
+    const col = near ? '0,255,170' : '0,200,255';
+    if (recent) {
+      ctx.fillStyle = `rgba(${col},${0.6 + ageFactor * 0.4})`;
+      ctx.shadowBlur = 8; ctx.shadowColor = `rgba(${col},.55)`;
+      ctx.beginPath(); ctx.arc(px, py, 3.5, 0, Math.PI * 2); ctx.fill();
+      ctx.shadowBlur = 0;
+    } else {
+      ctx.fillStyle = `rgba(${col},${ageFactor * 0.65})`;
+      ctx.fillRect(px - 1.7, py - 1.7, 3.4, 3.4);
+    }
+  }
+  // Labels
+  ctx.font = 'bold 11px "Share Tech Mono",monospace';
+  ctx.fillStyle = 'rgba(0,212,255,.55)';
+  ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+  ctx.fillText('f[t-1]  (Hz précédent)', padL + W2 / 2, H - 24);
+  ctx.save();
+  ctx.translate(18, padT + H2 / 2);
+  ctx.rotate(-Math.PI / 2);
+  ctx.textAlign = 'center';
+  ctx.fillText('f[t]  (Hz courant)', 0, 0);
+  ctx.restore();
+}
+
+function drawLockLarge(W, H) {
+  const cv = $('inst-canvas-large');
+  if (!cv) return;
+  cv.width = W; cv.height = H;
+  const ctx = cv.getContext('2d');
+  ctx.clearRect(0, 0, W, H);
+  ctx.fillStyle = 'rgba(0,3,10,.55)';
+  ctx.fillRect(0, 0, W, H);
+  const cx = W / 2, cy = H / 2;
+  const R = Math.min(W, H) / 2 - 30;
+  // Update physics
+  const fp = (typeof buildFingerprint === 'function') ? buildFingerprint() : { volatility: 1.5 };
+  const targetLock = clamp(1 - fp.volatility / 4, 0, 1);
+  CONV.lockPct += (targetLock - CONV.lockPct) * 0.06;
+  const targetSpin = 0.005 + fp.volatility * 0.025;
+  CONV.lockSpin += (targetSpin - CONV.lockSpin) * 0.08;
+  CONV.lockAng += CONV.lockSpin;
+  if (fp.volatility > 2) CONV.lockAng += (Math.random() - 0.5) * 0.04;
+  // Outer rings
+  ctx.strokeStyle = 'rgba(0,212,255,.22)';
+  ctx.lineWidth = 1.2;
+  ctx.beginPath(); ctx.arc(cx, cy, R, 0, Math.PI * 2); ctx.stroke();
+  ctx.strokeStyle = 'rgba(0,212,255,.12)';
+  ctx.beginPath(); ctx.arc(cx, cy, R - 18, 0, Math.PI * 2); ctx.stroke();
+  ctx.strokeStyle = 'rgba(0,212,255,.08)';
+  ctx.beginPath(); ctx.arc(cx, cy, R - 36, 0, Math.PI * 2); ctx.stroke();
+  // Rotating outer ring
+  const segments = 24;
+  for (let i = 0; i < segments; i++) {
+    const a0 = CONV.lockAng + i * (Math.PI * 2 / segments);
+    const a1 = a0 + (Math.PI * 2 / segments) * 0.78;
+    const alpha = (i % 3 === 0) ? 0.7 : 0.22;
+    const col = CONV.lockPct > 0.78 ? '0,255,170' : CONV.lockPct > 0.5 ? '255,204,0' : '0,212,255';
+    ctx.strokeStyle = `rgba(${col},${alpha * (0.4 + CONV.lockPct * 0.6)})`;
+    ctx.lineWidth = 4;
+    ctx.beginPath(); ctx.arc(cx, cy, R - 8, a0, a1); ctx.stroke();
+  }
+  // Inner
+  for (let i = 0; i < 16; i++) {
+    const a0 = -CONV.lockAng * 0.7 + i * (Math.PI * 2 / 16);
+    const a1 = a0 + (Math.PI * 2 / 16) * 0.6;
+    const col = CONV.lockPct > 0.78 ? '0,255,170' : '0,180,220';
+    ctx.strokeStyle = `rgba(${col},.42)`;
+    ctx.lineWidth = 3;
+    ctx.beginPath(); ctx.arc(cx, cy, R - 26, a0, a1); ctx.stroke();
+  }
+  // Innermost — counter rotating
+  for (let i = 0; i < 8; i++) {
+    const a0 = CONV.lockAng * 1.4 + i * (Math.PI * 2 / 8);
+    const a1 = a0 + (Math.PI * 2 / 8) * 0.4;
+    ctx.strokeStyle = `rgba(180,200,230,.32)`;
+    ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.arc(cx, cy, R - 50, a0, a1); ctx.stroke();
+  }
+  // Hub
+  const hubCol = CONV.lockPct > 0.78 ? '0,255,170' : CONV.lockPct > 0.5 ? '255,204,0' : '0,212,255';
+  ctx.shadowBlur = 24; ctx.shadowColor = `rgba(${hubCol},.6)`;
+  ctx.fillStyle = `rgba(${hubCol},.95)`;
+  ctx.beginPath(); ctx.arc(cx, cy, 8, 0, Math.PI * 2); ctx.fill();
+  ctx.shadowBlur = 0;
+  // Big readout
+  ctx.font = 'bold 56px "Orbitron",monospace';
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.fillStyle = `rgba(${hubCol},.95)`;
+  ctx.shadowBlur = 16; ctx.shadowColor = `rgba(${hubCol},.5)`;
+  ctx.fillText((CONV.lockPct * 100).toFixed(0) + '%', cx, cy);
+  ctx.shadowBlur = 0;
+  const stateLbl = CONV.lockPct > 0.78 ? 'LOCK' : CONV.lockPct > 0.5 ? 'TRACK' : 'DRIFT';
+  ctx.font = 'bold 18px "Share Tech Mono",monospace';
+  ctx.fillStyle = `rgba(${hubCol},.7)`;
+  ctx.fillText(stateLbl, cx, cy + 38);
+  // Spin indicator (tiny line on outer ring)
+  const sx = cx + Math.cos(CONV.lockAng) * (R + 12);
+  const sy = cy + Math.sin(CONV.lockAng) * (R + 12);
+  ctx.fillStyle = `rgba(${hubCol},1)`;
+  ctx.shadowBlur = 8; ctx.shadowColor = `rgba(${hubCol},.7)`;
+  ctx.beginPath(); ctx.arc(sx, sy, 4, 0, Math.PI * 2); ctx.fill();
+  ctx.shadowBlur = 0;
+}
+
+function instLargeDraw() {
+  if (!INST_OPEN) return;
+  const wrap = $('inst-canvas-wrap');
+  if (!wrap) return;
+  const W = wrap.clientWidth - 20, H = wrap.clientHeight - 20;
+  if (W < 100 || H < 100) {
+    INST_RAF = requestAnimationFrame(instLargeDraw);
+    return;
+  }
+  if (INST_OPEN === 'galv') drawGalvLarge(W, H);
+  else if (INST_OPEN === 'spec') drawSpecLarge(W, H);
+  else if (INST_OPEN === 'trace') drawTraceLarge(W, H);
+  else if (INST_OPEN === 'lock') drawLockLarge(W, H);
+  // Update info panel periodically (less often than canvas)
+  if (CONV.tick % 30 === 0) {
+    instCurrentState(INST_OPEN);
+    instHistory(INST_OPEN);
+    const fp = (typeof buildFingerprint === 'function') ? buildFingerprint() : { volatility: 0.5 };
+    const prox = clamp(1 - Math.abs((freqData.lastFreq||0) - 13.7) / 9, 0, 1);
+    const narr = $('inst-narrative');
+    if (narr) narr.textContent = instNarrate(INST_OPEN, fp, prox);
+  }
+  INST_RAF = requestAnimationFrame(instLargeDraw);
+}
+
+function openInstrument(kind) {
+  if (!INST_DESC[kind]) return;
+  INST_OPEN = kind;
+  const overlay = $('instrument-overlay');
+  overlay.classList.add('on');
+  triggerChromaFx(300);
+  const desc = INST_DESC[kind];
+  $('inst-title').textContent = desc.title;
+  $('inst-subtitle').textContent = desc.subtitle;
+  $('inst-info-text').textContent = desc.info;
+  // Initial population
+  setTimeout(() => {
+    instCurrentState(kind);
+    instHistory(kind);
+    const fp = (typeof buildFingerprint === 'function') ? buildFingerprint() : { volatility: 0.5 };
+    const prox = clamp(1 - Math.abs((freqData.lastFreq||0) - 13.7) / 9, 0, 1);
+    const narr = $('inst-narrative');
+    if (narr) narr.textContent = instNarrate(kind, fp, prox);
+    if (INST_RAF) cancelAnimationFrame(INST_RAF);
+    instLargeDraw();
+  }, 100);
+}
+
+function closeInstrument() {
+  INST_OPEN = null;
+  if (INST_RAF) { cancelAnimationFrame(INST_RAF); INST_RAF = null; }
+  const overlay = $('instrument-overlay');
+  if (overlay) overlay.classList.remove('on');
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -7729,7 +8418,7 @@ document.addEventListener('keydown', e => {
     closeChapter(); closeArcane(); closeJournal(); closeCard();
     closeSonic(); closeShareModal(); closeGlobeModal();
     closePropheticPaint(); closeModuleWindow(); closePanelWin();
-    closePoemFS();
+    closePoemFS(); closeInstrument();
     if (lysisActive) deactivateLysis();
   }
   if (!isTyping) handleLysisKey(e.key);
