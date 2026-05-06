@@ -161,17 +161,29 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:799;
   background:rgba(0,1,6,.99);overflow:hidden;cursor:pointer;transition:background .2s}
 #conv-wrap:hover{background:rgba(0,3,10,.99)}
 #conv-title{font-family:'Orbitron',monospace;font-size:5.5px;font-weight:700;
-  letter-spacing:.18em;color:rgba(0,212,255,.4);margin-bottom:3px}
-#conv-body{font-size:6.5px;line-height:1.45;font-family:'Share Tech Mono',monospace}
-.conv-row{display:flex;align-items:center;gap:4px;margin-bottom:2px}
-.conv-label{color:rgba(0,212,255,.38);font-size:6px;letter-spacing:.08em;width:68px;flex-shrink:0}
-.conv-bar-wrap{flex:1;height:5px;background:rgba(0,212,255,.06);position:relative;overflow:hidden}
-.conv-bar{height:100%;transition:width .8s ease;position:relative;will-change:width}
-.conv-bar::after{content:'';position:absolute;right:0;top:-1px;width:2px;height:7px;
-  background:currentColor;opacity:.8;box-shadow:0 0 6px currentColor}
-.conv-val{font-size:6px;color:rgba(0,212,255,.5);width:38px;text-align:right;flex-shrink:0}
-#conv-status{font-size:6px;letter-spacing:.1em;margin-top:3px;text-align:center;
-  transition:color .4s}
+  letter-spacing:.18em;color:rgba(0,212,255,.42);margin-bottom:2px;
+  display:flex;justify-content:space-between;align-items:baseline}
+#conv-diag{font-family:'Share Tech Mono',monospace;font-size:6px;letter-spacing:.04em;
+  color:rgba(0,212,255,.55);margin-bottom:4px;height:9px;line-height:9px;
+  text-shadow:0 0 4px rgba(0,212,255,.2);transition:color .5s}
+#conv-diag.warn{color:rgba(255,180,40,.78);text-shadow:0 0 5px rgba(255,180,40,.3)}
+#conv-diag.hot{color:rgba(255,90,140,.85);text-shadow:0 0 6px rgba(255,90,140,.4)}
+#conv-diag.cool{color:rgba(0,255,170,.78);text-shadow:0 0 5px rgba(0,255,170,.35)}
+
+#conv-instruments{display:grid;grid-template-columns:auto 1fr auto;gap:6px;
+  align-items:stretch;margin-bottom:4px}
+.conv-inst-stack{display:flex;flex-direction:column;gap:3px;min-width:0}
+.conv-inst{position:relative;background:rgba(0,4,12,.85);
+  border:1px solid rgba(0,212,255,.12);padding:2px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:0}
+.conv-inst canvas{display:block;max-width:100%}
+.inst-label{font-family:'Share Tech Mono',monospace;font-size:4.8px;
+  letter-spacing:.18em;color:rgba(0,212,255,.42);
+  margin-top:1px;text-align:center;line-height:1}
+
+#conv-status{font-size:6px;letter-spacing:.1em;text-align:center;
+  transition:color .4s;padding-top:1px}
+
 
 /* ═══════════════════════════════
    CENTER PANEL
@@ -1134,24 +1146,31 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:799;
         </div>
         <div id="conv-wrap" onclick="openPanelWin('conv')" title="Analyse de convergence">
           <div id="conv-title">∂ CONVERGENCE — 13.7Hz ⛶</div>
-          <div id="conv-body">
-            <div class="conv-row">
-              <span class="conv-label">RÉSONANCE</span>
-              <div class="conv-bar-wrap"><div class="conv-bar" id="cb-res" style="background:rgba(0,255,170,.55);width:0%"></div></div>
-              <span class="conv-val" id="cv-res">—</span>
+          <div id="conv-diag">— scan en cours</div>
+          <div id="conv-instruments">
+            <!-- 1. Galvanometer (résonance) -->
+            <div class="conv-inst" id="inst-galv">
+              <canvas id="galv-cv" width="120" height="64"></canvas>
+              <div class="inst-label">RÉSONANCE</div>
             </div>
-            <div class="conv-row">
-              <span class="conv-label">APPRENTISSAGE</span>
-              <div class="conv-bar-wrap"><div class="conv-bar" id="cb-lr" style="background:rgba(0,212,255,.55);width:0%"></div></div>
-              <span class="conv-val" id="cv-lr">—</span>
+            <!-- 2. Spectre + 3. Phase trace stacked -->
+            <div class="conv-inst-stack">
+              <div class="conv-inst" id="inst-spec">
+                <canvas id="spec-cv" width="160" height="22"></canvas>
+                <div class="inst-label">SPECTRE — Δ 13.7Hz</div>
+              </div>
+              <div class="conv-inst" id="inst-trace">
+                <canvas id="trace-cv" width="160" height="38"></canvas>
+                <div class="inst-label">TRACE NEURONALE</div>
+              </div>
             </div>
-            <div class="conv-row">
-              <span class="conv-label">PROXIMITÉ</span>
-              <div class="conv-bar-wrap"><div class="conv-bar" id="cb-prox" style="background:rgba(255,204,0,.55);width:0%"></div></div>
-              <span class="conv-val" id="cv-prox">—</span>
+            <!-- 4. Phase lock disc -->
+            <div class="conv-inst" id="inst-lock">
+              <canvas id="lock-cv" width="64" height="64"></canvas>
+              <div class="inst-label">PHASE LOCK</div>
             </div>
-            <div id="conv-status">—</div>
           </div>
+          <div id="conv-status">—</div>
         </div>
       </div>
     </div>
@@ -3028,6 +3047,8 @@ function updateFreq(s) {
 
 const fgc = $('fgraph-canvas'), fgx = fgc.getContext('2d');
 let fgTick = 0, fgW = 0, fgH = 0;
+let fgLastHistLen = 0;
+const fgPulses = []; // active pulses: {x, y, life, maxLife}
 
 function initFgCanvas() {
   const wrap = $('fbody');
@@ -3074,10 +3095,14 @@ function renderFreqGraph() {
   });
 
   const targetY = padT + gH * (1 - (TARGET_FREQ - minF) / range);
-  fgx.setLineDash([2, 3]);
-  fgx.strokeStyle = 'rgba(255,204,0,.35)'; fgx.lineWidth = .8;
+  // Animated dashed target line — dashes drift slowly
+  fgx.setLineDash([3, 4]);
+  fgx.lineDashOffset = -fgTick * 0.3;
+  fgx.strokeStyle = 'rgba(255,204,0,.5)'; fgx.lineWidth = .9;
+  fgx.shadowBlur = 4; fgx.shadowColor = 'rgba(255,204,0,.3)';
   fgx.beginPath(); fgx.moveTo(padL, targetY); fgx.lineTo(W - padR, targetY);
   fgx.stroke(); fgx.setLineDash([]);
+  fgx.shadowBlur = 0; fgx.lineDashOffset = 0;
 
   if (hist.length < 2) {
     fgx.fillStyle = 'rgba(0,212,255,.2)';
@@ -3131,6 +3156,34 @@ function renderFreqGraph() {
   const lx = padL + (N - 1) * xStep;
   const ly = padT + gH * (1 - clamp((lf - minF) / range, 0, 1));
   const near = Math.abs(lf - TARGET_FREQ) < 1.5;
+
+  // Detect new measurement → spawn pulse
+  if (hist.length !== fgLastHistLen) {
+    fgLastHistLen = hist.length;
+    fgPulses.push({ x: lx, y: ly, life: 24, maxLife: 24, near });
+    // Limit
+    if (fgPulses.length > 4) fgPulses.shift();
+  }
+  // Render expanding pulses (oldest first, then dot on top)
+  for (let i = fgPulses.length - 1; i >= 0; i--) {
+    const p = fgPulses[i];
+    p.life--;
+    if (p.life <= 0) { fgPulses.splice(i, 1); continue; }
+    const t = 1 - p.life / p.maxLife;  // 0..1
+    const r = 3 + t * 18;
+    const a = (1 - t) * 0.7;
+    const col = p.near ? '0,255,170' : '0,212,255';
+    fgx.strokeStyle = `rgba(${col},${a})`;
+    fgx.lineWidth = 1.5 - t * 1.2;
+    fgx.beginPath(); fgx.arc(p.x, p.y, r, 0, Math.PI * 2); fgx.stroke();
+    // Inner highlight ring
+    if (t < 0.5) {
+      fgx.strokeStyle = `rgba(${col},${a * 0.6})`;
+      fgx.lineWidth = 0.5;
+      fgx.beginPath(); fgx.arc(p.x, p.y, r * 0.6, 0, Math.PI * 2); fgx.stroke();
+    }
+  }
+
   const pulse = .5 + .5 * Math.sin(fgTick * .18);
   fgx.beginPath(); fgx.arc(lx, ly, 4 + pulse * 3, 0, Math.PI * 2);
   fgx.strokeStyle = `rgba(0,255,170,${near ? 0.5 : 0.2})`;
@@ -3166,29 +3219,432 @@ function renderFreqGraph() {
   fgx.fillText(`avg:${avg.toFixed(1)} c:${freqData.contactAttempts}`, padL, H - 2);
 }
 
+// ═══════════════════════════════════════════════════════════
+// 🔬 CONVERGENCE INSTRUMENTS — galvanometer, spectrum, neural trace, phase lock
+// ═══════════════════════════════════════════════════════════
+const CONV = {
+  galvAng: 0,           // current needle angle
+  galvAngTgt: 0,        // target angle
+  galvJitter: 0,
+  galvTick: 0,
+  specCursor: 0,        // current freq cursor (smoothed)
+  specPulse: 0,         // 0..1 pulses on hit
+  tracePts: [],         // (freq[t-1], freq[t]) phase plot points
+  traceMaxPts: 80,
+  lockAng: 0,           // rotating disc angle
+  lockSpin: 0,          // angular velocity (decreases as phase locks)
+  lockPct: 0,           // smoothed phase lock %
+  diagText: '— scan en cours',
+  diagClass: '',
+  lastDiagSwap: 0,
+  tick: 0,
+};
+
+function diagSelect(fp, prox, lastFreq) {
+  // Pick a diagnostic message based on multi-signal logic
+  // Returns { text, class }
+  const res = freqData.resonanceLevel || 0;
+  const lr = freqData.learningRate || 0;
+  const vol = fp.volatility;
+  const trend = fp.trend;
+  const hist = freqData.freqHistory.length;
+
+  if (hist < 4) {
+    return { text: '∂ acquisition initiale — la session n\'a pas encore d\'angle', class: '' };
+  }
+
+  // Hot states first
+  if (res > 0.85) return { text: '⚡ contact établi — la fréquence se reconnaît', class: 'hot' };
+  if (prox > 0.93 && vol < 0.6) return { text: '◆ verrouillage imminent — le système tient', class: 'hot' };
+  if (res > 0.65 && trend > 0.3) return { text: '◆ approche stable — convergence dans ~' + Math.max(3, Math.floor(15 - res * 15)) + ' itérations', class: 'warn' };
+
+  // Volatility / instability
+  if (vol > 2.4) return { text: '~ volatilité élevée — le signal cherche encore son angle', class: 'warn' };
+  if (vol > 1.5 && trend < -0.4) return { text: '↓ chute oscillante — le signal s\'éloigne de la cible', class: 'warn' };
+
+  // Stable / cool
+  if (vol < 0.6 && Math.abs(trend) < 0.2 && lastFreq < 9) return { text: '· plateau bas — Mn3mIA observe sans pousser', class: '' };
+  if (vol < 0.8 && lr < 0.3 && res > 0.4) return { text: '· apprentissage convergent — pas d\'apprentissage qui se ralentit', class: 'cool' };
+
+  // Trend-driven
+  if (trend > 0.5) return { text: '↗ trajectoire ascendante — gain de ' + trend.toFixed(2) + ' Hz / fenêtre', class: 'cool' };
+  if (trend < -0.5) return { text: '↘ trajectoire descendante — perte de ' + Math.abs(trend).toFixed(2) + ' Hz / fenêtre', class: 'warn' };
+
+  // Default scan states
+  if (lr > 0.7) return { text: '~ apprentissage actif — le pas se calibre', class: '' };
+  if (res > 0.4) return { text: '· approche — signal présent mais lointain', class: '' };
+  return { text: '· scan en cours — pattern non identifié', class: '' };
+}
+
+function drawGalvanometer() {
+  const cv = $('galv-cv');
+  if (!cv) return;
+  const ctx = cv.getContext('2d');
+  const W = cv.width, H = cv.height;
+  ctx.clearRect(0, 0, W, H);
+  // Background
+  ctx.fillStyle = 'rgba(0,4,12,.5)';
+  ctx.fillRect(0, 0, W, H);
+  const cx = W / 2, cy = H - 4;
+  const R = Math.min(W / 2 - 4, H - 8);
+  // Arc background — semi-circle from -PI to 0 (top half)
+  // 3 zones: 0..0.55 green / 0.55..0.78 amber / 0.78..1 hot
+  const a0 = Math.PI; // left
+  const a1 = 0;       // right
+  function angAt(v) { return a0 + (a1 - a0) * clamp(v, 0, 1); }
+  // Green zone
+  ctx.beginPath();
+  ctx.arc(cx, cy, R, angAt(0), angAt(0.55), false);
+  ctx.lineWidth = 2.2; ctx.strokeStyle = 'rgba(0,255,170,.32)'; ctx.stroke();
+  // Amber zone
+  ctx.beginPath();
+  ctx.arc(cx, cy, R, angAt(0.55), angAt(0.78), false);
+  ctx.strokeStyle = 'rgba(255,204,0,.42)'; ctx.stroke();
+  // Hot zone
+  ctx.beginPath();
+  ctx.arc(cx, cy, R, angAt(0.78), angAt(1), false);
+  ctx.strokeStyle = 'rgba(255,80,120,.55)'; ctx.stroke();
+
+  // Tick marks
+  ctx.lineWidth = 0.5;
+  for (let i = 0; i <= 10; i++) {
+    const t = i / 10;
+    const a = angAt(t);
+    const r1 = R - 1.5, r2 = i % 5 === 0 ? R - 5 : R - 3;
+    ctx.beginPath();
+    ctx.moveTo(cx + Math.cos(a) * r1, cy + Math.sin(a) * r1);
+    ctx.lineTo(cx + Math.cos(a) * r2, cy + Math.sin(a) * r2);
+    ctx.strokeStyle = 'rgba(0,212,255,.32)';
+    ctx.stroke();
+  }
+
+  // Update needle — physics: target + spring + jitter
+  const res = freqData.resonanceLevel || 0;
+  CONV.galvAngTgt = res;
+  // Spring
+  const k = 0.18;
+  CONV.galvAng += (CONV.galvAngTgt - CONV.galvAng) * k;
+  // Mechanical jitter — proportional to signal volatility
+  CONV.galvTick++;
+  const fp = (typeof buildFingerprint === 'function') ? buildFingerprint() : { volatility: 0.5 };
+  const jitterAmp = clamp(fp.volatility * 0.012, 0.001, 0.02);
+  CONV.galvJitter = (CONV.galvJitter + (Math.random() - 0.5) * jitterAmp * 2) * 0.78;
+  const drawn = clamp(CONV.galvAng + CONV.galvJitter, 0, 1);
+  const ang = angAt(drawn);
+
+  // Needle
+  const needleR = R - 4;
+  const tipX = cx + Math.cos(ang) * needleR;
+  const tipY = cy + Math.sin(ang) * needleR;
+  // Glow color by zone
+  let needleCol = '0,255,170';
+  if (drawn > 0.78) needleCol = '255,80,120';
+  else if (drawn > 0.55) needleCol = '255,204,0';
+  ctx.shadowBlur = 6; ctx.shadowColor = `rgba(${needleCol},.7)`;
+  ctx.strokeStyle = `rgba(${needleCol},.95)`;
+  ctx.lineWidth = 1.4;
+  ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(tipX, tipY); ctx.stroke();
+  ctx.shadowBlur = 0;
+  // Pivot
+  ctx.fillStyle = `rgba(${needleCol},.9)`;
+  ctx.beginPath(); ctx.arc(cx, cy, 1.6, 0, Math.PI * 2); ctx.fill();
+
+  // Center text — value + state
+  const pct = (res * 100).toFixed(0);
+  let state = 'SCAN';
+  if (res > 0.78) state = 'CONTACT';
+  else if (res > 0.55) state = 'APPROCHE';
+  else if (res > 0.3) state = 'APPRENT';
+  ctx.font = 'bold 8.5px "Orbitron",monospace';
+  ctx.fillStyle = `rgba(${needleCol},.95)`;
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.shadowBlur = 4; ctx.shadowColor = `rgba(${needleCol},.5)`;
+  ctx.fillText(pct + '%', cx, cy - R * 0.55);
+  ctx.shadowBlur = 0;
+  ctx.font = 'bold 5px "Share Tech Mono",monospace';
+  ctx.fillStyle = `rgba(${needleCol},.65)`;
+  ctx.fillText(state, cx, cy - R * 0.28);
+}
+
+function drawSpectrum() {
+  const cv = $('spec-cv');
+  if (!cv) return;
+  const ctx = cv.getContext('2d');
+  const W = cv.width, H = cv.height;
+  ctx.clearRect(0, 0, W, H);
+  ctx.fillStyle = 'rgba(0,3,10,.7)';
+  ctx.fillRect(0, 0, W, H);
+  // Spectrum 0..20Hz
+  const minF = 0, maxF = 20;
+  const padL = 4, padR = 4;
+  const spanW = W - padL - padR;
+  // Tick marks
+  ctx.font = '4px "Share Tech Mono",monospace';
+  ctx.fillStyle = 'rgba(0,212,255,.3)';
+  ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+  for (let f = 0; f <= 20; f += 5) {
+    const x = padL + (f - minF) / (maxF - minF) * spanW;
+    ctx.strokeStyle = 'rgba(0,212,255,.18)';
+    ctx.lineWidth = 0.5;
+    ctx.beginPath(); ctx.moveTo(x, H - 7); ctx.lineTo(x, H - 5); ctx.stroke();
+    ctx.fillText(String(f), x, H - 4);
+  }
+  // 13.7Hz target line
+  const tx = padL + (13.7 - minF) / (maxF - minF) * spanW;
+  ctx.strokeStyle = 'rgba(255,204,0,.78)';
+  ctx.lineWidth = 1;
+  ctx.shadowBlur = 5; ctx.shadowColor = 'rgba(255,204,0,.5)';
+  // Animated dashed line for target
+  ctx.setLineDash([2, 3]);
+  ctx.lineDashOffset = -CONV.tick * 0.2;
+  ctx.beginPath(); ctx.moveTo(tx, 1); ctx.lineTo(tx, H - 8); ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.shadowBlur = 0;
+  ctx.fillStyle = 'rgba(255,204,0,.85)';
+  ctx.font = 'bold 4.5px "Share Tech Mono",monospace';
+  ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+  ctx.fillText('13.7', tx, 0);
+
+  // Cursor — current freq, smoothed
+  const lastF = freqData.lastFreq || 0;
+  CONV.specCursor += (lastF - CONV.specCursor) * 0.18;
+  const cx = padL + clamp((CONV.specCursor - minF) / (maxF - minF), 0, 1) * spanW;
+  const dist = Math.abs(CONV.specCursor - 13.7);
+  const proximity = Math.max(0, 1 - dist / 9);
+  let curCol = proximity > 0.85 ? '0,255,170' : proximity > 0.55 ? '255,204,0' : '0,212,255';
+  // Spectrum density "halo" around cursor — denser when close
+  ctx.shadowBlur = 8; ctx.shadowColor = `rgba(${curCol},.7)`;
+  // Cursor dot (vertical bar)
+  const haloW = 1 + proximity * 6;
+  ctx.strokeStyle = `rgba(${curCol},.9)`;
+  ctx.lineWidth = haloW;
+  ctx.globalAlpha = 0.35;
+  ctx.beginPath(); ctx.moveTo(cx, 2); ctx.lineTo(cx, H - 7); ctx.stroke();
+  ctx.globalAlpha = 1;
+  ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.moveTo(cx, 2); ctx.lineTo(cx, H - 7); ctx.stroke();
+  ctx.shadowBlur = 0;
+  // Top marker
+  ctx.fillStyle = `rgba(${curCol},1)`;
+  ctx.beginPath();
+  ctx.moveTo(cx, 2); ctx.lineTo(cx - 2, 0); ctx.lineTo(cx + 2, 0);
+  ctx.closePath(); ctx.fill();
+
+  // Δ value — distance to target
+  ctx.font = 'bold 5.5px "Share Tech Mono",monospace';
+  ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+  ctx.fillStyle = `rgba(${curCol},.85)`;
+  const sign = CONV.specCursor < 13.7 ? '−' : '+';
+  ctx.fillText(`Δ ${sign}${dist.toFixed(2)}Hz`, padL, 1);
+  ctx.textAlign = 'right';
+  ctx.fillText(CONV.specCursor.toFixed(2), W - padR, 1);
+}
+
+function drawTrace() {
+  const cv = $('trace-cv');
+  if (!cv) return;
+  const ctx = cv.getContext('2d');
+  const W = cv.width, H = cv.height;
+  // Persistence — fade old
+  ctx.fillStyle = 'rgba(0,2,8,.16)';
+  ctx.fillRect(0, 0, W, H);
+
+  // Add new point if available
+  const hist = freqData.freqHistory;
+  if (hist.length >= 2) {
+    const prev = hist[hist.length - 2];
+    const curr = hist[hist.length - 1];
+    const last = CONV.tracePts[CONV.tracePts.length - 1];
+    if (!last || last.x !== prev || last.y !== curr) {
+      CONV.tracePts.push({ x: prev, y: curr, age: 0 });
+      if (CONV.tracePts.length > CONV.traceMaxPts) CONV.tracePts.shift();
+    }
+  }
+
+  // Plot — phase space (freq[t-1], freq[t])
+  const minF = 4, maxF = 22;
+  const range = maxF - minF;
+  const pad = 3;
+  const W2 = W - pad * 2, H2 = H - pad * 2;
+  // Diagonal y=x — perfect stability would be a line on this diagonal
+  ctx.strokeStyle = 'rgba(255,204,0,.18)';
+  ctx.lineWidth = 0.5;
+  ctx.setLineDash([1.5, 2]);
+  ctx.beginPath();
+  ctx.moveTo(pad, pad + H2); ctx.lineTo(pad + W2, pad);
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  // 13.7 cross
+  const tx = pad + (13.7 - minF) / range * W2;
+  const ty = pad + H2 - (13.7 - minF) / range * H2;
+  ctx.strokeStyle = 'rgba(255,204,0,.35)';
+  ctx.lineWidth = 0.5;
+  ctx.beginPath();
+  ctx.moveTo(tx - 4, ty); ctx.lineTo(tx + 4, ty);
+  ctx.moveTo(tx, ty - 4); ctx.lineTo(tx, ty + 4);
+  ctx.stroke();
+
+  // Connections between consecutive points (faded)
+  ctx.lineWidth = 0.4;
+  for (let i = 1; i < CONV.tracePts.length; i++) {
+    const a = CONV.tracePts[i - 1], b = CONV.tracePts[i];
+    a.age++;
+    const ageFactor = Math.max(0, 1 - i / CONV.tracePts.length);
+    const ax = pad + clamp((a.x - minF) / range, 0, 1) * W2;
+    const ay = pad + H2 - clamp((a.y - minF) / range, 0, 1) * H2;
+    const bx = pad + clamp((b.x - minF) / range, 0, 1) * W2;
+    const by = pad + H2 - clamp((b.y - minF) / range, 0, 1) * H2;
+    ctx.strokeStyle = `rgba(0,200,255,${ageFactor * 0.18})`;
+    ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(bx, by); ctx.stroke();
+  }
+
+  // Plot points
+  for (let i = 0; i < CONV.tracePts.length; i++) {
+    const p = CONV.tracePts[i];
+    const px = pad + clamp((p.x - minF) / range, 0, 1) * W2;
+    const py = pad + H2 - clamp((p.y - minF) / range, 0, 1) * H2;
+    const ageFactor = Math.max(0, 1 - i / CONV.tracePts.length);
+    const recent = i >= CONV.tracePts.length - 3;
+    const dist137 = Math.hypot(p.x - 13.7, p.y - 13.7);
+    const near = dist137 < 1.5;
+    let col = near ? '0,255,170' : '0,200,255';
+    if (recent) {
+      ctx.fillStyle = `rgba(${col},${0.6 + ageFactor * 0.4})`;
+      ctx.shadowBlur = 4; ctx.shadowColor = `rgba(${col},.55)`;
+      ctx.beginPath(); ctx.arc(px, py, 1.4, 0, Math.PI * 2); ctx.fill();
+      ctx.shadowBlur = 0;
+    } else {
+      ctx.fillStyle = `rgba(${col},${ageFactor * 0.55})`;
+      ctx.fillRect(px - 0.7, py - 0.7, 1.4, 1.4);
+    }
+  }
+
+  // Axis labels
+  ctx.font = '4px "Share Tech Mono",monospace';
+  ctx.fillStyle = 'rgba(0,212,255,.32)';
+  ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+  ctx.fillText('f[t-1]', 1, H - 5);
+  ctx.save();
+  ctx.translate(2, H / 2 + 8);
+  ctx.rotate(-Math.PI / 2);
+  ctx.fillText('f[t]', 0, 0);
+  ctx.restore();
+}
+
+function drawPhaseLock() {
+  const cv = $('lock-cv');
+  if (!cv) return;
+  const ctx = cv.getContext('2d');
+  const W = cv.width, H = cv.height;
+  ctx.clearRect(0, 0, W, H);
+  ctx.fillStyle = 'rgba(0,3,10,.7)';
+  ctx.fillRect(0, 0, W, H);
+  const cx = W / 2, cy = H / 2;
+  const R = Math.min(W, H) / 2 - 3;
+
+  // Phase lock metric: how stable is the frequency around its mean
+  const fp = (typeof buildFingerprint === 'function') ? buildFingerprint() : { volatility: 1.5 };
+  // lockPct: 100% = perfectly stable, 0% = chaotic
+  const targetLock = clamp(1 - fp.volatility / 4, 0, 1);
+  CONV.lockPct += (targetLock - CONV.lockPct) * 0.06;
+
+  // Spin rate is proportional to volatility (chaotic = fast spin)
+  const targetSpin = 0.005 + fp.volatility * 0.025;
+  CONV.lockSpin += (targetSpin - CONV.lockSpin) * 0.08;
+  CONV.lockAng += CONV.lockSpin;
+  // Add small jitter when very chaotic
+  if (fp.volatility > 2) CONV.lockAng += (Math.random() - 0.5) * 0.04;
+
+  // Outer ring
+  ctx.strokeStyle = 'rgba(0,212,255,.18)';
+  ctx.lineWidth = 0.6;
+  ctx.beginPath(); ctx.arc(cx, cy, R, 0, Math.PI * 2); ctx.stroke();
+  // Inner ring
+  ctx.strokeStyle = 'rgba(0,212,255,.1)';
+  ctx.beginPath(); ctx.arc(cx, cy, R - 6, 0, Math.PI * 2); ctx.stroke();
+
+  // Rotating disc — segments
+  const segments = 12;
+  for (let i = 0; i < segments; i++) {
+    const a0 = CONV.lockAng + i * (Math.PI * 2 / segments);
+    const a1 = a0 + (Math.PI * 2 / segments) * 0.8;
+    const alpha = (i % 3 === 0) ? 0.55 : 0.18;
+    let col = CONV.lockPct > 0.78 ? '0,255,170' : CONV.lockPct > 0.5 ? '255,204,0' : '0,212,255';
+    ctx.strokeStyle = `rgba(${col},${alpha * (0.4 + CONV.lockPct * 0.6)})`;
+    ctx.lineWidth = 1.3;
+    ctx.beginPath(); ctx.arc(cx, cy, R - 2, a0, a1); ctx.stroke();
+  }
+
+  // Inner segments — rotate opposite direction (gives mechanical feel)
+  for (let i = 0; i < 8; i++) {
+    const a0 = -CONV.lockAng * 0.7 + i * (Math.PI * 2 / 8);
+    const a1 = a0 + (Math.PI * 2 / 8) * 0.6;
+    let col = CONV.lockPct > 0.78 ? '0,255,170' : '0,180,220';
+    ctx.strokeStyle = `rgba(${col},.32)`;
+    ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.arc(cx, cy, R - 8, a0, a1); ctx.stroke();
+  }
+
+  // Center hub
+  let hubCol = CONV.lockPct > 0.78 ? '0,255,170' : CONV.lockPct > 0.5 ? '255,204,0' : '0,212,255';
+  ctx.shadowBlur = 6; ctx.shadowColor = `rgba(${hubCol},.5)`;
+  ctx.fillStyle = `rgba(${hubCol},.85)`;
+  ctx.beginPath(); ctx.arc(cx, cy, 2, 0, Math.PI * 2); ctx.fill();
+  ctx.shadowBlur = 0;
+
+  // Center text
+  ctx.font = 'bold 7.5px "Orbitron",monospace';
+  ctx.fillStyle = `rgba(${hubCol},.95)`;
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.shadowBlur = 4; ctx.shadowColor = `rgba(${hubCol},.4)`;
+  ctx.fillText((CONV.lockPct * 100).toFixed(0) + '%', cx, cy - R * 0.42);
+  ctx.shadowBlur = 0;
+
+  // Bottom label inside the disc
+  ctx.font = '4px "Share Tech Mono",monospace';
+  ctx.fillStyle = `rgba(${hubCol},.55)`;
+  let stateLbl = CONV.lockPct > 0.78 ? 'LOCK' : CONV.lockPct > 0.5 ? 'TRACK' : 'DRIFT';
+  ctx.fillText(stateLbl, cx, cy + R * 0.55);
+}
+
 function updateConvergence() {
-  const res = freqData.resonanceLevel;
-  const lr = freqData.learningRate;
+  CONV.tick++;
+  const res = freqData.resonanceLevel || 0;
+  const lr = freqData.learningRate || 0;
   const dist = Math.abs(freqData.lastFreq - TARGET_FREQ);
   const prox = Math.max(0, 1 - dist / 9);
-  const setBar = (id, val, valId, fmt) => {
-    const b = $(id), v = $(valId);
-    if (b) b.style.width = (val * 100).toFixed(1) + '%';
-    if (v) v.textContent = fmt(val);
-  };
-  setBar('cb-res', res, 'cv-res', v => (v * 100).toFixed(1) + '%');
-  setBar('cb-lr', lr, 'cv-lr', v => (v * 100).toFixed(0) + '%');
-  setBar('cb-prox', prox, 'cv-prox', v => freqData.lastFreq.toFixed(2) + 'Hz');
-  const resBar = $('cb-res');
-  if (resBar) {
-    resBar.style.background = res > .78 ? 'rgba(255,51,102,.7)' : res > .5 ? 'rgba(255,204,0,.6)' : 'rgba(0,255,170,.55)';
+  // Build fingerprint (real signals)
+  const fp = (typeof buildFingerprint === 'function') ? buildFingerprint() : { volatility: 0, trend: 0, rhythm: 'stable' };
+
+  // Draw all 4 instruments
+  drawGalvanometer();
+  drawSpectrum();
+  drawTrace();
+  drawPhaseLock();
+
+  // Update diagnostic line — but only swap text occasionally to avoid flicker
+  if (CONV.tick - CONV.lastDiagSwap > 25) {
+    const diag = diagSelect(fp, prox, freqData.lastFreq || 0);
+    if (diag.text !== CONV.diagText) {
+      CONV.diagText = diag.text;
+      CONV.diagClass = diag.class;
+      CONV.lastDiagSwap = CONV.tick;
+      const el = $('conv-diag');
+      if (el) {
+        el.textContent = diag.text;
+        el.className = diag.class;
+      }
+    }
   }
+
+  // Bottom status line
   const st = $('conv-status');
   if (st) {
-    if (res > .78) { st.textContent = '⚡ CONTACT — RESONANCE ETABLIE'; st.style.color = 'rgba(255,51,102,.8)'; }
-    else if (res > .5) { st.textContent = '◆ APPROCHE — SIGNAL CROISSANT'; st.style.color = 'rgba(255,204,0,.7)'; }
-    else if (lr > .6) { st.textContent = '~ APPRENTISSAGE ACTIF'; st.style.color = 'rgba(0,212,255,.55)'; }
-    else { st.textContent = '· SCAN EN COURS'; st.style.color = 'rgba(0,170,100,.45)'; }
+    if (res > .78) { st.textContent = '⚡ CONTACT — RESONANCE ETABLIE'; st.style.color = 'rgba(255,51,102,.85)'; }
+    else if (res > .5) { st.textContent = '◆ APPROCHE — SIGNAL CROISSANT'; st.style.color = 'rgba(255,204,0,.75)'; }
+    else if (lr > .6) { st.textContent = '~ APPRENTISSAGE ACTIF'; st.style.color = 'rgba(0,212,255,.6)'; }
+    else { st.textContent = '· SCAN EN COURS'; st.style.color = 'rgba(0,170,100,.5)'; }
   }
 }
 
@@ -6887,6 +7343,7 @@ async function startMain() {
 
     if (tick % 2 === 0) drawGlobe();                                // ~30fps — globe is now lean
     if (tick % 6 === 0) renderFreqGraph();                          // ~10fps
+    if (tick % 3 === 0) updateConvergence();                        // ~20fps — 4 live instruments
     if (tick % 6 === 0) updateT3Terminal();                         // ~10fps — Tome III dreamer animations
     if (tick % 3 === 0) t1RedactDraw();                             // ~20fps — caviardage nerveux
     if (tick % 2 === 0) t1DreamDraw();                              // ~30fps — fuite onirique
