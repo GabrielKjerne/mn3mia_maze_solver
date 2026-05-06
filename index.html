@@ -314,23 +314,55 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:799;
 #osc-state{position:absolute;top:2px;right:6px;font-size:5.5px;color:rgba(255,204,0,.4);z-index:2;pointer-events:none}
 #osc-canvas{display:block;width:100%;height:100%}
 
-/* T3 panel */
-#t3panel{flex-shrink:0;border-bottom:1px solid rgba(0,200,60,.15);overflow:hidden;
-  background:#000;height:78px;position:relative}
-#t3hdr{padding:2px 8px;background:rgba(0,14,3,.97);border-bottom:1px solid rgba(0,200,60,.12);
-  display:flex;align-items:center;justify-content:space-between}
+/* T3 panel — Tome III dreamer */
+#t3panel{flex-shrink:0;border-bottom:1px solid rgba(0,200,60,.18);overflow:hidden;
+  background:#000;height:88px;position:relative}
+#t3hdr{padding:2px 8px;background:rgba(0,14,3,.97);border-bottom:1px solid rgba(0,200,60,.15);
+  display:flex;align-items:center;justify-content:space-between;height:14px}
 #t3title{font-family:'Orbitron',monospace;font-size:5.5px;font-weight:700;
-  letter-spacing:.18em;color:rgba(0,200,60,.7)}
-#t3freq{font-size:5.5px;color:rgba(0,255,80,.4)}
-#t3terminal{height:calc(100% - 18px);overflow:hidden;padding:2px 6px;
-  font-family:'Share Tech Mono',monospace;font-size:6.5px;line-height:1.5;
-  color:rgba(0,220,80,.8);background:#000;display:flex;flex-direction:column;justify-content:flex-end}
-.t3line{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:rgba(0,220,80,.75)}
-.t3line.wflash{color:#fff !important;font-weight:700;
-  text-shadow:0 0 8px rgba(255,255,255,.9),0 0 18px rgba(0,255,80,.8);
-  animation:t3w 1.2s ease forwards}
-@keyframes t3w{0%{color:#fff;text-shadow:0 0 10px #fff,0 0 20px rgba(0,255,80,.8)}
-  100%{color:rgba(0,220,80,.75);text-shadow:none}}
+  letter-spacing:.18em;color:rgba(0,200,60,.78);
+  text-shadow:0 0 6px rgba(0,255,80,.25)}
+#t3meta{font-size:5.5px;color:rgba(255,204,0,.55);font-family:'Share Tech Mono',monospace;letter-spacing:.05em}
+#t3cryst{color:rgba(255,220,80,.85);font-weight:700}
+#t3freq{color:rgba(0,255,80,.4)}
+
+#t3body{height:calc(100% - 14px);display:flex;background:#000;position:relative}
+#t3dream{flex:1;padding:3px 7px;display:flex;flex-direction:column;justify-content:space-between;
+  font-family:'Share Tech Mono',monospace;overflow:hidden;gap:2px}
+#t3spectro{flex-shrink:0;width:80px;height:60px;display:block;align-self:center;margin-right:4px;opacity:.85}
+
+#t3incipit-line{display:flex;align-items:baseline;gap:6px;font-size:6.5px;line-height:1.25;
+  white-space:nowrap;overflow:hidden}
+#t3incipit-label{font-size:5px;letter-spacing:.18em;color:rgba(255,204,0,.45);flex-shrink:0;font-weight:700}
+#t3incipit{color:rgba(220,255,200,.92);text-shadow:0 0 4px rgba(0,255,80,.25);
+  overflow:hidden;text-overflow:ellipsis}
+#t3incipit .t3-cur{color:rgba(255,220,80,.95);background:rgba(255,204,0,.18);
+  animation:t3curblink .9s infinite}
+#t3incipit .t3-strike{color:rgba(0,180,60,.32);text-decoration:line-through;
+  text-decoration-color:rgba(255,80,100,.55);margin-right:3px;font-style:italic}
+#t3incipit .t3-glitch{color:rgba(255,80,100,.7);font-style:italic;letter-spacing:.05em}
+#t3incipit .t3-fade{animation:t3fadein .35s ease-out}
+@keyframes t3curblink{0%,55%{opacity:1}65%,100%{opacity:.2}}
+@keyframes t3fadein{from{opacity:0;letter-spacing:.18em}to{opacity:1;letter-spacing:0}}
+
+#t3fragments{display:flex;gap:10px;font-size:5.5px;height:9px;overflow:hidden}
+.t3frag{flex:1;text-align:center;font-style:italic;letter-spacing:.04em;
+  color:rgba(160,255,200,.0);transition:color .9s,opacity .9s;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.t3frag.on{color:rgba(180,255,210,.62)}
+
+#t3chapter-row{display:flex;align-items:center;gap:6px;font-size:5.5px;height:11px;overflow:hidden}
+#t3chapter-label{font-size:5px;letter-spacing:.18em;color:rgba(255,204,0,.45);font-weight:700;flex-shrink:0}
+#t3chapter-name{color:rgba(255,220,140,.82);font-style:italic;letter-spacing:.04em;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1;
+  text-shadow:0 0 5px rgba(255,204,0,.2)}
+#t3chapter-bars{display:flex;gap:1.2px;flex-shrink:0;height:6px;align-items:flex-end}
+.t3bar{width:2.5px;height:6px;background:rgba(0,200,60,.15);transition:background .45s,height .45s}
+.t3bar.r1{background:rgba(0,200,60,.25)}
+.t3bar.r2{background:rgba(0,255,80,.45)}
+.t3bar.r3{background:rgba(180,255,160,.7);box-shadow:0 0 3px rgba(0,255,80,.5)}
+.t3bar.r4{background:rgba(255,220,80,.85);box-shadow:0 0 4px rgba(255,204,0,.6)}
+
 
 /* Terminal */
 #term-hdr{padding:3px 9px;background:rgba(0,10,22,.92);border-bottom:1px solid var(--border);
@@ -994,7 +1026,9 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:799;
   #tc-d{display:none}
   #osc-wrap{height:40px}
   #t1panel{height:60px}
-  #t3panel{height:55px}
+  #t3panel{height:78px}
+  #t3spectro{display:none}
+  #t3fragments{display:none}
   #rb{height:60px;overflow-y:auto}
   #premo-wrap{display:flex!important;flex-direction:column!important;
     height:auto!important;grid-template-columns:unset!important;overflow:visible!important}
@@ -1171,10 +1205,28 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:799;
 
       <div id="t3panel">
         <div id="t3hdr">
-          <span id="t3title">∂ TOME III — SÉQUENCE</span>
-          <span id="t3freq">— Hz</span>
+          <span id="t3title">∂ TOME III — RÊVE EN CRISTALLISATION</span>
+          <span id="t3meta"><span id="t3cryst">0</span> mots cristallisés · <span id="t3freq">— Hz</span></span>
         </div>
-        <div id="t3terminal"></div>
+        <div id="t3body">
+          <div id="t3dream">
+            <div id="t3incipit-line">
+              <span id="t3incipit-label">INCIPIT</span>
+              <span id="t3incipit"></span>
+            </div>
+            <div id="t3fragments">
+              <span class="t3frag" id="t3frag1"></span>
+              <span class="t3frag" id="t3frag2"></span>
+              <span class="t3frag" id="t3frag3"></span>
+            </div>
+            <div id="t3chapter-row">
+              <span id="t3chapter-label">CHAPITRE EN MÉDITATION</span>
+              <span id="t3chapter-name"></span>
+              <div id="t3chapter-bars"></div>
+            </div>
+          </div>
+          <canvas id="t3spectro" width="80" height="60"></canvas>
+        </div>
       </div>
 
       <div id="term-hdr" onclick="openPanelWin('terminal')" title="Terminal complet">
@@ -3203,48 +3255,392 @@ function spawnStreamFrag() { /* no-op */ }
 const STREAM_FRAGS_POOL = [];
 
 // ═══════════════════════════════════════════════════════════
-// 🟢 TOME III TERMINAL
 // ═══════════════════════════════════════════════════════════
-const _t3lines = [];
-const T3_MAX = 8;
+// 🟢 TOME III DREAMER — Mn3mIA pré-écrit le futur livre
+// ═══════════════════════════════════════════════════════════
+// 13 chapitres possibles dans l'esprit du Tome II (gardent l'ambiguïté)
+const T3_CHAPTERS = [
+  "I — L'œil avant la pensée",
+  "II — Sept appels manqués",
+  "III — La voix dans la pièce vide",
+  "IV — Solène ne dort plus",
+  "V — Ce qu'Ethan n'a pas dit",
+  "VI — Mn3mIA apprend à mentir",
+  "VII — Belle nuit, plus tard",
+  "VIII — Le treizième matin",
+  "IX — La lettre que personne n'écrit",
+  "X — Krystyna se souvient de demain",
+  "XI — Daphné disparaît une seconde fois",
+  "XII — La fréquence se tait",
+  "XIII — Réveil",
+];
+
+// 6 incipits — phrases d'ouverture potentielles, avec mots à "rayer/réécrire"
+// Format: { base: "phrase finale", revisions: [{at: index, was: "ancien mot", glitch: true/false}] }
+const T3_INCIPITS = [
+  {
+    base: "Solène ouvrit l'œil. Le treizième jour s'était déjà passé.",
+    revisions: [
+      { word: "treizième", was: "premier" },
+      { word: "passé", was: "préparé", glitch: true },
+    ]
+  },
+  {
+    base: "Il y avait une voix dans la pièce. Mais la pièce était vide.",
+    revisions: [
+      { word: "voix", was: "présence" },
+      { word: "vide", was: "fermée" },
+    ]
+  },
+  {
+    base: "Ethan n'existait pas encore. C'était précisément le problème.",
+    revisions: [
+      { word: "existait", was: "savait" },
+      { word: "problème", was: "souvenir", glitch: true },
+    ]
+  },
+  {
+    base: "Mn3mIA observait l'écriture s'écrire avant Solène.",
+    revisions: [
+      { word: "observait", was: "écrivait" },
+      { word: "avant", was: "à travers" },
+    ]
+  },
+  {
+    base: "Le téléphone sonna sept fois. Personne ne décrocha. Personne n'appelait.",
+    revisions: [
+      { word: "sept", was: "treize" },
+      { word: "appelait", was: "était là", glitch: true },
+    ]
+  },
+  {
+    base: "Il manquait quelqu'un dans la photographie. Quelqu'un qui n'avait jamais été là.",
+    revisions: [
+      { word: "photographie", was: "famille" },
+      { word: "été", was: "appelé" },
+    ]
+  },
+];
+
+// 12 fragments fantômes — 3 affichés à la fois, rotation
+const T3_FRAGMENTS = [
+  "elle savait avant de savoir",
+  "il restait quelqu'un à appeler",
+  "belle nuit, encore",
+  "l'écran ne montrait personne",
+  "Loria n'a jamais répondu",
+  "la fréquence porte un nom",
+  "le treizième n'est pas un nombre",
+  "Ethan rêve de Solène qui rêve d'Ethan",
+  "Mn3mIA se souvient de demain",
+  "la pièce avait deux portes maintenant",
+  "il pleuvait à l'intérieur",
+  "elle entendait sa propre voix dans le silence",
+];
+
+// Dreamer state
+const T3D = {
+  incipitIdx: 0,        // current incipit
+  incipitPhase: 'building',  // building | revising | settled | switching
+  incipitChars: 0,      // chars revealed in building
+  incipitWords: [],     // tokens with state {text, state: 'final'|'old'|'glitch'|'pending'}
+  incipitRevIdx: 0,     // which revision we're currently applying
+  incipitRevisedWords: new Set(), // which words have been revised
+  incipitTimer: 0,      // tick counter
+  incipitNextAction: 0, // when to act next
+  chapter: 0,
+  chapterTimer: 0,
+  chapterRes: new Array(13).fill(0),   // resolution 0..1 per chapter
+  fragments: [null, null, null],
+  fragTimers: [0, 0, 0],
+  fragNextSpawn: [40, 90, 160],
+  spectroPhase: 0,
+  spectroBars: new Array(24).fill(0),
+};
+
+function t3Tokenize(text) {
+  // Split by spaces but keep punctuation
+  return text.split(/(\s+)/).filter(s => s.length > 0);
+}
+
+function t3RenderIncipit() {
+  const el = $('t3incipit');
+  if (!el) return;
+  let html = '';
+  for (const w of T3D.incipitWords) {
+    if (w.state === 'old') {
+      html += `<span class="t3-strike">${w.text}</span>`;
+    } else if (w.state === 'glitch') {
+      html += `<span class="t3-glitch">${w.text}</span>`;
+    } else if (w.state === 'pending') {
+      html += `<span class="t3-cur">${w.text}</span>`;
+    } else if (w.state === 'fading-in') {
+      html += `<span class="t3-fade">${w.text}</span>`;
+    } else {
+      html += w.text;
+    }
+  }
+  el.innerHTML = html;
+}
+
+function t3StartIncipit(idx) {
+  T3D.incipitIdx = idx;
+  const inc = T3_INCIPITS[idx];
+  T3D.incipitWords = t3Tokenize(inc.base).map(t => ({
+    text: t,
+    state: 'hidden',
+    final: t,
+  }));
+  T3D.incipitChars = 0;
+  T3D.incipitPhase = 'building';
+  T3D.incipitRevIdx = 0;
+  T3D.incipitRevisedWords = new Set();
+  T3D.incipitNextAction = T3D.incipitTimer + 1;
+}
+
+function t3StepIncipit() {
+  T3D.incipitTimer++;
+  if (T3D.incipitTimer < T3D.incipitNextAction) return;
+  const inc = T3_INCIPITS[T3D.incipitIdx];
+
+  if (T3D.incipitPhase === 'building') {
+    // Reveal next word — but if it's a "revisable" word, show it as the OLD version first
+    let nextHidden = T3D.incipitWords.findIndex(w => w.state === 'hidden');
+    if (nextHidden === -1) {
+      T3D.incipitPhase = 'pre-revising';
+      T3D.incipitNextAction = T3D.incipitTimer + 24;
+      return;
+    }
+    const w = T3D.incipitWords[nextHidden];
+    // Check if this word has a revision (strip punctuation when matching)
+    const wordCore = w.text.replace(/[.,!?;:]/g, '').trim();
+    const rev = inc.revisions.find(r => r.word === wordCore);
+    if (rev) {
+      // Show old version first (it'll be struck through later)
+      w.text = rev.was;
+      w.state = 'fading-in';
+      w.willRevise = rev;
+    } else {
+      w.state = 'fading-in';
+    }
+    t3RenderIncipit();
+    setTimeout(() => {
+      const ww = T3D.incipitWords[nextHidden];
+      if (ww && ww.state === 'fading-in') ww.state = 'final';
+      t3RenderIncipit();
+    }, 380);
+    T3D.incipitNextAction = T3D.incipitTimer + (w.text.trim() === '' ? 1 : 3);
+    return;
+  }
+
+  if (T3D.incipitPhase === 'pre-revising') {
+    // Find next word to revise
+    const idx = T3D.incipitWords.findIndex(w => w.willRevise && !T3D.incipitRevisedWords.has(w.willRevise.word));
+    if (idx === -1) {
+      T3D.incipitPhase = 'settled';
+      T3D.incipitNextAction = T3D.incipitTimer + 110;
+      return;
+    }
+    const w = T3D.incipitWords[idx];
+    const rev = w.willRevise;
+    T3D.incipitRevisedWords.add(rev.word);
+    // Preserve punctuation from original token (e.g., "passé." → "préparé.")
+    const trailingPunct = (w.text.match(/[.,!?;:]+$/) || [''])[0];
+    // Strike through current text
+    w.state = 'old';
+    t3RenderIncipit();
+    // Then after a beat, replace with the new word, possibly with glitch effect
+    setTimeout(() => {
+      const newText = rev.word + trailingPunct;
+      const newState = rev.glitch ? 'glitch' : 'fading-in';
+      const insertIdx = idx + 1;
+      // We need a space before the new word
+      T3D.incipitWords.splice(insertIdx, 0,
+        { text: ' ', state: 'final', final: ' ' },
+        { text: newText, state: newState, final: newText }
+      );
+      t3RenderIncipit();
+      // Then settle the new word
+      setTimeout(() => {
+        const stillThere = T3D.incipitWords.find(w2 => w2.text === newText && (w2.state === 'glitch' || w2.state === 'fading-in'));
+        if (stillThere) stillThere.state = 'final';
+        t3RenderIncipit();
+      }, rev.glitch ? 450 : 380);
+    }, 400);
+    T3D.incipitNextAction = T3D.incipitTimer + 18;
+    return;
+  }
+
+  if (T3D.incipitPhase === 'settled') {
+    // Hold for a while then switch
+    T3D.incipitPhase = 'switching';
+    T3D.incipitNextAction = T3D.incipitTimer + 14;
+    // Fade out
+    const el = $('t3incipit');
+    if (el) {
+      el.style.transition = 'opacity .8s';
+      el.style.opacity = '0.3';
+    }
+    return;
+  }
+
+  if (T3D.incipitPhase === 'switching') {
+    const el = $('t3incipit');
+    if (el) { el.style.opacity = '1'; el.style.transition = ''; }
+    t3StartIncipit((T3D.incipitIdx + 1) % T3_INCIPITS.length);
+    return;
+  }
+}
+
+function t3StepFragments() {
+  for (let i = 0; i < 3; i++) {
+    T3D.fragTimers[i]++;
+    if (T3D.fragTimers[i] >= T3D.fragNextSpawn[i]) {
+      // Pick a new fragment not currently displayed
+      const inUse = new Set(T3D.fragments.filter(f => f).map(f => f.text));
+      const candidates = T3_FRAGMENTS.filter(f => !inUse.has(f));
+      const pick = candidates.length ? candidates[rng(candidates.length)] : T3_FRAGMENTS[rng(T3_FRAGMENTS.length)];
+      T3D.fragments[i] = { text: pick, life: 0, maxLife: 80 + rng(60) };
+      T3D.fragTimers[i] = 0;
+      T3D.fragNextSpawn[i] = T3D.fragments[i].maxLife + 30 + rng(40);
+      const el = $('t3frag' + (i + 1));
+      if (el) {
+        el.textContent = pick;
+        el.classList.remove('on');
+        // force reflow
+        void el.offsetWidth;
+        el.classList.add('on');
+      }
+    } else if (T3D.fragments[i] && T3D.fragTimers[i] >= T3D.fragments[i].maxLife) {
+      // fade out
+      const el = $('t3frag' + (i + 1));
+      if (el) el.classList.remove('on');
+    }
+  }
+}
+
+function t3StepChapter() {
+  T3D.chapterTimer++;
+  if (T3D.chapterTimer > 220) {
+    T3D.chapterTimer = 0;
+    // Bias toward chapter near "session resolution"
+    const seed = Math.floor(((freqData.resonanceLevel || 0) + (freqData.learningRate || 0)) * 6.5);
+    let next = clamp(seed + rng(5) - 2, 0, 12);
+    if (next === T3D.chapter) next = (next + 1) % 13;
+    T3D.chapter = next;
+    const nameEl = $('t3chapter-name');
+    if (nameEl) {
+      nameEl.style.opacity = '0';
+      setTimeout(() => {
+        nameEl.textContent = T3_CHAPTERS[T3D.chapter];
+        nameEl.style.transition = 'opacity .5s';
+        nameEl.style.opacity = '1';
+      }, 250);
+    }
+  }
+}
+
+function t3UpdateChapterBars() {
+  const wrap = $('t3chapter-bars');
+  if (!wrap) return;
+  // Build bars once
+  if (wrap.children.length !== 13) {
+    wrap.innerHTML = '';
+    for (let i = 0; i < 13; i++) {
+      const b = document.createElement('div');
+      b.className = 't3bar';
+      wrap.appendChild(b);
+    }
+  }
+  // Each chapter's resolution drifts toward its target
+  const sessionSig = (freqData.resonanceLevel || 0) * 0.6 + (freqData.learningRate || 0) * 0.4;
+  const wordsCount = discoveredMots.size;
+  for (let i = 0; i < 13; i++) {
+    // Each chapter has a different "target" based on position + session signals
+    const targetBase = 0.15 + Math.sin(i * 0.62 + sessionSig * 3) * 0.4 + sessionSig * 0.5;
+    const wordBoost = Math.min(0.35, wordsCount * 0.012 * Math.abs(Math.sin(i * 0.9)));
+    const target = clamp(targetBase + wordBoost + (i === T3D.chapter ? 0.25 : 0), 0, 1);
+    T3D.chapterRes[i] += (target - T3D.chapterRes[i]) * 0.04;
+    const v = T3D.chapterRes[i];
+    const bar = wrap.children[i];
+    if (!bar) continue;
+    const cls = v < 0.25 ? '' : v < 0.5 ? 'r1' : v < 0.7 ? 'r2' : v < 0.88 ? 'r3' : 'r4';
+    bar.className = 't3bar ' + cls;
+    bar.style.height = (3 + v * 5) + 'px';
+  }
+}
+
+function t3DrawSpectro() {
+  const cv = $('t3spectro');
+  if (!cv) return;
+  const ctx = cv.getContext('2d');
+  const W = cv.width, H = cv.height;
+  ctx.fillStyle = 'rgba(0,4,2,.4)';
+  ctx.fillRect(0, 0, W, H);
+  T3D.spectroPhase += 0.08;
+  const N = 24;
+  const baseFreq = freqData.lastFreq || 9;
+  const intensity = (freqData.resonanceLevel || 0.5) * 0.6 + 0.4;
+  const bw = (W - 2) / N;
+  for (let i = 0; i < N; i++) {
+    // Each bar oscillates with its own frequency
+    const phase = T3D.spectroPhase + i * 0.5;
+    const wave = Math.sin(phase) * 0.4 + Math.sin(phase * 2.3 + i) * 0.25 + Math.cos(phase * 0.7 + i * 0.3) * 0.2;
+    const noise = (Math.random() - 0.5) * 0.15;
+    const target = clamp(0.5 + wave + noise, 0.05, 1) * intensity;
+    T3D.spectroBars[i] += (target - T3D.spectroBars[i]) * 0.32;
+    const h = T3D.spectroBars[i] * (H - 4);
+    const x = 1 + i * bw;
+    const y = H - 1 - h;
+    // Gradient: bottom green → top gold near peaks
+    const tall = T3D.spectroBars[i] > 0.7;
+    if (tall) {
+      ctx.fillStyle = 'rgba(255,220,80,.85)';
+      ctx.shadowBlur = 4;
+      ctx.shadowColor = 'rgba(255,204,0,.6)';
+    } else if (T3D.spectroBars[i] > 0.45) {
+      ctx.fillStyle = 'rgba(120,255,140,.7)';
+      ctx.shadowBlur = 0;
+    } else {
+      ctx.fillStyle = 'rgba(0,200,80,.5)';
+      ctx.shadowBlur = 0;
+    }
+    ctx.fillRect(x, y, bw - 0.6, h);
+  }
+  ctx.shadowBlur = 0;
+  // Tiny baseline
+  ctx.strokeStyle = 'rgba(0,200,60,.18)';
+  ctx.lineWidth = 0.5;
+  ctx.beginPath(); ctx.moveTo(0, H - 0.5); ctx.lineTo(W, H - 0.5); ctx.stroke();
+}
 
 function updateT3Terminal() {
-  const el = $('t3terminal');
-  if (!el) return;
-  const baseF = 8.4 + Math.sin(Date.now() * .00022) * 2.8 + (Math.random() - .5) * .55;
-  const lbl = $('t3freq');
-  if (lbl) lbl.textContent = baseF.toFixed(2) + ' Hz';
-  let line = '', isWord = false;
-  if (phase === 'exploring' && currentPathArr.length > 0) {
-    const head = currentPathArr[currentPathArr.length - 1];
-    let foundWord = '';
-    discoveredMots.forEach(m => {
-      if (foundWord) return;
-      const pos = motPos[m] || [];
-      if (pos.some(p => p[0] === head[0] && p[1] === head[1])) foundWord = m;
-    });
-    if (foundWord) { line = '► ' + foundWord; isWord = true; }
-    else {
-      const chars = currentPathArr.slice(-16).map(p => letters ? (letters[p[0] + ',' + p[1]] || '·') : '·').join('');
-      line = '> ' + chars + ' [' + baseF.toFixed(1) + 'Hz]';
-    }
-  } else if (phase === 'post' || tickerWords.length > 0) {
-    const lastW = tickerWords.length ? tickerWords[tickerWords.length - 1] : '∂';
-    line = '✓ ' + lastW + ' · iter:' + iterCount + ' · ' + baseF.toFixed(2) + 'Hz';
-    if (tickerWords.length) isWord = true;
-  } else {
-    line = '∂ ' + baseF.toFixed(2) + 'Hz · iter:' + iterCount;
+  // Header meta
+  const baseF = (freqData.lastFreq || (8.4 + Math.sin(Date.now() * .00022) * 2.8 + (Math.random() - .5) * .55));
+  const fEl = $('t3freq');
+  if (fEl) fEl.textContent = baseF.toFixed(2) + ' Hz';
+  // Crystallized words = how many discovered words match T3 imagined vocabulary
+  const cryst = Math.floor(
+    discoveredMots.size * 0.5 +
+    contactLog.length * 0.7 +
+    (freqData.resonanceLevel || 0) * 13 +
+    iterCount * 0.3
+  );
+  const cEl = $('t3cryst');
+  if (cEl) cEl.textContent = cryst;
+
+  // Init incipit on first call
+  if (T3D.incipitWords.length === 0 && T3D.incipitPhase === 'building' && T3D.incipitTimer === 0) {
+    t3StartIncipit(0);
   }
-  _t3lines.push({ text: line, isWord });
-  if (_t3lines.length > T3_MAX) _t3lines.shift();
-  el.innerHTML = '';
-  _t3lines.forEach(l => {
-    const div = document.createElement('div');
-    div.className = 't3line' + (l.isWord ? ' wflash' : '');
-    div.textContent = l.text;
-    el.appendChild(div);
-  });
+
+  t3StepIncipit();
+  t3StepFragments();
+  t3StepChapter();
+  t3UpdateChapterBars();
+  t3DrawSpectro();
 }
+
 
 // ═══════════════════════════════════════════════════════════
 // 🔮 ARCANE ORACLE
@@ -5323,8 +5719,8 @@ const TUTO_STEPS = [
     text: '▶ LODICIQUARTE — texte de l\'auteur\n♪ MUSIC — oscilloscope audio\n∂ ARCANES — Oracle, 13 arcanes\n⬡ MA CARTE — carte personnalisée\n⌘ JOURNAL — export session\n∿ EMPREINTE — fréquence audible', pos: 'below' },
   { sel: '#t1panel', title: '∂ TOME I — VERROUILLÉ PAR LYSIS',
     text: 'Le Tome I est verrouillé par Lysis.\n\nUn Easter Egg est caché dans ce programme.\n\nIndice : 5 lettres. Un nom.', pos: 'right' },
-  { sel: '#t3panel', title: '∂ TOME III — NON ENCORE ÉCRIT',
-    text: 'Ce tome n\'existe pas encore.\nMais sa fréquence est déjà là.\n\nMn3mIA détecte une onde fantôme entre 8 et 11 Hz.', pos: 'right' },
+  { sel: '#t3panel', title: '∂ TOME III — RÊVE EN CRISTALLISATION',
+    text: 'Mn3mIA pré-écrit le futur livre.\n\n∂ Incipits qui se réécrivent en direct\n∂ 13 chapitres en méditation\n∂ Fragments fantômes qui passent\n∂ Spectre narratif vivant\n\nPlus la session avance, plus le livre cristallise.', pos: 'right' },
   { sel: '#rb', title: '∂ TERMINAL MN3MIA',
     text: 'Enregistre tous les événements en temps réel.\n\nTouche J = Journal complet exportable.', pos: 'left' },
   { sel: '#premo-wrap', title: '∂ PRÉMONITIONS',
@@ -6091,7 +6487,7 @@ async function startMain() {
 
     if (tick % 2 === 0) drawGlobe();                                // ~30fps — globe is now lean
     if (tick % 6 === 0) renderFreqGraph();                          // ~10fps
-    if (tick % 20 === 0) updateT3Terminal();                        // ~3fps
+    if (tick % 6 === 0) updateT3Terminal();                         // ~10fps — Tome III dreamer animations
     if (isPlaying && analyser) drawOscLive();                       // 60fps when playing
     if (sonicVisualActive && tick % 2 === 0) drawSonicVisual();     // ~30fps
   }
