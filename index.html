@@ -619,7 +619,9 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:799;
   letter-spacing:.28em;padding:10px 26px;background:rgba(180,100,255,.08);
   border:1px solid rgba(180,100,255,.45);color:rgba(200,150,255,.9);cursor:pointer;
   transition:all .3s;position:relative;overflow:hidden;z-index:2;
-  animation:arcSubmitBreath 3.2s ease-in-out infinite}
+  animation:arcSubmitBreath 3.2s ease-in-out infinite;
+  -webkit-tap-highlight-color:rgba(180,100,255,.3);touch-action:manipulation}
+#arc-submit > *{pointer-events:none}
 @keyframes arcSubmitBreath{0%,100%{box-shadow:0 0 0 rgba(180,100,255,0)}
   50%{box-shadow:0 0 14px rgba(180,100,255,.18)}}
 #arc-submit:hover{background:rgba(180,100,255,.18);box-shadow:0 0 22px rgba(180,100,255,.35);
@@ -2548,17 +2550,25 @@ function enterApp() {
   setTimeout(() => checkReturnSession(), 2000);
   setTimeout(() => showTutoInvite(), 4000);
   // Defensive: rebind critical buttons via JS in case onclick attribute was overridden
+  // Handles both click (desktop) and touchend (mobile) for reliability
   setTimeout(() => {
-    const tirer = $('oracle-tirer');
-    if (tirer) {
-      tirer.onclick = null;
-      tirer.addEventListener('click', (e) => { e.stopPropagation(); doOracleTirer(); }, false);
+    function rebind(id, action) {
+      const el = $(id);
+      if (!el) return;
+      el.onclick = null;
+      // Clone to remove any lingering listeners
+      const clone = el.cloneNode(true);
+      el.parentNode.replaceChild(clone, el);
+      const handler = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        action();
+      };
+      clone.addEventListener('click', handler, false);
+      clone.addEventListener('touchend', handler, false);
     }
-    const interr = $('oracle-interroger');
-    if (interr) {
-      interr.onclick = null;
-      interr.addEventListener('click', (e) => { e.stopPropagation(); openArcane(); }, false);
-    }
+    rebind('oracle-tirer', () => doOracleTirer());
+    rebind('oracle-interroger', () => openArcane());
   }, 1400);
 }
 
@@ -7169,6 +7179,18 @@ function arcAttachListeners() {
       }
     });
   }
+  // Defensive: rebind the CONSULTER button via JS so onclick attribute can't be the failure point
+  const submit = $('arc-submit');
+  if (submit) {
+    submit.onclick = null;
+    const handler = (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      if (typeof startArcaneReading === 'function') startArcaneReading();
+    };
+    submit.addEventListener('click', handler, false);
+    submit.addEventListener('touchend', handler, false);
+  }
   const cv = $('arc-bg-canvas');
   if (cv) {
     cv.addEventListener('mousemove', e => {
@@ -7200,6 +7222,20 @@ function openArcane() {
   triggerChromaFx(400);
   resetArcane();
   arcAttachListeners();
+  // Always rebind submit button — it's critical and must work every time
+  const submit = $('arc-submit');
+  if (submit) {
+    // Clone to nuke all old listeners, then add fresh
+    const clone = submit.cloneNode(true);
+    submit.parentNode.replaceChild(clone, submit);
+    const handler = (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      if (typeof startArcaneReading === 'function') startArcaneReading();
+    };
+    clone.addEventListener('click', handler, false);
+    clone.addEventListener('touchend', handler, false);
+  }
   // 1. Auto-focus textarea after modal animation
   setTimeout(() => {
     const tx = $('arc-question');
