@@ -1390,10 +1390,28 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:799;
 
 /* MOBILE */
 @media(max-width:768px){
+  /* ━━━ PERFORMANCE: kill backdrop-filter (killer of FPS on Android) ━━━ */
+  #arcane-overlay, #instrument-overlay, #arcane-card-overlay,
+  #journal-overlay, #card-overlay, #poem-fs, #share-overlay,
+  #panel-win-overlay, #module-overlay, #etat1-overlay,
+  #lysis-overlay, #prophetic-overlay, #sonic-overlay, #tuto-invite,
+  #globe-modal{
+    backdrop-filter:none!important;
+    -webkit-backdrop-filter:none!important;
+    background:rgba(0,2,8,.97)!important;
+  }
+  /* ━━━ PERFORMANCE: simpler transitions ━━━ */
+  *, *::before, *::after{
+    transition-duration:.15s!important;
+  }
+  /* Kill mix-blend-mode (also expensive) */
+  .chroma-fx{display:none!important}
+  /* ━━━ LAYOUT ━━━ */
   #app{overflow:hidden;grid-template-rows:24px 1fr 20px}
   #main{grid-template-columns:1fr;
-    overflow-y:scroll;overflow-x:hidden;-webkit-overflow-scrolling:touch;
-    height:calc(100vh - 44px);display:block}
+    overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;
+    height:calc(100vh - 44px);display:block;
+    will-change:scroll-position}
   #left{display:flex;flex-direction:row;height:170px;flex-shrink:0;
     border-right:none;border-bottom:1px solid var(--border)}
   #gw{flex:0 0 48%;border-bottom:none;border-right:1px solid var(--border)}
@@ -1444,6 +1462,66 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:799;
     border-bottom:1px solid rgba(0,212,255,.12)}
   #inst-info-panel{padding:14px 16px;font-size:9px}
   #inst-history{max-height:90px}
+
+  /* ━━━ TOUCH TARGETS (44×44 minimum per Material/Apple HIG) ━━━ */
+  .pbtn, #amazon-link, #oracle-tirer, #tuto-yes, #tuto-no,
+  #tuto-prev, #tuto-next, #tuto-done, #tuto-skip{
+    min-height:36px;padding:8px 12px!important;
+    font-size:9px!important;letter-spacing:.1em!important;
+    touch-action:manipulation;
+    -webkit-tap-highlight-color:rgba(0,212,255,.2)}
+  #oracle-interroger{padding:16px 0!important;font-size:12px!important;
+    min-height:48px;touch-action:manipulation}
+  #tc-links{gap:6px!important;padding:8px 10px!important}
+
+  /* ━━━ PROTOCOLE: more visible on mobile, full row width ━━━ */
+  .pbtn-protocol{
+    flex:1 1 100%!important;
+    min-width:0!important;
+    background:rgba(180,100,255,.15)!important;
+    border-color:rgba(180,100,255,.75)!important;
+    color:rgba(230,180,255,.98)!important;
+    text-shadow:0 0 8px rgba(180,100,255,.4);
+    font-weight:700!important;
+    font-size:10px!important;
+    letter-spacing:.18em!important;
+    order:99;  /* push to end of flex row */
+  }
+
+  /* ━━━ TUTO PANEL: bigger text, easier nav, full-width ━━━ */
+  #tuto-panel{
+    width:96vw!important;max-width:96vw!important;
+    left:2vw!important;right:2vw!important;
+    top:auto!important;bottom:4vh!important;
+    max-height:60vh!important;
+  }
+  #tuto-panel-body{font-size:11px!important;line-height:1.7!important;
+    padding:14px 14px!important;max-height:42vh!important}
+  #tuto-panel-nav{padding:10px 12px!important}
+  #tuto-panel-nav button{font-size:9px!important;padding:10px 8px!important;
+    min-height:40px;letter-spacing:.12em!important}
+  #tuto-highlight{box-shadow:0 0 0 4000px rgba(0,0,10,.55),0 0 16px rgba(0,212,255,.4)!important}
+
+  /* ━━━ INVITE: also full-mobile ━━━ */
+  #tuto-invite-box{width:92vw;max-width:92vw;padding:24px 18px!important}
+  #tuto-invite-msg{font-size:11px!important;line-height:1.6!important}
+  #tuto-yes{font-size:11px!important;padding:14px 18px!important;min-height:48px;
+    width:100%!important;margin-bottom:6px}
+  #tuto-no{font-size:10px!important;padding:12px 16px!important;min-height:44px;
+    width:100%!important}
+  #tuto-invite-btns{flex-direction:column!important;width:100%}
+
+  /* ━━━ DISABLE costly CSS animations (kept on desktop) ━━━ */
+  #t1panel::before, #tc::before, #center-oracle::before{display:none}
+
+  /* Stream canvas (top-row glitch overlay) — kill on mobile, it's purely decorative */
+  #stream-canvas{display:none!important}
+}
+
+@media(max-width:480px){
+  /* Extra-narrow phones: even more aggressive */
+  #conv-instruments{grid-template-columns:1fr!important;grid-template-rows:repeat(4,auto)!important}
+  .conv-inst{min-height:80px}
 }
 
 /* Reduced motion */
@@ -2283,6 +2361,33 @@ const SITE_URL='https://letreiziemeeveil.com';
 // 🎯 GLOBALS
 // ═══════════════════════════════════════════════════════════
 const $ = id => document.getElementById(id);
+
+// ═══════════════════════════════════════════════════════════
+// 📱 MOBILE DETECTION & FPS THROTTLING
+// ═══════════════════════════════════════════════════════════
+// Detect mobile/tablet by viewport width OR user agent.
+// IS_MOBILE is checked everywhere to throttle expensive rendering.
+const IS_MOBILE = (() => {
+  const ua = navigator.userAgent || '';
+  const uaMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Mobile/i.test(ua);
+  const narrowScreen = window.innerWidth <= 820;
+  return uaMobile || narrowScreen;
+})();
+// Helper: should we throttle to 30fps for this canvas?
+// Returns true ~half the time on mobile (skip every other frame).
+const _fpsCounters = {};
+function shouldRender(key) {
+  if (!IS_MOBILE) return true;
+  _fpsCounters[key] = (_fpsCounters[key] || 0) + 1;
+  return _fpsCounters[key] % 2 === 0;  // render 1 frame out of 2 → 30fps
+}
+// Tag body for CSS to use
+if (IS_MOBILE) document.documentElement.classList.add('is-mobile');
+// Pause heavy stuff when tab is hidden (saves battery + framerate when user comes back)
+let DOC_HIDDEN = false;
+document.addEventListener('visibilitychange', () => {
+  DOC_HIDDEN = document.hidden;
+});
 const mc = $('mc'), ctx = mc.getContext('2d', {alpha:false});
 const pc = $('pc'), pctx = pc.getContext('2d');
 const gc = $('gc'), gctx = gc.getContext('2d', {alpha:false});
@@ -3095,14 +3200,14 @@ function t1DreamInit() {
   T1D.W = T1D.cv.width; T1D.H = T1D.cv.height;
   T1D.ctx = T1D.cv.getContext('2d');
   T1D.particles = [];
-  // Multi-layer orbital particles: outer slow, inner fast
-  for (let i = 0; i < 80; i++) {
-    const layer = i < 30 ? 'outer' : i < 55 ? 'mid' : 'inner';
+  // MOBILE: 12 particles (instead of 80). DESKTOP: 80.
+  const NUM_PARTICLES = IS_MOBILE ? 12 : 80;
+  for (let i = 0; i < NUM_PARTICLES; i++) {
+    const layer = i < NUM_PARTICLES * 0.4 ? 'outer' : i < NUM_PARTICLES * 0.7 ? 'mid' : 'inner';
     const baseR = layer === 'outer' ? 35 + Math.random() * 22
                  : layer === 'mid' ? 18 + Math.random() * 14
                  : 6 + Math.random() * 10;
     const startAng = Math.random() * Math.PI * 2;
-    // Mix of color hues — rich palette
     const hueRoll = Math.random();
     const hue = hueRoll < 0.25 ? 'pink'
               : hueRoll < 0.45 ? 'violet'
@@ -3122,11 +3227,9 @@ function t1DreamInit() {
       layer,
       twinklePhase: Math.random() * Math.PI * 2,
       twinkleSpeed: 0.04 + Math.random() * 0.06,
-      // History for trails
       trail: [],
     });
   }
-  // Pulse waves expanding from center
   T1D.waves = [];
   T1D.waveCooldown = 60;
   T1D.init = true;
@@ -3163,6 +3266,8 @@ function t1DreamDraw() {
   if (T1D.cv.width !== T1D.cv.offsetWidth || T1D.cv.height !== T1D.cv.offsetHeight) {
     T1D.init = false; t1DreamInit(); if (!T1D.init) return;
   }
+  // Doc hidden: skip drawing entirely
+  if (DOC_HIDDEN) return;
   T1D.tick++;
   const ctx = T1D.ctx;
   const W = T1D.W, H = T1D.H;
@@ -3250,34 +3355,39 @@ function t1DreamDraw() {
   }
 
   // ─── Constellation lines: connect close particles of same hue family ──
-  for (let i = 0; i < T1D.particles.length; i++) {
-    const a = T1D.particles[i];
-    for (let j = i + 1; j < T1D.particles.length; j++) {
-      const b = T1D.particles[j];
-      if (a.hue !== b.hue) continue;
-      const dx = a.x - b.x, dy = a.y - b.y;
-      const d2 = dx * dx + dy * dy;
-      if (d2 > 700) continue;
-      const alpha = (1 - d2 / 700) * 0.18;
-      const [hr, hg, hb] = HUE_RGB[a.hue];
-      ctx.strokeStyle = `rgba(${hr},${hg},${hb},${alpha})`;
-      ctx.lineWidth = 0.4;
-      ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke();
+  // Skip on mobile (O(N²) is expensive)
+  if (!IS_MOBILE) {
+    for (let i = 0; i < T1D.particles.length; i++) {
+      const a = T1D.particles[i];
+      for (let j = i + 1; j < T1D.particles.length; j++) {
+        const b = T1D.particles[j];
+        if (a.hue !== b.hue) continue;
+        const dx = a.x - b.x, dy = a.y - b.y;
+        const d2 = dx * dx + dy * dy;
+        if (d2 > 700) continue;
+        const alpha = (1 - d2 / 700) * 0.18;
+        const [hr, hg, hb] = HUE_RGB[a.hue];
+        ctx.strokeStyle = `rgba(${hr},${hg},${hb},${alpha})`;
+        ctx.lineWidth = 0.4;
+        ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke();
+      }
     }
   }
 
-  // ─── Render particle trails ──
-  for (const p of T1D.particles) {
-    if (p.trail.length < 2) continue;
-    const [hr, hg, hb] = HUE_RGB[p.hue];
-    ctx.lineWidth = p.r * 0.6;
-    for (let k = 1; k < p.trail.length; k++) {
-      const tFrac = k / p.trail.length;
-      ctx.strokeStyle = `rgba(${hr},${hg},${hb},${tFrac * 0.32})`;
-      ctx.beginPath();
-      ctx.moveTo(p.trail[k - 1].x, p.trail[k - 1].y);
-      ctx.lineTo(p.trail[k].x, p.trail[k].y);
-      ctx.stroke();
+  // ─── Render particle trails ── (skip on mobile)
+  if (!IS_MOBILE) {
+    for (const p of T1D.particles) {
+      if (p.trail.length < 2) continue;
+      const [hr, hg, hb] = HUE_RGB[p.hue];
+      ctx.lineWidth = p.r * 0.6;
+      for (let k = 1; k < p.trail.length; k++) {
+        const tFrac = k / p.trail.length;
+        ctx.strokeStyle = `rgba(${hr},${hg},${hb},${tFrac * 0.32})`;
+        ctx.beginPath();
+        ctx.moveTo(p.trail[k - 1].x, p.trail[k - 1].y);
+        ctx.lineTo(p.trail[k].x, p.trail[k].y);
+        ctx.stroke();
+      }
     }
   }
 
@@ -3286,13 +3396,15 @@ function t1DreamDraw() {
     const twinkle = 0.7 + 0.3 * Math.sin(p.twinklePhase);
     const [hr, hg, hb] = HUE_RGB[p.hue];
     ctx.fillStyle = `rgba(${hr},${hg},${hb},${p.a * (0.55 + breath * 0.45) * twinkle})`;
-    ctx.shadowBlur = 5;
-    ctx.shadowColor = `rgba(${hr},${hg},${hb},.7)`;
+    if (!IS_MOBILE) {
+      ctx.shadowBlur = 5;
+      ctx.shadowColor = `rgba(${hr},${hg},${hb},.7)`;
+    }
     ctx.beginPath();
     ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
     ctx.fill();
   }
-  ctx.shadowBlur = 0;
+  if (!IS_MOBILE) ctx.shadowBlur = 0;
 
   // ─── Central iris pulse (the dreamer's eye) ──
   const irisPulse = 1 + Math.sin(T1D.tick * 0.04) * 0.2;
@@ -3923,11 +4035,11 @@ function drawGalvanometer() {
   const tipX = cx + Math.cos(ang) * needleR;
   const tipY = cy + Math.sin(ang) * needleR;
   let needleCol = drawn > 0.78 ? '255,80,120' : drawn > 0.55 ? '255,204,0' : '0,255,170';
-  ctx.shadowBlur = 8; ctx.shadowColor = `rgba(${needleCol},.7)`;
+  if (!IS_MOBILE) { ctx.shadowBlur = 8; ctx.shadowColor = `rgba(${needleCol},.7)`; }
   ctx.strokeStyle = `rgba(${needleCol},.95)`;
   ctx.lineWidth = 1.6;
   ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(tipX, tipY); ctx.stroke();
-  ctx.shadowBlur = 0;
+  if (!IS_MOBILE) ctx.shadowBlur = 0;
   ctx.fillStyle = `rgba(${needleCol},.95)`;
   ctx.beginPath(); ctx.arc(cx, cy, 2, 0, Math.PI * 2); ctx.fill();
   // Center text — readout placed in upper part of arc
@@ -3983,10 +4095,10 @@ function drawSpectrum() {
   ctx.lineWidth = 1;
   ctx.setLineDash([3, 4]);
   ctx.lineDashOffset = -CONV.tick * 0.5;
-  ctx.shadowBlur = 5; ctx.shadowColor = 'rgba(255,204,0,.4)';
+  if (!IS_MOBILE) { ctx.shadowBlur = 5; ctx.shadowColor = 'rgba(255,204,0,.4)'; }
   ctx.beginPath(); ctx.moveTo(tx, padT); ctx.lineTo(tx, padT + spanH); ctx.stroke();
   ctx.setLineDash([]);
-  ctx.shadowBlur = 0;
+  if (!IS_MOBILE) ctx.shadowBlur = 0;
 
   // Plot recent history as drifting "ribbons" — newest on right, scrolling left
   for (let i = 0; i < hist.length; i++) {
@@ -4009,11 +4121,11 @@ function drawSpectrum() {
     ctx.stroke();
     // Cap
     if (ageT < 0.1) {
-      ctx.shadowBlur = 6; ctx.shadowColor = `rgba(${col},.7)`;
+      if (!IS_MOBILE) { ctx.shadowBlur = 6; ctx.shadowColor = `rgba(${col},.7)`; }
       ctx.fillStyle = `rgba(${col},${alpha + 0.3})`;
       ctx.beginPath(); ctx.arc(fx, barTop, 2, 0, Math.PI * 2); ctx.fill();
       ctx.beginPath(); ctx.arc(fx, barTop + barH, 2, 0, Math.PI * 2); ctx.fill();
-      ctx.shadowBlur = 0;
+      if (!IS_MOBILE) ctx.shadowBlur = 0;
     }
   }
 
@@ -4022,7 +4134,7 @@ function drawSpectrum() {
   const dist = Math.abs(CONV.specCursor - 13.7);
   const proximity = Math.max(0, 1 - dist / 9);
   const curCol = proximity > 0.85 ? '0,255,170' : proximity > 0.55 ? '255,204,0' : '0,200,255';
-  ctx.shadowBlur = 8; ctx.shadowColor = `rgba(${curCol},.7)`;
+  if (!IS_MOBILE) { ctx.shadowBlur = 8; ctx.shadowColor = `rgba(${curCol},.7)`; }
   ctx.strokeStyle = `rgba(${curCol},.95)`;
   ctx.lineWidth = 2;
   ctx.beginPath(); ctx.moveTo(cx, padT); ctx.lineTo(cx, padT + spanH); ctx.stroke();
@@ -4031,7 +4143,7 @@ function drawSpectrum() {
   ctx.beginPath();
   ctx.moveTo(cx, padT); ctx.lineTo(cx - 3, padT - 3); ctx.lineTo(cx + 3, padT - 3);
   ctx.closePath(); ctx.fill();
-  ctx.shadowBlur = 0;
+  if (!IS_MOBILE) ctx.shadowBlur = 0;
 
   // Tick marks
   ctx.font = '5px "Share Tech Mono",monospace';
@@ -4099,31 +4211,33 @@ function drawTrace() {
   ctx.stroke();
   ctx.setLineDash([]);
 
-  // Galactic spiral arms (subtle background)
-  ctx.strokeStyle = 'rgba(0,200,255,.05)';
-  ctx.lineWidth = 0.5;
-  for (let arm = 0; arm < 2; arm++) {
-    ctx.beginPath();
-    for (let t = 0; t < 4; t += 0.05) {
-      const ang = t * 0.8 + arm * Math.PI + CONV.traceGalacticAng * 0.4;
-      const r = t * 8;
-      const sx = galCx + Math.cos(ang) * r;
-      const sy = galCy + Math.sin(ang) * r;
-      if (t === 0) ctx.moveTo(sx, sy);
-      else ctx.lineTo(sx, sy);
+  // Galactic spiral arms (subtle background) — skip on mobile
+  if (!IS_MOBILE) {
+    ctx.strokeStyle = 'rgba(0,200,255,.05)';
+    ctx.lineWidth = 0.5;
+    for (let arm = 0; arm < 2; arm++) {
+      ctx.beginPath();
+      for (let t = 0; t < 4; t += 0.05) {
+        const ang = t * 0.8 + arm * Math.PI + CONV.traceGalacticAng * 0.4;
+        const r = t * 8;
+        const sx = galCx + Math.cos(ang) * r;
+        const sy = galCy + Math.sin(ang) * r;
+        if (t === 0) ctx.moveTo(sx, sy);
+        else ctx.lineTo(sx, sy);
+      }
+      ctx.stroke();
     }
-    ctx.stroke();
   }
 
   // 13.7 target cross (with glow)
   ctx.strokeStyle = 'rgba(255,204,0,.5)';
   ctx.lineWidth = 0.7;
-  ctx.shadowBlur = 5; ctx.shadowColor = 'rgba(255,204,0,.5)';
+  if (!IS_MOBILE) { ctx.shadowBlur = 5; ctx.shadowColor = 'rgba(255,204,0,.5)'; }
   ctx.beginPath();
   ctx.moveTo(galCx - 5, galCy); ctx.lineTo(galCx + 5, galCy);
   ctx.moveTo(galCx, galCy - 5); ctx.lineTo(galCx, galCy + 5);
   ctx.stroke();
-  ctx.shadowBlur = 0;
+  if (!IS_MOBILE) ctx.shadowBlur = 0;
 
   // Compute rotated positions: each point orbits around (13.7, 13.7) with differential angular velocity
   function rotatePt(p) {
@@ -4166,9 +4280,9 @@ function drawTrace() {
     const col = near ? '0,255,170' : '0,200,255';
     if (recent) {
       ctx.fillStyle = `rgba(${col},${(0.6 + ageFactor * 0.4) * tw})`;
-      ctx.shadowBlur = 5; ctx.shadowColor = `rgba(${col},.6)`;
+      if (!IS_MOBILE) { ctx.shadowBlur = 5; ctx.shadowColor = `rgba(${col},.6)`; }
       ctx.beginPath(); ctx.arc(rp.x, rp.y, 1.6, 0, Math.PI * 2); ctx.fill();
-      ctx.shadowBlur = 0;
+      if (!IS_MOBILE) ctx.shadowBlur = 0;
     } else {
       ctx.fillStyle = `rgba(${col},${ageFactor * 0.55 * tw})`;
       ctx.fillRect(rp.x - 0.7, rp.y - 0.7, 1.4, 1.4);
@@ -4176,10 +4290,10 @@ function drawTrace() {
   }
 
   // Galactic core dot
-  ctx.shadowBlur = 6; ctx.shadowColor = 'rgba(255,204,0,.6)';
+  if (!IS_MOBILE) { ctx.shadowBlur = 6; ctx.shadowColor = 'rgba(255,204,0,.6)'; }
   ctx.fillStyle = 'rgba(255,220,80,.85)';
   ctx.beginPath(); ctx.arc(galCx, galCy, 1.5, 0, Math.PI * 2); ctx.fill();
-  ctx.shadowBlur = 0;
+  if (!IS_MOBILE) ctx.shadowBlur = 0;
 
   // Axis labels
   ctx.font = '4px "Share Tech Mono",monospace';
@@ -4225,7 +4339,7 @@ function drawPhaseLock() {
   // Mini tunnel: hyperbolic perspective concentric circles
   const Rmax = Math.min(W, H) * 0.46;
   const Rmin = 2;
-  const NUM_RINGS = 14;
+  const NUM_RINGS = IS_MOBILE ? 7 : 14;  // half rings on mobile
   for (let i = NUM_RINGS - 1; i >= 0; i--) {
     const zRaw = (i + CONV.lockTunnelZ) / NUM_RINGS;
     if (zRaw > 1) continue;
@@ -4246,34 +4360,36 @@ function drawPhaseLock() {
     ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2); ctx.stroke();
     ctx.setLineDash([]);
   }
-  // Radial rails
-  for (let i = 0; i < 8; i++) {
-    const a = CONV.lockAng * 0.4 + (i / 8) * Math.PI * 2;
-    const ix = cx + Math.cos(a) * (Rmin + 2);
-    const iy = cy + Math.sin(a) * (Rmin + 2);
-    const ox = cx + Math.cos(a) * Rmax;
-    const oy = cy + Math.sin(a) * Rmax;
-    const grad = ctx.createLinearGradient(ix, iy, ox, oy);
-    grad.addColorStop(0, `rgba(${lockCol},.04)`);
-    grad.addColorStop(1, `rgba(${lockCol},.18)`);
-    ctx.strokeStyle = grad;
-    ctx.lineWidth = i % 2 === 0 ? 0.7 : 0.4;
-    ctx.beginPath(); ctx.moveTo(ix, iy); ctx.lineTo(ox, oy); ctx.stroke();
+  // Radial rails (skip on mobile — pure ornament)
+  if (!IS_MOBILE) {
+    for (let i = 0; i < 8; i++) {
+      const a = CONV.lockAng * 0.4 + (i / 8) * Math.PI * 2;
+      const ix = cx + Math.cos(a) * (Rmin + 2);
+      const iy = cy + Math.sin(a) * (Rmin + 2);
+      const ox = cx + Math.cos(a) * Rmax;
+      const oy = cy + Math.sin(a) * Rmax;
+      const grad = ctx.createLinearGradient(ix, iy, ox, oy);
+      grad.addColorStop(0, `rgba(${lockCol},.04)`);
+      grad.addColorStop(1, `rgba(${lockCol},.18)`);
+      ctx.strokeStyle = grad;
+      ctx.lineWidth = i % 2 === 0 ? 0.7 : 0.4;
+      ctx.beginPath(); ctx.moveTo(ix, iy); ctx.lineTo(ox, oy); ctx.stroke();
+    }
   }
   // Hub
-  ctx.shadowBlur = 10; ctx.shadowColor = `rgba(${lockCol},.7)`;
+  if (!IS_MOBILE) { ctx.shadowBlur = 10; ctx.shadowColor = `rgba(${lockCol},.7)`; }
   ctx.fillStyle = `rgba(${lockCol},.95)`;
   ctx.beginPath(); ctx.arc(cx, cy, 3, 0, Math.PI * 2); ctx.fill();
-  ctx.shadowBlur = 0;
+  if (!IS_MOBILE) ctx.shadowBlur = 0;
   ctx.fillStyle = 'rgba(255,255,255,.95)';
   ctx.beginPath(); ctx.arc(cx, cy, 1, 0, Math.PI * 2); ctx.fill();
   // Readout
   ctx.font = 'bold 13px "Orbitron",monospace';
   ctx.fillStyle = `rgba(${lockCol},.95)`;
   ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-  ctx.shadowBlur = 6; ctx.shadowColor = `rgba(${lockCol},.5)`;
+  if (!IS_MOBILE) { ctx.shadowBlur = 6; ctx.shadowColor = `rgba(${lockCol},.5)`; }
   ctx.fillText((CONV.lockPct * 100).toFixed(0) + '%', cx, cy - H * 0.3);
-  ctx.shadowBlur = 0;
+  if (!IS_MOBILE) ctx.shadowBlur = 0;
   ctx.font = 'bold 5.5px "Share Tech Mono",monospace';
   ctx.fillStyle = `rgba(${lockCol},.6)`;
   let stateLbl = CONV.lockPct > 0.78 ? 'LOCK' : CONV.lockPct > 0.5 ? 'TRACK' : 'DRIFT';
@@ -4281,6 +4397,7 @@ function drawPhaseLock() {
 }
 
 function updateConvergence() {
+  if (DOC_HIDDEN) return;
   CONV.tick++;
   const res = freqData.resonanceLevel || 0;
   const lr = freqData.learningRate || 0;
@@ -9671,14 +9788,20 @@ async function startMain() {
 
     masterStep();                                                  // maze logic + drawMaze (throttled internally)
 
-    if (tick % 2 === 0) drawGlobe();                                // ~30fps — globe is now lean
-    if (tick % 6 === 0) renderFreqGraph();                          // ~10fps
-    if (tick % 3 === 0) updateConvergence();                        // ~20fps — 4 live instruments
-    if (tick % 6 === 0) updateT3Terminal();                         // ~10fps — Tome III dreamer animations
-    if (tick % 3 === 0) t1RedactDraw();                             // ~20fps — caviardage nerveux
-    if (tick % 2 === 0) t1DreamDraw();                              // ~30fps — fuite onirique
-    if (isPlaying && analyser) drawOscLive();                       // 60fps when playing
-    if (sonicVisualActive && tick % 2 === 0) drawSonicVisual();     // ~30fps
+    // Mobile: throttle everything further (half the rate)
+    const mobileSkip = IS_MOBILE ? 2 : 1;
+    if (DOC_HIDDEN) {
+      // Skip ALL rendering when tab not visible
+    } else {
+      if (tick % (2 * mobileSkip) === 0) drawGlobe();                              // ~30fps desktop, ~15fps mobile
+      if (tick % (6 * mobileSkip) === 0) renderFreqGraph();                        // ~10/5 fps
+      if (tick % (3 * mobileSkip) === 0) updateConvergence();                      // ~20/10 fps — 4 instruments
+      if (tick % (6 * mobileSkip) === 0) updateT3Terminal();                       // ~10/5 fps
+      if (tick % (3 * mobileSkip) === 0) t1RedactDraw();                           // ~20/10 fps
+      if (tick % (2 * mobileSkip) === 0) t1DreamDraw();                            // ~30/15 fps — fuite onirique
+      if (isPlaying && analyser) drawOscLive();                                    // 60fps when playing music
+      if (sonicVisualActive && tick % (2 * mobileSkip) === 0) drawSonicVisual();   // ~30/15 fps
+    }
   }
   requestAnimationFrame(loop);
 
