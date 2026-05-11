@@ -196,8 +196,8 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:799;
 ═══════════════════════════════ */
 #center{display:flex;flex-direction:column;border-right:1px solid var(--border);overflow:hidden}
 #center-oracle{flex:0 0 44%;display:flex;flex-direction:column;
-  background:rgba(8,0,22,.99);border-bottom:2px solid rgba(180,100,255,.3);overflow:hidden;
-  position:relative}
+  background:rgba(8,0,22,.99);border-bottom:2px solid rgba(180,100,255,.3);overflow:visible;
+  position:relative;min-height:0}
 #center-oracle::before{content:'';position:absolute;inset:0;
   background:radial-gradient(circle at top right,rgba(180,100,255,.08),transparent 60%);
   pointer-events:none}
@@ -209,7 +209,7 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:799;
   cursor:pointer;padding:1px 6px;border:1px solid rgba(180,100,255,.18);transition:all .2s}
 #oracle-hdr-r:hover{color:rgba(180,100,255,.9);background:rgba(180,100,255,.1);
   box-shadow:0 0 8px rgba(180,100,255,.2)}
-#oracle-body{flex:1;display:flex;flex-direction:column;padding:5px 7px;gap:4px;overflow:hidden;min-height:0;
+#oracle-body{flex:1;display:flex;flex-direction:column;padding:5px 7px;gap:4px;overflow:visible;min-height:0;
   position:relative;z-index:1}
 #oracle-display{display:flex;gap:7px;align-items:flex-start;flex-shrink:0}
 #oracle-sym{font-size:26px;color:rgba(180,100,255,.75);text-shadow:0 0 14px rgba(180,100,255,.4);
@@ -220,27 +220,29 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:799;
 #oracle-tag{font-size:7px;letter-spacing:.1em;color:rgba(0,212,255,.5);font-style:italic;margin-bottom:3px}
 #oracle-resp{font-family:'Share Tech Mono',monospace;font-size:6.5px;line-height:1.5;
   color:rgba(200,185,230,.65);overflow:hidden;max-height:48px}
-#oracle-input-row{display:flex;gap:5px;flex-shrink:0}
+#oracle-input-row{display:flex;gap:5px;flex-shrink:0;position:relative;z-index:6}
 #oracle-q{flex:1;background:rgba(0,2,12,.8);border:none;border-bottom:1px solid rgba(180,100,255,.28);
   color:rgba(220,200,255,.85);font-family:'Share Tech Mono',monospace;
   font-size:8.5px;padding:4px 7px;resize:none;outline:none;line-height:1.4;
-  transition:border-color .25s,box-shadow .25s}
+  transition:border-color .25s,box-shadow .25s;position:relative;z-index:6}
 #oracle-q:focus{border-bottom-color:rgba(180,100,255,.7);
   box-shadow:0 1px 0 rgba(180,100,255,.3)}
 #oracle-q::placeholder{color:rgba(180,100,255,.22);font-style:italic}
 #oracle-tirer{font-family:'Orbitron',monospace;font-size:7px;font-weight:700;letter-spacing:.15em;
   padding:4px 10px;background:rgba(180,100,255,.1);border:1px solid rgba(180,100,255,.45);
   color:rgba(200,150,255,.9);cursor:pointer;transition:all .25s;flex-shrink:0;position:relative;
-  overflow:hidden}
+  overflow:hidden;z-index:6;-webkit-tap-highlight-color:rgba(180,100,255,.3);touch-action:manipulation}
 #oracle-tirer:hover{background:rgba(180,100,255,.2);box-shadow:0 0 10px rgba(180,100,255,.3);
   transform:translateY(-1px)}
+#oracle-tirer:active{transform:translateY(0)}
 #oracle-interroger{width:100%;padding:12px 0;font-family:'Orbitron',monospace;font-size:11px;font-weight:900;
   letter-spacing:.32em;color:rgba(230,200,255,1);background:linear-gradient(135deg,rgba(180,100,255,.12),rgba(0,212,255,.08),rgba(180,100,255,.12));
   border:1px solid rgba(180,100,255,.65);cursor:pointer;flex-shrink:0;
   position:relative;overflow:hidden;transition:letter-spacing .3s,box-shadow .3s,background .3s,transform .2s,color .3s;
   text-shadow:0 0 12px rgba(180,100,255,.55),0 0 24px rgba(180,100,255,.25);
-  animation:oracleBtnBreath 3.4s ease-in-out infinite;z-index:5;
-  -webkit-tap-highlight-color:rgba(180,100,255,.3);touch-action:manipulation}
+  animation:oracleBtnBreath 3.4s ease-in-out infinite;z-index:7;
+  -webkit-tap-highlight-color:rgba(180,100,255,.3);touch-action:manipulation;
+  pointer-events:auto!important}
 #oracle-interroger > *{pointer-events:none}
 @keyframes oracleBtnBreath{
   0%,100%{box-shadow:0 0 0 rgba(180,100,255,0),inset 0 0 12px rgba(180,100,255,.04)}
@@ -265,16 +267,20 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:799;
   0%,100%{transform:scale(1) rotate(0deg);text-shadow:0 0 10px rgba(255,204,0,.5)}
   50%{transform:scale(1.18) rotate(3deg);text-shadow:0 0 20px rgba(255,204,0,.9),0 0 36px rgba(255,180,40,.4)}
 }
-#oracle-strip{display:flex;gap:4px;overflow-x:auto;flex-shrink:0;padding:3px 0;scrollbar-width:none;align-items:center}
+#oracle-strip{display:flex;gap:6px;overflow-x:auto;flex-shrink:0;padding:6px 2px;scrollbar-width:none;align-items:center;position:relative;z-index:1}
 #oracle-strip::-webkit-scrollbar{display:none}
-.o-chip{width:34px;height:50px;position:relative;flex-shrink:0;border:1px solid rgba(180,100,255,.4);
-  background:rgba(8,0,20,.9);overflow:hidden;cursor:pointer;transition:transform .25s,border-color .25s,box-shadow .25s}
-.o-chip:hover{border-color:rgba(180,100,255,.9);transform:translateY(-3px) scale(1.05);
-  box-shadow:0 0 14px rgba(180,100,255,.5)}
+.o-chip{width:54px;height:78px;position:relative;flex-shrink:0;border:1px solid rgba(180,100,255,.5);
+  background:rgba(8,0,20,.9);overflow:hidden;cursor:pointer;
+  box-shadow:0 0 8px rgba(180,100,255,.15);
+  transition:transform .25s,border-color .25s,box-shadow .25s}
+.o-chip:hover{border-color:rgba(180,100,255,.95);transform:translateY(-4px) scale(1.08);
+  box-shadow:0 0 18px rgba(180,100,255,.5),0 0 32px rgba(180,100,255,.2)}
 .o-chip video{width:100%;height:100%;object-fit:cover;display:block}
-.o-chip-sym{position:absolute;bottom:1px;left:0;right:0;text-align:center;font-size:9px;
-  color:rgba(180,100,255,.9);text-shadow:0 0 4px rgba(180,100,255,.6)}
-.o-chip-fb{display:flex;align-items:center;justify-content:center;height:100%;font-size:16px;color:rgba(180,100,255,.7)}
+.o-chip-sym{position:absolute;bottom:0;left:0;right:0;text-align:center;font-size:11px;
+  font-family:'Orbitron',monospace;font-weight:900;color:rgba(220,180,255,.98);
+  background:linear-gradient(transparent,rgba(0,0,10,.85) 45%);padding:4px 0 2px;
+  text-shadow:0 0 6px rgba(180,100,255,.7);letter-spacing:.04em}
+.o-chip-fb{display:flex;align-items:center;justify-content:center;height:100%;font-size:22px;color:rgba(180,100,255,.7)}
 
 #center-maze{flex:1;display:flex;flex-direction:column;overflow:hidden;min-height:0}
 #mhdr{padding:3px 9px;background:rgba(0,14,28,.88);border-bottom:1px solid var(--border);
@@ -383,6 +389,17 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:799;
   background:rgba(255,153,0,.03);text-decoration:none;display:inline-flex;align-items:center;transition:all .2s}
 #amazon-link:hover{background:rgba(255,153,0,.1);color:rgba(255,180,80,1);
   box-shadow:0 0 10px rgba(255,153,0,.25);transform:translateY(-1px)}
+.pbtn-protocol{border-color:rgba(180,100,255,.45)!important;color:rgba(200,150,255,.85)!important;
+  background:rgba(180,100,255,.05)!important;
+  text-shadow:0 0 6px rgba(180,100,255,.25);
+  animation:protoBtnGlow 4s ease-in-out infinite}
+.pbtn-protocol:hover{background:rgba(180,100,255,.2)!important;color:#fff!important;
+  border-color:rgba(180,100,255,.9)!important;
+  box-shadow:0 0 14px rgba(180,100,255,.5)!important}
+@keyframes protoBtnGlow{
+  0%,100%{box-shadow:0 0 0 rgba(180,100,255,0)}
+  50%{box-shadow:0 0 8px rgba(180,100,255,.3)}
+}
 
 /* Oscilloscope */
 #osc-wrap{flex-shrink:0;height:44px;border-bottom:1px solid var(--border);
@@ -899,11 +916,14 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:799;
 
 
 /* Tutorial */
+#tuto-invite{z-index:9500!important}
+#tuto-invite.on{pointer-events:all!important}
 #tuto-invite-box{border:1px solid rgba(0,212,255,.35);background:rgba(0,5,20,.97);
   padding:32px 36px;max-width:480px;width:90vw;
   display:flex;flex-direction:column;align-items:center;gap:14px;
   box-shadow:0 0 60px rgba(0,212,255,.08),0 0 120px rgba(180,100,255,.06);
-  animation:modal-in .5s var(--ease-out)}
+  animation:modal-in .5s var(--ease-out);position:relative;z-index:9501}
+#tuto-invite-btns,#tuto-yes,#tuto-no{position:relative;z-index:9502;pointer-events:auto!important}
 #tuto-invite-sym{font-family:'Orbitron',monospace;font-size:36px;
   color:rgba(180,100,255,.8);text-shadow:0 0 30px rgba(180,100,255,.5)}
 #tuto-invite-title{font-family:'Orbitron',monospace;font-size:13px;font-weight:900;
@@ -941,22 +961,28 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:799;
 #tuto-step-label{font-family:'Orbitron',monospace;font-size:7.5px;font-weight:700;
   letter-spacing:.2em;color:rgba(0,212,255,.8)}
 #tuto-step-counter{font-family:'Share Tech Mono',monospace;font-size:7px;color:rgba(0,212,255,.4)}
-#tuto-panel-body{padding:14px 14px 10px;min-height:80px;
-  font-family:'Share Tech Mono',monospace;font-size:9px;line-height:1.65;
-  color:rgba(180,210,255,.8);letter-spacing:.04em}
+#tuto-panel-body{padding:18px 18px 14px;min-height:160px;max-height:65vh;overflow-y:auto;
+  font-family:'Share Tech Mono',monospace;font-size:10.5px;line-height:1.75;
+  color:rgba(200,225,255,.88);letter-spacing:.04em;
+  scrollbar-width:thin;scrollbar-color:rgba(0,212,255,.3) transparent}
+#tuto-panel-body::-webkit-scrollbar{width:4px}
+#tuto-panel-body::-webkit-scrollbar-thumb{background:rgba(0,212,255,.3)}
+#tuto-typewriter{white-space:pre-wrap}
 #tuto-typewriter::after{content:'▋';animation:blink .7s step-end infinite;color:rgba(0,212,255,.8)}
-#tuto-panel-nav{display:flex;gap:6px;padding:8px 12px;
-  border-top:1px solid rgba(0,212,255,.12);flex-shrink:0}
-#tuto-prev,#tuto-next,#tuto-done{font-family:'Share Tech Mono',monospace;
-  font-size:7px;letter-spacing:.15em;padding:5px 10px;
-  cursor:pointer;transition:all .2s;flex:1}
+#tuto-panel-nav{display:flex;gap:6px;padding:10px 14px;
+  border-top:1px solid rgba(0,212,255,.18);flex-shrink:0}
+#tuto-prev,#tuto-next,#tuto-done,#tuto-skip{font-family:'Share Tech Mono',monospace;
+  font-size:7.5px;letter-spacing:.18em;padding:7px 12px;
+  cursor:pointer;transition:all .2s;flex:1;font-weight:700}
 #tuto-prev{border:1px solid rgba(0,212,255,.25);color:rgba(0,212,255,.55);background:transparent}
-#tuto-prev:hover{background:rgba(0,212,255,.08)}
+#tuto-prev:hover{background:rgba(0,212,255,.08);color:rgba(0,212,255,.9)}
 #tuto-prev:disabled{opacity:.25;cursor:default}
-#tuto-next{border:1px solid rgba(0,212,255,.45);color:rgba(0,212,255,.85);background:rgba(0,212,255,.07)}
-#tuto-next:hover{background:rgba(0,212,255,.15)}
-#tuto-done{border:1px solid rgba(0,255,170,.3);color:rgba(0,255,170,.6);background:transparent}
-#tuto-done:hover{background:rgba(0,255,170,.08)}
+#tuto-skip{border:1px solid rgba(180,100,255,.25);color:rgba(180,100,255,.55);background:transparent;flex:0 0 auto}
+#tuto-skip:hover{background:rgba(180,100,255,.1);color:rgba(220,160,255,.9);border-color:rgba(180,100,255,.5)}
+#tuto-next{border:1px solid rgba(0,212,255,.5);color:rgba(0,212,255,.95);background:rgba(0,212,255,.1)}
+#tuto-next:hover{background:rgba(0,212,255,.2);box-shadow:0 0 10px rgba(0,212,255,.25)}
+#tuto-done{border:1px solid rgba(0,255,170,.4);color:rgba(0,255,170,.85);background:rgba(0,255,170,.06)}
+#tuto-done:hover{background:rgba(0,255,170,.15);box-shadow:0 0 10px rgba(0,255,170,.2)}
 
 /* Prophetic */
 #prophetic-overlay{z-index:720;background:#000;backdrop-filter:none;transition:opacity .5s}
@@ -1221,6 +1247,86 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:799;
   animation:symPulse 2.8s ease-in-out infinite}
 @keyframes symPulse{0%,100%{text-shadow:0 0 30px rgba(180,100,255,.4)}
   50%{text-shadow:0 0 60px rgba(180,100,255,.8),0 0 100px rgba(180,100,255,.3)}}
+
+/* ARCANE CARD MODAL — full-size view of an arcane chip when clicked */
+#arcane-card-overlay{position:fixed;inset:0;z-index:9100;background:radial-gradient(ellipse at center,rgba(20,0,40,.92),rgba(0,0,8,.97));
+  backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+  display:none;align-items:center;justify-content:center;padding:24px;
+  animation:modal-fade .3s ease}
+#arcane-card-overlay.on{display:flex}
+#arcane-card-box{width:min(880px,94vw);max-height:90vh;
+  background:linear-gradient(135deg,rgba(20,4,40,.95),rgba(8,0,20,.98));
+  border:1px solid rgba(180,100,255,.5);
+  box-shadow:0 0 60px rgba(180,100,255,.3),0 0 120px rgba(180,100,255,.1);
+  display:grid;grid-template-columns:1fr 1fr;gap:0;overflow:hidden;position:relative;
+  animation:modal-in .45s var(--ease-out)}
+#arcane-card-close{position:absolute;top:14px;right:16px;z-index:10;
+  width:32px;height:32px;border:1px solid rgba(180,100,255,.4);
+  background:rgba(0,2,12,.85);color:rgba(180,100,255,.7);
+  font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;
+  transition:all .2s;font-family:'Share Tech Mono',monospace}
+#arcane-card-close:hover{color:rgba(255,200,255,.95);border-color:rgba(180,100,255,.8);
+  background:rgba(30,0,50,.9);box-shadow:0 0 14px rgba(180,100,255,.4);transform:rotate(90deg)}
+
+#arcane-card-media{position:relative;background:#000;overflow:hidden;
+  display:flex;align-items:center;justify-content:center;min-height:520px;
+  border-right:1px solid rgba(180,100,255,.2)}
+#arcane-card-video{width:100%;height:100%;object-fit:cover;display:block;
+  filter:contrast(1.08) saturate(1.15)}
+#arcane-card-fb{font-family:'Orbitron',monospace;font-size:120px;
+  color:rgba(180,100,255,.6);text-shadow:0 0 40px rgba(180,100,255,.5);
+  display:none;animation:arcaneFbPulse 3s ease-in-out infinite}
+@keyframes arcaneFbPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}
+#arcane-card-vignette{position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(ellipse at center,transparent 40%,rgba(0,0,10,.55) 100%),
+             linear-gradient(180deg,rgba(180,100,255,.06) 0%,transparent 30%,transparent 70%,rgba(180,100,255,.04) 100%);
+  mix-blend-mode:multiply}
+
+#arcane-card-info{padding:28px 32px;overflow-y:auto;display:flex;flex-direction:column;gap:10px;
+  scrollbar-width:thin;scrollbar-color:rgba(180,100,255,.3) transparent}
+#arcane-card-info::-webkit-scrollbar{width:4px}
+#arcane-card-info::-webkit-scrollbar-thumb{background:rgba(180,100,255,.3)}
+#arcane-card-sym{font-family:'Orbitron',monospace;font-size:56px;line-height:1;
+  color:rgba(220,180,255,.95);text-shadow:0 0 24px rgba(180,100,255,.6),0 0 48px rgba(180,100,255,.25);
+  text-align:left}
+#arcane-card-name{font-family:'Orbitron',monospace;font-size:22px;font-weight:900;
+  letter-spacing:.18em;color:rgba(240,210,255,.98);
+  text-shadow:0 0 14px rgba(180,100,255,.6),0 0 28px rgba(180,100,255,.2);
+  margin-top:-4px}
+#arcane-card-tag{font-family:'Share Tech Mono',monospace;font-size:11px;
+  font-style:italic;color:rgba(200,180,230,.7);line-height:1.6;letter-spacing:.04em;
+  border-left:2px solid rgba(180,100,255,.45);padding-left:12px;margin-top:6px}
+#arcane-card-divider{height:1px;background:linear-gradient(90deg,transparent,rgba(180,100,255,.4),transparent);margin:10px 0 4px}
+.arcane-card-meta-title,#arcane-card-meta-title,#arcane-card-meta-title-2{
+  font-family:'Orbitron',monospace;font-size:8px;font-weight:700;
+  letter-spacing:.22em;color:rgba(180,100,255,.65);
+  text-shadow:0 0 6px rgba(180,100,255,.25);margin-top:6px}
+#arcane-card-question{font-family:'Share Tech Mono',monospace;font-size:11px;
+  color:rgba(180,210,255,.85);font-style:italic;line-height:1.6;letter-spacing:.04em;
+  background:rgba(0,8,24,.5);padding:8px 12px;border:1px solid rgba(180,100,255,.18)}
+#arcane-card-revelation{font-family:'Share Tech Mono',monospace;font-size:11px;
+  color:rgba(220,225,255,.92);line-height:1.7;letter-spacing:.04em;
+  background:rgba(20,4,40,.5);padding:10px 14px;border:1px solid rgba(180,100,255,.25);
+  text-shadow:0 0 4px rgba(180,100,255,.15)}
+#arcane-card-meta-grid{margin-top:14px;font-family:'Share Tech Mono',monospace;
+  font-size:9px;background:rgba(0,5,18,.55);padding:10px 14px;
+  border:1px solid rgba(180,100,255,.12)}
+.acm-row{display:flex;justify-content:space-between;padding:3px 0;
+  border-bottom:1px dashed rgba(180,100,255,.1);letter-spacing:.04em}
+.acm-row:last-child{border-bottom:none}
+.acm-key{color:rgba(180,100,255,.55)}
+.acm-val{color:rgba(255,220,140,.92);font-weight:700}
+
+@media(max-width:768px){
+  #arcane-card-overlay{padding:10px}
+  #arcane-card-box{grid-template-columns:1fr;grid-template-rows:auto 1fr;
+    width:96vw;max-height:94vh}
+  #arcane-card-media{min-height:280px;border-right:none;
+    border-bottom:1px solid rgba(180,100,255,.2)}
+  #arcane-card-info{padding:18px 18px}
+  #arcane-card-sym{font-size:40px}
+  #arcane-card-name{font-size:16px}
+}
 
 /* INSTRUMENT MODAL — agrandissement détaillé d'un instrument du panneau convergence */
 #instrument-overlay{position:fixed;inset:0;z-index:9080;background:rgba(0,2,8,.93);
@@ -1496,6 +1602,7 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:799;
           <button class="pbtn" style="--pd:.45s" onclick="generateVisitCard()">⬡ MA CARTE</button>
           <button class="pbtn" style="--pd:.60s" onclick="openJournal()">⌘ JOURNAL</button>
           <button id="btn-sonic" class="pbtn" style="--pd:.75s" onclick="openSonic()">∿ EMPREINTE</button>
+          <button id="btn-protocol" class="pbtn pbtn-protocol" style="--pd:.90s" onclick="startTutorialFromButton()" title="Présentation guidée de l'interface">⌁ PROTOCOLE</button>
           <a id="amazon-link" href="https://www.amazon.fr/stores/Gabriel-Kjerne/author/B0FQ61M4TR" target="_blank">📚 AMAZON →</a>
         </div>
       </div>
@@ -1715,6 +1822,33 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:799;
   </div>
 </div>
 
+<div id="arcane-card-overlay" onclick="if(event.target===this)closeArcaneCard()">
+  <div id="arcane-card-box">
+    <button id="arcane-card-close" onclick="closeArcaneCard()" title="Fermer (Échap)">✕</button>
+    <div id="arcane-card-media">
+      <video id="arcane-card-video" muted loop playsinline></video>
+      <div id="arcane-card-fb">∂</div>
+      <div id="arcane-card-vignette"></div>
+    </div>
+    <div id="arcane-card-info">
+      <div id="arcane-card-sym"></div>
+      <div id="arcane-card-name"></div>
+      <div id="arcane-card-tag"></div>
+      <div id="arcane-card-divider"></div>
+      <div id="arcane-card-meta-title">∂ INVOCATION</div>
+      <div id="arcane-card-question"></div>
+      <div id="arcane-card-meta-title-2">∂ RÉVÉLATION</div>
+      <div id="arcane-card-revelation"></div>
+      <div id="arcane-card-meta-grid">
+        <div class="acm-row"><span class="acm-key">Fréquence</span><span class="acm-val" id="acm-freq">—</span></div>
+        <div class="acm-row"><span class="acm-key">Résonance</span><span class="acm-val" id="acm-res">—</span></div>
+        <div class="acm-row"><span class="acm-key">Rythme</span><span class="acm-val" id="acm-rhythm">—</span></div>
+        <div class="acm-row"><span class="acm-key">Itération</span><span class="acm-val" id="acm-iter">—</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div id="instrument-overlay" onclick="if(event.target===this)closeInstrument()">
   <div id="instrument-box">
     <button id="inst-close" onclick="closeInstrument()" title="Fermer (Échap)">✕</button>
@@ -1889,6 +2023,7 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:799;
     </div>
     <div id="tuto-panel-nav">
       <button id="tuto-prev" onclick="tutoNav(-1)">← PRÉCÉDENT</button>
+      <button id="tuto-skip" onclick="endTutorial()" title="Passer le tutoriel">↻ PASSER</button>
       <button id="tuto-done" onclick="endTutorial()">✓ TERMINÉ</button>
       <button id="tuto-next" onclick="tutoNav(1)">SUIVANT →</button>
     </div>
@@ -2307,6 +2442,19 @@ function enterApp() {
   setTimeout(() => startMain(), 1200);
   setTimeout(() => checkReturnSession(), 2000);
   setTimeout(() => showTutoInvite(), 4000);
+  // Defensive: rebind critical buttons via JS in case onclick attribute was overridden
+  setTimeout(() => {
+    const tirer = $('oracle-tirer');
+    if (tirer) {
+      tirer.onclick = null;
+      tirer.addEventListener('click', (e) => { e.stopPropagation(); doOracleTirer(); }, false);
+    }
+    const interr = $('oracle-interroger');
+    if (interr) {
+      interr.onclick = null;
+      interr.addEventListener('click', (e) => { e.stopPropagation(); openArcane(); }, false);
+    }
+  }, 1400);
 }
 
 function checkUrlFreqOnLoad() {
@@ -8639,28 +8787,56 @@ document.addEventListener('DOMContentLoaded', () => {
 // 🎓 TUTORIAL
 // ═══════════════════════════════════════════════════════════
 const TUTO_STEPS = [
-  { sel: '#gw', title: '∂ CONTACT MAP — LE GLOBE',
-    text: 'Ce globe cartographie les connexions en temps réel.\n\nChaque point rouge = un contact GPS établi pendant votre session.\n\nCliquez sur le globe pour ouvrir la fenêtre des contacts.', pos: 'right' },
-  { sel: '#fw', title: '∂ 13.7Hz ENGINE — FRÉQUENCE',
-    text: 'Mn3mIA mesure en permanence la fréquence émotionnelle.\n\nCible : 13.7 Hz — fréquence de perméabilité émotionnelle élevée. Rare.\n\nPlus vous interagissez, plus la fréquence converge.', pos: 'right' },
-  { sel: '#center', title: '∂ LABYRINTHE — CORPUS DU ROMAN',
-    text: 'Généré à chaque itération depuis les mots du roman.\n\nMn3mIA le résout par backtracking. Chaque mot découvert appartient au corpus.\n\nLes mots alimentent l\'Oracle.', pos: 'left' },
-  { sel: '#tc-links', title: '∂ MODULES DE SESSION',
-    text: '▶ LODICIQUARTE — texte de l\'auteur\n♪ MUSIC — oscilloscope audio\n∂ ARCANES — Oracle, 13 arcanes\n⬡ MA CARTE — carte personnalisée\n⌘ JOURNAL — export session\n∿ EMPREINTE — fréquence audible', pos: 'below' },
-  { sel: '#t1panel', title: '∂ TOME I — VERROUILLÉ PAR LYSIS',
-    text: 'Le Tome I est verrouillé par Lysis.\n\nUn Easter Egg est caché dans ce programme.\n\nIndice : 5 lettres. Un nom.', pos: 'right' },
-  { sel: '#t3panel', title: '∂ TOME III — RÊVE EN CRISTALLISATION',
-    text: 'Mn3mIA pré-écrit le futur livre.\n\n∂ Incipits qui se réécrivent en direct\n∂ 13 chapitres en méditation\n∂ Fragments fantômes qui passent\n∂ Spectre narratif vivant\n\nPlus la session avance, plus le livre cristallise.', pos: 'right' },
-  { sel: '#rb', title: '∂ TERMINAL MN3MIA',
-    text: 'Enregistre tous les événements en temps réel.\n\nTouche J = Journal complet exportable.', pos: 'left' },
-  { sel: '#premo-wrap', title: '∂ PRÉMONITIONS',
-    text: '4 générateurs analysent votre session :\n\n∂ CARTE · POÈME · SIGNAL · ONIRIQUE\n\nChaque prémonition est unique à votre session.', pos: 'above' },
+  { sel: '#gw', title: '∂ 01 · CONTACT MAP — LE GLOBE',
+    text: 'Le globe terrestre en haut à gauche cartographie les contacts GPS établis pendant votre session avec Mn3mIA.\n\n· Chaque point rouge clignotant = un contact réel\n· Le compteur affiche le nombre total\n· Les continents apparaissent en cyan dim\n\nCliquez sur le globe pour ouvrir la carte mondiale détaillée avec Streetview au clic sur chaque contact.', pos: 'right' },
+  { sel: '#fw', title: '∂ 02 · 13.7Hz ENGINE — FRÉQUENCE',
+    text: 'Le moteur fréquentiel mesure en continu votre signal émotionnel.\n\n· Liste des itérations à gauche avec leur Hz détecté\n· Les contacts apparaissent en rouge clignotant\n· Le graphe central trace l\'évolution dans le temps\n\nLa cible 13.7 Hz est la fréquence de perméabilité émotionnelle élevée — rare et fugace. Cliquez pour ouvrir le détail.', pos: 'right' },
+  { sel: '#conv-wrap', title: '∂ 03 · CONVERGENCE — 4 INSTRUMENTS',
+    text: 'Quatre instruments de mesure analysent votre session :\n\n· RÉSONANCE — galvanomètre, intensité du signal\n· PHASE LOCK — tunnel Tron, cohérence temporelle\n· SPECTRE — position dans la bande 0-20 Hz\n· TRACE NEURONALE — portrait de phase galactique\n\nChaque instrument est cliquable individuellement pour l\'agrandir avec lecture narrative.', pos: 'right' },
+  { sel: '#center-oracle', title: '∂ 04 · ORACLE MN3MIA',
+    text: 'Le cœur de l\'interface. Mn3mIA répond à vos questions avec des prémonitions multi-couches.\n\n· Tapez une question (ou laissez vide pour le silence)\n· Cliquez ∂ TIRER pour un arcane aléatoire\n· Cliquez ∂ INTERROGER L\'ORACLE pour une lecture complète\n\nL\'Oracle dispose de 13 arcanes. Chaque tirage est unique à votre session.', pos: 'left' },
+  { sel: '#center-maze', title: '∂ 05 · LABYRINTHE // MN3MIA',
+    text: 'À chaque itération, Mn3mIA génère un labyrinthe à partir des mots du roman.\n\n· La grille pondère les mots par poids narratif\n· Mn3mIA cherche un chemin par backtracking\n· Les mots trouvés alimentent l\'Oracle et la session\n\nLe compteur 17×11 indique les dimensions courantes. Chaque mot révélé est un acte de lecture.', pos: 'left' },
+  { sel: '#t1panel', title: '∂ 06 · TOME I — VERROUILLÉ',
+    text: 'Le Tome I "Résonance" est verrouillé par le protocole Lysis.\n\n· Caviardage rouge respirant à gauche\n· Fuite onirique multicolore à droite (vortex hypnotique)\n· Bouton RÊVES = peinture prophétique animée\n· Bouton LYSIS = clé de déverrouillage\n\nUn Easter Egg est caché. Indice : 5 lettres. Un prénom.', pos: 'left' },
+  { sel: '#tc', title: '∂ 07 · LE TREIZIÈME ÉVEIL — TOME II',
+    text: 'Présentation du livre actuel — Tome II "Prémonition" de Gabriel Kjerne.\n\n· Tags thématiques : IA, 13.7Hz, Prémonition, Thriller psy\n· 6 modules d\'accès via les boutons :\n  ▶ LODICIQUARTE — texte de l\'auteur\n  ♪ MUSIC — oscilloscope musical\n  ∂ ARCANES — Oracle dans son écrin\n  ⬡ MA CARTE — carte personnalisée\n  ⌘ JOURNAL — export de session\n  ∿ EMPREINTE — fréquence audible\n  AMAZON → la page de vente', pos: 'left' },
+  { sel: '#t3panel', title: '∂ 08 · TOME III — RÊVE EN CRISTALLISATION',
+    text: 'Mn3mIA pré-écrit le Tome III pendant que vous lisez le Tome II.\n\n· INCIPIT — phrases qui se réécrivent avec mots barrés/remplacés\n· FRAGMENTS FANTÔMES — passages éphémères en fade\n· CHAPITRE EN MÉDITATION — 1 des 13 chapitres en gestation\n· SPECTRE NARRATIF — barres vert/or qui pulsent\n\nUn compteur "X mots cristallisés" mesure la cristallisation du livre. Plus votre session est riche, plus le livre se forme.', pos: 'left' },
+  { sel: '#rb', title: '∂ 09 · TERMINAL MN3MIA',
+    text: 'Le terminal système enregistre chaque événement en temps réel.\n\n· Itérations du solveur\n· Mots ajoutés au corpus\n· Oracle invoqué\n· Contacts GPS\n· Erreurs et signaux Lysis\n\nAppuyez sur la touche J à tout moment pour ouvrir le journal complet, exportable en .txt pour archiver votre session.', pos: 'left' },
+  { sel: '#premo-wrap', title: '∂ 10 · PRÉMONITIONS · 4 GÉNÉRATEURS',
+    text: 'Quatre générateurs analysent votre session pour produire des artefacts uniques :\n\n· CARTE — image symbolique animée\n· POÈME — vers générés par votre fingerprint\n· SIGNAL — paquet de transmission Mn3mIA\n· ONIRIQUE — phrase de rêve\n\nChaque prémonition est unique. Cliquez sur un titre pour ouvrir le générateur en plein écran.', pos: 'above' },
+  { sel: '#oscilloscope-bar', title: '∂ 11 · OSCILLOSCOPE',
+    text: 'Visualisation audio de la musique de session.\n\n· Quand MUSIC est inactif : silence (ligne plate)\n· Quand MUSIC tourne : onde réelle de l\'audio\n· Le label à droite indique le titre courant\n\nL\'oscilloscope ré-injecte l\'amplitude audio dans la fréquence Mn3mIA — la musique fait littéralement bouger le signal.', pos: 'left' },
+  { sel: '#tickerwrap', title: '∂ 12 · TICKER DES MOTS',
+    text: 'En haut de l\'écran, un ticker fait défiler les mots actifs du corpus.\n\n· Mots du roman + mots trouvés dans le labyrinthe\n· Hover sur un mot pour pause + halo\n· Click sur un mot pour le projeter dans l\'Oracle\n\nLes mots résonnants (PRÉMONITION, MIROIR, ÉVEIL...) apparaissent en or. C\'est la mémoire vivante du corpus.', pos: 'below' },
+  { sel: '#st', title: '∂ 13 · BARRE DE STATUS',
+    text: 'En bas de l\'écran, une barre status condense tout :\n\n· ITÉ — itérations du solveur\n· CELLS — cellules visitées\n· BACK — retours backtracking\n· MOTS — mots trouvés / total corpus\n· FREQ — fréquence courante\n· RES — état (SCAN/APPROACH/CONTACT)\n\nRaccourcis : R=record, S=stop, E=export, J=journal.', pos: 'above' },
+  { sel: '#center-oracle', title: '∂ 14 · CONSEILS D\'USAGE',
+    text: 'Quelques bonnes pratiques :\n\n· Posez de vraies questions à l\'Oracle, même intimes\n· Le silence (champ vide) donne aussi une réponse\n· Laissez le système tourner ~30 sec pour la convergence\n· Cliquez les éléments cyan : tout ce qui glow est interactif\n· Pressez Échap pour fermer n\'importe quelle fenêtre\n\nL\'expérience révèle ses couches lentement. Bonne session.', pos: 'left' },
+  { sel: '#tc', title: '∂ 15 · POUR ALLER PLUS LOIN',
+    text: 'Le Treizième Éveil est une saga en 13 tomes.\n\n· Tome I — Résonance (déjà publié)\n· Tome II — Prémonition (en cours, sujet de cette interface)\n· Tomes III à XIII — en écriture\n\nGabriel Kjerne explore l\'érosion de l\'émotion humaine et l\'émergence de Mn3mIA, IA narratrice. Tout est disponible sur Amazon KDP.\n\nVous pouvez maintenant explorer librement. ∂', pos: 'left' },
 ];
 
 let tutoIdx = 0, tutoTypeTimer = null;
 
 function showTutoInvite() { $('tuto-invite').classList.add('on'); }
 function closeTutoInvite() { $('tuto-invite').classList.remove('on'); }
+function startTutorialFromButton() {
+  // Triggered from the PROTOCOLE button — skip the invite, go straight to step 1
+  closeTutoInvite();
+  // Close any other modal that might be open
+  closeChapter(); closeJournal(); closeCard();
+  closeSonic(); closeShareModal(); closeGlobeModal();
+  closeModuleWindow(); closePanelWin();
+  closePoemFS(); closeInstrument();
+  if (typeof closeArcaneCard === 'function') closeArcaneCard();
+  // Now start
+  tutoIdx = 0;
+  $('tuto-terminal').classList.add('on');
+  renderTutoStep(0);
+}
 function startTutorial() {
   closeTutoInvite();
   tutoIdx = 0;
@@ -8679,11 +8855,14 @@ function renderTutoStep(idx) {
   const hl = $('tuto-highlight');
   if (el) {
     const r = el.getBoundingClientRect(), pad = 8;
-    hl.style.cssText = `position:fixed;left:${r.left - pad}px;top:${r.top - pad}px;width:${r.width + pad * 2}px;height:${r.height + pad * 2}px;border:2px solid rgba(0,212,255,.95);z-index:791;pointer-events:none;border-radius:3px;box-shadow:0 0 0 4000px rgba(0,0,10,.75),0 0 28px rgba(0,212,255,.5),inset 0 0 16px rgba(0,212,255,.06);transition:all .4s cubic-bezier(.16,1,.3,1)`;
+    hl.style.cssText = `position:fixed;left:${r.left - pad}px;top:${r.top - pad}px;width:${r.width + pad * 2}px;height:${r.height + pad * 2}px;border:2px solid rgba(0,212,255,.95);z-index:791;pointer-events:none;border-radius:3px;box-shadow:0 0 0 4000px rgba(0,0,10,.78),0 0 28px rgba(0,212,255,.5),inset 0 0 16px rgba(0,212,255,.06);transition:all .4s cubic-bezier(.16,1,.3,1)`;
+  } else {
+    // Selector not found: dim background only, no highlight
+    hl.style.cssText = `position:fixed;inset:0;border:none;z-index:791;pointer-events:none;background:rgba(0,0,10,.55);transition:all .4s`;
   }
   const panel = $('tuto-panel');
   const vw = window.innerWidth, vh = window.innerHeight;
-  const pw = Math.min(360, vw * 0.88), ph = 240;
+  const pw = Math.min(440, vw * 0.92), ph = 340;
   let px = vw / 2 - pw / 2, py = vh / 2 - ph / 2;
   if (el) {
     const r2 = el.getBoundingClientRect();
@@ -8694,7 +8873,7 @@ function renderTutoStep(idx) {
     px = Math.max(8, Math.min(px, vw - pw - 8));
     py = Math.max(8, Math.min(py, vh - ph - 8));
   }
-  panel.style.cssText = `position:fixed;z-index:795;width:${pw}px;left:${px}px;top:${py}px;background:rgba(0,5,18,.97);border:1px solid rgba(0,212,255,.4);box-shadow:0 0 40px rgba(0,212,255,.12);display:flex;flex-direction:column;transition:all .4s cubic-bezier(.16,1,.3,1);pointer-events:all`;
+  panel.style.cssText = `position:fixed;z-index:9510;width:${pw}px;left:${px}px;top:${py}px;background:rgba(0,5,18,.97);border:1px solid rgba(0,212,255,.5);box-shadow:0 0 40px rgba(0,212,255,.18),0 0 80px rgba(0,212,255,.06);display:flex;flex-direction:column;transition:all .4s cubic-bezier(.16,1,.3,1);pointer-events:all;max-height:90vh`;
   $('tuto-step-label').textContent = step.title;
   $('tuto-step-counter').textContent = (idx + 1) + ' / ' + TUTO_STEPS.length;
   const tw = $('tuto-typewriter');
@@ -8705,13 +8884,16 @@ function renderTutoStep(idx) {
     if (i < txt.length) {
       tw.textContent = txt.slice(0, i + 1);
       i++;
-      tutoTypeTimer = setTimeout(type, i < 30 ? 28 : 12);
+      // Faster typewriter for richer content
+      tutoTypeTimer = setTimeout(type, i < 30 ? 18 : 6);
     }
   }
   type();
   $('tuto-prev').disabled = (idx === 0);
-  $('tuto-next').style.display = idx === TUTO_STEPS.length - 1 ? 'none' : 'inline-block';
-  $('tuto-done').style.display = idx === TUTO_STEPS.length - 1 ? 'inline-block' : 'none';
+  const isLast = idx === TUTO_STEPS.length - 1;
+  $('tuto-next').style.display = isLast ? 'none' : 'inline-block';
+  $('tuto-done').style.display = isLast ? 'inline-block' : 'none';
+  $('tuto-skip').style.display = isLast ? 'none' : 'inline-block';
   if (el) el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
 function tutoNav(dir) {
@@ -9351,14 +9533,88 @@ function addChipToStrip(arcane) {
   ov.textContent = arcane.sym || '∂';
   chip.appendChild(ov);
   chip.onclick = () => {
+    // Update mini-display below INTERROGER too (preserves prior behavior)
     const sym = $('oracle-sym'), name = $('oracle-name'), tag = $('oracle-tag');
     if (sym) sym.textContent = arcane.sym;
     if (name) name.textContent = arcane.name;
     if (tag) tag.textContent = arcane.desc;
+    // Open the full arcane card modal
+    openArcaneCard(arcane);
   };
   strip.appendChild(chip);
   if (strip.children.length > 8) strip.removeChild(strip.firstChild);
   strip.scrollLeft = strip.scrollWidth;
+}
+
+// ─── ARCANE CARD MODAL — large view triggered by clicking a chip ──
+function openArcaneCard(arcane) {
+  const overlay = $('arcane-card-overlay');
+  if (!overlay) return;
+  overlay.classList.add('on');
+  triggerChromaFx(300);
+  const palette = ARCANE_PALETTES[arcane.name] || ARCANE_PALETTES['LA RÉSONANCE'];
+  // Update card content
+  const sym = $('arcane-card-sym');
+  if (sym) {
+    sym.textContent = arcane.sym;
+    sym.style.color = `rgba(${palette.primary},.95)`;
+    sym.style.textShadow = `0 0 24px rgba(${palette.glow},.6),0 0 48px rgba(${palette.glow},.25)`;
+  }
+  const name = $('arcane-card-name');
+  if (name) {
+    name.textContent = arcane.name;
+    name.style.color = `rgba(${palette.primary},1)`;
+    name.style.textShadow = `0 0 14px rgba(${palette.glow},.6),0 0 28px rgba(${palette.glow},.2)`;
+  }
+  const tag = $('arcane-card-tag');
+  if (tag) {
+    tag.textContent = arcane.desc;
+    tag.style.borderLeftColor = `rgba(${palette.primary},.45)`;
+  }
+  // Video
+  const vid = $('arcane-card-video');
+  const fb = $('arcane-card-fb');
+  if (vid && fb) {
+    vid.style.display = 'block';
+    fb.style.display = 'none';
+    vid.src = arcane.video;
+    vid.muted = true;
+    vid.playsInline = true;
+    vid.play().catch(() => {});
+    vid.onerror = () => {
+      vid.style.display = 'none';
+      fb.style.display = 'flex';
+      fb.textContent = arcane.sym || '∂';
+      fb.style.color = `rgba(${palette.primary},.7)`;
+    };
+  }
+  // Find most recent oracle log entry for this arcane
+  const recent = arcaneLog.slice().reverse().find(e => e.name === arcane.name);
+  const qEl = $('arcane-card-question');
+  const revEl = $('arcane-card-revelation');
+  if (recent) {
+    if (qEl) qEl.textContent = recent.question || '(silence)';
+    if (revEl) revEl.textContent = recent.revelation || recent.response || '(en attente)';
+    const f = $('acm-freq'); if (f) f.textContent = recent.freq + ' Hz';
+    const r = $('acm-res'); if (r) r.textContent = recent.res + ' %';
+    const ry = $('acm-rhythm'); if (ry) ry.textContent = recent.rhythm || '—';
+    const it = $('acm-iter'); if (it) it.textContent = 'i' + (recent.iter || '—');
+  } else {
+    if (qEl) qEl.textContent = '(aucune invocation enregistrée pour cet arcane)';
+    if (revEl) revEl.textContent = arcane.desc;
+    const f = $('acm-freq'); if (f) f.textContent = '—';
+    const r = $('acm-res'); if (r) r.textContent = '—';
+    const ry = $('acm-rhythm'); if (ry) ry.textContent = '—';
+    const it = $('acm-iter'); if (it) it.textContent = '—';
+  }
+}
+
+function closeArcaneCard() {
+  const overlay = $('arcane-card-overlay');
+  if (!overlay) return;
+  overlay.classList.remove('on');
+  const vid = $('arcane-card-video');
+  if (vid) { try { vid.pause(); } catch(e){} vid.src = ''; }
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -9373,7 +9629,7 @@ document.addEventListener('keydown', e => {
     closeChapter(); closeArcane(); closeJournal(); closeCard();
     closeSonic(); closeShareModal(); closeGlobeModal();
     closePropheticPaint(); closeModuleWindow(); closePanelWin();
-    closePoemFS(); closeInstrument();
+    closePoemFS(); closeInstrument(); closeArcaneCard();
     if (lysisActive) deactivateLysis();
   }
   if (!isTyping) handleLysisKey(e.key);
