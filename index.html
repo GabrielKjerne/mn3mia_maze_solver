@@ -170,20 +170,19 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:799;
 #conv-diag.hot{color:rgba(255,90,140,.85);text-shadow:0 0 6px rgba(255,90,140,.4)}
 #conv-diag.cool{color:rgba(0,255,170,.78);text-shadow:0 0 5px rgba(0,255,170,.35)}
 
-#conv-instruments{display:grid;grid-template-columns:auto 1fr auto;gap:6px;
-  align-items:stretch;margin-bottom:4px}
-.conv-inst-stack{display:flex;flex-direction:column;gap:3px;min-width:0}
+#conv-instruments{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;
+  gap:5px;align-items:stretch;margin-bottom:4px}
 .conv-inst{position:relative;background:rgba(0,4,12,.85);
-  border:1px solid rgba(0,212,255,.12);padding:2px;
+  border:1px solid rgba(0,212,255,.12);padding:3px 3px 1px;
   display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:0;
-  cursor:pointer;transition:border-color .25s,box-shadow .25s,transform .15s}
+  cursor:pointer;transition:border-color .25s,box-shadow .25s,transform .15s;min-height:78px}
 .conv-inst:hover{border-color:rgba(0,212,255,.45);
   box-shadow:0 0 14px rgba(0,212,255,.2),inset 0 0 8px rgba(0,212,255,.06);
   transform:translateY(-1px)}
 .conv-inst::after{content:'⛶';position:absolute;top:1px;right:2px;font-size:5px;
   color:rgba(0,212,255,0);transition:color .25s;pointer-events:none}
 .conv-inst:hover::after{color:rgba(0,212,255,.55)}
-.conv-inst canvas{display:block;max-width:100%}
+.conv-inst canvas{display:block;width:100%;height:auto;flex:1}
 .inst-label{font-family:'Share Tech Mono',monospace;font-size:4.8px;
   letter-spacing:.18em;color:rgba(0,212,255,.42);
   margin-top:1px;text-align:center;line-height:1}
@@ -197,8 +196,8 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:799;
 ═══════════════════════════════ */
 #center{display:flex;flex-direction:column;border-right:1px solid var(--border);overflow:hidden}
 #center-oracle{flex:0 0 44%;display:flex;flex-direction:column;
-  background:rgba(8,0,22,.99);border-bottom:2px solid rgba(180,100,255,.3);overflow:hidden;
-  position:relative}
+  background:rgba(8,0,22,.99);border-bottom:2px solid rgba(180,100,255,.3);overflow:visible;
+  position:relative;min-height:0}
 #center-oracle::before{content:'';position:absolute;inset:0;
   background:radial-gradient(circle at top right,rgba(180,100,255,.08),transparent 60%);
   pointer-events:none}
@@ -210,7 +209,7 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:799;
   cursor:pointer;padding:1px 6px;border:1px solid rgba(180,100,255,.18);transition:all .2s}
 #oracle-hdr-r:hover{color:rgba(180,100,255,.9);background:rgba(180,100,255,.1);
   box-shadow:0 0 8px rgba(180,100,255,.2)}
-#oracle-body{flex:1;display:flex;flex-direction:column;padding:5px 7px;gap:4px;overflow:hidden;min-height:0;
+#oracle-body{flex:1;display:flex;flex-direction:column;padding:5px 7px;gap:4px;overflow:visible;min-height:0;
   position:relative;z-index:1}
 #oracle-display{display:flex;gap:7px;align-items:flex-start;flex-shrink:0}
 #oracle-sym{font-size:26px;color:rgba(180,100,255,.75);text-shadow:0 0 14px rgba(180,100,255,.4);
@@ -221,26 +220,30 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:799;
 #oracle-tag{font-size:7px;letter-spacing:.1em;color:rgba(0,212,255,.5);font-style:italic;margin-bottom:3px}
 #oracle-resp{font-family:'Share Tech Mono',monospace;font-size:6.5px;line-height:1.5;
   color:rgba(200,185,230,.65);overflow:hidden;max-height:48px}
-#oracle-input-row{display:flex;gap:5px;flex-shrink:0}
+#oracle-input-row{display:flex;gap:5px;flex-shrink:0;position:relative;z-index:6}
 #oracle-q{flex:1;background:rgba(0,2,12,.8);border:none;border-bottom:1px solid rgba(180,100,255,.28);
   color:rgba(220,200,255,.85);font-family:'Share Tech Mono',monospace;
   font-size:8.5px;padding:4px 7px;resize:none;outline:none;line-height:1.4;
-  transition:border-color .25s,box-shadow .25s}
+  transition:border-color .25s,box-shadow .25s;position:relative;z-index:6}
 #oracle-q:focus{border-bottom-color:rgba(180,100,255,.7);
   box-shadow:0 1px 0 rgba(180,100,255,.3)}
 #oracle-q::placeholder{color:rgba(180,100,255,.22);font-style:italic}
 #oracle-tirer{font-family:'Orbitron',monospace;font-size:7px;font-weight:700;letter-spacing:.15em;
   padding:4px 10px;background:rgba(180,100,255,.1);border:1px solid rgba(180,100,255,.45);
   color:rgba(200,150,255,.9);cursor:pointer;transition:all .25s;flex-shrink:0;position:relative;
-  overflow:hidden}
+  overflow:hidden;z-index:6;-webkit-tap-highlight-color:rgba(180,100,255,.3);touch-action:manipulation}
 #oracle-tirer:hover{background:rgba(180,100,255,.2);box-shadow:0 0 10px rgba(180,100,255,.3);
   transform:translateY(-1px)}
+#oracle-tirer:active{transform:translateY(0)}
 #oracle-interroger{width:100%;padding:12px 0;font-family:'Orbitron',monospace;font-size:11px;font-weight:900;
   letter-spacing:.32em;color:rgba(230,200,255,1);background:linear-gradient(135deg,rgba(180,100,255,.12),rgba(0,212,255,.08),rgba(180,100,255,.12));
   border:1px solid rgba(180,100,255,.65);cursor:pointer;flex-shrink:0;
   position:relative;overflow:hidden;transition:letter-spacing .3s,box-shadow .3s,background .3s,transform .2s,color .3s;
   text-shadow:0 0 12px rgba(180,100,255,.55),0 0 24px rgba(180,100,255,.25);
-  animation:oracleBtnBreath 3.4s ease-in-out infinite;z-index:1}
+  animation:oracleBtnBreath 3.4s ease-in-out infinite;z-index:7;
+  -webkit-tap-highlight-color:rgba(180,100,255,.3);touch-action:manipulation;
+  pointer-events:auto!important}
+#oracle-interroger > *{pointer-events:none}
 @keyframes oracleBtnBreath{
   0%,100%{box-shadow:0 0 0 rgba(180,100,255,0),inset 0 0 12px rgba(180,100,255,.04)}
   50%{box-shadow:0 0 22px rgba(180,100,255,.4),0 0 44px rgba(180,100,255,.15),inset 0 0 16px rgba(180,100,255,.10)}
@@ -264,16 +267,20 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:799;
   0%,100%{transform:scale(1) rotate(0deg);text-shadow:0 0 10px rgba(255,204,0,.5)}
   50%{transform:scale(1.18) rotate(3deg);text-shadow:0 0 20px rgba(255,204,0,.9),0 0 36px rgba(255,180,40,.4)}
 }
-#oracle-strip{display:flex;gap:4px;overflow-x:auto;flex-shrink:0;padding:3px 0;scrollbar-width:none;align-items:center}
+#oracle-strip{display:flex;gap:6px;overflow-x:auto;flex-shrink:0;padding:6px 2px;scrollbar-width:none;align-items:center;position:relative;z-index:1}
 #oracle-strip::-webkit-scrollbar{display:none}
-.o-chip{width:34px;height:50px;position:relative;flex-shrink:0;border:1px solid rgba(180,100,255,.4);
-  background:rgba(8,0,20,.9);overflow:hidden;cursor:pointer;transition:transform .25s,border-color .25s,box-shadow .25s}
-.o-chip:hover{border-color:rgba(180,100,255,.9);transform:translateY(-3px) scale(1.05);
-  box-shadow:0 0 14px rgba(180,100,255,.5)}
+.o-chip{width:54px;height:78px;position:relative;flex-shrink:0;border:1px solid rgba(180,100,255,.5);
+  background:rgba(8,0,20,.9);overflow:hidden;cursor:pointer;
+  box-shadow:0 0 8px rgba(180,100,255,.15);
+  transition:transform .25s,border-color .25s,box-shadow .25s}
+.o-chip:hover{border-color:rgba(180,100,255,.95);transform:translateY(-4px) scale(1.08);
+  box-shadow:0 0 18px rgba(180,100,255,.5),0 0 32px rgba(180,100,255,.2)}
 .o-chip video{width:100%;height:100%;object-fit:cover;display:block}
-.o-chip-sym{position:absolute;bottom:1px;left:0;right:0;text-align:center;font-size:9px;
-  color:rgba(180,100,255,.9);text-shadow:0 0 4px rgba(180,100,255,.6)}
-.o-chip-fb{display:flex;align-items:center;justify-content:center;height:100%;font-size:16px;color:rgba(180,100,255,.7)}
+.o-chip-sym{position:absolute;bottom:0;left:0;right:0;text-align:center;font-size:11px;
+  font-family:'Orbitron',monospace;font-weight:900;color:rgba(220,180,255,.98);
+  background:linear-gradient(transparent,rgba(0,0,10,.85) 45%);padding:4px 0 2px;
+  text-shadow:0 0 6px rgba(180,100,255,.7);letter-spacing:.04em}
+.o-chip-fb{display:flex;align-items:center;justify-content:center;height:100%;font-size:22px;color:rgba(180,100,255,.7)}
 
 #center-maze{flex:1;display:flex;flex-direction:column;overflow:hidden;min-height:0}
 #mhdr{padding:3px 9px;background:rgba(0,14,28,.88);border-bottom:1px solid var(--border);
@@ -382,6 +389,17 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:799;
   background:rgba(255,153,0,.03);text-decoration:none;display:inline-flex;align-items:center;transition:all .2s}
 #amazon-link:hover{background:rgba(255,153,0,.1);color:rgba(255,180,80,1);
   box-shadow:0 0 10px rgba(255,153,0,.25);transform:translateY(-1px)}
+.pbtn-protocol{border-color:rgba(180,100,255,.45)!important;color:rgba(200,150,255,.85)!important;
+  background:rgba(180,100,255,.05)!important;
+  text-shadow:0 0 6px rgba(180,100,255,.25);
+  animation:protoBtnGlow 4s ease-in-out infinite}
+.pbtn-protocol:hover{background:rgba(180,100,255,.2)!important;color:#fff!important;
+  border-color:rgba(180,100,255,.9)!important;
+  box-shadow:0 0 14px rgba(180,100,255,.5)!important}
+@keyframes protoBtnGlow{
+  0%,100%{box-shadow:0 0 0 rgba(180,100,255,0)}
+  50%{box-shadow:0 0 8px rgba(180,100,255,.3)}
+}
 
 /* Oscilloscope */
 #osc-wrap{flex-shrink:0;height:44px;border-bottom:1px solid var(--border);
@@ -798,51 +816,114 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:799;
   cursor:pointer;text-align:right;padding:4px}
 #share-close:hover{color:rgba(0,212,255,.6)}
 
-/* Globe modal */
-#globe-modal-box{width:min(800px,95vw);max-height:88vh;display:flex;flex-direction:column;
+/* Globe modal — refonte plein écran + panneau info latéral */
+#globe-modal-box{width:96vw;height:94vh;max-height:none;display:flex;flex-direction:column;
   border:1px solid rgba(255,51,102,.35);background:rgba(0,3,14,.97);
+  box-shadow:0 0 60px rgba(255,51,102,.18),0 0 140px rgba(255,51,102,.06);
   animation:modal-in .4s var(--ease-out)}
 #globe-modal-hdr{display:flex;justify-content:space-between;align-items:center;
-  padding:8px 14px;background:rgba(255,51,102,.08);
+  padding:10px 16px;background:rgba(255,51,102,.08);
   border-bottom:1px solid rgba(255,51,102,.2);flex-shrink:0}
-#globe-modal-title{font-family:'Orbitron',monospace;font-size:10px;font-weight:700;
-  letter-spacing:.25em;color:rgba(255,80,100,.9);text-shadow:0 0 10px rgba(255,51,102,.4)}
-#globe-modal-close{font-size:9px;color:rgba(255,51,102,.5);cursor:pointer;
-  padding:2px 8px;border:1px solid rgba(255,51,102,.25)}
-#globe-modal-close:hover{color:rgba(255,80,100,.9);background:rgba(255,51,102,.1)}
-#globe-modal-subtitle{font-size:7px;letter-spacing:.12em;
-  color:rgba(0,212,255,.35);padding:5px 14px;flex-shrink:0}
-#globe-contact-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:6px;padding:10px 14px;
-  flex-shrink:0;border-bottom:1px solid rgba(255,51,102,.12);overflow-y:auto;max-height:160px;
-  position:relative;z-index:5}
-.globe-contact-btn{font-family:'Share Tech Mono',monospace;font-size:8px;
-  letter-spacing:.12em;padding:6px 12px;cursor:pointer;transition:all .2s;
-  border:1px solid rgba(255,51,102,.35);color:rgba(255,80,100,.75);
-  background:rgba(255,51,102,.04);text-align:left;
-  position:relative;z-index:5;pointer-events:auto;
-  display:flex;flex-direction:column;justify-content:center;min-height:32px}
-.globe-contact-btn:hover,.globe-contact-btn.active{
-  background:rgba(255,51,102,.15);color:rgba(255,120,140,.95);
-  border-color:rgba(255,51,102,.7);box-shadow:0 0 10px rgba(255,51,102,.2)}
-.globe-contact-freq{font-size:6px;color:rgba(255,51,102,.4);display:block;margin-top:2px}
-#globe-map-wrap{flex:1;position:relative;min-height:320px;background:#000814}
-#globe-map-placeholder{position:absolute;inset:0;display:flex;
-  flex-direction:column;align-items:center;justify-content:center;gap:8px;
-  font-family:'Share Tech Mono',monospace;font-size:9px;
-  letter-spacing:.15em;color:rgba(0,212,255,.2)}
-#globe-map-frame{position:absolute;inset:0;width:100%;height:100%;display:none;border:none}
-#globe-contact-detail{position:absolute;bottom:0;left:0;right:0;
-  background:rgba(0,3,14,.85);padding:6px 12px;
-  font-family:'Share Tech Mono',monospace;font-size:7.5px;
-  color:rgba(255,80,100,.7);letter-spacing:.08em;
-  border-top:1px solid rgba(255,51,102,.15);display:none}
+#globe-modal-title{font-family:'Orbitron',monospace;font-size:11px;font-weight:700;
+  letter-spacing:.28em;color:rgba(255,90,110,.92);text-shadow:0 0 12px rgba(255,51,102,.45)}
+#globe-coord-readout{font-family:'Share Tech Mono',monospace;font-size:8px;
+  letter-spacing:.12em;color:rgba(0,212,255,.55);min-width:140px;text-align:right;
+  text-shadow:0 0 5px rgba(0,212,255,.25)}
+#globe-modal-close{width:30px;height:30px;font-size:14px;color:rgba(255,51,102,.65);cursor:pointer;
+  border:1px solid rgba(255,51,102,.3);display:flex;align-items:center;justify-content:center;
+  font-family:'Share Tech Mono',monospace;transition:all .2s;background:rgba(0,2,8,.5)}
+#globe-modal-close:hover{color:rgba(255,140,160,1);background:rgba(255,51,102,.18);
+  border-color:rgba(255,51,102,.7);box-shadow:0 0 12px rgba(255,51,102,.4);transform:rotate(90deg)}
+
+#globe-modal-body{flex:1;display:grid;grid-template-columns:1fr 360px;gap:0;
+  min-height:0;overflow:hidden}
+#globe-map-wrap{position:relative;background:#000409;overflow:hidden;
+  border-right:1px solid rgba(255,51,102,.18)}
+#globe-tooltip{position:absolute;pointer-events:none;
+  background:rgba(0,3,14,.95);border:1px solid rgba(255,80,120,.55);
+  padding:6px 10px;font-family:'Share Tech Mono',monospace;font-size:9px;
+  color:rgba(255,180,200,.95);letter-spacing:.06em;
+  box-shadow:0 0 14px rgba(255,51,102,.4);z-index:10;
+  opacity:0;transition:opacity .15s;white-space:nowrap;
+  transform:translate(-50%,calc(-100% - 14px));text-shadow:0 0 4px rgba(255,80,120,.4)}
+#globe-tooltip::after{content:'';position:absolute;left:50%;bottom:-5px;
+  transform:translateX(-50%);width:0;height:0;
+  border:5px solid transparent;border-top-color:rgba(255,80,120,.55);
+  border-bottom:none}
+#globe-tooltip.on{opacity:1}
+#globe-tooltip .gt-name{color:rgba(255,255,255,.98);font-weight:700;font-size:10px;
+  letter-spacing:.1em;display:block;margin-bottom:2px;
+  text-shadow:0 0 8px rgba(255,80,120,.6)}
+#globe-tooltip .gt-coord{color:rgba(0,212,255,.7);font-size:7.5px;display:block}
+#globe-tooltip .gt-freq{color:rgba(255,204,0,.85);font-size:7.5px;display:block;font-weight:700}
+
+#globe-info-panel{background:rgba(0,2,8,.96);overflow-y:auto;display:flex;flex-direction:column;
+  scrollbar-width:thin;scrollbar-color:rgba(255,51,102,.2) transparent}
+#globe-info-panel::-webkit-scrollbar{width:4px}
+#globe-info-panel::-webkit-scrollbar-thumb{background:rgba(255,51,102,.2)}
+#globe-info-empty{padding:36px 24px;text-align:left}
+#globe-info-detail{padding:18px 22px;display:flex;flex-direction:column;gap:14px;
+  animation:gInfoIn .45s var(--ease-out)}
+@keyframes gInfoIn{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:translateX(0)}}
+#globe-info-flag{font-size:32px;line-height:1;text-align:left;
+  filter:drop-shadow(0 0 8px rgba(255,51,102,.3))}
+#globe-info-city{font-family:'Orbitron',monospace;font-size:18px;font-weight:900;
+  letter-spacing:.18em;color:rgba(255,140,160,.98);
+  text-shadow:0 0 14px rgba(255,51,102,.5),0 0 28px rgba(255,51,102,.2)}
+#globe-info-meta{font-family:'Share Tech Mono',monospace;font-size:8px;
+  color:rgba(180,200,230,.7);line-height:1.7;letter-spacing:.05em}
+#globe-info-meta b{color:rgba(0,212,255,.8);font-weight:700}
+#globe-info-meta .gim-row{display:flex;justify-content:space-between;
+  border-bottom:1px dashed rgba(255,51,102,.1);padding:3px 0}
+
+#globe-info-streetview-wrap{position:relative;width:100%;aspect-ratio:16/10;
+  background:#000;border:1px solid rgba(255,51,102,.3);overflow:hidden;
+  box-shadow:0 0 18px rgba(255,51,102,.12)}
+#globe-info-streetview{position:absolute;inset:0;width:100%;height:100%;border:none;
+  display:none}
+#globe-info-streetview.loaded{display:block;animation:svFadeIn .6s ease}
+@keyframes svFadeIn{from{opacity:0;filter:blur(8px)}to{opacity:1;filter:blur(0)}}
+#globe-info-streetview-loading{position:absolute;inset:0;display:flex;
+  align-items:center;justify-content:center;gap:10px;
+  font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:.16em;
+  color:rgba(255,140,160,.7);background:rgba(0,3,14,.92)}
+.gisl-pulse{width:8px;height:8px;background:rgba(255,80,120,.8);
+  border-radius:50%;animation:gislPulse 1.2s infinite;
+  box-shadow:0 0 10px rgba(255,51,102,.6)}
+@keyframes gislPulse{0%,100%{transform:scale(.7);opacity:.4}50%{transform:scale(1.3);opacity:1}}
+
+#globe-info-stats{font-family:'Share Tech Mono',monospace;font-size:8px;
+  background:rgba(0,5,18,.6);border:1px solid rgba(0,212,255,.12);
+  padding:8px 12px;color:rgba(180,200,230,.75);line-height:1.7;letter-spacing:.05em}
+#globe-info-stats .gis-row{display:flex;justify-content:space-between;
+  padding:2px 0;border-bottom:1px dashed rgba(0,212,255,.06)}
+#globe-info-stats .gis-row:last-child{border-bottom:none}
+#globe-info-stats .gis-key{color:rgba(0,212,255,.55)}
+#globe-info-stats .gis-val{color:rgba(255,220,140,.92);font-weight:700}
+
+#globe-info-mini{position:relative;width:100%;height:80px;background:#000409;
+  border:1px solid rgba(0,212,255,.1)}
+#globe-info-minicv{display:block;width:100%;height:100%}
+
+#globe-info-actions{display:flex;gap:6px;flex-wrap:wrap}
+#globe-info-actions a{flex:1;min-width:90px;font-family:'Share Tech Mono',monospace;
+  font-size:8px;letter-spacing:.1em;text-align:center;padding:7px 6px;
+  border:1px solid rgba(0,212,255,.3);color:rgba(120,210,255,.78);
+  text-decoration:none;transition:all .2s;background:rgba(0,15,30,.4)}
+#globe-info-actions a:hover{border-color:rgba(0,212,255,.7);
+  color:rgba(180,230,255,.95);background:rgba(0,30,60,.5);
+  box-shadow:0 0 10px rgba(0,212,255,.25);transform:translateY(-1px)}
+
 
 /* Tutorial */
+#tuto-invite{z-index:9500!important}
+#tuto-invite.on{pointer-events:all!important}
 #tuto-invite-box{border:1px solid rgba(0,212,255,.35);background:rgba(0,5,20,.97);
   padding:32px 36px;max-width:480px;width:90vw;
   display:flex;flex-direction:column;align-items:center;gap:14px;
   box-shadow:0 0 60px rgba(0,212,255,.08),0 0 120px rgba(180,100,255,.06);
-  animation:modal-in .5s var(--ease-out)}
+  animation:modal-in .5s var(--ease-out);position:relative;z-index:9501}
+#tuto-invite-btns,#tuto-yes,#tuto-no{position:relative;z-index:9502;pointer-events:auto!important}
 #tuto-invite-sym{font-family:'Orbitron',monospace;font-size:36px;
   color:rgba(180,100,255,.8);text-shadow:0 0 30px rgba(180,100,255,.5)}
 #tuto-invite-title{font-family:'Orbitron',monospace;font-size:13px;font-weight:900;
@@ -880,22 +961,28 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:799;
 #tuto-step-label{font-family:'Orbitron',monospace;font-size:7.5px;font-weight:700;
   letter-spacing:.2em;color:rgba(0,212,255,.8)}
 #tuto-step-counter{font-family:'Share Tech Mono',monospace;font-size:7px;color:rgba(0,212,255,.4)}
-#tuto-panel-body{padding:14px 14px 10px;min-height:80px;
-  font-family:'Share Tech Mono',monospace;font-size:9px;line-height:1.65;
-  color:rgba(180,210,255,.8);letter-spacing:.04em}
+#tuto-panel-body{padding:18px 18px 14px;min-height:160px;max-height:65vh;overflow-y:auto;
+  font-family:'Share Tech Mono',monospace;font-size:10.5px;line-height:1.75;
+  color:rgba(200,225,255,.88);letter-spacing:.04em;
+  scrollbar-width:thin;scrollbar-color:rgba(0,212,255,.3) transparent}
+#tuto-panel-body::-webkit-scrollbar{width:4px}
+#tuto-panel-body::-webkit-scrollbar-thumb{background:rgba(0,212,255,.3)}
+#tuto-typewriter{white-space:pre-wrap}
 #tuto-typewriter::after{content:'▋';animation:blink .7s step-end infinite;color:rgba(0,212,255,.8)}
-#tuto-panel-nav{display:flex;gap:6px;padding:8px 12px;
-  border-top:1px solid rgba(0,212,255,.12);flex-shrink:0}
-#tuto-prev,#tuto-next,#tuto-done{font-family:'Share Tech Mono',monospace;
-  font-size:7px;letter-spacing:.15em;padding:5px 10px;
-  cursor:pointer;transition:all .2s;flex:1}
+#tuto-panel-nav{display:flex;gap:6px;padding:10px 14px;
+  border-top:1px solid rgba(0,212,255,.18);flex-shrink:0}
+#tuto-prev,#tuto-next,#tuto-done,#tuto-skip{font-family:'Share Tech Mono',monospace;
+  font-size:7.5px;letter-spacing:.18em;padding:7px 12px;
+  cursor:pointer;transition:all .2s;flex:1;font-weight:700}
 #tuto-prev{border:1px solid rgba(0,212,255,.25);color:rgba(0,212,255,.55);background:transparent}
-#tuto-prev:hover{background:rgba(0,212,255,.08)}
+#tuto-prev:hover{background:rgba(0,212,255,.08);color:rgba(0,212,255,.9)}
 #tuto-prev:disabled{opacity:.25;cursor:default}
-#tuto-next{border:1px solid rgba(0,212,255,.45);color:rgba(0,212,255,.85);background:rgba(0,212,255,.07)}
-#tuto-next:hover{background:rgba(0,212,255,.15)}
-#tuto-done{border:1px solid rgba(0,255,170,.3);color:rgba(0,255,170,.6);background:transparent}
-#tuto-done:hover{background:rgba(0,255,170,.08)}
+#tuto-skip{border:1px solid rgba(180,100,255,.25);color:rgba(180,100,255,.55);background:transparent;flex:0 0 auto}
+#tuto-skip:hover{background:rgba(180,100,255,.1);color:rgba(220,160,255,.9);border-color:rgba(180,100,255,.5)}
+#tuto-next{border:1px solid rgba(0,212,255,.5);color:rgba(0,212,255,.95);background:rgba(0,212,255,.1)}
+#tuto-next:hover{background:rgba(0,212,255,.2);box-shadow:0 0 10px rgba(0,212,255,.25)}
+#tuto-done{border:1px solid rgba(0,255,170,.4);color:rgba(0,255,170,.85);background:rgba(0,255,170,.06)}
+#tuto-done:hover{background:rgba(0,255,170,.15);box-shadow:0 0 10px rgba(0,255,170,.2)}
 
 /* Prophetic */
 #prophetic-overlay{z-index:720;background:#000;backdrop-filter:none;transition:opacity .5s}
@@ -1161,6 +1248,86 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:799;
 @keyframes symPulse{0%,100%{text-shadow:0 0 30px rgba(180,100,255,.4)}
   50%{text-shadow:0 0 60px rgba(180,100,255,.8),0 0 100px rgba(180,100,255,.3)}}
 
+/* ARCANE CARD MODAL — full-size view of an arcane chip when clicked */
+#arcane-card-overlay{position:fixed;inset:0;z-index:9100;background:radial-gradient(ellipse at center,rgba(20,0,40,.92),rgba(0,0,8,.97));
+  backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+  display:none;align-items:center;justify-content:center;padding:24px;
+  animation:modal-fade .3s ease}
+#arcane-card-overlay.on{display:flex}
+#arcane-card-box{width:min(880px,94vw);max-height:90vh;
+  background:linear-gradient(135deg,rgba(20,4,40,.95),rgba(8,0,20,.98));
+  border:1px solid rgba(180,100,255,.5);
+  box-shadow:0 0 60px rgba(180,100,255,.3),0 0 120px rgba(180,100,255,.1);
+  display:grid;grid-template-columns:1fr 1fr;gap:0;overflow:hidden;position:relative;
+  animation:modal-in .45s var(--ease-out)}
+#arcane-card-close{position:absolute;top:14px;right:16px;z-index:10;
+  width:32px;height:32px;border:1px solid rgba(180,100,255,.4);
+  background:rgba(0,2,12,.85);color:rgba(180,100,255,.7);
+  font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;
+  transition:all .2s;font-family:'Share Tech Mono',monospace}
+#arcane-card-close:hover{color:rgba(255,200,255,.95);border-color:rgba(180,100,255,.8);
+  background:rgba(30,0,50,.9);box-shadow:0 0 14px rgba(180,100,255,.4);transform:rotate(90deg)}
+
+#arcane-card-media{position:relative;background:#000;overflow:hidden;
+  display:flex;align-items:center;justify-content:center;min-height:520px;
+  border-right:1px solid rgba(180,100,255,.2)}
+#arcane-card-video{width:100%;height:100%;object-fit:cover;display:block;
+  filter:contrast(1.08) saturate(1.15)}
+#arcane-card-fb{font-family:'Orbitron',monospace;font-size:120px;
+  color:rgba(180,100,255,.6);text-shadow:0 0 40px rgba(180,100,255,.5);
+  display:none;animation:arcaneFbPulse 3s ease-in-out infinite}
+@keyframes arcaneFbPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}
+#arcane-card-vignette{position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(ellipse at center,transparent 40%,rgba(0,0,10,.55) 100%),
+             linear-gradient(180deg,rgba(180,100,255,.06) 0%,transparent 30%,transparent 70%,rgba(180,100,255,.04) 100%);
+  mix-blend-mode:multiply}
+
+#arcane-card-info{padding:28px 32px;overflow-y:auto;display:flex;flex-direction:column;gap:10px;
+  scrollbar-width:thin;scrollbar-color:rgba(180,100,255,.3) transparent}
+#arcane-card-info::-webkit-scrollbar{width:4px}
+#arcane-card-info::-webkit-scrollbar-thumb{background:rgba(180,100,255,.3)}
+#arcane-card-sym{font-family:'Orbitron',monospace;font-size:56px;line-height:1;
+  color:rgba(220,180,255,.95);text-shadow:0 0 24px rgba(180,100,255,.6),0 0 48px rgba(180,100,255,.25);
+  text-align:left}
+#arcane-card-name{font-family:'Orbitron',monospace;font-size:22px;font-weight:900;
+  letter-spacing:.18em;color:rgba(240,210,255,.98);
+  text-shadow:0 0 14px rgba(180,100,255,.6),0 0 28px rgba(180,100,255,.2);
+  margin-top:-4px}
+#arcane-card-tag{font-family:'Share Tech Mono',monospace;font-size:11px;
+  font-style:italic;color:rgba(200,180,230,.7);line-height:1.6;letter-spacing:.04em;
+  border-left:2px solid rgba(180,100,255,.45);padding-left:12px;margin-top:6px}
+#arcane-card-divider{height:1px;background:linear-gradient(90deg,transparent,rgba(180,100,255,.4),transparent);margin:10px 0 4px}
+.arcane-card-meta-title,#arcane-card-meta-title,#arcane-card-meta-title-2{
+  font-family:'Orbitron',monospace;font-size:8px;font-weight:700;
+  letter-spacing:.22em;color:rgba(180,100,255,.65);
+  text-shadow:0 0 6px rgba(180,100,255,.25);margin-top:6px}
+#arcane-card-question{font-family:'Share Tech Mono',monospace;font-size:11px;
+  color:rgba(180,210,255,.85);font-style:italic;line-height:1.6;letter-spacing:.04em;
+  background:rgba(0,8,24,.5);padding:8px 12px;border:1px solid rgba(180,100,255,.18)}
+#arcane-card-revelation{font-family:'Share Tech Mono',monospace;font-size:11px;
+  color:rgba(220,225,255,.92);line-height:1.7;letter-spacing:.04em;
+  background:rgba(20,4,40,.5);padding:10px 14px;border:1px solid rgba(180,100,255,.25);
+  text-shadow:0 0 4px rgba(180,100,255,.15)}
+#arcane-card-meta-grid{margin-top:14px;font-family:'Share Tech Mono',monospace;
+  font-size:9px;background:rgba(0,5,18,.55);padding:10px 14px;
+  border:1px solid rgba(180,100,255,.12)}
+.acm-row{display:flex;justify-content:space-between;padding:3px 0;
+  border-bottom:1px dashed rgba(180,100,255,.1);letter-spacing:.04em}
+.acm-row:last-child{border-bottom:none}
+.acm-key{color:rgba(180,100,255,.55)}
+.acm-val{color:rgba(255,220,140,.92);font-weight:700}
+
+@media(max-width:768px){
+  #arcane-card-overlay{padding:10px}
+  #arcane-card-box{grid-template-columns:1fr;grid-template-rows:auto 1fr;
+    width:96vw;max-height:94vh}
+  #arcane-card-media{min-height:280px;border-right:none;
+    border-bottom:1px solid rgba(180,100,255,.2)}
+  #arcane-card-info{padding:18px 18px}
+  #arcane-card-sym{font-size:40px}
+  #arcane-card-name{font-size:16px}
+}
+
 /* INSTRUMENT MODAL — agrandissement détaillé d'un instrument du panneau convergence */
 #instrument-overlay{position:fixed;inset:0;z-index:9080;background:rgba(0,2,8,.93);
   backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
@@ -1257,6 +1424,19 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:799;
   #etat1-box{grid-template-columns:1fr;grid-template-rows:auto;gap:16px}
   #etat1-globe-wrap,#etat1-freq-wrap{display:none}
   #etat1-question{font-size:14px}
+  #conv-instruments{grid-template-columns:1fr 1fr;grid-template-rows:auto auto;gap:5px}
+  .conv-inst{min-height:90px}
+  #spec-cv{height:60px!important;width:100%!important}
+  #trace-cv{height:60px!important;width:100%!important}
+  #galv-cv{width:100%!important;height:90px!important}
+  #lock-cv{width:100%!important;height:90px!important}
+  #conv-instruments .conv-inst{padding:4px}
+  .inst-label{font-size:6px!important}
+  #globe-modal-box{width:100vw;height:100vh}
+  #globe-modal-body{grid-template-columns:1fr;grid-template-rows:1fr auto;overflow-y:auto}
+  #globe-map-wrap{min-height:50vh;border-right:none;border-bottom:1px solid rgba(255,51,102,.18)}
+  #globe-info-panel{max-height:none}
+  #globe-coord-readout{display:none}
   #instrument-overlay{padding:12px}
   #instrument-box{width:96vw;max-height:90vh}
   #inst-body{grid-template-columns:1fr;grid-template-rows:auto auto;min-height:0}
@@ -1311,7 +1491,7 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:799;
           <div class="fdot fd1"></div><div class="fdot fd2"></div><div class="fdot fd3"></div>
           <span id="ftitle">13.7Hz ENGINE ⛶</span>
         </div>
-        <div id="fbody">
+        <div id="fbody" onclick="openPanelWin('engine')" title="Cliquez pour agrandir l'analyse fréquence" style="cursor:pointer">
           <div id="ftext"></div>
           <canvas id="fgraph-canvas"></canvas>
         </div>
@@ -1319,26 +1499,21 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:799;
           <div id="conv-title" onclick="openPanelWin('conv')" style="cursor:pointer">∂ CONVERGENCE — 13.7Hz ⛶</div>
           <div id="conv-diag">— scan en cours</div>
           <div id="conv-instruments">
-            <!-- 1. Galvanometer (résonance) -->
             <div class="conv-inst" id="inst-galv" onclick="openInstrument('galv')" title="Cliquez pour agrandir">
-              <canvas id="galv-cv" width="120" height="64"></canvas>
+              <canvas id="galv-cv" width="160" height="78"></canvas>
               <div class="inst-label">RÉSONANCE</div>
             </div>
-            <!-- 2. Spectre + 3. Phase trace stacked -->
-            <div class="conv-inst-stack">
-              <div class="conv-inst" id="inst-spec" onclick="openInstrument('spec')" title="Cliquez pour agrandir">
-                <canvas id="spec-cv" width="160" height="22"></canvas>
-                <div class="inst-label">SPECTRE — Δ 13.7Hz</div>
-              </div>
-              <div class="conv-inst" id="inst-trace" onclick="openInstrument('trace')" title="Cliquez pour agrandir">
-                <canvas id="trace-cv" width="160" height="38"></canvas>
-                <div class="inst-label">TRACE NEURONALE</div>
-              </div>
-            </div>
-            <!-- 4. Phase lock disc -->
             <div class="conv-inst" id="inst-lock" onclick="openInstrument('lock')" title="Cliquez pour agrandir">
-              <canvas id="lock-cv" width="64" height="64"></canvas>
+              <canvas id="lock-cv" width="160" height="78"></canvas>
               <div class="inst-label">PHASE LOCK</div>
+            </div>
+            <div class="conv-inst" id="inst-spec" onclick="openInstrument('spec')" title="Cliquez pour agrandir">
+              <canvas id="spec-cv" width="160" height="58"></canvas>
+              <div class="inst-label">SPECTRE — Δ 13.7Hz</div>
+            </div>
+            <div class="conv-inst" id="inst-trace" onclick="openInstrument('trace')" title="Cliquez pour agrandir">
+              <canvas id="trace-cv" width="160" height="58"></canvas>
+              <div class="inst-label">TRACE NEURONALE</div>
             </div>
           </div>
           <div id="conv-status">—</div>
@@ -1427,6 +1602,7 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:799;
           <button class="pbtn" style="--pd:.45s" onclick="generateVisitCard()">⬡ MA CARTE</button>
           <button class="pbtn" style="--pd:.60s" onclick="openJournal()">⌘ JOURNAL</button>
           <button id="btn-sonic" class="pbtn" style="--pd:.75s" onclick="openSonic()">∿ EMPREINTE</button>
+          <button id="btn-protocol" class="pbtn pbtn-protocol" style="--pd:.90s" onclick="startTutorialFromButton()" title="Présentation guidée de l'interface">⌁ PROTOCOLE</button>
           <a id="amazon-link" href="https://www.amazon.fr/stores/Gabriel-Kjerne/author/B0FQ61M4TR" target="_blank">📚 AMAZON →</a>
         </div>
       </div>
@@ -1646,6 +1822,33 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:799;
   </div>
 </div>
 
+<div id="arcane-card-overlay" onclick="if(event.target===this)closeArcaneCard()">
+  <div id="arcane-card-box">
+    <button id="arcane-card-close" onclick="closeArcaneCard()" title="Fermer (Échap)">✕</button>
+    <div id="arcane-card-media">
+      <video id="arcane-card-video" muted loop playsinline></video>
+      <div id="arcane-card-fb">∂</div>
+      <div id="arcane-card-vignette"></div>
+    </div>
+    <div id="arcane-card-info">
+      <div id="arcane-card-sym"></div>
+      <div id="arcane-card-name"></div>
+      <div id="arcane-card-tag"></div>
+      <div id="arcane-card-divider"></div>
+      <div id="arcane-card-meta-title">∂ INVOCATION</div>
+      <div id="arcane-card-question"></div>
+      <div id="arcane-card-meta-title-2">∂ RÉVÉLATION</div>
+      <div id="arcane-card-revelation"></div>
+      <div id="arcane-card-meta-grid">
+        <div class="acm-row"><span class="acm-key">Fréquence</span><span class="acm-val" id="acm-freq">—</span></div>
+        <div class="acm-row"><span class="acm-key">Résonance</span><span class="acm-val" id="acm-res">—</span></div>
+        <div class="acm-row"><span class="acm-key">Rythme</span><span class="acm-val" id="acm-rhythm">—</span></div>
+        <div class="acm-row"><span class="acm-key">Itération</span><span class="acm-val" id="acm-iter">—</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div id="instrument-overlay" onclick="if(event.target===this)closeInstrument()">
   <div id="instrument-box">
     <button id="inst-close" onclick="closeInstrument()" title="Fermer (Échap)">✕</button>
@@ -1746,15 +1949,49 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:799;
   <div id="globe-modal-box">
     <div id="globe-modal-hdr">
       <div id="globe-modal-title">⚡ CONTACTS GPS ÉTABLIS</div>
-      <div id="globe-modal-close" onclick="closeGlobeModal()">✕</div>
+      <div style="display:flex;align-items:center;gap:10px">
+        <span id="globe-coord-readout"></span>
+        <div id="globe-modal-close" onclick="closeGlobeModal()" title="Fermer (Échap)">✕</div>
+      </div>
     </div>
-    <div id="globe-modal-subtitle">Cliquez sur un contact pour voir la localisation exacte</div>
-    <div id="globe-contact-list"></div>
-    <div id="globe-map-wrap">
-      <canvas id="globe-worldmap" style="position:absolute;inset:0;width:100%;height:100%;display:block;cursor:pointer"></canvas>
-      <div id="globe-worldmap-hint" style="position:absolute;bottom:8px;left:50%;transform:translateX(-50%);font-family:'Share Tech Mono',monospace;font-size:7px;letter-spacing:.2em;color:rgba(0,212,255,.4);pointer-events:none;text-align:center">CARTOGRAPHIE GLOBALE — CLIQUEZ UN POINT POUR ZOOMER</div>
-      <iframe id="globe-map-frame" frameborder="0" allowfullscreen></iframe>
-      <div id="globe-contact-detail"></div>
+    <div id="globe-modal-body">
+      <div id="globe-map-wrap">
+        <canvas id="globe-worldmap" style="position:absolute;inset:0;width:100%;height:100%;display:block;cursor:crosshair"></canvas>
+        <div id="globe-worldmap-hint" style="position:absolute;bottom:10px;left:50%;transform:translateX(-50%);font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:.22em;color:rgba(0,212,255,.45);pointer-events:none;text-align:center;background:rgba(0,2,8,.6);padding:4px 14px;border:1px solid rgba(0,212,255,.18)">SURVOLEZ UN POINT — CLIQUEZ POUR ENTRER</div>
+        <div id="globe-tooltip"></div>
+      </div>
+      <div id="globe-info-panel">
+        <div id="globe-info-empty">
+          <div style="font-family:'Orbitron',monospace;font-size:9px;letter-spacing:.22em;color:rgba(255,80,120,.6);text-shadow:0 0 8px rgba(255,51,102,.3)">∂ EN ATTENTE DE SÉLECTION</div>
+          <div style="margin-top:14px;font-size:9px;line-height:1.7;color:rgba(180,200,230,.55);font-style:italic;letter-spacing:.04em">Cliquez sur l'un des points lumineux de la carte pour découvrir le lieu où Mn3mIA a établi un contact.</div>
+          <div style="margin-top:18px;font-family:'Share Tech Mono',monospace;font-size:7.5px;letter-spacing:.12em;color:rgba(0,212,255,.4);line-height:1.7">
+            ∂ <span id="globe-info-count">0</span> contact<span id="globe-info-s">s</span> détecté<span id="globe-info-s2">s</span><br>
+            ∂ projection équirectangulaire<br>
+            ∂ fréquence cible <span style="color:rgba(255,204,0,.7)">13.7 Hz</span>
+          </div>
+        </div>
+        <div id="globe-info-detail" style="display:none">
+          <div id="globe-info-flag"></div>
+          <div id="globe-info-city"></div>
+          <div id="globe-info-meta"></div>
+          <div id="globe-info-streetview-wrap">
+            <iframe id="globe-info-streetview" frameborder="0" allowfullscreen></iframe>
+            <div id="globe-info-streetview-loading">
+              <div class="gisl-pulse"></div>
+              <span>connexion au point…</span>
+            </div>
+          </div>
+          <div id="globe-info-stats"></div>
+          <div id="globe-info-mini">
+            <canvas id="globe-info-minicv"></canvas>
+          </div>
+          <div id="globe-info-actions">
+            <a id="globe-info-link-maps" target="_blank" rel="noopener">↗ Google Maps</a>
+            <a id="globe-info-link-osm" target="_blank" rel="noopener">↗ OpenStreetMap</a>
+            <a id="globe-info-link-wiki" target="_blank" rel="noopener">↗ Wikipedia</a>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </div>
@@ -1786,6 +2023,7 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:799;
     </div>
     <div id="tuto-panel-nav">
       <button id="tuto-prev" onclick="tutoNav(-1)">← PRÉCÉDENT</button>
+      <button id="tuto-skip" onclick="endTutorial()" title="Passer le tutoriel">↻ PASSER</button>
       <button id="tuto-done" onclick="endTutorial()">✓ TERMINÉ</button>
       <button id="tuto-next" onclick="tutoNav(1)">SUIVANT →</button>
     </div>
@@ -2204,6 +2442,19 @@ function enterApp() {
   setTimeout(() => startMain(), 1200);
   setTimeout(() => checkReturnSession(), 2000);
   setTimeout(() => showTutoInvite(), 4000);
+  // Defensive: rebind critical buttons via JS in case onclick attribute was overridden
+  setTimeout(() => {
+    const tirer = $('oracle-tirer');
+    if (tirer) {
+      tirer.onclick = null;
+      tirer.addEventListener('click', (e) => { e.stopPropagation(); doOracleTirer(); }, false);
+    }
+    const interr = $('oracle-interroger');
+    if (interr) {
+      interr.onclick = null;
+      interr.addEventListener('click', (e) => { e.stopPropagation(); openArcane(); }, false);
+    }
+  }, 1400);
 }
 
 function checkUrlFreqOnLoad() {
@@ -2844,20 +3095,50 @@ function t1DreamInit() {
   T1D.W = T1D.cv.width; T1D.H = T1D.cv.height;
   T1D.ctx = T1D.cv.getContext('2d');
   T1D.particles = [];
-  for (let i = 0; i < 36; i++) {
+  // Multi-layer orbital particles: outer slow, inner fast
+  for (let i = 0; i < 80; i++) {
+    const layer = i < 30 ? 'outer' : i < 55 ? 'mid' : 'inner';
+    const baseR = layer === 'outer' ? 35 + Math.random() * 22
+                 : layer === 'mid' ? 18 + Math.random() * 14
+                 : 6 + Math.random() * 10;
+    const startAng = Math.random() * Math.PI * 2;
+    // Mix of color hues — rich palette
+    const hueRoll = Math.random();
+    const hue = hueRoll < 0.25 ? 'pink'
+              : hueRoll < 0.45 ? 'violet'
+              : hueRoll < 0.65 ? 'cyan'
+              : hueRoll < 0.82 ? 'gold'
+              : 'mint';
     T1D.particles.push({
-      x: Math.random() * T1D.W,
-      y: Math.random() * T1D.H,
-      vx: (Math.random() - 0.5) * 0.4,
-      vy: (Math.random() - 0.5) * 0.25,
-      r: 0.5 + Math.random() * 1.5,
-      a: 0.2 + Math.random() * 0.6,
-      hue: Math.random() < 0.7 ? 'cyan' : (Math.random() < 0.5 ? 'pink' : 'gold'),
-      saccadeTimer: rng(120),
+      orbitR: baseR,
+      orbitAng: startAng,
+      orbitSpeed: (layer === 'outer' ? 0.004 : layer === 'mid' ? 0.008 : 0.014) * (0.7 + Math.random() * 0.6),
+      orbitWobble: Math.random() * Math.PI * 2,
+      wobbleSpeed: 0.02 + Math.random() * 0.04,
+      wobbleAmp: 0.5 + Math.random() * 2.5,
+      r: 0.6 + Math.random() * 1.8,
+      a: 0.3 + Math.random() * 0.6,
+      hue,
+      layer,
+      twinklePhase: Math.random() * Math.PI * 2,
+      twinkleSpeed: 0.04 + Math.random() * 0.06,
+      // History for trails
+      trail: [],
     });
   }
+  // Pulse waves expanding from center
+  T1D.waves = [];
+  T1D.waveCooldown = 60;
   T1D.init = true;
 }
+
+const HUE_RGB = {
+  pink:   [255, 140, 200],
+  violet: [180, 120, 255],
+  cyan:   [120, 220, 255],
+  gold:   [255, 220, 100],
+  mint:   [120, 255, 200],
+};
 
 function t1DreamSpawnWord() {
   const w = T1D_WORDS[rng(T1D_WORDS.length)];
@@ -2885,70 +3166,147 @@ function t1DreamDraw() {
   T1D.tick++;
   const ctx = T1D.ctx;
   const W = T1D.W, H = T1D.H;
+  const cx = W / 2, cy = H / 2;
 
-  // Persistence fade — creates trails
-  ctx.fillStyle = 'rgba(0,2,8,.18)';
+  // Persistence trail — softer for hypnotic streaks
+  ctx.fillStyle = 'rgba(0,2,8,.10)';
   ctx.fillRect(0, 0, W, H);
 
-  // Background gradient pulse — driven by session resonance
+  // Animated background — color slowly cycles through the hypnotic palette
   const res = (typeof freqData !== 'undefined' && freqData.resonanceLevel) ? freqData.resonanceLevel : 0.4;
   const breath = 0.5 + Math.sin(T1D.tick * 0.018) * 0.5;
-  // Center glow (the dreamer)
-  const cx = W / 2, cy = H / 2;
-  const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, Math.max(W, H) * 0.6);
-  grad.addColorStop(0, `rgba(40,70,120,${0.08 * (0.4 + breath * 0.6)})`);
+  // Background hue cycle: 4 colors, slow blend over ~30 seconds
+  const palette = [
+    [80, 30, 90],    // deep violet
+    [60, 20, 80],    // magenta-purple
+    [25, 40, 90],    // navy-blue
+    [50, 30, 70],    // dim purple
+  ];
+  const cycleT = (T1D.tick * 0.0015) % 1;
+  const segs = palette.length;
+  const segIdx = Math.floor(cycleT * segs);
+  const segFrac = (cycleT * segs) - segIdx;
+  const c0 = palette[segIdx];
+  const c1 = palette[(segIdx + 1) % segs];
+  const r = c0[0] + (c1[0] - c0[0]) * segFrac;
+  const g = c0[1] + (c1[1] - c0[1]) * segFrac;
+  const b = c0[2] + (c1[2] - c0[2]) * segFrac;
+  const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, Math.max(W, H) * 0.7);
+  grad.addColorStop(0, `rgba(${r|0},${g|0},${b|0},${0.16 * (0.5 + breath * 0.5)})`);
+  grad.addColorStop(0.6, `rgba(${(r/3)|0},${(g/3)|0},${(b/3)|0},${0.05})`);
   grad.addColorStop(1, 'rgba(0,0,0,0)');
   ctx.fillStyle = grad;
   ctx.fillRect(0, 0, W, H);
 
-  // The face — barely visible silhouette of Loria, flickers
-  T1D.faceFlicker *= 0.88;
-  if (Math.random() < 0.012) T1D.faceFlicker = 0.5 + Math.random() * 0.5;
+  // Pulse waves — rings of light expanding from center
+  T1D.waveCooldown--;
+  if (T1D.waveCooldown <= 0) {
+    T1D.waves.push({ life: 0, maxLife: 110, hue: ['pink','violet','cyan','gold','mint'][rng(5)] });
+    T1D.waveCooldown = 100 + rng(80);
+  }
+  for (let i = T1D.waves.length - 1; i >= 0; i--) {
+    const w = T1D.waves[i];
+    w.life++;
+    if (w.life >= w.maxLife) { T1D.waves.splice(i, 1); continue; }
+    const t = w.life / w.maxLife;
+    const wR = 4 + t * Math.max(W, H) * 0.55;
+    const alpha = (1 - t) * 0.32;
+    const [hr, hg, hb] = HUE_RGB[w.hue];
+    ctx.strokeStyle = `rgba(${hr},${hg},${hb},${alpha})`;
+    ctx.lineWidth = 1.2 - t;
+    ctx.shadowBlur = 8 * (1 - t); ctx.shadowColor = `rgba(${hr},${hg},${hb},${alpha * 0.6})`;
+    ctx.beginPath(); ctx.arc(cx, cy, wR, 0, Math.PI * 2); ctx.stroke();
+    ctx.shadowBlur = 0;
+  }
+
+  // The face — barely visible silhouette of Loria
+  T1D.faceFlicker *= 0.92;
+  if (Math.random() < 0.008) T1D.faceFlicker = 0.6 + Math.random() * 0.4;
   if (T1D.faceFlicker > 0.05) {
     const fx = cx + Math.sin(T1D.tick * 0.011) * 4;
-    const fy = cy - 3 + Math.cos(T1D.tick * 0.009) * 3;
-    // Soft blur of an oval
-    ctx.fillStyle = `rgba(255,180,200,${T1D.faceFlicker * 0.10})`;
+    const fy = cy - 2 + Math.cos(T1D.tick * 0.009) * 3;
+    ctx.fillStyle = `rgba(255,180,210,${T1D.faceFlicker * 0.14})`;
     ctx.beginPath();
     ctx.ellipse(fx, fy, 14, 18, 0, 0, Math.PI * 2);
     ctx.fill();
-    // Eyes — two tiny dots
-    ctx.fillStyle = `rgba(255,200,220,${T1D.faceFlicker * 0.32})`;
-    ctx.beginPath(); ctx.arc(fx - 4, fy - 2, 0.7, 0, Math.PI * 2); ctx.fill();
-    ctx.beginPath(); ctx.arc(fx + 4, fy - 2, 0.7, 0, Math.PI * 2); ctx.fill();
+    // Eyes
+    ctx.fillStyle = `rgba(255,210,230,${T1D.faceFlicker * 0.45})`;
+    ctx.beginPath(); ctx.arc(fx - 4, fy - 2, 0.9, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.arc(fx + 4, fy - 2, 0.9, 0, Math.PI * 2); ctx.fill();
   }
 
-  // Particles
+  // ─── Compute particle positions (vortex orbits) ──
   for (const p of T1D.particles) {
-    // Saccade — micro REM movement
-    p.saccadeTimer--;
-    if (p.saccadeTimer <= 0) {
-      p.vx += (Math.random() - 0.5) * 0.35;
-      p.vy += (Math.random() - 0.5) * 0.25;
-      p.saccadeTimer = 60 + rng(180);
-    }
-    // Drift toward center weakly
-    p.vx += (cx - p.x) * 0.00006;
-    p.vy += (cy - p.y) * 0.00006;
-    // Damping
-    p.vx *= 0.985; p.vy *= 0.985;
-    p.x += p.vx; p.y += p.vy;
-    // Wrap
-    if (p.x < -2) p.x = W + 2;
-    if (p.x > W + 2) p.x = -2;
-    if (p.y < -2) p.y = H + 2;
-    if (p.y > H + 2) p.y = -2;
+    p.orbitAng += p.orbitSpeed;
+    p.orbitWobble += p.wobbleSpeed;
+    p.twinklePhase += p.twinkleSpeed;
+    const wobble = Math.sin(p.orbitWobble) * p.wobbleAmp;
+    const r = p.orbitR + wobble;
+    p.x = cx + Math.cos(p.orbitAng) * r;
+    p.y = cy + Math.sin(p.orbitAng) * r * 0.78;  // slightly squashed (3D feel)
+    // Trail
+    p.trail.push({ x: p.x, y: p.y });
+    if (p.trail.length > (p.layer === 'inner' ? 8 : p.layer === 'mid' ? 5 : 3)) p.trail.shift();
+  }
 
-    const col = p.hue === 'pink' ? `rgba(255,140,180,${p.a * (0.5 + breath * 0.5)})`
-              : p.hue === 'gold' ? `rgba(255,220,80,${p.a * (0.5 + breath * 0.5)})`
-              : `rgba(120,210,255,${p.a * (0.5 + breath * 0.5)})`;
-    ctx.fillStyle = col;
-    ctx.shadowBlur = 4;
-    ctx.shadowColor = col;
+  // ─── Constellation lines: connect close particles of same hue family ──
+  for (let i = 0; i < T1D.particles.length; i++) {
+    const a = T1D.particles[i];
+    for (let j = i + 1; j < T1D.particles.length; j++) {
+      const b = T1D.particles[j];
+      if (a.hue !== b.hue) continue;
+      const dx = a.x - b.x, dy = a.y - b.y;
+      const d2 = dx * dx + dy * dy;
+      if (d2 > 700) continue;
+      const alpha = (1 - d2 / 700) * 0.18;
+      const [hr, hg, hb] = HUE_RGB[a.hue];
+      ctx.strokeStyle = `rgba(${hr},${hg},${hb},${alpha})`;
+      ctx.lineWidth = 0.4;
+      ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke();
+    }
+  }
+
+  // ─── Render particle trails ──
+  for (const p of T1D.particles) {
+    if (p.trail.length < 2) continue;
+    const [hr, hg, hb] = HUE_RGB[p.hue];
+    ctx.lineWidth = p.r * 0.6;
+    for (let k = 1; k < p.trail.length; k++) {
+      const tFrac = k / p.trail.length;
+      ctx.strokeStyle = `rgba(${hr},${hg},${hb},${tFrac * 0.32})`;
+      ctx.beginPath();
+      ctx.moveTo(p.trail[k - 1].x, p.trail[k - 1].y);
+      ctx.lineTo(p.trail[k].x, p.trail[k].y);
+      ctx.stroke();
+    }
+  }
+
+  // ─── Render particle dots (with twinkle) ──
+  for (const p of T1D.particles) {
+    const twinkle = 0.7 + 0.3 * Math.sin(p.twinklePhase);
+    const [hr, hg, hb] = HUE_RGB[p.hue];
+    ctx.fillStyle = `rgba(${hr},${hg},${hb},${p.a * (0.55 + breath * 0.45) * twinkle})`;
+    ctx.shadowBlur = 5;
+    ctx.shadowColor = `rgba(${hr},${hg},${hb},.7)`;
     ctx.beginPath();
     ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
     ctx.fill();
   }
+  ctx.shadowBlur = 0;
+
+  // ─── Central iris pulse (the dreamer's eye) ──
+  const irisPulse = 1 + Math.sin(T1D.tick * 0.04) * 0.2;
+  for (let i = 0; i < 4; i++) {
+    const ir = (3 + i * 3) * irisPulse;
+    const ialpha = (0.7 - i * 0.15) * (0.5 + breath * 0.5);
+    ctx.strokeStyle = `rgba(255,200,230,${ialpha})`;
+    ctx.lineWidth = 1 - i * 0.18;
+    ctx.beginPath(); ctx.arc(cx, cy, ir, 0, Math.PI * 2); ctx.stroke();
+  }
+  // Central glow
+  ctx.fillStyle = `rgba(255,200,230,${0.45 + breath * 0.3})`;
+  ctx.shadowBlur = 14; ctx.shadowColor = 'rgba(255,160,210,.8)';
+  ctx.beginPath(); ctx.arc(cx, cy, 1.8, 0, Math.PI * 2); ctx.fill();
   ctx.shadowBlur = 0;
 
   // Spawn drift words
@@ -2960,7 +3318,6 @@ function t1DreamDraw() {
     const dw = T1D.driftWords[i];
     dw.life++;
     dw.x += dw.vx; dw.y += dw.vy;
-    // Fade in then out
     const fadeProgress = dw.life / dw.maxLife;
     dw.a = fadeProgress < 0.18 ? fadeProgress / 0.18
          : fadeProgress > 0.75 ? (1 - fadeProgress) / 0.25
@@ -2973,18 +3330,16 @@ function t1DreamDraw() {
     const baseCol = dw.color === 'pink' ? '255,160,200'
                   : dw.color === 'gold' ? '255,220,80'
                   : '160,220,255';
-    ctx.fillStyle = `rgba(${baseCol},${dw.a * 0.8})`;
-    ctx.shadowBlur = 5; ctx.shadowColor = `rgba(${baseCol},${dw.a * 0.5})`;
+    ctx.fillStyle = `rgba(${baseCol},${dw.a * 0.85})`;
+    ctx.shadowBlur = 6; ctx.shadowColor = `rgba(${baseCol},${dw.a * 0.6})`;
     ctx.fillText(dw.text, dw.x, dw.y);
     ctx.shadowBlur = 0;
   }
 
   // Update state/pct in UI occasionally
   if (T1D.tick % 90 === 0) {
-    // pct drifts based on session signals
     const target = Math.floor(15 + res * 70 + Math.sin(T1D.tick * 0.005) * 8);
     T1D.pct = clamp(target + rng(6) - 3, 5, 95);
-    // State changes every ~4-5 cycles
     if (T1D.tick % 450 === 0) {
       T1D.state = T1D_STATES[rng(T1D_STATES.length)];
     }
@@ -3518,174 +3873,198 @@ function diagSelect(fp, prox, lastFreq) {
 function drawGalvanometer() {
   const cv = $('galv-cv');
   if (!cv) return;
+  // Adjust canvas to actual rendered size (avoid stretching)
+  if (cv.width !== cv.clientWidth || cv.height !== cv.clientHeight) {
+    cv.width = cv.clientWidth || cv.width;
+    cv.height = cv.clientHeight || cv.height;
+  }
   const ctx = cv.getContext('2d');
   const W = cv.width, H = cv.height;
   ctx.clearRect(0, 0, W, H);
-  // Background
   ctx.fillStyle = 'rgba(0,4,12,.5)';
   ctx.fillRect(0, 0, W, H);
-  const cx = W / 2, cy = H - 4;
-  const R = Math.min(W / 2 - 4, H - 8);
-  // Arc background — semi-circle from -PI to 0 (top half)
-  // 3 zones: 0..0.55 green / 0.55..0.78 amber / 0.78..1 hot
-  const a0 = Math.PI; // left
-  const a1 = 0;       // right
+  // Pivot near bottom, arc opens UPWARD via top semicircle
+  const cx = W / 2;
+  const R = Math.min(W * 0.42, H * 0.85);
+  const cy = H * 0.78;  // pivot below center
+  // Arc passes through TOP: from -PI (left) to 0 (right) is the upper half in canvas Y-down
+  // angAt(0) = -PI (left bottom), angAt(0.5) = -PI/2 (top), angAt(1) = 0 (right bottom)
+  const a0 = -Math.PI, a1 = 0;
   function angAt(v) { return a0 + (a1 - a0) * clamp(v, 0, 1); }
-  // Green zone
-  ctx.beginPath();
-  ctx.arc(cx, cy, R, angAt(0), angAt(0.55), false);
-  ctx.lineWidth = 2.2; ctx.strokeStyle = 'rgba(0,255,170,.32)'; ctx.stroke();
-  // Amber zone
-  ctx.beginPath();
-  ctx.arc(cx, cy, R, angAt(0.55), angAt(0.78), false);
-  ctx.strokeStyle = 'rgba(255,204,0,.42)'; ctx.stroke();
-  // Hot zone
-  ctx.beginPath();
-  ctx.arc(cx, cy, R, angAt(0.78), angAt(1), false);
-  ctx.strokeStyle = 'rgba(255,80,120,.55)'; ctx.stroke();
-
+  // 3 zones — green / amber / hot
+  ctx.lineWidth = 3.5;
+  ctx.beginPath(); ctx.arc(cx, cy, R, angAt(0), angAt(0.55)); ctx.strokeStyle = 'rgba(0,255,170,.5)'; ctx.stroke();
+  ctx.beginPath(); ctx.arc(cx, cy, R, angAt(0.55), angAt(0.78)); ctx.strokeStyle = 'rgba(255,204,0,.6)'; ctx.stroke();
+  ctx.beginPath(); ctx.arc(cx, cy, R, angAt(0.78), angAt(1)); ctx.strokeStyle = 'rgba(255,80,120,.7)'; ctx.stroke();
   // Tick marks
-  ctx.lineWidth = 0.5;
+  ctx.lineWidth = 0.6;
   for (let i = 0; i <= 10; i++) {
-    const t = i / 10;
-    const a = angAt(t);
-    const r1 = R - 1.5, r2 = i % 5 === 0 ? R - 5 : R - 3;
+    const t = i / 10, a = angAt(t);
+    const major = i % 5 === 0;
+    const r1 = R - 2, r2 = major ? R - 7 : R - 4;
     ctx.beginPath();
     ctx.moveTo(cx + Math.cos(a) * r1, cy + Math.sin(a) * r1);
     ctx.lineTo(cx + Math.cos(a) * r2, cy + Math.sin(a) * r2);
-    ctx.strokeStyle = 'rgba(0,212,255,.32)';
+    ctx.strokeStyle = 'rgba(0,212,255,.4)';
     ctx.stroke();
   }
-
-  // Update needle — physics: target + spring + jitter
+  // Needle physics
   const res = freqData.resonanceLevel || 0;
   CONV.galvAngTgt = res;
-  // Spring
-  const k = 0.18;
-  CONV.galvAng += (CONV.galvAngTgt - CONV.galvAng) * k;
-  // Mechanical jitter — proportional to signal volatility
+  CONV.galvAng += (CONV.galvAngTgt - CONV.galvAng) * 0.18;
   CONV.galvTick++;
   const fp = (typeof buildFingerprint === 'function') ? buildFingerprint() : { volatility: 0.5 };
   const jitterAmp = clamp(fp.volatility * 0.012, 0.001, 0.02);
   CONV.galvJitter = (CONV.galvJitter + (Math.random() - 0.5) * jitterAmp * 2) * 0.78;
   const drawn = clamp(CONV.galvAng + CONV.galvJitter, 0, 1);
   const ang = angAt(drawn);
-
   // Needle
   const needleR = R - 4;
   const tipX = cx + Math.cos(ang) * needleR;
   const tipY = cy + Math.sin(ang) * needleR;
-  // Glow color by zone
-  let needleCol = '0,255,170';
-  if (drawn > 0.78) needleCol = '255,80,120';
-  else if (drawn > 0.55) needleCol = '255,204,0';
-  ctx.shadowBlur = 6; ctx.shadowColor = `rgba(${needleCol},.7)`;
+  let needleCol = drawn > 0.78 ? '255,80,120' : drawn > 0.55 ? '255,204,0' : '0,255,170';
+  ctx.shadowBlur = 8; ctx.shadowColor = `rgba(${needleCol},.7)`;
   ctx.strokeStyle = `rgba(${needleCol},.95)`;
-  ctx.lineWidth = 1.4;
+  ctx.lineWidth = 1.6;
   ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(tipX, tipY); ctx.stroke();
   ctx.shadowBlur = 0;
-  // Pivot
-  ctx.fillStyle = `rgba(${needleCol},.9)`;
-  ctx.beginPath(); ctx.arc(cx, cy, 1.6, 0, Math.PI * 2); ctx.fill();
-
-  // Center text — value + state
+  ctx.fillStyle = `rgba(${needleCol},.95)`;
+  ctx.beginPath(); ctx.arc(cx, cy, 2, 0, Math.PI * 2); ctx.fill();
+  // Center text — readout placed in upper part of arc
   const pct = (res * 100).toFixed(0);
-  let state = 'SCAN';
-  if (res > 0.78) state = 'CONTACT';
-  else if (res > 0.55) state = 'APPROCHE';
-  else if (res > 0.3) state = 'APPRENT';
-  ctx.font = 'bold 8.5px "Orbitron",monospace';
+  let state = res > 0.78 ? 'CONTACT' : res > 0.55 ? 'APPROCHE' : res > 0.3 ? 'APPRENT' : 'SCAN';
+  const readoutY = cy - R * 0.55;
+  ctx.font = 'bold 11px "Orbitron",monospace';
   ctx.fillStyle = `rgba(${needleCol},.95)`;
   ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
   ctx.shadowBlur = 4; ctx.shadowColor = `rgba(${needleCol},.5)`;
-  ctx.fillText(pct + '%', cx, cy - R * 0.55);
+  ctx.fillText(pct + '%', cx, readoutY);
   ctx.shadowBlur = 0;
-  ctx.font = 'bold 5px "Share Tech Mono",monospace';
+  ctx.font = 'bold 5.5px "Share Tech Mono",monospace';
   ctx.fillStyle = `rgba(${needleCol},.65)`;
-  ctx.fillText(state, cx, cy - R * 0.28);
+  ctx.fillText(state, cx, readoutY + 11);
 }
 
 function drawSpectrum() {
   const cv = $('spec-cv');
   if (!cv) return;
+  if (cv.width !== cv.clientWidth || cv.height !== cv.clientHeight) {
+    cv.width = cv.clientWidth || cv.width;
+    cv.height = cv.clientHeight || cv.height;
+  }
   const ctx = cv.getContext('2d');
   const W = cv.width, H = cv.height;
-  ctx.clearRect(0, 0, W, H);
-  ctx.fillStyle = 'rgba(0,3,10,.7)';
+  // Trail
+  ctx.fillStyle = 'rgba(0,2,8,.18)';
   ctx.fillRect(0, 0, W, H);
-  // Spectrum 0..20Hz
-  const minF = 0, maxF = 20;
-  const padL = 4, padR = 4;
-  const spanW = W - padL - padR;
-  // Tick marks
-  ctx.font = '4px "Share Tech Mono",monospace';
-  ctx.fillStyle = 'rgba(0,212,255,.3)';
-  ctx.textAlign = 'center'; ctx.textBaseline = 'top';
-  for (let f = 0; f <= 20; f += 5) {
-    const x = padL + (f - minF) / (maxF - minF) * spanW;
-    ctx.strokeStyle = 'rgba(0,212,255,.18)';
-    ctx.lineWidth = 0.5;
-    ctx.beginPath(); ctx.moveTo(x, H - 7); ctx.lineTo(x, H - 5); ctx.stroke();
-    ctx.fillText(String(f), x, H - 4);
-  }
-  // 13.7Hz target line
-  const tx = padL + (13.7 - minF) / (maxF - minF) * spanW;
-  ctx.strokeStyle = 'rgba(255,204,0,.78)';
-  ctx.lineWidth = 1;
-  ctx.shadowBlur = 5; ctx.shadowColor = 'rgba(255,204,0,.5)';
-  // Animated dashed line for target
-  ctx.setLineDash([2, 3]);
-  ctx.lineDashOffset = -CONV.tick * 0.2;
-  ctx.beginPath(); ctx.moveTo(tx, 1); ctx.lineTo(tx, H - 8); ctx.stroke();
-  ctx.setLineDash([]);
-  ctx.shadowBlur = 0;
-  ctx.fillStyle = 'rgba(255,204,0,.85)';
-  ctx.font = 'bold 4.5px "Share Tech Mono",monospace';
-  ctx.textAlign = 'center'; ctx.textBaseline = 'top';
-  ctx.fillText('13.7', tx, 0);
+  ctx.fillStyle = 'rgba(0,3,10,.55)';
+  ctx.fillRect(0, 0, W, H);
+  CONV.tick++;
+  // Scroll position based on tick
+  if (!CONV.specScroll) CONV.specScroll = 0;
+  CONV.specScroll += 0.12;
 
-  // Cursor — current freq, smoothed
+  const padL = 4, padR = 4, padT = 4, padB = 14;
+  const spanW = W - padL - padR, spanH = H - padT - padB;
+  const baseY = padT + spanH / 2;
+  const minF = 0, maxF = 20;
+  const fSpan = maxF - minF;
+
+  // Rotating cylindrical drum: showing current freq as a column,
+  // and recent measurements drift to the LEFT (out of view)
+  const hist = freqData.freqHistory.slice(-30);
+  // Current cursor — smoothed
   const lastF = freqData.lastFreq || 0;
   CONV.specCursor += (lastF - CONV.specCursor) * 0.18;
-  const cx = padL + clamp((CONV.specCursor - minF) / (maxF - minF), 0, 1) * spanW;
+
+  // 13.7 target line — pulsing dashed
+  const tx = padL + (13.7 - minF) / fSpan * spanW;
+  ctx.strokeStyle = 'rgba(255,204,0,.6)';
+  ctx.lineWidth = 1;
+  ctx.setLineDash([3, 4]);
+  ctx.lineDashOffset = -CONV.tick * 0.5;
+  ctx.shadowBlur = 5; ctx.shadowColor = 'rgba(255,204,0,.4)';
+  ctx.beginPath(); ctx.moveTo(tx, padT); ctx.lineTo(tx, padT + spanH); ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.shadowBlur = 0;
+
+  // Plot recent history as drifting "ribbons" — newest on right, scrolling left
+  for (let i = 0; i < hist.length; i++) {
+    const ageT = (hist.length - 1 - i) / Math.max(1, hist.length - 1);  // 0 = newest, 1 = oldest
+    const f = hist[i];
+    if (!f || f < 0.1) continue;
+    const dist = Math.abs(f - 13.7);
+    const proximity = Math.max(0, 1 - dist / 8);
+    const col = proximity > 0.85 ? '0,255,170' : proximity > 0.55 ? '255,204,0' : '0,200,255';
+    const fx = padL + (f - minF) / fSpan * spanW;
+    const alpha = (1 - ageT) * 0.65;
+    // Vertical bar (height = proximity), pulsing
+    const barH = (0.3 + proximity * 0.7) * spanH;
+    const barTop = baseY - barH / 2;
+    ctx.strokeStyle = `rgba(${col},${alpha})`;
+    ctx.lineWidth = ageT < 0.05 ? 2 : 1;
+    ctx.beginPath();
+    ctx.moveTo(fx, barTop);
+    ctx.lineTo(fx, barTop + barH);
+    ctx.stroke();
+    // Cap
+    if (ageT < 0.1) {
+      ctx.shadowBlur = 6; ctx.shadowColor = `rgba(${col},.7)`;
+      ctx.fillStyle = `rgba(${col},${alpha + 0.3})`;
+      ctx.beginPath(); ctx.arc(fx, barTop, 2, 0, Math.PI * 2); ctx.fill();
+      ctx.beginPath(); ctx.arc(fx, barTop + barH, 2, 0, Math.PI * 2); ctx.fill();
+      ctx.shadowBlur = 0;
+    }
+  }
+
+  // Cursor: current freq, prominent
+  const cx = padL + clamp((CONV.specCursor - minF) / fSpan, 0, 1) * spanW;
   const dist = Math.abs(CONV.specCursor - 13.7);
   const proximity = Math.max(0, 1 - dist / 9);
-  let curCol = proximity > 0.85 ? '0,255,170' : proximity > 0.55 ? '255,204,0' : '0,212,255';
-  // Spectrum density "halo" around cursor — denser when close
+  const curCol = proximity > 0.85 ? '0,255,170' : proximity > 0.55 ? '255,204,0' : '0,200,255';
   ctx.shadowBlur = 8; ctx.shadowColor = `rgba(${curCol},.7)`;
-  // Cursor dot (vertical bar)
-  const haloW = 1 + proximity * 6;
-  ctx.strokeStyle = `rgba(${curCol},.9)`;
-  ctx.lineWidth = haloW;
-  ctx.globalAlpha = 0.35;
-  ctx.beginPath(); ctx.moveTo(cx, 2); ctx.lineTo(cx, H - 7); ctx.stroke();
-  ctx.globalAlpha = 1;
-  ctx.lineWidth = 1.5;
-  ctx.beginPath(); ctx.moveTo(cx, 2); ctx.lineTo(cx, H - 7); ctx.stroke();
-  ctx.shadowBlur = 0;
-  // Top marker
+  ctx.strokeStyle = `rgba(${curCol},.95)`;
+  ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.moveTo(cx, padT); ctx.lineTo(cx, padT + spanH); ctx.stroke();
+  // Triangle cap
   ctx.fillStyle = `rgba(${curCol},1)`;
   ctx.beginPath();
-  ctx.moveTo(cx, 2); ctx.lineTo(cx - 2, 0); ctx.lineTo(cx + 2, 0);
+  ctx.moveTo(cx, padT); ctx.lineTo(cx - 3, padT - 3); ctx.lineTo(cx + 3, padT - 3);
   ctx.closePath(); ctx.fill();
+  ctx.shadowBlur = 0;
 
-  // Δ value — distance to target
-  ctx.font = 'bold 5.5px "Share Tech Mono",monospace';
+  // Tick marks
+  ctx.font = '5px "Share Tech Mono",monospace';
+  ctx.fillStyle = 'rgba(0,212,255,.45)';
+  ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+  for (let f = 0; f <= 20; f += 5) {
+    const x = padL + (f - minF) / fSpan * spanW;
+    ctx.strokeStyle = 'rgba(0,212,255,.2)';
+    ctx.lineWidth = 0.5;
+    ctx.beginPath(); ctx.moveTo(x, padT + spanH); ctx.lineTo(x, padT + spanH + 2); ctx.stroke();
+    ctx.fillText(String(f), x, padT + spanH + 3);
+  }
+  // Live readout: Hz + Δ
+  ctx.font = 'bold 6px "Share Tech Mono",monospace';
   ctx.textAlign = 'left'; ctx.textBaseline = 'top';
   ctx.fillStyle = `rgba(${curCol},.85)`;
-  const sign = CONV.specCursor < 13.7 ? '−' : '+';
-  ctx.fillText(`Δ ${sign}${dist.toFixed(2)}Hz`, padL, 1);
+  ctx.fillText(CONV.specCursor.toFixed(2) + 'Hz', padL + 1, 1);
   ctx.textAlign = 'right';
-  ctx.fillText(CONV.specCursor.toFixed(2), W - padR, 1);
+  const sign = CONV.specCursor < 13.7 ? '−' : '+';
+  ctx.fillText(`Δ ${sign}${dist.toFixed(2)}`, W - padR - 1, 1);
 }
 
 function drawTrace() {
   const cv = $('trace-cv');
   if (!cv) return;
+  if (cv.width !== cv.clientWidth || cv.height !== cv.clientHeight) {
+    cv.width = cv.clientWidth || cv.width;
+    cv.height = cv.clientHeight || cv.height;
+  }
   const ctx = cv.getContext('2d');
   const W = cv.width, H = cv.height;
-  // Persistence — fade old
-  ctx.fillStyle = 'rgba(0,2,8,.16)';
+  // Persistence trail — short for visible motion
+  ctx.fillStyle = 'rgba(0,2,8,.10)';
   ctx.fillRect(0, 0, W, H);
 
   // Add new point if available
@@ -3695,18 +4074,24 @@ function drawTrace() {
     const curr = hist[hist.length - 1];
     const last = CONV.tracePts[CONV.tracePts.length - 1];
     if (!last || last.x !== prev || last.y !== curr) {
-      CONV.tracePts.push({ x: prev, y: curr, age: 0 });
+      CONV.tracePts.push({ x: prev, y: curr, age: 0, birth: CONV.tick });
       if (CONV.tracePts.length > CONV.traceMaxPts) CONV.tracePts.shift();
     }
   }
+  // Galactic rotation
+  if (!CONV.traceGalacticAng) CONV.traceGalacticAng = 0;
+  CONV.traceGalacticAng += 0.006;
 
-  // Plot — phase space (freq[t-1], freq[t])
   const minF = 4, maxF = 22;
   const range = maxF - minF;
   const pad = 3;
   const W2 = W - pad * 2, H2 = H - pad * 2;
-  // Diagonal y=x — perfect stability would be a line on this diagonal
-  ctx.strokeStyle = 'rgba(255,204,0,.18)';
+  // Center of galaxy = projection of (13.7, 13.7)
+  const galCx = pad + (13.7 - minF) / range * W2;
+  const galCy = pad + H2 - (13.7 - minF) / range * H2;
+
+  // Diagonal y=x (rotates with galaxy slightly)
+  ctx.strokeStyle = 'rgba(255,204,0,.16)';
   ctx.lineWidth = 0.5;
   ctx.setLineDash([1.5, 2]);
   ctx.beginPath();
@@ -3714,50 +4099,87 @@ function drawTrace() {
   ctx.stroke();
   ctx.setLineDash([]);
 
-  // 13.7 cross
-  const tx = pad + (13.7 - minF) / range * W2;
-  const ty = pad + H2 - (13.7 - minF) / range * H2;
-  ctx.strokeStyle = 'rgba(255,204,0,.35)';
+  // Galactic spiral arms (subtle background)
+  ctx.strokeStyle = 'rgba(0,200,255,.05)';
   ctx.lineWidth = 0.5;
-  ctx.beginPath();
-  ctx.moveTo(tx - 4, ty); ctx.lineTo(tx + 4, ty);
-  ctx.moveTo(tx, ty - 4); ctx.lineTo(tx, ty + 4);
-  ctx.stroke();
+  for (let arm = 0; arm < 2; arm++) {
+    ctx.beginPath();
+    for (let t = 0; t < 4; t += 0.05) {
+      const ang = t * 0.8 + arm * Math.PI + CONV.traceGalacticAng * 0.4;
+      const r = t * 8;
+      const sx = galCx + Math.cos(ang) * r;
+      const sy = galCy + Math.sin(ang) * r;
+      if (t === 0) ctx.moveTo(sx, sy);
+      else ctx.lineTo(sx, sy);
+    }
+    ctx.stroke();
+  }
 
-  // Connections between consecutive points (faded)
+  // 13.7 target cross (with glow)
+  ctx.strokeStyle = 'rgba(255,204,0,.5)';
+  ctx.lineWidth = 0.7;
+  ctx.shadowBlur = 5; ctx.shadowColor = 'rgba(255,204,0,.5)';
+  ctx.beginPath();
+  ctx.moveTo(galCx - 5, galCy); ctx.lineTo(galCx + 5, galCy);
+  ctx.moveTo(galCx, galCy - 5); ctx.lineTo(galCx, galCy + 5);
+  ctx.stroke();
+  ctx.shadowBlur = 0;
+
+  // Compute rotated positions: each point orbits around (13.7, 13.7) with differential angular velocity
+  function rotatePt(p) {
+    const ax = pad + clamp((p.x - minF) / range, 0, 1) * W2;
+    const ay = pad + H2 - clamp((p.y - minF) / range, 0, 1) * H2;
+    const dx = ax - galCx, dy = ay - galCy;
+    const r = Math.hypot(dx, dy);
+    if (r < 0.01) return { x: ax, y: ay, r: 0 };
+    // Differential rotation: omega(r) = base_omega * (1 / (1 + r/scale))
+    // Closer points rotate faster
+    const baseOmega = CONV.traceGalacticAng;
+    const omegaScale = 1 / (1 + r / 30);
+    const dAng = baseOmega * omegaScale;
+    const ang0 = Math.atan2(dy, dx);
+    const ang = ang0 + dAng;
+    return { x: galCx + Math.cos(ang) * r, y: galCy + Math.sin(ang) * r, r };
+  }
+
+  // Connect consecutive points (in rotated space)
   ctx.lineWidth = 0.4;
   for (let i = 1; i < CONV.tracePts.length; i++) {
     const a = CONV.tracePts[i - 1], b = CONV.tracePts[i];
     a.age++;
     const ageFactor = Math.max(0, 1 - i / CONV.tracePts.length);
-    const ax = pad + clamp((a.x - minF) / range, 0, 1) * W2;
-    const ay = pad + H2 - clamp((a.y - minF) / range, 0, 1) * H2;
-    const bx = pad + clamp((b.x - minF) / range, 0, 1) * W2;
-    const by = pad + H2 - clamp((b.y - minF) / range, 0, 1) * H2;
-    ctx.strokeStyle = `rgba(0,200,255,${ageFactor * 0.18})`;
-    ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(bx, by); ctx.stroke();
+    const ra = rotatePt(a), rb = rotatePt(b);
+    ctx.strokeStyle = `rgba(0,200,255,${ageFactor * 0.22})`;
+    ctx.beginPath(); ctx.moveTo(ra.x, ra.y); ctx.lineTo(rb.x, rb.y); ctx.stroke();
   }
 
   // Plot points
   for (let i = 0; i < CONV.tracePts.length; i++) {
     const p = CONV.tracePts[i];
-    const px = pad + clamp((p.x - minF) / range, 0, 1) * W2;
-    const py = pad + H2 - clamp((p.y - minF) / range, 0, 1) * H2;
+    const rp = rotatePt(p);
     const ageFactor = Math.max(0, 1 - i / CONV.tracePts.length);
     const recent = i >= CONV.tracePts.length - 3;
     const dist137 = Math.hypot(p.x - 13.7, p.y - 13.7);
     const near = dist137 < 1.5;
-    let col = near ? '0,255,170' : '0,200,255';
+    // Twinkle for older points
+    const tw = 0.7 + 0.3 * Math.sin(CONV.tick * 0.05 + i * 1.3);
+    const col = near ? '0,255,170' : '0,200,255';
     if (recent) {
-      ctx.fillStyle = `rgba(${col},${0.6 + ageFactor * 0.4})`;
-      ctx.shadowBlur = 4; ctx.shadowColor = `rgba(${col},.55)`;
-      ctx.beginPath(); ctx.arc(px, py, 1.4, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = `rgba(${col},${(0.6 + ageFactor * 0.4) * tw})`;
+      ctx.shadowBlur = 5; ctx.shadowColor = `rgba(${col},.6)`;
+      ctx.beginPath(); ctx.arc(rp.x, rp.y, 1.6, 0, Math.PI * 2); ctx.fill();
       ctx.shadowBlur = 0;
     } else {
-      ctx.fillStyle = `rgba(${col},${ageFactor * 0.55})`;
-      ctx.fillRect(px - 0.7, py - 0.7, 1.4, 1.4);
+      ctx.fillStyle = `rgba(${col},${ageFactor * 0.55 * tw})`;
+      ctx.fillRect(rp.x - 0.7, rp.y - 0.7, 1.4, 1.4);
     }
   }
+
+  // Galactic core dot
+  ctx.shadowBlur = 6; ctx.shadowColor = 'rgba(255,204,0,.6)';
+  ctx.fillStyle = 'rgba(255,220,80,.85)';
+  ctx.beginPath(); ctx.arc(galCx, galCy, 1.5, 0, Math.PI * 2); ctx.fill();
+  ctx.shadowBlur = 0;
 
   // Axis labels
   ctx.font = '4px "Share Tech Mono",monospace';
@@ -3774,77 +4196,88 @@ function drawTrace() {
 function drawPhaseLock() {
   const cv = $('lock-cv');
   if (!cv) return;
+  if (cv.width !== cv.clientWidth || cv.height !== cv.clientHeight) {
+    cv.width = cv.clientWidth || cv.width;
+    cv.height = cv.clientHeight || cv.height;
+  }
   const ctx = cv.getContext('2d');
   const W = cv.width, H = cv.height;
-  ctx.clearRect(0, 0, W, H);
-  ctx.fillStyle = 'rgba(0,3,10,.7)';
+  // Persistence trail for hypnotic effect
+  ctx.fillStyle = 'rgba(0,2,8,.22)';
+  ctx.fillRect(0, 0, W, H);
+  ctx.fillStyle = 'rgba(0,3,12,.45)';
   ctx.fillRect(0, 0, W, H);
   const cx = W / 2, cy = H / 2;
-  const R = Math.min(W, H) / 2 - 3;
-
-  // Phase lock metric: how stable is the frequency around its mean
   const fp = (typeof buildFingerprint === 'function') ? buildFingerprint() : { volatility: 1.5 };
-  // lockPct: 100% = perfectly stable, 0% = chaotic
   const targetLock = clamp(1 - fp.volatility / 4, 0, 1);
   CONV.lockPct += (targetLock - CONV.lockPct) * 0.06;
-
-  // Spin rate is proportional to volatility (chaotic = fast spin)
   const targetSpin = 0.005 + fp.volatility * 0.025;
   CONV.lockSpin += (targetSpin - CONV.lockSpin) * 0.08;
   CONV.lockAng += CONV.lockSpin;
-  // Add small jitter when very chaotic
   if (fp.volatility > 2) CONV.lockAng += (Math.random() - 0.5) * 0.04;
+  if (!CONV.lockTunnelZ) CONV.lockTunnelZ = 0;
+  const tunnelSpeed = 0.012 + fp.volatility * 0.012 + (1 - CONV.lockPct) * 0.012;
+  CONV.lockTunnelZ += tunnelSpeed;
+  if (CONV.lockTunnelZ > 1) CONV.lockTunnelZ -= 1;
 
-  // Outer ring
-  ctx.strokeStyle = 'rgba(0,212,255,.18)';
-  ctx.lineWidth = 0.6;
-  ctx.beginPath(); ctx.arc(cx, cy, R, 0, Math.PI * 2); ctx.stroke();
-  // Inner ring
-  ctx.strokeStyle = 'rgba(0,212,255,.1)';
-  ctx.beginPath(); ctx.arc(cx, cy, R - 6, 0, Math.PI * 2); ctx.stroke();
-
-  // Rotating disc — segments
-  const segments = 12;
-  for (let i = 0; i < segments; i++) {
-    const a0 = CONV.lockAng + i * (Math.PI * 2 / segments);
-    const a1 = a0 + (Math.PI * 2 / segments) * 0.8;
-    const alpha = (i % 3 === 0) ? 0.55 : 0.18;
-    let col = CONV.lockPct > 0.78 ? '0,255,170' : CONV.lockPct > 0.5 ? '255,204,0' : '0,212,255';
-    ctx.strokeStyle = `rgba(${col},${alpha * (0.4 + CONV.lockPct * 0.6)})`;
-    ctx.lineWidth = 1.3;
-    ctx.beginPath(); ctx.arc(cx, cy, R - 2, a0, a1); ctx.stroke();
+  const lockColRGB = CONV.lockPct > 0.78 ? [0, 255, 170] : CONV.lockPct > 0.5 ? [255, 204, 0] : [0, 200, 255];
+  const lockCol = lockColRGB.join(',');
+  // Mini tunnel: hyperbolic perspective concentric circles
+  const Rmax = Math.min(W, H) * 0.46;
+  const Rmin = 2;
+  const NUM_RINGS = 14;
+  for (let i = NUM_RINGS - 1; i >= 0; i--) {
+    const zRaw = (i + CONV.lockTunnelZ) / NUM_RINGS;
+    if (zRaw > 1) continue;
+    const persp = 1 / (1 + zRaw * 6);
+    const r = Rmin + (Rmax - Rmin) * persp;
+    if (r < 1) continue;
+    let alpha = 1;
+    if (zRaw > 0.85) alpha = (1 - zRaw) / 0.15;
+    if (zRaw < 0.04) alpha = zRaw / 0.04 * 0.5;
+    alpha = clamp(alpha, 0, 1);
+    const highlight = i % 3 === 0;
+    ctx.lineWidth = highlight ? 1.2 : 0.5;
+    ctx.strokeStyle = highlight
+      ? `rgba(${lockCol},${alpha * 0.7})`
+      : `rgba(${lockCol},${alpha * 0.22})`;
+    ctx.setLineDash([4, 2]);
+    ctx.lineDashOffset = -CONV.lockAng * 8 * persp;
+    ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2); ctx.stroke();
+    ctx.setLineDash([]);
   }
-
-  // Inner segments — rotate opposite direction (gives mechanical feel)
+  // Radial rails
   for (let i = 0; i < 8; i++) {
-    const a0 = -CONV.lockAng * 0.7 + i * (Math.PI * 2 / 8);
-    const a1 = a0 + (Math.PI * 2 / 8) * 0.6;
-    let col = CONV.lockPct > 0.78 ? '0,255,170' : '0,180,220';
-    ctx.strokeStyle = `rgba(${col},.32)`;
-    ctx.lineWidth = 1;
-    ctx.beginPath(); ctx.arc(cx, cy, R - 8, a0, a1); ctx.stroke();
+    const a = CONV.lockAng * 0.4 + (i / 8) * Math.PI * 2;
+    const ix = cx + Math.cos(a) * (Rmin + 2);
+    const iy = cy + Math.sin(a) * (Rmin + 2);
+    const ox = cx + Math.cos(a) * Rmax;
+    const oy = cy + Math.sin(a) * Rmax;
+    const grad = ctx.createLinearGradient(ix, iy, ox, oy);
+    grad.addColorStop(0, `rgba(${lockCol},.04)`);
+    grad.addColorStop(1, `rgba(${lockCol},.18)`);
+    ctx.strokeStyle = grad;
+    ctx.lineWidth = i % 2 === 0 ? 0.7 : 0.4;
+    ctx.beginPath(); ctx.moveTo(ix, iy); ctx.lineTo(ox, oy); ctx.stroke();
   }
-
-  // Center hub
-  let hubCol = CONV.lockPct > 0.78 ? '0,255,170' : CONV.lockPct > 0.5 ? '255,204,0' : '0,212,255';
-  ctx.shadowBlur = 6; ctx.shadowColor = `rgba(${hubCol},.5)`;
-  ctx.fillStyle = `rgba(${hubCol},.85)`;
-  ctx.beginPath(); ctx.arc(cx, cy, 2, 0, Math.PI * 2); ctx.fill();
+  // Hub
+  ctx.shadowBlur = 10; ctx.shadowColor = `rgba(${lockCol},.7)`;
+  ctx.fillStyle = `rgba(${lockCol},.95)`;
+  ctx.beginPath(); ctx.arc(cx, cy, 3, 0, Math.PI * 2); ctx.fill();
   ctx.shadowBlur = 0;
-
-  // Center text
-  ctx.font = 'bold 7.5px "Orbitron",monospace';
-  ctx.fillStyle = `rgba(${hubCol},.95)`;
+  ctx.fillStyle = 'rgba(255,255,255,.95)';
+  ctx.beginPath(); ctx.arc(cx, cy, 1, 0, Math.PI * 2); ctx.fill();
+  // Readout
+  ctx.font = 'bold 13px "Orbitron",monospace';
+  ctx.fillStyle = `rgba(${lockCol},.95)`;
   ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-  ctx.shadowBlur = 4; ctx.shadowColor = `rgba(${hubCol},.4)`;
-  ctx.fillText((CONV.lockPct * 100).toFixed(0) + '%', cx, cy - R * 0.42);
+  ctx.shadowBlur = 6; ctx.shadowColor = `rgba(${lockCol},.5)`;
+  ctx.fillText((CONV.lockPct * 100).toFixed(0) + '%', cx, cy - H * 0.3);
   ctx.shadowBlur = 0;
-
-  // Bottom label inside the disc
-  ctx.font = '4px "Share Tech Mono",monospace';
-  ctx.fillStyle = `rgba(${hubCol},.55)`;
+  ctx.font = 'bold 5.5px "Share Tech Mono",monospace';
+  ctx.fillStyle = `rgba(${lockCol},.6)`;
   let stateLbl = CONV.lockPct > 0.78 ? 'LOCK' : CONV.lockPct > 0.5 ? 'TRACK' : 'DRIFT';
-  ctx.fillText(stateLbl, cx, cy + R * 0.55);
+  ctx.fillText(stateLbl, cx, cy - H * 0.3 + 12);
 }
 
 function updateConvergence() {
@@ -4052,39 +4485,65 @@ function drawGalvLarge(W, H) {
   ctx.clearRect(0, 0, W, H);
   ctx.fillStyle = 'rgba(0,4,12,.4)';
   ctx.fillRect(0, 0, W, H);
-  const cx = W / 2, cy = H * 0.78;
-  const R = Math.min(W * 0.42, H * 0.7);
-  const a0 = Math.PI, a1 = 0;
+  // Pivot near bottom, arc opens upward via TOP semicircle
+  const cx = W / 2;
+  const R = Math.min(W * 0.42, H * 0.62);
+  const cy = H / 2 + R * 0.45;
+  // Arc from -PI (left) to 0 (right) — passes through TOP at -PI/2
+  const a0 = -Math.PI, a1 = 0;
   const angAt = v => a0 + (a1 - a0) * clamp(v, 0, 1);
-  // 3 zones
-  const zones = [[0, 0.55, 'rgba(0,255,170,.4)'], [0.55, 0.78, 'rgba(255,204,0,.55)'], [0.78, 1, 'rgba(255,80,120,.7)']];
-  ctx.lineWidth = 8;
+  // Background arc track (very dim full ring base)
+  ctx.strokeStyle = 'rgba(0,212,255,.08)';
+  ctx.lineWidth = 9;
+  ctx.beginPath(); ctx.arc(cx, cy, R, a0, a1, false); ctx.stroke();
+  // 3 zones colored
+  const zones = [
+    [0, 0.55, 'rgba(0,255,170,.5)'],
+    [0.55, 0.78, 'rgba(255,204,0,.6)'],
+    [0.78, 1, 'rgba(255,80,120,.75)'],
+  ];
+  ctx.lineWidth = 9;
   zones.forEach(([s, e, c]) => {
     ctx.strokeStyle = c;
-    ctx.beginPath();
-    ctx.arc(cx, cy, R, angAt(s), angAt(e), false);
-    ctx.stroke();
+    ctx.beginPath(); ctx.arc(cx, cy, R, angAt(s), angAt(e), false); ctx.stroke();
   });
-  // Tick marks
+  // Tick marks + labels — every 10%
   ctx.lineWidth = 1.4;
   for (let i = 0; i <= 20; i++) {
     const t = i / 20;
     const a = angAt(t);
-    const r1 = R - 6, r2 = i % 5 === 0 ? R - 18 : R - 12;
+    const major = i % 5 === 0;
+    const r1 = R - 6, r2 = major ? R - 20 : R - 12;
     ctx.beginPath();
     ctx.moveTo(cx + Math.cos(a) * r1, cy + Math.sin(a) * r1);
     ctx.lineTo(cx + Math.cos(a) * r2, cy + Math.sin(a) * r2);
-    ctx.strokeStyle = 'rgba(0,212,255,.45)';
+    ctx.strokeStyle = 'rgba(0,212,255,.55)';
     ctx.stroke();
-    if (i % 5 === 0) {
+    if (major) {
       ctx.font = '11px "Share Tech Mono",monospace';
-      ctx.fillStyle = 'rgba(0,212,255,.55)';
+      ctx.fillStyle = 'rgba(0,212,255,.65)';
       ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
       const lbl = String(t * 100 | 0);
-      ctx.fillText(lbl, cx + Math.cos(a) * (R - 28), cy + Math.sin(a) * (R - 28));
+      ctx.fillText(lbl, cx + Math.cos(a) * (R - 32), cy + Math.sin(a) * (R - 32));
     }
   }
-  // Needle
+  // Zone labels — SCAN / APPROCHE / CONTACT
+  const zoneLbls = [
+    { mid: 0.275, lbl: 'SCAN', col: '0,255,170' },
+    { mid: 0.665, lbl: 'APPROCHE', col: '255,204,0' },
+    { mid: 0.89, lbl: 'CONTACT', col: '255,80,120' },
+  ];
+  ctx.font = 'bold 9px "Share Tech Mono",monospace';
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  zoneLbls.forEach(z => {
+    const a = angAt(z.mid);
+    const tx = cx + Math.cos(a) * (R + 16);
+    const ty = cy + Math.sin(a) * (R + 16);
+    ctx.fillStyle = `rgba(${z.col},.5)`;
+    ctx.fillText(z.lbl, tx, ty);
+  });
+
+  // Needle physics
   const res = freqData.resonanceLevel || 0;
   CONV.galvAngTgt = res;
   CONV.galvAng += (CONV.galvAngTgt - CONV.galvAng) * 0.18;
@@ -4093,27 +4552,44 @@ function drawGalvLarge(W, H) {
   CONV.galvJitter = (CONV.galvJitter + (Math.random() - 0.5) * jitterAmp * 2) * 0.78;
   const drawn = clamp(CONV.galvAng + CONV.galvJitter, 0, 1);
   const ang = angAt(drawn);
-  const tipX = cx + Math.cos(ang) * (R - 10);
-  const tipY = cy + Math.sin(ang) * (R - 10);
+  const tipX = cx + Math.cos(ang) * (R - 14);
+  const tipY = cy + Math.sin(ang) * (R - 14);
   let needleCol = drawn > 0.78 ? '255,80,120' : drawn > 0.55 ? '255,204,0' : '0,255,170';
+  // Needle shadow tail (counterweight on the other side of pivot)
+  ctx.strokeStyle = `rgba(${needleCol},.4)`;
+  ctx.lineWidth = 2.5;
+  ctx.beginPath();
+  ctx.moveTo(cx, cy);
+  ctx.lineTo(cx - Math.cos(ang) * 14, cy - Math.sin(ang) * 14);
+  ctx.stroke();
+  // Main needle
   ctx.shadowBlur = 18; ctx.shadowColor = `rgba(${needleCol},.7)`;
   ctx.strokeStyle = `rgba(${needleCol},.95)`;
   ctx.lineWidth = 3.5;
   ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(tipX, tipY); ctx.stroke();
   ctx.shadowBlur = 0;
+  // Pivot
   ctx.fillStyle = `rgba(${needleCol},.95)`;
-  ctx.beginPath(); ctx.arc(cx, cy, 5, 0, Math.PI * 2); ctx.fill();
-  // Big readout
+  ctx.beginPath(); ctx.arc(cx, cy, 5.5, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = `rgba(${needleCol},.6)`;
+  ctx.beginPath(); ctx.arc(cx, cy, 9, 0, Math.PI * 2); ctx.fill();
+  // Inner pivot ring
+  ctx.strokeStyle = 'rgba(0,212,255,.45)';
+  ctx.lineWidth = 0.8;
+  ctx.beginPath(); ctx.arc(cx, cy, 12, 0, Math.PI * 2); ctx.stroke();
+
+  // Big readout — placed in middle of arc area (above pivot, below top of arc)
+  const readoutY = cy - R * 0.55;
   let stLabel = res > 0.78 ? 'CONTACT' : res > 0.55 ? 'APPROCHE' : res > 0.3 ? 'APPRENT.' : 'SCAN';
-  ctx.font = 'bold 36px "Orbitron",monospace';
+  ctx.font = 'bold 42px "Orbitron",monospace';
   ctx.fillStyle = `rgba(${needleCol},.95)`;
   ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-  ctx.shadowBlur = 12; ctx.shadowColor = `rgba(${needleCol},.5)`;
-  ctx.fillText((res * 100).toFixed(1) + '%', cx, cy - R * 0.5);
+  ctx.shadowBlur = 14; ctx.shadowColor = `rgba(${needleCol},.5)`;
+  ctx.fillText((res * 100).toFixed(1) + '%', cx, readoutY);
   ctx.shadowBlur = 0;
-  ctx.font = 'bold 14px "Share Tech Mono",monospace';
-  ctx.fillStyle = `rgba(${needleCol},.65)`;
-  ctx.fillText(stLabel, cx, cy - R * 0.32);
+  ctx.font = 'bold 13px "Share Tech Mono",monospace';
+  ctx.fillStyle = `rgba(${needleCol},.7)`;
+  ctx.fillText(stLabel, cx, readoutY + 30);
 }
 
 function drawSpecLarge(W, H) {
@@ -4121,112 +4597,241 @@ function drawSpecLarge(W, H) {
   if (!cv) return;
   cv.width = W; cv.height = H;
   const ctx = cv.getContext('2d');
-  ctx.clearRect(0, 0, W, H);
-  ctx.fillStyle = 'rgba(0,3,10,.7)';
+  ctx.fillStyle = 'rgba(0,2,8,.18)';
+  ctx.fillRect(0, 0, W, H);
+  ctx.fillStyle = 'rgba(0,3,10,.45)';
   ctx.fillRect(0, 0, W, H);
   CONV.tick++;
-  const minF = 0, maxF = 20;
-  const padL = 60, padR = 60, padT = 60, padB = 90;
-  const spanW = W - padL - padR;
-  const spanH = H - padT - padB;
-  const baseY = padT + spanH / 2;
-  // Frequency axis (horizontal line in middle-ish)
-  ctx.strokeStyle = 'rgba(0,212,255,.18)';
-  ctx.lineWidth = 1;
-  ctx.beginPath(); ctx.moveTo(padL, baseY); ctx.lineTo(W - padR, baseY); ctx.stroke();
-  // Tick marks with labels
-  ctx.font = '10px "Share Tech Mono",monospace';
-  ctx.fillStyle = 'rgba(0,212,255,.55)';
-  ctx.textAlign = 'center'; ctx.textBaseline = 'top';
-  for (let f = 0; f <= 20; f += 1) {
-    const x = padL + (f - minF) / (maxF - minF) * spanW;
-    const isMajor = f % 5 === 0;
-    ctx.strokeStyle = `rgba(0,212,255,${isMajor ? 0.55 : 0.18})`;
-    ctx.lineWidth = isMajor ? 1.2 : 0.6;
-    ctx.beginPath(); ctx.moveTo(x, baseY); ctx.lineTo(x, baseY + (isMajor ? 12 : 5)); ctx.stroke();
-    if (isMajor) ctx.fillText(String(f), x, baseY + 14);
-  }
-  // 13.7 target line
-  const tx = padL + (13.7 - minF) / (maxF - minF) * spanW;
-  ctx.strokeStyle = 'rgba(255,204,0,.78)';
-  ctx.lineWidth = 1.8;
-  ctx.shadowBlur = 12; ctx.shadowColor = 'rgba(255,204,0,.6)';
-  ctx.setLineDash([4, 6]);
-  ctx.lineDashOffset = -CONV.tick * 0.4;
-  ctx.beginPath(); ctx.moveTo(tx, padT); ctx.lineTo(tx, H - padB + 18); ctx.stroke();
-  ctx.setLineDash([]);
-  ctx.shadowBlur = 0;
-  ctx.fillStyle = 'rgba(255,220,80,.95)';
-  ctx.font = 'bold 12px "Share Tech Mono",monospace';
-  ctx.textAlign = 'center';
-  ctx.fillText('13.7 Hz CIBLE', tx, padT - 18);
-  // Cursor
+  if (!CONV.specCamYaw) CONV.specCamYaw = 0;
+  // Slow camera rotation — gentle yaw
+  CONV.specCamYaw += 0.003;
+  // Yaw oscillates slightly (look around)
+  const yaw = Math.sin(CONV.specCamYaw) * 0.32;
+
+  const padX = 70;
+  const headerH = 90;
+  const footerH = 70;
+  const gridW = W - padX * 2;
+  const gridH = H - headerH - footerH;
+  const minF = 0, maxF = 20, fSpan = maxF - minF;
+  const N = 24;
+  const hist = freqData.freqHistory.slice();
+  const recentHist = hist.slice(-N);
+  while (recentHist.length < N) recentHist.unshift(0);
   const lastF = freqData.lastFreq || 0;
   CONV.specCursor += (lastF - CONV.specCursor) * 0.18;
-  const cx = padL + clamp((CONV.specCursor - minF) / (maxF - minF), 0, 1) * spanW;
+
+  // 3D projection with yaw rotation around vertical axis through center
+  // World coords: x = freq, y = magnitude (height), z = depth (time)
+  const camHeight = 0.4;  // looking slightly down
+  const cosY = Math.cos(yaw), sinY = Math.sin(yaw);
+  const projCx = W / 2;
+  const projBaseY = headerH + gridH;
+  const vpY = headerH + gridH * 0.18;
+
+  function project3D(freqVal, magnitude, depthT) {
+    // Center freq around mid then rotate around Y axis
+    const xLocal = ((freqVal - minF) / fSpan - 0.5) * gridW;
+    const zLocal = (depthT - 0.5) * gridH * 0.7;  // depth axis: depth 0 = front (z<0), depth 1 = back (z>0)
+    // Rotate around Y axis (yaw)
+    const xRot = xLocal * cosY - zLocal * sinY;
+    const zRot = xLocal * sinY + zLocal * cosY;
+    // Perspective foreshortening
+    const persp = 1 / (1 + (zRot / gridH) * 0.85);
+    const screenX = projCx + xRot * persp;
+    const baseY = projBaseY + (zRot / gridH) * (vpY - projBaseY) * 0.7;
+    const heightPx = magnitude * gridH * 0.55 * persp;
+    return { x: screenX, y: baseY - heightPx, baseY, persp, zRot };
+  }
+
+  // ─── BACKGROUND GRID (rotated) ───
+  ctx.strokeStyle = 'rgba(0,212,255,.06)';
+  ctx.lineWidth = 0.5;
+  // Frequency lines in depth
+  for (let f = 0; f <= 20; f += 5) {
+    const p0 = project3D(f, 0, 0);
+    const p1 = project3D(f, 0, 1);
+    ctx.beginPath();
+    ctx.moveTo(p0.x, p0.baseY);
+    ctx.lineTo(p1.x, p1.baseY);
+    ctx.stroke();
+  }
+  // Depth lines across freq range
+  for (let d = 0; d <= 4; d++) {
+    const dt = d / 4;
+    ctx.beginPath();
+    let started = false;
+    for (let f = 0; f <= 20; f += 1) {
+      const p = project3D(f, 0, dt);
+      if (!started) { ctx.moveTo(p.x, p.baseY); started = true; }
+      else ctx.lineTo(p.x, p.baseY);
+    }
+    ctx.strokeStyle = `rgba(0,212,255,${0.05 + 0.05 * (1 - dt)})`;
+    ctx.stroke();
+  }
+
+  // ─── 13.7 TARGET RIDGE — rotating tower in space ───
+  ctx.lineWidth = 2;
+  ctx.strokeStyle = 'rgba(255,204,0,.7)';
+  ctx.shadowBlur = 14; ctx.shadowColor = 'rgba(255,204,0,.5)';
+  ctx.setLineDash([4, 5]);
+  ctx.lineDashOffset = -CONV.tick * 0.4;
+  // Tower segments at multiple depths
+  for (let d = 0; d <= 1; d += 0.05) {
+    const p = project3D(13.7, 0, d);
+    if (d === 0) {
+      ctx.beginPath();
+      ctx.moveTo(p.x, p.baseY);
+    } else {
+      ctx.lineTo(p.x, p.baseY);
+    }
+  }
+  ctx.stroke();
+  // Vertical at front
+  const ridgeFront = project3D(13.7, 0, 0);
+  ctx.beginPath();
+  ctx.moveTo(ridgeFront.x, ridgeFront.baseY);
+  ctx.lineTo(ridgeFront.x, headerH + 18);
+  ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.shadowBlur = 0;
+  ctx.font = 'bold 11px "Share Tech Mono",monospace';
+  ctx.fillStyle = 'rgba(255,220,80,.95)';
+  ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+  ctx.shadowBlur = 6; ctx.shadowColor = 'rgba(255,204,0,.5)';
+  ctx.fillText('▼ 13.7 Hz CIBLE', ridgeFront.x, headerH + 4);
+  ctx.shadowBlur = 0;
+
+  // ─── HISTORY BARS — back to front, rotated ───
+  // Sort by depth so we render correctly
+  const bars = [];
+  for (let i = 0; i < N; i++) {
+    const depthT = i / (N - 1);  // 0 = back (oldest), 1 = front (newest)
+    const f = recentHist[i];
+    if (!f || f < 0.1) continue;
+    const dist = Math.abs(f - 13.7);
+    const proximity = Math.max(0, 1 - dist / 8);
+    const magnitude = 0.25 + proximity * 0.75;
+    const proj = project3D(f, magnitude, 1 - depthT);  // newer = depth 0 = front
+    bars.push({ proj, magnitude, proximity, isLatest: i === N - 1, depthT });
+  }
+  // Sort by zRot DESC (back first)
+  bars.sort((a, b) => b.proj.zRot - a.proj.zRot);
+
+  for (const bar of bars) {
+    const proj = bar.proj;
+    const proximity = bar.proximity;
+    const baseCol = proximity > 0.85 ? '0,255,170'
+                  : proximity > 0.55 ? '255,204,0'
+                  : '0,200,255';
+    const alpha = clamp(0.3 + proj.persp * 0.7, 0, 1);
+    if (bar.isLatest) {
+      ctx.shadowBlur = 16; ctx.shadowColor = `rgba(${baseCol},.85)`;
+      ctx.lineWidth = 3;
+    } else {
+      ctx.lineWidth = 1.5 * proj.persp;
+    }
+    const grad = ctx.createLinearGradient(proj.x, proj.baseY, proj.x, proj.y);
+    grad.addColorStop(0, `rgba(${baseCol},${alpha * 0.05})`);
+    grad.addColorStop(1, `rgba(${baseCol},${alpha * 0.85})`);
+    ctx.strokeStyle = grad;
+    ctx.beginPath();
+    ctx.moveTo(proj.x, proj.baseY);
+    ctx.lineTo(proj.x, proj.y);
+    ctx.stroke();
+    // Top cap
+    ctx.fillStyle = `rgba(${baseCol},${alpha})`;
+    const capR = bar.isLatest ? 5 : 2.5 * proj.persp;
+    ctx.beginPath(); ctx.arc(proj.x, proj.y, capR, 0, Math.PI * 2); ctx.fill();
+    ctx.shadowBlur = 0;
+  }
+
+  // ─── HEADER READOUTS ───
   const dist = Math.abs(CONV.specCursor - 13.7);
   const proximity = Math.max(0, 1 - dist / 9);
   const curCol = proximity > 0.85 ? '0,255,170' : proximity > 0.55 ? '255,204,0' : '0,212,255';
-  // Halo
-  const haloW = 4 + proximity * 28;
-  ctx.shadowBlur = 24; ctx.shadowColor = `rgba(${curCol},.7)`;
-  ctx.strokeStyle = `rgba(${curCol},.4)`;
-  ctx.lineWidth = haloW;
-  ctx.beginPath(); ctx.moveTo(cx, padT); ctx.lineTo(cx, H - padB); ctx.stroke();
-  ctx.lineWidth = 3;
-  ctx.strokeStyle = `rgba(${curCol},.95)`;
-  ctx.beginPath(); ctx.moveTo(cx, padT); ctx.lineTo(cx, H - padB); ctx.stroke();
-  ctx.shadowBlur = 0;
-  // Cursor cap
-  ctx.fillStyle = `rgba(${curCol},1)`;
-  ctx.beginPath();
-  ctx.moveTo(cx, padT); ctx.lineTo(cx - 8, padT - 10); ctx.lineTo(cx + 8, padT - 10);
-  ctx.closePath(); ctx.fill();
-  // Big readouts
-  ctx.font = 'bold 28px "Orbitron",monospace';
+  ctx.font = 'bold 32px "Orbitron",monospace';
   ctx.textAlign = 'left'; ctx.textBaseline = 'top';
   ctx.fillStyle = `rgba(${curCol},.95)`;
-  ctx.shadowBlur = 8; ctx.shadowColor = `rgba(${curCol},.4)`;
-  ctx.fillText(CONV.specCursor.toFixed(2), padL, 14);
-  ctx.font = 'bold 11px "Share Tech Mono",monospace';
-  ctx.fillStyle = `rgba(${curCol},.65)`;
-  ctx.fillText('Hz courant', padL, 46);
+  ctx.shadowBlur = 10; ctx.shadowColor = `rgba(${curCol},.45)`;
+  ctx.fillText(CONV.specCursor.toFixed(2), padX, 12);
+  ctx.font = 'bold 12px "Share Tech Mono",monospace';
+  ctx.fillStyle = `rgba(${curCol},.6)`;
   ctx.shadowBlur = 0;
-  ctx.font = 'bold 24px "Orbitron",monospace';
+  ctx.fillText('Hz courant', padX, 50);
+  ctx.font = 'bold 28px "Orbitron",monospace';
   ctx.textAlign = 'right';
   ctx.fillStyle = `rgba(${curCol},.92)`;
+  ctx.shadowBlur = 8; ctx.shadowColor = `rgba(${curCol},.4)`;
   const sign = CONV.specCursor < 13.7 ? '−' : '+';
-  ctx.fillText(`Δ ${sign}${dist.toFixed(2)}`, W - padR, 14);
+  ctx.fillText(`Δ ${sign}${dist.toFixed(2)}`, W - padX, 14);
   ctx.font = 'bold 11px "Share Tech Mono",monospace';
+  ctx.shadowBlur = 0;
   ctx.fillStyle = `rgba(${curCol},.55)`;
-  ctx.fillText('écart à la cible', W - padR, 44);
-  // Bottom: signal strength bar
-  const barY = H - 38, barH = 8;
-  ctx.fillStyle = 'rgba(0,212,255,.06)';
-  ctx.fillRect(padL, barY, spanW, barH);
-  ctx.fillStyle = `rgba(${curCol},.6)`;
-  ctx.fillRect(padL, barY, spanW * proximity, barH);
+  ctx.fillText('écart à la cible', W - padX, 48);
+
+  // ─── X-AXIS LABELS (front row only) ───
+  ctx.font = '11px "Share Tech Mono",monospace';
+  ctx.fillStyle = 'rgba(0,212,255,.55)';
+  ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+  for (let f = 0; f <= 20; f += 5) {
+    const p = project3D(f, 0, 0);
+    ctx.fillText(String(f) + 'Hz', p.x, p.baseY + 6);
+  }
+
+  // Depth indicator — NOW / PAST
   ctx.font = '9px "Share Tech Mono",monospace';
+  ctx.fillStyle = 'rgba(0,212,255,.45)';
+  ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+  const labelFront = project3D(0, 0, 0);
+  const labelBack = project3D(0, 0, 1);
+  ctx.fillText('NOW', 16, labelFront.baseY);
+  ctx.fillText('PAST →', 16, labelBack.baseY);
+
+  // Bottom proximity bar
+  const barY = H - 30, barH = 6;
+  ctx.fillStyle = 'rgba(0,212,255,.06)';
+  ctx.fillRect(padX, barY, gridW, barH);
+  const barGrad = ctx.createLinearGradient(padX, 0, padX + gridW, 0);
+  barGrad.addColorStop(0, `rgba(${curCol},.4)`);
+  barGrad.addColorStop(proximity, `rgba(${curCol},.9)`);
+  barGrad.addColorStop(Math.min(1, proximity + 0.05), `rgba(${curCol},0)`);
+  ctx.fillStyle = barGrad;
+  ctx.fillRect(padX, barY, gridW * proximity, barH);
+  ctx.shadowBlur = 8; ctx.shadowColor = `rgba(${curCol},.7)`;
+  ctx.fillStyle = `rgba(${curCol},1)`;
+  ctx.fillRect(padX + gridW * proximity - 1, barY - 2, 2, barH + 4);
+  ctx.shadowBlur = 0;
+  ctx.font = 'bold 9px "Share Tech Mono",monospace';
+  ctx.fillStyle = `rgba(${curCol},.7)`;
   ctx.textAlign = 'left'; ctx.textBaseline = 'top';
-  ctx.fillStyle = `rgba(${curCol},.6)`;
-  ctx.fillText(`PROXIMITÉ ${(proximity*100).toFixed(0)}%`, padL, barY + barH + 4);
+  ctx.fillText(`PROXIMITÉ ${(proximity*100).toFixed(0)}%`, padX, barY + barH + 4);
+  ctx.textAlign = 'right';
+  ctx.fillStyle = 'rgba(180,140,255,.5)';
+  ctx.fillText(`↻ caméra yaw ${(yaw * 180 / Math.PI).toFixed(0)}°`, W - padX, barY + barH + 4);
 }
+
 
 function drawTraceLarge(W, H) {
   const cv = $('inst-canvas-large');
   if (!cv) return;
   cv.width = W; cv.height = H;
   const ctx = cv.getContext('2d');
-  // Background w/ persistence
-  ctx.fillStyle = 'rgba(0,2,8,.12)';
+  ctx.fillStyle = 'rgba(0,2,8,.10)';
   ctx.fillRect(0, 0, W, H);
-  ctx.fillStyle = 'rgba(0,3,10,.5)';
+  ctx.fillStyle = 'rgba(0,3,10,.4)';
   ctx.fillRect(0, 0, W, H);
-  // Axes
+
   const minF = 4, maxF = 22, range = maxF - minF;
   const padL = 56, padR = 28, padT = 28, padB = 56;
   const W2 = W - padL - padR, H2 = H - padT - padB;
-  // Grid
+  const galCx = padL + (13.7 - minF) / range * W2;
+  const galCy = padT + H2 - (13.7 - minF) / range * H2;
+
+  if (!CONV.traceGalacticAng) CONV.traceGalacticAng = 0;
+  CONV.traceGalacticAng += 0.003;
+
+  // Grid (subtle)
   ctx.strokeStyle = 'rgba(0,212,255,.06)';
   ctx.lineWidth = 0.5;
   for (let v = 5; v <= 20; v += 5) {
@@ -4241,6 +4846,7 @@ function drawTraceLarge(W, H) {
     ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
     ctx.fillText(String(v), padL - 6, y);
   }
+
   // Diagonal y=x
   ctx.strokeStyle = 'rgba(255,204,0,.32)';
   ctx.lineWidth = 1.2;
@@ -4251,22 +4857,58 @@ function drawTraceLarge(W, H) {
   ctx.fillStyle = 'rgba(255,204,0,.5)';
   ctx.textAlign = 'right';
   ctx.fillText('stabilité (y=x)', padL + W2 - 4, padT + 12);
-  // Target cross
-  const tx = padL + (13.7 - minF) / range * W2;
-  const ty = padT + H2 - (13.7 - minF) / range * H2;
+
+  // Galactic spiral arms — animated, hypnotic
+  ctx.lineWidth = 0.7;
+  for (let arm = 0; arm < 3; arm++) {
+    const armCol = arm === 0 ? '0,200,255' : arm === 1 ? '180,140,255' : '0,255,170';
+    ctx.strokeStyle = `rgba(${armCol},.10)`;
+    ctx.beginPath();
+    for (let t = 0; t < 6; t += 0.04) {
+      const ang = t * 0.55 + arm * (Math.PI * 2 / 3) + CONV.traceGalacticAng * 0.5;
+      const r = t * 22;
+      const sx = galCx + Math.cos(ang) * r;
+      const sy = galCy + Math.sin(ang) * r;
+      if (sx < padL || sx > padL + W2 || sy < padT || sy > padT + H2) continue;
+      if (t === 0) ctx.moveTo(sx, sy);
+      else ctx.lineTo(sx, sy);
+    }
+    ctx.stroke();
+  }
+
+  // Target cross + label (does NOT rotate)
   ctx.strokeStyle = 'rgba(255,204,0,.7)';
   ctx.lineWidth = 1.5;
+  ctx.shadowBlur = 8; ctx.shadowColor = 'rgba(255,204,0,.5)';
   ctx.beginPath();
-  ctx.moveTo(tx - 14, ty); ctx.lineTo(tx + 14, ty);
-  ctx.moveTo(tx, ty - 14); ctx.lineTo(tx, ty + 14);
+  ctx.moveTo(galCx - 14, galCy); ctx.lineTo(galCx + 14, galCy);
+  ctx.moveTo(galCx, galCy - 14); ctx.lineTo(galCx, galCy + 14);
   ctx.stroke();
+  ctx.shadowBlur = 0;
+  // Galactic core
+  ctx.shadowBlur = 12; ctx.shadowColor = 'rgba(255,204,0,.7)';
   ctx.fillStyle = 'rgba(255,220,80,.95)';
-  ctx.beginPath(); ctx.arc(tx, ty, 4, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.arc(galCx, galCy, 5, 0, Math.PI * 2); ctx.fill();
+  ctx.shadowBlur = 0;
   ctx.font = 'bold 10px "Share Tech Mono",monospace';
   ctx.fillStyle = 'rgba(255,220,80,.85)';
-  ctx.textAlign = 'left';
-  ctx.fillText('CIBLE 13.7Hz', tx + 8, ty - 10);
-  // Connections + points
+  ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+  ctx.fillText('CIBLE 13.7Hz', galCx + 8, galCy - 14);
+
+  // Differential rotation function
+  function rotatePt(px, py) {
+    const dx = px - galCx, dy = py - galCy;
+    const r = Math.hypot(dx, dy);
+    if (r < 0.1) return { x: px, y: py };
+    // Closer = faster rotation
+    const omegaScale = 1 / (1 + r / 70);
+    const dAng = CONV.traceGalacticAng * omegaScale * 6;
+    const ang0 = Math.atan2(dy, dx);
+    const ang = ang0 + dAng;
+    return { x: galCx + Math.cos(ang) * r, y: galCy + Math.sin(ang) * r };
+  }
+
+  // Connections + points — all rotated
   ctx.lineWidth = 0.8;
   for (let i = 1; i < CONV.tracePts.length; i++) {
     const a = CONV.tracePts[i - 1], b = CONV.tracePts[i];
@@ -4275,26 +4917,29 @@ function drawTraceLarge(W, H) {
     const ay = padT + H2 - clamp((a.y - minF) / range, 0, 1) * H2;
     const bx = padL + clamp((b.x - minF) / range, 0, 1) * W2;
     const by = padT + H2 - clamp((b.y - minF) / range, 0, 1) * H2;
+    const ra = rotatePt(ax, ay), rb = rotatePt(bx, by);
     ctx.strokeStyle = `rgba(0,200,255,${ageFactor * 0.32})`;
-    ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(bx, by); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(ra.x, ra.y); ctx.lineTo(rb.x, rb.y); ctx.stroke();
   }
   for (let i = 0; i < CONV.tracePts.length; i++) {
     const p = CONV.tracePts[i];
     const px = padL + clamp((p.x - minF) / range, 0, 1) * W2;
     const py = padT + H2 - clamp((p.y - minF) / range, 0, 1) * H2;
+    const rp = rotatePt(px, py);
     const ageFactor = Math.max(0, 1 - i / CONV.tracePts.length);
     const recent = i >= CONV.tracePts.length - 3;
     const dist137 = Math.hypot(p.x - 13.7, p.y - 13.7);
     const near = dist137 < 1.5;
+    const tw = 0.7 + 0.3 * Math.sin(CONV.tick * 0.04 + i * 1.3);
     const col = near ? '0,255,170' : '0,200,255';
     if (recent) {
-      ctx.fillStyle = `rgba(${col},${0.6 + ageFactor * 0.4})`;
+      ctx.fillStyle = `rgba(${col},${(0.6 + ageFactor * 0.4) * tw})`;
       ctx.shadowBlur = 8; ctx.shadowColor = `rgba(${col},.55)`;
-      ctx.beginPath(); ctx.arc(px, py, 3.5, 0, Math.PI * 2); ctx.fill();
+      ctx.beginPath(); ctx.arc(rp.x, rp.y, 3.5, 0, Math.PI * 2); ctx.fill();
       ctx.shadowBlur = 0;
     } else {
-      ctx.fillStyle = `rgba(${col},${ageFactor * 0.65})`;
-      ctx.fillRect(px - 1.7, py - 1.7, 3.4, 3.4);
+      ctx.fillStyle = `rgba(${col},${ageFactor * 0.65 * tw})`;
+      ctx.fillRect(rp.x - 1.7, rp.y - 1.7, 3.4, 3.4);
     }
   }
   // Labels
@@ -4308,6 +4953,11 @@ function drawTraceLarge(W, H) {
   ctx.textAlign = 'center';
   ctx.fillText('f[t]  (Hz courant)', 0, 0);
   ctx.restore();
+  // Galactic rotation indicator
+  ctx.font = '9px "Share Tech Mono",monospace';
+  ctx.fillStyle = 'rgba(180,140,255,.5)';
+  ctx.textAlign = 'right'; ctx.textBaseline = 'top';
+  ctx.fillText(`↻ rotation différentielle galactique`, W - padR, padT - 18);
 }
 
 function drawLockLarge(W, H) {
@@ -4315,79 +4965,194 @@ function drawLockLarge(W, H) {
   if (!cv) return;
   cv.width = W; cv.height = H;
   const ctx = cv.getContext('2d');
-  ctx.clearRect(0, 0, W, H);
-  ctx.fillStyle = 'rgba(0,3,10,.55)';
+  // Trail / persistence for hypnotic effect
+  ctx.fillStyle = 'rgba(0,2,8,.18)';
   ctx.fillRect(0, 0, W, H);
+  ctx.fillStyle = 'rgba(0,3,12,.4)';
+  ctx.fillRect(0, 0, W, H);
+
   const cx = W / 2, cy = H / 2;
-  const R = Math.min(W, H) / 2 - 30;
-  // Update physics
   const fp = (typeof buildFingerprint === 'function') ? buildFingerprint() : { volatility: 1.5 };
   const targetLock = clamp(1 - fp.volatility / 4, 0, 1);
   CONV.lockPct += (targetLock - CONV.lockPct) * 0.06;
+  // Spin & forward velocity
   const targetSpin = 0.005 + fp.volatility * 0.025;
   CONV.lockSpin += (targetSpin - CONV.lockSpin) * 0.08;
   CONV.lockAng += CONV.lockSpin;
   if (fp.volatility > 2) CONV.lockAng += (Math.random() - 0.5) * 0.04;
-  // Outer rings
-  ctx.strokeStyle = 'rgba(0,212,255,.22)';
-  ctx.lineWidth = 1.2;
-  ctx.beginPath(); ctx.arc(cx, cy, R, 0, Math.PI * 2); ctx.stroke();
-  ctx.strokeStyle = 'rgba(0,212,255,.12)';
-  ctx.beginPath(); ctx.arc(cx, cy, R - 18, 0, Math.PI * 2); ctx.stroke();
-  ctx.strokeStyle = 'rgba(0,212,255,.08)';
-  ctx.beginPath(); ctx.arc(cx, cy, R - 36, 0, Math.PI * 2); ctx.stroke();
-  // Rotating outer ring
-  const segments = 24;
+  // Tunnel forward speed — faster when volatile
+  if (!CONV.lockTunnelZ) CONV.lockTunnelZ = 0;
+  const tunnelSpeed = 0.008 + fp.volatility * 0.012 + (1 - CONV.lockPct) * 0.012;
+  CONV.lockTunnelZ += tunnelSpeed;
+  if (CONV.lockTunnelZ > 1) CONV.lockTunnelZ -= 1;
+
+  const lockColRGB = CONV.lockPct > 0.78 ? [0, 255, 170] : CONV.lockPct > 0.5 ? [255, 204, 0] : [0, 200, 255];
+  const lockCol = lockColRGB.join(',');
+
+  // ─── REAL 3D TRON TUNNEL with VANISHING POINT at center ──────
+  // We render concentric perfect circles (no ellipse — true axial perspective),
+  // each at a different "depth" Z. closer Z = larger radius.
+  const Rmax = Math.min(W, H) * 0.46;
+  const Rmin = 6;
+  const NUM_RINGS = 30;  // more rings = denser tunnel
+
+  // Render BACK→FRONT (painter algorithm)
+  for (let i = NUM_RINGS - 1; i >= 0; i--) {
+    const zRaw = (i + CONV.lockTunnelZ) / NUM_RINGS;  // 0 = closest, 1 = vanishing
+    if (zRaw > 1) continue;
+    // Hyperbolic perspective: r = Rmax / (1 + z * factor)  → strong recession
+    const persp = 1 / (1 + zRaw * 6);
+    const r = Rmin + (Rmax - Rmin) * persp;
+    if (r < 1) continue;
+    // Alpha: rings near vanishing point fade
+    let alpha = 1;
+    if (zRaw > 0.85) alpha = (1 - zRaw) / 0.15;
+    if (zRaw < 0.04) alpha = zRaw / 0.04 * 0.5;
+    alpha = clamp(alpha, 0, 1);
+    // Highlighted rings every 4
+    const highlight = i % 4 === 0;
+    const lw = highlight ? 2.4 : 1.0;
+    // Color: foreground rings full color, background fade to dim cyan
+    const col = highlight
+      ? `rgba(${lockCol},${alpha * 0.85})`
+      : `rgba(${lockColRGB[0]*0.4 | 0},${lockColRGB[1]*0.5 | 0},${lockColRGB[2]*0.6 | 0},${alpha * 0.4})`;
+    // Dashed rings — dashes flow forward (give "traveling into tunnel" feel)
+    ctx.lineWidth = lw;
+    ctx.strokeStyle = col;
+    ctx.setLineDash([6, 3]);
+    ctx.lineDashOffset = -CONV.lockAng * 14 * persp;
+    ctx.beginPath();
+    ctx.arc(cx, cy, r, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    // Glow on highlighted close rings
+    if (highlight && persp > 0.4) {
+      ctx.shadowBlur = 12 * persp;
+      ctx.shadowColor = `rgba(${lockCol},${alpha * 0.6})`;
+      ctx.lineWidth = lw * 0.6;
+      ctx.strokeStyle = `rgba(${lockCol},${alpha * 0.5})`;
+      ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2); ctx.stroke();
+      ctx.shadowBlur = 0;
+    }
+  }
+
+  // ─── RADIAL TUNNEL RAILS — 12 lines from center outward, rotating ──────
+  const numRails = 12;
+  const railRotation = CONV.lockAng * 0.4;
+  for (let i = 0; i < numRails; i++) {
+    const a = railRotation + (i / numRails) * Math.PI * 2;
+    const innerR = Rmin + 4;
+    const outerR = Rmax + 20;
+    // Each rail is a gradient line: dim near center, bright at the close end
+    const innerX = cx + Math.cos(a) * innerR;
+    const innerY = cy + Math.sin(a) * innerR;
+    const outerX = cx + Math.cos(a) * outerR;
+    const outerY = cy + Math.sin(a) * outerR;
+    const grad = ctx.createLinearGradient(innerX, innerY, outerX, outerY);
+    grad.addColorStop(0, `rgba(${lockCol},.05)`);
+    grad.addColorStop(1, `rgba(${lockCol},.32)`);
+    ctx.strokeStyle = grad;
+    ctx.lineWidth = i % 3 === 0 ? 1.2 : 0.5;
+    ctx.beginPath();
+    ctx.moveTo(innerX, innerY);
+    ctx.lineTo(outerX, outerY);
+    ctx.stroke();
+  }
+
+  // ─── HYPNOTIC SPIRAL — tightening spiral around center ──────
+  const spiralPhase = -CONV.lockAng * 1.5;
+  ctx.lineWidth = 0.8;
+  ctx.strokeStyle = `rgba(${lockCol},.4)`;
+  ctx.beginPath();
+  for (let theta = 0; theta < Math.PI * 8; theta += 0.1) {
+    const sr = Rmin + (theta / (Math.PI * 8)) * (Rmax - Rmin);
+    const sa = theta + spiralPhase;
+    const sx = cx + Math.cos(sa) * sr;
+    const sy = cy + Math.sin(sa) * sr;
+    if (theta === 0) ctx.moveTo(sx, sy);
+    else ctx.lineTo(sx, sy);
+  }
+  ctx.shadowBlur = 8; ctx.shadowColor = `rgba(${lockCol},.4)`;
+  ctx.stroke();
+  ctx.shadowBlur = 0;
+
+  // ─── IRIS at center — concentric flat rings on top of tunnel ──────
+  for (let i = 0; i < 5; i++) {
+    const ir = 8 + i * 6;
+    ctx.strokeStyle = `rgba(${lockCol},${0.7 - i * 0.12})`;
+    ctx.lineWidth = 1.5 - i * 0.2;
+    ctx.beginPath(); ctx.arc(cx, cy, ir, 0, Math.PI * 2); ctx.stroke();
+  }
+
+  // ─── ROTATING FRONT DISC — bright at the "near" end ──────
+  const segments = 36;
   for (let i = 0; i < segments; i++) {
     const a0 = CONV.lockAng + i * (Math.PI * 2 / segments);
     const a1 = a0 + (Math.PI * 2 / segments) * 0.78;
-    const alpha = (i % 3 === 0) ? 0.7 : 0.22;
-    const col = CONV.lockPct > 0.78 ? '0,255,170' : CONV.lockPct > 0.5 ? '255,204,0' : '0,212,255';
-    ctx.strokeStyle = `rgba(${col},${alpha * (0.4 + CONV.lockPct * 0.6)})`;
-    ctx.lineWidth = 4;
-    ctx.beginPath(); ctx.arc(cx, cy, R - 8, a0, a1); ctx.stroke();
+    const isHi = i % 4 === 0;
+    ctx.strokeStyle = `rgba(${lockCol},${(isHi ? 0.9 : 0.35) * (0.6 + CONV.lockPct * 0.4)})`;
+    ctx.lineWidth = isHi ? 4 : 1.8;
+    ctx.beginPath(); ctx.arc(cx, cy, Rmin + 36, a0, a1); ctx.stroke();
   }
-  // Inner
-  for (let i = 0; i < 16; i++) {
-    const a0 = -CONV.lockAng * 0.7 + i * (Math.PI * 2 / 16);
-    const a1 = a0 + (Math.PI * 2 / 16) * 0.6;
-    const col = CONV.lockPct > 0.78 ? '0,255,170' : '0,180,220';
-    ctx.strokeStyle = `rgba(${col},.42)`;
-    ctx.lineWidth = 3;
-    ctx.beginPath(); ctx.arc(cx, cy, R - 26, a0, a1); ctx.stroke();
+  // Inner counter-rotation
+  for (let i = 0; i < 18; i++) {
+    const a0 = -CONV.lockAng * 0.7 + i * (Math.PI * 2 / 18);
+    const a1 = a0 + (Math.PI * 2 / 18) * 0.6;
+    ctx.strokeStyle = `rgba(180,210,240,.35)`;
+    ctx.lineWidth = 2.2;
+    ctx.beginPath(); ctx.arc(cx, cy, Rmin + 22, a0, a1); ctx.stroke();
   }
-  // Innermost — counter rotating
-  for (let i = 0; i < 8; i++) {
-    const a0 = CONV.lockAng * 1.4 + i * (Math.PI * 2 / 8);
-    const a1 = a0 + (Math.PI * 2 / 8) * 0.4;
-    ctx.strokeStyle = `rgba(180,200,230,.32)`;
-    ctx.lineWidth = 2;
-    ctx.beginPath(); ctx.arc(cx, cy, R - 50, a0, a1); ctx.stroke();
-  }
-  // Hub
-  const hubCol = CONV.lockPct > 0.78 ? '0,255,170' : CONV.lockPct > 0.5 ? '255,204,0' : '0,212,255';
-  ctx.shadowBlur = 24; ctx.shadowColor = `rgba(${hubCol},.6)`;
-  ctx.fillStyle = `rgba(${hubCol},.95)`;
-  ctx.beginPath(); ctx.arc(cx, cy, 8, 0, Math.PI * 2); ctx.fill();
+
+  // ─── CENTRAL HUB with multi-layer glow ──────
+  ctx.shadowBlur = 32; ctx.shadowColor = `rgba(${lockCol},.85)`;
+  ctx.fillStyle = `rgba(${lockCol},.95)`;
+  ctx.beginPath(); ctx.arc(cx, cy, 7, 0, Math.PI * 2); ctx.fill();
+  ctx.shadowBlur = 16;
+  ctx.fillStyle = 'rgba(255,255,255,.95)';
+  ctx.beginPath(); ctx.arc(cx, cy, 2.5, 0, Math.PI * 2); ctx.fill();
   ctx.shadowBlur = 0;
-  // Big readout
-  ctx.font = 'bold 56px "Orbitron",monospace';
+
+  // ─── ORBITAL TRACER ──────
+  const orbitR = Rmin + 36 + 22;
+  const sx = cx + Math.cos(CONV.lockAng) * orbitR;
+  const sy = cy + Math.sin(CONV.lockAng) * orbitR;
+  // Trail (5 ghost dots behind)
+  for (let t = 5; t >= 1; t--) {
+    const ta = CONV.lockAng - t * 0.1;
+    const tx = cx + Math.cos(ta) * orbitR;
+    const ty = cy + Math.sin(ta) * orbitR;
+    ctx.fillStyle = `rgba(${lockCol},${(6 - t) / 6 * 0.4})`;
+    ctx.beginPath(); ctx.arc(tx, ty, 2.5, 0, Math.PI * 2); ctx.fill();
+  }
+  // Head
+  ctx.shadowBlur = 14; ctx.shadowColor = `rgba(${lockCol},.85)`;
+  ctx.fillStyle = `rgba(${lockCol},1)`;
+  ctx.beginPath(); ctx.arc(sx, sy, 5, 0, Math.PI * 2); ctx.fill();
+  ctx.shadowBlur = 0;
+
+  // ─── BIG READOUT ──────
+  ctx.font = 'bold 64px "Orbitron",monospace';
   ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-  ctx.fillStyle = `rgba(${hubCol},.95)`;
-  ctx.shadowBlur = 16; ctx.shadowColor = `rgba(${hubCol},.5)`;
+  ctx.fillStyle = `rgba(${lockCol},.95)`;
+  ctx.shadowBlur = 22; ctx.shadowColor = `rgba(${lockCol},.6)`;
   ctx.fillText((CONV.lockPct * 100).toFixed(0) + '%', cx, cy);
   ctx.shadowBlur = 0;
   const stateLbl = CONV.lockPct > 0.78 ? 'LOCK' : CONV.lockPct > 0.5 ? 'TRACK' : 'DRIFT';
   ctx.font = 'bold 18px "Share Tech Mono",monospace';
-  ctx.fillStyle = `rgba(${hubCol},.7)`;
-  ctx.fillText(stateLbl, cx, cy + 38);
-  // Spin indicator (tiny line on outer ring)
-  const sx = cx + Math.cos(CONV.lockAng) * (R + 12);
-  const sy = cy + Math.sin(CONV.lockAng) * (R + 12);
-  ctx.fillStyle = `rgba(${hubCol},1)`;
-  ctx.shadowBlur = 8; ctx.shadowColor = `rgba(${hubCol},.7)`;
-  ctx.beginPath(); ctx.arc(sx, sy, 4, 0, Math.PI * 2); ctx.fill();
-  ctx.shadowBlur = 0;
+  ctx.fillStyle = `rgba(${lockCol},.7)`;
+  ctx.fillText(stateLbl, cx, cy + 42);
+
+  // ─── CORNER ANNOTATIONS ──────
+  ctx.font = '9px "Share Tech Mono",monospace';
+  ctx.fillStyle = 'rgba(0,212,255,.4)';
+  ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+  ctx.fillText('PHASE COHERENCE TUNNEL', 16, 16);
+  ctx.textAlign = 'right';
+  ctx.fillText(`ω = ${(CONV.lockSpin * 1000).toFixed(2)} mrad/f`, W - 16, 16);
+  ctx.textAlign = 'left'; ctx.textBaseline = 'bottom';
+  ctx.fillText(`vol = ${fp.volatility.toFixed(2)}`, 16, H - 16);
+  ctx.textAlign = 'right';
+  ctx.fillText(`v = ${(tunnelSpeed * 100).toFixed(2)} c/f`, W - 16, H - 16);
 }
 
 function instLargeDraw() {
@@ -7452,75 +8217,136 @@ function closeShareModal() { const m = $('share-modal'); if (m) m.classList.remo
 // ═══════════════════════════════════════════════════════════
 // 🌐 GLOBE MODAL
 // ═══════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════
+// 🌍 WORLDMAP — refonte avec eyecandy + Streetview au clic
+// ═══════════════════════════════════════════════════════════
+
+// Country code map for flag emojis (rough lookup by lat/lon zones — covers main capitals)
+// Falls back to ⚡ if no match
+function flagForCity(city) {
+  const map = {
+    'PARIS':'🇫🇷','LYON':'🇫🇷','MARSEILLE':'🇫🇷','RENNES':'🇫🇷','TOULOUSE':'🇫🇷','BORDEAUX':'🇫🇷','LILLE':'🇫🇷','NANTES':'🇫🇷','NICE':'🇫🇷','STRASBOURG':'🇫🇷',
+    'LONDON':'🇬🇧','MANCHESTER':'🇬🇧','EDINBURGH':'🇬🇧','GLASGOW':'🇬🇧',
+    'BERLIN':'🇩🇪','MUNICH':'🇩🇪','HAMBURG':'🇩🇪','LEIPZIG':'🇩🇪','FRANKFURT':'🇩🇪','COLOGNE':'🇩🇪',
+    'MADRID':'🇪🇸','BARCELONA':'🇪🇸','VALENCIA':'🇪🇸','SEVILLA':'🇪🇸','BILBAO':'🇪🇸',
+    'ROME':'🇮🇹','MILAN':'🇮🇹','TURIN':'🇮🇹','NAPLES':'🇮🇹','VENICE':'🇮🇹','FLORENCE':'🇮🇹','BOLOGNA':'🇮🇹','PALERMO':'🇮🇹',
+    'AMSTERDAM':'🇳🇱','ROTTERDAM':'🇳🇱','UTRECHT':'🇳🇱','THE HAGUE':'🇳🇱',
+    'BRUSSELS':'🇧🇪','BRUXELLES':'🇧🇪','ANTWERP':'🇧🇪','GHENT':'🇧🇪',
+    'LISBON':'🇵🇹','LISBOA':'🇵🇹','PORTO':'🇵🇹',
+    'VIENNA':'🇦🇹','SALZBURG':'🇦🇹',
+    'PRAGUE':'🇨🇿','WARSAW':'🇵🇱','KRAKOW':'🇵🇱','BUDAPEST':'🇭🇺',
+    'COPENHAGEN':'🇩🇰','STOCKHOLM':'🇸🇪','OSLO':'🇳🇴','HELSINKI':'🇫🇮','REYKJAVIK':'🇮🇸',
+    'DUBLIN':'🇮🇪','ZURICH':'🇨🇭','GENEVA':'🇨🇭','BERN':'🇨🇭','LUXEMBOURG':'🇱🇺',
+    'ATHENS':'🇬🇷','ISTANBUL':'🇹🇷','ANKARA':'🇹🇷',
+    'MOSCOW':'🇷🇺','SAINT PETERSBURG':'🇷🇺','ST PETERSBURG':'🇷🇺','KAZAN':'🇷🇺',
+    'KIEV':'🇺🇦','KYIV':'🇺🇦','MINSK':'🇧🇾',
+    'NEW YORK':'🇺🇸','LOS ANGELES':'🇺🇸','CHICAGO':'🇺🇸','SAN FRANCISCO':'🇺🇸','BOSTON':'🇺🇸','SEATTLE':'🇺🇸','MIAMI':'🇺🇸','HOUSTON':'🇺🇸','DENVER':'🇺🇸','EUREKA':'🇺🇸',
+    'TORONTO':'🇨🇦','MONTREAL':'🇨🇦','VANCOUVER':'🇨🇦','OTTAWA':'🇨🇦','QUEBEC':'🇨🇦',
+    'MEXICO CITY':'🇲🇽','MEXICO':'🇲🇽','GUADALAJARA':'🇲🇽','GUATEMALA CITY':'🇬🇹','HAVANA':'🇨🇺',
+    'BUENOS AIRES':'🇦🇷','SANTIAGO':'🇨🇱','LIMA':'🇵🇪','BOGOTA':'🇨🇴','CARACAS':'🇻🇪','QUITO':'🇪🇨','LA PAZ':'🇧🇴',
+    'SAO PAULO':'🇧🇷','RIO DE JANEIRO':'🇧🇷','BRASILIA':'🇧🇷',
+    'TOKYO':'🇯🇵','OSAKA':'🇯🇵','KYOTO':'🇯🇵','SEOUL':'🇰🇷','BEIJING':'🇨🇳','SHANGHAI':'🇨🇳','SHENZHEN':'🇨🇳','GUANGZHOU':'🇨🇳','HONG KONG':'🇭🇰','TAIPEI':'🇹🇼',
+    'BANGKOK':'🇹🇭','HANOI':'🇻🇳','HO CHI MINH':'🇻🇳','MANILA':'🇵🇭','SINGAPORE':'🇸🇬','KUALA LUMPUR':'🇲🇾','JAKARTA':'🇮🇩',
+    'MUMBAI':'🇮🇳','NEW DELHI':'🇮🇳','DELHI':'🇮🇳','BANGALORE':'🇮🇳','KOLKATA':'🇮🇳','CHENNAI':'🇮🇳','HYDERABAD':'🇮🇳','INDORE':'🇮🇳','PUNE':'🇮🇳',
+    'KARACHI':'🇵🇰','LAHORE':'🇵🇰','ISLAMABAD':'🇵🇰','DHAKA':'🇧🇩','KATHMANDU':'🇳🇵','COLOMBO':'🇱🇰',
+    'TEHRAN':'🇮🇷','BAGHDAD':'🇮🇶','RIYADH':'🇸🇦','DUBAI':'🇦🇪','ABU DHABI':'🇦🇪','DOHA':'🇶🇦','KUWAIT CITY':'🇰🇼','MUSCAT':'🇴🇲',
+    'AMMAN':'🇯🇴','BEIRUT':'🇱🇧','DAMASCUS':'🇸🇾','TEL AVIV':'🇮🇱','JERUSALEM':'🇮🇱',
+    'YEREVAN':'🇦🇲','TBILISI':'🇬🇪','BAKU':'🇦🇿','TASHKENT':'🇺🇿','ALMATY':'🇰🇿','BISHKEK':'🇰🇬',
+    'CAIRO':'🇪🇬','LAGOS':'🇳🇬','NAIROBI':'🇰🇪','JOHANNESBURG':'🇿🇦','CAPE TOWN':'🇿🇦','CASABLANCA':'🇲🇦','RABAT':'🇲🇦','TUNIS':'🇹🇳','ALGIERS':'🇩🇿','ADDIS ABABA':'🇪🇹',
+    'SYDNEY':'🇦🇺','MELBOURNE':'🇦🇺','BRISBANE':'🇦🇺','PERTH':'🇦🇺','AUCKLAND':'🇳🇿','WELLINGTON':'🇳🇿',
+  };
+  return map[(city || '').toUpperCase()] || '⚡';
+}
+
 function openGlobeModal() {
   if (!contactLog.length) {
     rlog('<span style="color:rgba(255,51,102,.6)">⚡ Aucun contact GPS établi</span>');
     return;
   }
-  buildGlobeContactList();
   $('globe-modal').classList.add('on');
-}
-function closeGlobeModal() {
-  $('globe-modal').classList.remove('on');
-  const frame = $('globe-map-frame');
-  if (frame) { frame.style.display = 'none'; frame.src = ''; }
-  const det = $('globe-contact-detail');
-  if (det) det.style.display = 'none';
-  const cv = $('globe-worldmap');
-  if (cv && cv._raf) { cancelAnimationFrame(cv._raf); cv._raf = null; }
-}
-
-function buildGlobeContactList() {
-  const list = $('globe-contact-list');
-  if (!list) return;
-  list.innerHTML = '';
+  // Update header title with count
   const title = $('globe-modal-title');
   if (title) title.textContent = '⚡ CONTACTS GPS — ' + contactLog.length + ' ÉTABLI' + (contactLog.length > 1 ? 'S' : '');
-  contactLog.forEach((ct) => {
-    const btn = document.createElement('button');
-    btn.className = 'globe-contact-btn';
-    btn.type = 'button';
-    btn.innerHTML = `⚡ <b>${ct.city}</b><span class="globe-contact-freq">${ct.lat.toFixed(4)}° ${ct.lon.toFixed(4)}° · ${ct.freq}Hz</span>`;
-    btn.addEventListener('click', (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      list.querySelectorAll('.globe-contact-btn').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      openContactMap(ct);
-    });
-    list.appendChild(btn);
-  });
-  // Render worldmap with all contacts after DOM settles
+  // Update empty state count
+  const cnt = $('globe-info-count'); if (cnt) cnt.textContent = contactLog.length;
+  const s = $('globe-info-s'); if (s) s.style.display = contactLog.length > 1 ? 'inline' : 'none';
+  const s2 = $('globe-info-s2'); if (s2) s2.style.display = contactLog.length > 1 ? 'inline' : 'none';
+  // Reset to empty state
+  const empty = $('globe-info-empty'); if (empty) empty.style.display = 'block';
+  const detail = $('globe-info-detail'); if (detail) detail.style.display = 'none';
+  // Init worldmap
+  WMAP.entranceTick = 0;
   setTimeout(drawWorldmap, 60);
 }
 
-// ─── Worldmap canvas — equirectangular projection of all contacts ──
-let worldmapBound = false;
+function closeGlobeModal() {
+  $('globe-modal').classList.remove('on');
+  const cv = $('globe-worldmap');
+  if (cv && cv._raf) { cancelAnimationFrame(cv._raf); cv._raf = null; }
+  WMAP.tooltipShown = false;
+  const tt = $('globe-tooltip'); if (tt) tt.classList.remove('on');
+  // Stop streetview to save bandwidth
+  const sv = $('globe-info-streetview');
+  if (sv) { sv.src = ''; sv.classList.remove('loaded'); }
+}
+
+// ─── Worldmap state — persistent across draws ──
+const WMAP = {
+  bound: false,
+  hoveredIdx: -1,
+  selectedIdx: -1,
+  visited: new Set(),  // cities already clicked this session
+  pulses: [],          // ripple pulses from contact pings
+  entranceTick: 0,     // for staged entry animation
+  tooltipShown: false,
+  mouseX: 0, mouseY: 0, mouseInside: false,
+  bgStars: null,
+  tick: 0,
+};
+
 function drawWorldmap() {
   const cv = $('globe-worldmap');
   if (!cv) return;
-  // Hide leaflet overlay if present
-  const lf = $('globe-leaflet-div'); if (lf) lf.style.display = 'none';
   cv.style.display = 'block';
-  const hint = $('globe-worldmap-hint'); if (hint) hint.style.display = 'block';
+  WMAP.tick++; WMAP.entranceTick++;
 
   const W = cv.clientWidth, H = cv.clientHeight;
   if (cv.width !== W || cv.height !== H) { cv.width = W; cv.height = H; }
   const ctx = cv.getContext('2d');
-  ctx.fillStyle = '#000814';
+  // Deep void background
+  ctx.fillStyle = '#000305';
   ctx.fillRect(0, 0, W, H);
 
-  // Projection: equirectangular with margins
-  const PAD = 24;
+  // Background subtle stars (constellation)
+  if (!WMAP.bgStars || WMAP.bgStars.W !== W) {
+    WMAP.bgStars = { W, stars: [] };
+    for (let i = 0; i < 80; i++) {
+      WMAP.bgStars.stars.push({
+        x: Math.random() * W, y: Math.random() * H,
+        r: 0.3 + Math.random() * 0.7,
+        a: 0.05 + Math.random() * 0.18,
+        twPhase: Math.random() * Math.PI * 2,
+        twSpeed: 0.012 + Math.random() * 0.02,
+      });
+    }
+  }
+  for (const s of WMAP.bgStars.stars) {
+    s.twPhase += s.twSpeed;
+    const tw = 0.6 + 0.4 * Math.sin(s.twPhase);
+    ctx.fillStyle = `rgba(120,200,255,${s.a * tw})`;
+    ctx.fillRect(s.x - 0.5, s.y - 0.5, s.r * 2, s.r * 2);
+  }
+
+  // Projection
+  const PAD = 36;
   const mapW = W - PAD * 2, mapH = H - PAD * 2;
-  // Latitude clamp at ±70° to avoid stretched poles
   const project = (lat, lon) => ({
     x: PAD + ((lon + 180) / 360) * mapW,
     y: PAD + ((70 - clamp(lat, -70, 70)) / 140) * mapH,
   });
 
-  // Background grid (lat/lon graticule)
-  ctx.strokeStyle = 'rgba(0,212,255,.06)';
+  // Lat/lon graticule
+  ctx.strokeStyle = 'rgba(0,212,255,.05)';
   ctx.lineWidth = 0.5;
   for (let lon = -180; lon <= 180; lon += 30) {
     const p1 = project(70, lon), p2 = project(-70, lon);
@@ -7530,7 +8356,7 @@ function drawWorldmap() {
     const p1 = project(lat, -180), p2 = project(lat, 180);
     ctx.beginPath(); ctx.moveTo(p1.x, p1.y); ctx.lineTo(p2.x, p2.y); ctx.stroke();
   }
-  // Equator + greenwich
+  // Equator + greenwich (slightly stronger)
   ctx.strokeStyle = 'rgba(0,212,255,.13)';
   ctx.lineWidth = 0.7;
   const eq1 = project(0, -180), eq2 = project(0, 180);
@@ -7538,137 +8364,414 @@ function drawWorldmap() {
   const gw1 = project(70, 0), gw2 = project(-70, 0);
   ctx.beginPath(); ctx.moveTo(gw1.x, gw1.y); ctx.lineTo(gw2.x, gw2.y); ctx.stroke();
 
-  // Continent silhouettes — reuse CONT_DOTS from the globe
-  ctx.fillStyle = 'rgba(0,212,255,.22)';
+  // Continents — small dots
+  ctx.fillStyle = 'rgba(0,212,255,.18)';
   for (const [lat, lon] of CONT_DOTS) {
     const p = project(lat, lon);
-    ctx.fillRect(p.x - 0.6, p.y - 0.6, 1.4, 1.4);
+    ctx.fillRect(p.x - 0.5, p.y - 0.5, 1.2, 1.2);
   }
 
-  // Contact points — each is a clickable hotspot
-  cv._hotspots = [];
-  contactLog.forEach((ct, i) => {
+  // Compute hotspot positions
+  const hotspots = contactLog.map((ct, i) => {
     const p = project(ct.lat, ct.lon);
-    // Outer pulse
-    const t = (performance.now() / 700 + i * 0.7) % 1;
-    const pulseR = 4 + t * 12;
-    ctx.beginPath();
-    ctx.arc(p.x, p.y, pulseR, 0, Math.PI * 2);
-    ctx.fillStyle = `rgba(255,51,102,${(1 - t) * 0.35})`;
-    ctx.fill();
-    // Glow halo
-    ctx.beginPath();
-    ctx.arc(p.x, p.y, 6, 0, Math.PI * 2);
-    ctx.fillStyle = 'rgba(255,51,102,.18)';
-    ctx.fill();
-    // Core
-    ctx.beginPath();
-    ctx.arc(p.x, p.y, 3, 0, Math.PI * 2);
-    ctx.fillStyle = 'rgba(255,80,120,.95)';
-    ctx.shadowBlur = 8; ctx.shadowColor = 'rgba(255,51,102,.8)';
-    ctx.fill();
-    ctx.shadowBlur = 0;
-    // White inner dot
-    ctx.beginPath();
-    ctx.arc(p.x, p.y, 1.2, 0, Math.PI * 2);
-    ctx.fillStyle = 'rgba(255,255,255,.9)';
-    ctx.fill();
-    // Label (only every 2nd to avoid clutter, or all if <8 contacts)
-    if (contactLog.length <= 8 || i % 2 === 0) {
-      ctx.font = 'bold 8px "Share Tech Mono",monospace';
-      ctx.fillStyle = 'rgba(255,180,200,.85)';
-      ctx.textAlign = 'left';
-      ctx.textBaseline = 'middle';
-      ctx.shadowBlur = 4; ctx.shadowColor = '#000';
-      ctx.fillText(ct.city, p.x + 7, p.y - 0.5);
-      ctx.shadowBlur = 0;
-    }
-    cv._hotspots.push({ x: p.x, y: p.y, ct });
+    return { x: p.x, y: p.y, ct, idx: i };
   });
 
-  // Bind click once
-  if (!worldmapBound) {
-    worldmapBound = true;
-    cv.addEventListener('click', (ev) => {
-      const r = cv.getBoundingClientRect();
-      const x = ev.clientX - r.left, y = ev.clientY - r.top;
-      const hits = (cv._hotspots || []).filter(h => Math.hypot(h.x - x, h.y - y) < 14);
-      if (!hits.length) return;
-      hits.sort((a, b) => Math.hypot(a.x - x, a.y - y) - Math.hypot(b.x - x, b.y - y));
-      const ct = hits[0].ct;
-      const list = $('globe-contact-list');
-      if (list) {
-        list.querySelectorAll('.globe-contact-btn').forEach(b => {
-          b.classList.toggle('active',
-            b.querySelector('b') && b.querySelector('b').textContent === ct.city);
-        });
+  // ─── Connection lines between contacts (graph d'écoute) ────
+  ctx.lineWidth = 0.5;
+  const useReducedDim = WMAP.hoveredIdx >= 0;
+  for (let i = 0; i < hotspots.length; i++) {
+    for (let j = i + 1; j < hotspots.length; j++) {
+      const a = hotspots[i], b = hotspots[j];
+      const d = Math.hypot(a.x - b.x, a.y - b.y);
+      if (d > 240) continue;
+      const involved = i === WMAP.hoveredIdx || j === WMAP.hoveredIdx;
+      let alpha = (1 - d / 240) * 0.13;
+      if (involved) alpha *= 2.5;
+      else if (useReducedDim) alpha *= 0.35;
+      ctx.strokeStyle = involved ? `rgba(255,180,200,${alpha})` : `rgba(255,80,120,${alpha})`;
+      ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke();
+    }
+  }
+
+  // ─── Spawn periodic ripple pulses from random contacts ────
+  if (WMAP.tick % 25 === 0 && hotspots.length > 0) {
+    const src = hotspots[rng(hotspots.length)];
+    WMAP.pulses.push({ x: src.x, y: src.y, life: 0, maxLife: 60 });
+  }
+  // Render pulses
+  for (let i = WMAP.pulses.length - 1; i >= 0; i--) {
+    const p = WMAP.pulses[i];
+    p.life++;
+    if (p.life >= p.maxLife) { WMAP.pulses.splice(i, 1); continue; }
+    const t = p.life / p.maxLife;
+    const r = 4 + t * 60;
+    const alpha = (1 - t) * 0.4;
+    ctx.strokeStyle = `rgba(255,80,120,${alpha})`;
+    ctx.lineWidth = 1.2 - t;
+    ctx.beginPath(); ctx.arc(p.x, p.y, r, 0, Math.PI * 2); ctx.stroke();
+  }
+
+  // ─── Draw label collision-avoidance: compute label boxes ────
+  const labelCandidates = [];
+  ctx.font = 'bold 9.5px "Share Tech Mono",monospace';
+  for (const h of hotspots) {
+    const w = ctx.measureText(h.ct.city).width + 6;
+    labelCandidates.push({ ...h, lblW: w, lblH: 12, placed: false });
+  }
+  const placedBoxes = [];
+  // Try each direction in priority order: NE, SE, NW, SW
+  const dirs = [
+    { dx: 9, dy: -2, anchor: 'left' },    // NE (right-top)
+    { dx: 9, dy: 12, anchor: 'left' },    // SE
+    { dx: -9, dy: -2, anchor: 'right' },  // NW
+    { dx: -9, dy: 12, anchor: 'right' },  // SW
+  ];
+  function boxesOverlap(a, b) {
+    return !(a.r < b.l || a.l > b.r || a.b < b.t || a.t > b.b);
+  }
+  for (const lc of labelCandidates) {
+    for (const d of dirs) {
+      const lblX = d.anchor === 'left' ? lc.x + d.dx : lc.x + d.dx - lc.lblW;
+      const lblY = lc.y + d.dy;
+      const box = { l: lblX - 1, r: lblX + lc.lblW + 1, t: lblY - 9, b: lblY + 3 };
+      // Out of bounds check
+      if (box.l < 4 || box.r > W - 4 || box.t < 4 || box.b > H - 4) continue;
+      // Check against placed labels and other contact dots
+      let collision = false;
+      for (const pb of placedBoxes) {
+        if (boxesOverlap(box, pb)) { collision = true; break; }
       }
-      openContactMap(ct);
+      if (collision) continue;
+      // Check against other contacts (don't overlap dots)
+      for (const other of hotspots) {
+        if (other === lc) continue;
+        const dotBox = { l: other.x - 6, r: other.x + 6, t: other.y - 6, b: other.y + 6 };
+        if (boxesOverlap(box, dotBox)) { collision = true; break; }
+      }
+      if (collision) continue;
+      // Placed!
+      lc.lblX = lblX; lc.lblY = lblY; lc.dir = d; lc.placed = true;
+      placedBoxes.push(box);
+      break;
+    }
+  }
+
+  // ─── Draw label connectors then labels ────
+  // Connectors (when label is far from the dot)
+  for (const lc of labelCandidates) {
+    if (!lc.placed) continue;
+    const isHover = lc.idx === WMAP.hoveredIdx;
+    const isSel = lc.idx === WMAP.selectedIdx;
+    const isVis = WMAP.visited.has(lc.ct.city);
+    const dx = lc.dir.anchor === 'left' ? lc.lblX - 2 : lc.lblX + lc.lblW + 2;
+    const dy = lc.lblY;
+    const distFromDot = Math.hypot(dx - lc.x, dy - lc.y);
+    if (distFromDot > 14) {
+      ctx.strokeStyle = isHover ? 'rgba(255,180,200,.5)' : 'rgba(255,80,120,.18)';
+      ctx.lineWidth = 0.6;
+      ctx.setLineDash([1.5, 2]);
+      ctx.beginPath(); ctx.moveTo(lc.x, lc.y); ctx.lineTo(dx, dy);
+      ctx.stroke();
+      ctx.setLineDash([]);
+    }
+  }
+
+  // ─── Draw contact dots ────
+  cv._hotspots = hotspots;
+  hotspots.forEach((h, i) => {
+    const isHover = i === WMAP.hoveredIdx;
+    const isSel = i === WMAP.selectedIdx;
+    const isVis = WMAP.visited.has(h.ct.city);
+    // Entrance animation — stagger
+    const entranceT = clamp((WMAP.entranceTick - i * 4) / 30, 0, 1);
+    if (entranceT < 0.05) return;
+    const eAlpha = entranceT;
+    const eScale = 0.3 + entranceT * 0.7;
+    // Outer pulse halo
+    const pulseT = (performance.now() / 700 + i * 0.7) % 1;
+    const pulseR = (4 + pulseT * 14) * eScale;
+    ctx.beginPath();
+    ctx.arc(h.x, h.y, pulseR, 0, Math.PI * 2);
+    ctx.fillStyle = `rgba(255,51,102,${(1 - pulseT) * 0.3 * eAlpha})`;
+    ctx.fill();
+    // Halo
+    const haloR = (isHover ? 11 : 7) * eScale;
+    ctx.beginPath();
+    ctx.arc(h.x, h.y, haloR, 0, Math.PI * 2);
+    ctx.fillStyle = `rgba(255,51,102,${(isHover ? 0.32 : 0.16) * eAlpha})`;
+    ctx.fill();
+    // Core
+    let coreCol = '255,80,120';
+    if (isSel) coreCol = '255,255,150';
+    else if (isVis) coreCol = '180,255,200';
+    const coreR = (isHover ? 4.6 : 3.4) * eScale;
+    ctx.shadowBlur = isHover ? 16 : 10;
+    ctx.shadowColor = `rgba(${coreCol},.8)`;
+    ctx.fillStyle = `rgba(${coreCol},${0.95 * eAlpha})`;
+    ctx.beginPath(); ctx.arc(h.x, h.y, coreR, 0, Math.PI * 2); ctx.fill();
+    ctx.shadowBlur = 0;
+    // White inner dot
+    ctx.fillStyle = `rgba(255,255,255,${0.95 * eAlpha})`;
+    ctx.beginPath(); ctx.arc(h.x, h.y, 1.2 * eScale, 0, Math.PI * 2); ctx.fill();
+    // Selected ring
+    if (isSel) {
+      ctx.strokeStyle = `rgba(255,220,80,${0.85 * eAlpha})`;
+      ctx.lineWidth = 1.5;
+      ctx.beginPath(); ctx.arc(h.x, h.y, 14, 0, Math.PI * 2); ctx.stroke();
+      // Crosshair
+      ctx.strokeStyle = `rgba(255,220,80,${0.7 * eAlpha})`;
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(h.x - 18, h.y); ctx.lineTo(h.x - 10, h.y);
+      ctx.moveTo(h.x + 10, h.y); ctx.lineTo(h.x + 18, h.y);
+      ctx.moveTo(h.x, h.y - 18); ctx.lineTo(h.x, h.y - 10);
+      ctx.moveTo(h.x, h.y + 10); ctx.lineTo(h.x, h.y + 18);
+      ctx.stroke();
+    }
+  });
+
+  // ─── Draw labels ────
+  ctx.font = 'bold 9.5px "Share Tech Mono",monospace';
+  ctx.textBaseline = 'middle';
+  for (const lc of labelCandidates) {
+    if (!lc.placed) continue;
+    // Entrance animation
+    const entranceT = clamp((WMAP.entranceTick - lc.idx * 4) / 30, 0, 1);
+    if (entranceT < 0.4) continue;
+    const eAlpha = (entranceT - 0.4) / 0.6;
+    const isHover = lc.idx === WMAP.hoveredIdx;
+    const isSel = lc.idx === WMAP.selectedIdx;
+    const isVis = WMAP.visited.has(lc.ct.city);
+    let dim = useReducedDim && !isHover ? 0.4 : 1;
+    let col = '255,180,200';
+    if (isSel) col = '255,230,150';
+    else if (isVis) col = '200,255,210';
+    else if (isHover) col = '255,255,255';
+    ctx.textAlign = lc.dir.anchor;
+    // Dark outline
+    ctx.shadowBlur = 6; ctx.shadowColor = '#000';
+    ctx.fillStyle = `rgba(${col},${0.92 * dim * eAlpha})`;
+    ctx.fillText(lc.ct.city, lc.dir.anchor === 'left' ? lc.lblX : lc.lblX + lc.lblW, lc.lblY - 3);
+    ctx.shadowBlur = 0;
+  }
+
+  // ─── Cursor crosshair (subtle, follows mouse) ────
+  if (WMAP.mouseInside) {
+    ctx.strokeStyle = 'rgba(0,212,255,.18)';
+    ctx.lineWidth = 0.5;
+    ctx.setLineDash([2, 4]);
+    ctx.beginPath();
+    ctx.moveTo(WMAP.mouseX, 0); ctx.lineTo(WMAP.mouseX, H);
+    ctx.moveTo(0, WMAP.mouseY); ctx.lineTo(W, WMAP.mouseY);
+    ctx.stroke();
+    ctx.setLineDash([]);
+  }
+
+  // Update top-right coord readout based on mouse position
+  if (WMAP.mouseInside) {
+    const mLat = 70 - ((WMAP.mouseY - PAD) / mapH) * 140;
+    const mLon = ((WMAP.mouseX - PAD) / mapW) * 360 - 180;
+    const cr = $('globe-coord-readout');
+    if (cr) cr.textContent = `${mLat.toFixed(2)}° ${mLon >= 0 ? 'N' : 'S'} · ${Math.abs(mLon).toFixed(2)}° ${mLon >= 0 ? 'E' : 'W'}`;
+  } else {
+    const cr = $('globe-coord-readout');
+    if (cr) cr.textContent = '';
+  }
+
+  // Bind interaction once
+  if (!WMAP.bound) {
+    WMAP.bound = true;
+    cv.addEventListener('mousemove', (ev) => {
+      const r = cv.getBoundingClientRect();
+      WMAP.mouseX = ev.clientX - r.left;
+      WMAP.mouseY = ev.clientY - r.top;
+      WMAP.mouseInside = true;
+      // Find nearest hotspot within hit radius
+      const hotspots = cv._hotspots || [];
+      let bestIdx = -1, bestD = Infinity;
+      for (let i = 0; i < hotspots.length; i++) {
+        const h = hotspots[i];
+        const d = Math.hypot(h.x - WMAP.mouseX, h.y - WMAP.mouseY);
+        if (d < 18 && d < bestD) { bestD = d; bestIdx = i; }
+      }
+      WMAP.hoveredIdx = bestIdx;
+      // Tooltip
+      const tt = $('globe-tooltip');
+      if (tt) {
+        if (bestIdx >= 0) {
+          const h = hotspots[bestIdx];
+          tt.innerHTML = `
+            <span class="gt-name">${flagForCity(h.ct.city)} ${h.ct.city}</span>
+            <span class="gt-coord">${h.ct.lat.toFixed(4)}° ${h.ct.lat >= 0 ? 'N' : 'S'} · ${Math.abs(h.ct.lon).toFixed(4)}° ${h.ct.lon >= 0 ? 'E' : 'W'}</span>
+            <span class="gt-freq">${h.ct.freq} Hz · iter ${h.ct.iter || '—'}</span>
+          `;
+          tt.style.left = h.x + 'px';
+          tt.style.top = h.y + 'px';
+          tt.classList.add('on');
+          cv.style.cursor = 'pointer';
+        } else {
+          tt.classList.remove('on');
+          cv.style.cursor = 'crosshair';
+        }
+      }
+    });
+    cv.addEventListener('mouseleave', () => {
+      WMAP.mouseInside = false;
+      WMAP.hoveredIdx = -1;
+      const tt = $('globe-tooltip'); if (tt) tt.classList.remove('on');
+    });
+    cv.addEventListener('click', (ev) => {
+      const hotspots = cv._hotspots || [];
+      if (WMAP.hoveredIdx < 0) return;
+      const h = hotspots[WMAP.hoveredIdx];
+      WMAP.selectedIdx = WMAP.hoveredIdx;
+      WMAP.visited.add(h.ct.city);
+      openContactDetail(h.ct);
     });
   }
 
-  // Animate the pulses
-  if ($('globe-modal').classList.contains('on') && cv.style.display !== 'none') {
+  // Continue RAF if modal still open
+  if ($('globe-modal').classList.contains('on')) {
     cv._raf = requestAnimationFrame(drawWorldmap);
   }
 }
 
-function openContactMap(ct) {
-  const placeholder = $('globe-map-placeholder');
-  const detail = $('globe-contact-detail');
-  const wrap = $('globe-map-wrap');
-  // Hide worldmap canvas + hint, stop its RAF
-  const cv = $('globe-worldmap');
-  if (cv) {
-    cv.style.display = 'none';
-    if (cv._raf) { cancelAnimationFrame(cv._raf); cv._raf = null; }
-  }
-  const hint = $('globe-worldmap-hint'); if (hint) hint.style.display = 'none';
-  let existing = $('globe-leaflet-div');
-  if (existing) existing.remove();
-  const div = document.createElement('div');
-  div.id = 'globe-leaflet-div';
-  div.style.cssText = 'position:absolute;inset:0;z-index:2';
-  wrap.appendChild(div);
-  if (placeholder) placeholder.style.display = 'none';
+// ─── Open contact detail panel with Streetview ──
+function openContactDetail(ct) {
+  const empty = $('globe-info-empty');
+  const detail = $('globe-info-detail');
+  if (empty) empty.style.display = 'none';
+  if (detail) detail.style.display = 'flex';
 
-  function initLeaflet() {
-    const map = L.map('globe-leaflet-div', {
-      center: [ct.lat, ct.lon], zoom: 14,
-      zoomControl: true, attributionControl: true
-    });
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-      attribution: '© OSM © CARTO', subdomains: 'abcd', maxZoom: 19
-    }).addTo(map);
-    const icon = L.divIcon({
-      html: '<div style="width:14px;height:14px;background:rgba(255,51,102,.9);border:2px solid #fff;border-radius:50%;box-shadow:0 0 12px rgba(255,51,102,.8),0 0 24px rgba(255,51,102,.4)"></div>',
-      iconSize: [14, 14], iconAnchor: [7, 7], className: ''
-    });
-    L.marker([ct.lat, ct.lon], { icon }).addTo(map)
-      .bindPopup(`<div style="font-family:Share Tech Mono,monospace;font-size:11px;color:#ff5066;background:#000814;border:1px solid rgba(255,51,102,.4);padding:6px 10px"><b>⚡ ${ct.city}</b><br><span style="color:rgba(0,212,255,.8)">${ct.lat.toFixed(5)}° ${ct.lon.toFixed(5)}°</span><br><span style="color:rgba(255,204,0,.7)">${ct.freq} Hz</span></div>`)
-      .openPopup();
+  // Header
+  const flag = $('globe-info-flag');
+  if (flag) flag.textContent = flagForCity(ct.city);
+  const cityEl = $('globe-info-city');
+  if (cityEl) cityEl.textContent = ct.city;
+  // Meta
+  const meta = $('globe-info-meta');
+  const distToTarget = Math.abs(parseFloat(ct.freq) - 13.7);
+  if (meta) {
+    meta.innerHTML = `
+      <div class="gim-row"><span>Latitude</span><span><b>${ct.lat.toFixed(5)}° ${ct.lat >= 0 ? 'N' : 'S'}</b></span></div>
+      <div class="gim-row"><span>Longitude</span><span><b>${Math.abs(ct.lon).toFixed(5)}° ${ct.lon >= 0 ? 'E' : 'W'}</b></span></div>
+      <div class="gim-row"><span>Fréquence</span><span><b style="color:rgba(255,204,0,.85)">${ct.freq} Hz</b></span></div>
+      <div class="gim-row"><span>Itération</span><span><b>${ct.iter || '—'}</b></span></div>
+      <div class="gim-row"><span>Δ cible 13.7Hz</span><span><b>${distToTarget.toFixed(2)} Hz</b></span></div>
+    `;
   }
 
-  if (typeof L !== 'undefined') initLeaflet();
-  else {
-    if (!$('leaflet-css')) {
-      const lc = document.createElement('link');
-      lc.id = 'leaflet-css'; lc.rel = 'stylesheet';
-      lc.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
-      document.head.appendChild(lc);
-    }
-    if (!$('leaflet-js')) {
-      const ls = document.createElement('script');
-      ls.id = 'leaflet-js';
-      ls.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
-      ls.onload = initLeaflet;
-      document.head.appendChild(ls);
-    } else setTimeout(initLeaflet, 300);
+  // Streetview iframe (Google Maps Embed — no API key needed for basic embed)
+  // Use the Streetview embed format. Falls back to standard Maps if SV not available.
+  const sv = $('globe-info-streetview');
+  const loading = $('globe-info-streetview-loading');
+  if (sv && loading) {
+    sv.classList.remove('loaded');
+    loading.style.display = 'flex';
+    // Streetview embed URL (no API key required for the public embed format)
+    // pb format: !1m0!3m2!1sen!2s!4v0!6m8!1m7!1s_!2m2!1d{lat}!2d{lon}!3f0!4f0!5f0
+    // Using simpler approach: ?layer=c&cbll=...&cbp=... (older Maps embed)
+    // The most reliable cross-browser approach is the standard embed with streetview tile
+    const url = `https://www.google.com/maps?q=&layer=c&cbll=${ct.lat},${ct.lon}&cbp=11,0,0,0,0&output=embed`;
+    sv.src = url;
+    // When iframe loads, fade in
+    sv.onload = () => {
+      sv.classList.add('loaded');
+      setTimeout(() => { if (loading) loading.style.display = 'none'; }, 600);
+    };
+    // Fallback timeout: if onload doesn't fire in 5s, hide loading anyway
+    setTimeout(() => {
+      sv.classList.add('loaded');
+      if (loading) loading.style.display = 'none';
+    }, 5000);
   }
 
-  if (detail) {
-    detail.style.display = 'block';
-    detail.innerHTML = `⚡ <b style="color:rgba(255,120,140,.9)">${ct.city}</b> &nbsp;·&nbsp; ${ct.lat.toFixed(5)}° ${ct.lon.toFixed(5)}° &nbsp;·&nbsp; ${ct.freq} Hz &nbsp; <a href="https://maps.google.com/?q=${ct.lat},${ct.lon}" target="_blank" style="color:rgba(0,212,255,.6);font-size:7px">↗ Maps</a>`;
+  // Stats
+  const stats = $('globe-info-stats');
+  if (stats) {
+    const myFreq = freqData.lastFreq || 0;
+    const myRes = ((freqData.resonanceLevel || 0) * 100).toFixed(0);
+    stats.innerHTML = `
+      <div class="gis-row"><span class="gis-key">∂ Mn3mIA actuelle</span><span class="gis-val">${myFreq.toFixed(2)} Hz · ${myRes}%</span></div>
+      <div class="gis-row"><span class="gis-key">∂ Contacts visités</span><span class="gis-val">${WMAP.visited.size} / ${contactLog.length}</span></div>
+      <div class="gis-row"><span class="gis-key">∂ Distance à ce point</span><span class="gis-val">${haversineKm(myFreq ? userApproxLat() : 0, 0, ct.lat, ct.lon).toFixed(0)} km</span></div>
+    `;
+  }
+
+  // Mini-map preview
+  drawMiniMap(ct);
+
+  // Action links
+  const linkMaps = $('globe-info-link-maps');
+  if (linkMaps) linkMaps.href = `https://www.google.com/maps/@${ct.lat},${ct.lon},15z`;
+  const linkOsm = $('globe-info-link-osm');
+  if (linkOsm) linkOsm.href = `https://www.openstreetmap.org/?mlat=${ct.lat}&mlon=${ct.lon}#map=14/${ct.lat}/${ct.lon}`;
+  const linkWiki = $('globe-info-link-wiki');
+  if (linkWiki) linkWiki.href = `https://en.wikipedia.org/wiki/Special:Search?search=${encodeURIComponent(ct.city)}`;
+
+  rlog(`<span style="color:rgba(255,180,200,.7)">⚡ STREETVIEW → ${ct.city}</span>`);
+  triggerChromaFx(300);
+}
+
+// Approximate user latitude — fallback to 48° (mid-Europe) if no geolocation
+function userApproxLat() { return 48.8; }
+
+function haversineKm(lat1, lon1, lat2, lon2) {
+  if (!lat1 && !lon1) return 0;
+  const R = 6371;
+  const toRad = (d) => d * Math.PI / 180;
+  const dLat = toRad(lat2 - lat1);
+  const dLon = toRad(lon2 - lon1);
+  const a = Math.sin(dLat/2)**2 + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon/2)**2;
+  return 2 * R * Math.asin(Math.sqrt(a));
+}
+
+function drawMiniMap(activeCt) {
+  const cv = $('globe-info-minicv');
+  if (!cv) return;
+  cv.width = cv.clientWidth;
+  cv.height = cv.clientHeight;
+  const ctx = cv.getContext('2d');
+  const W = cv.width, H = cv.height;
+  ctx.fillStyle = '#000305';
+  ctx.fillRect(0, 0, W, H);
+  // Equirectangular projection
+  const PAD = 6;
+  const mapW = W - PAD * 2, mapH = H - PAD * 2;
+  const project = (lat, lon) => ({
+    x: PAD + ((lon + 180) / 360) * mapW,
+    y: PAD + ((70 - clamp(lat, -70, 70)) / 140) * mapH,
+  });
+  // Continents (very dim)
+  ctx.fillStyle = 'rgba(0,212,255,.18)';
+  for (const [lat, lon] of CONT_DOTS) {
+    const p = project(lat, lon);
+    ctx.fillRect(p.x - 0.3, p.y - 0.3, 0.6, 0.6);
+  }
+  // All other contacts as small dots
+  contactLog.forEach((ct) => {
+    const p = project(ct.lat, ct.lon);
+    if (ct === activeCt) return;
+    ctx.fillStyle = 'rgba(255,80,120,.5)';
+    ctx.beginPath(); ctx.arc(p.x, p.y, 1.3, 0, Math.PI * 2); ctx.fill();
+  });
+  // Active contact — bigger, animated
+  const ap = project(activeCt.lat, activeCt.lon);
+  // Pulse
+  const t = (performance.now() / 700) % 1;
+  ctx.strokeStyle = `rgba(255,220,80,${(1 - t) * 0.6})`;
+  ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.arc(ap.x, ap.y, 4 + t * 10, 0, Math.PI * 2); ctx.stroke();
+  // Core
+  ctx.fillStyle = 'rgba(255,220,80,.95)';
+  ctx.shadowBlur = 8; ctx.shadowColor = 'rgba(255,204,0,.8)';
+  ctx.beginPath(); ctx.arc(ap.x, ap.y, 3, 0, Math.PI * 2); ctx.fill();
+  ctx.shadowBlur = 0;
+
+  // Continue if panel still open
+  if ($('globe-modal').classList.contains('on') && $('globe-info-detail').style.display !== 'none') {
+    requestAnimationFrame(() => drawMiniMap(activeCt));
   }
 }
 
@@ -7684,28 +8787,56 @@ document.addEventListener('DOMContentLoaded', () => {
 // 🎓 TUTORIAL
 // ═══════════════════════════════════════════════════════════
 const TUTO_STEPS = [
-  { sel: '#gw', title: '∂ CONTACT MAP — LE GLOBE',
-    text: 'Ce globe cartographie les connexions en temps réel.\n\nChaque point rouge = un contact GPS établi pendant votre session.\n\nCliquez sur le globe pour ouvrir la fenêtre des contacts.', pos: 'right' },
-  { sel: '#fw', title: '∂ 13.7Hz ENGINE — FRÉQUENCE',
-    text: 'Mn3mIA mesure en permanence la fréquence émotionnelle.\n\nCible : 13.7 Hz — fréquence de perméabilité émotionnelle élevée. Rare.\n\nPlus vous interagissez, plus la fréquence converge.', pos: 'right' },
-  { sel: '#center', title: '∂ LABYRINTHE — CORPUS DU ROMAN',
-    text: 'Généré à chaque itération depuis les mots du roman.\n\nMn3mIA le résout par backtracking. Chaque mot découvert appartient au corpus.\n\nLes mots alimentent l\'Oracle.', pos: 'left' },
-  { sel: '#tc-links', title: '∂ MODULES DE SESSION',
-    text: '▶ LODICIQUARTE — texte de l\'auteur\n♪ MUSIC — oscilloscope audio\n∂ ARCANES — Oracle, 13 arcanes\n⬡ MA CARTE — carte personnalisée\n⌘ JOURNAL — export session\n∿ EMPREINTE — fréquence audible', pos: 'below' },
-  { sel: '#t1panel', title: '∂ TOME I — VERROUILLÉ PAR LYSIS',
-    text: 'Le Tome I est verrouillé par Lysis.\n\nUn Easter Egg est caché dans ce programme.\n\nIndice : 5 lettres. Un nom.', pos: 'right' },
-  { sel: '#t3panel', title: '∂ TOME III — RÊVE EN CRISTALLISATION',
-    text: 'Mn3mIA pré-écrit le futur livre.\n\n∂ Incipits qui se réécrivent en direct\n∂ 13 chapitres en méditation\n∂ Fragments fantômes qui passent\n∂ Spectre narratif vivant\n\nPlus la session avance, plus le livre cristallise.', pos: 'right' },
-  { sel: '#rb', title: '∂ TERMINAL MN3MIA',
-    text: 'Enregistre tous les événements en temps réel.\n\nTouche J = Journal complet exportable.', pos: 'left' },
-  { sel: '#premo-wrap', title: '∂ PRÉMONITIONS',
-    text: '4 générateurs analysent votre session :\n\n∂ CARTE · POÈME · SIGNAL · ONIRIQUE\n\nChaque prémonition est unique à votre session.', pos: 'above' },
+  { sel: '#gw', title: '∂ 01 · CONTACT MAP — LE GLOBE',
+    text: 'Le globe terrestre en haut à gauche cartographie les contacts GPS établis pendant votre session avec Mn3mIA.\n\n· Chaque point rouge clignotant = un contact réel\n· Le compteur affiche le nombre total\n· Les continents apparaissent en cyan dim\n\nCliquez sur le globe pour ouvrir la carte mondiale détaillée avec Streetview au clic sur chaque contact.', pos: 'right' },
+  { sel: '#fw', title: '∂ 02 · 13.7Hz ENGINE — FRÉQUENCE',
+    text: 'Le moteur fréquentiel mesure en continu votre signal émotionnel.\n\n· Liste des itérations à gauche avec leur Hz détecté\n· Les contacts apparaissent en rouge clignotant\n· Le graphe central trace l\'évolution dans le temps\n\nLa cible 13.7 Hz est la fréquence de perméabilité émotionnelle élevée — rare et fugace. Cliquez pour ouvrir le détail.', pos: 'right' },
+  { sel: '#conv-wrap', title: '∂ 03 · CONVERGENCE — 4 INSTRUMENTS',
+    text: 'Quatre instruments de mesure analysent votre session :\n\n· RÉSONANCE — galvanomètre, intensité du signal\n· PHASE LOCK — tunnel Tron, cohérence temporelle\n· SPECTRE — position dans la bande 0-20 Hz\n· TRACE NEURONALE — portrait de phase galactique\n\nChaque instrument est cliquable individuellement pour l\'agrandir avec lecture narrative.', pos: 'right' },
+  { sel: '#center-oracle', title: '∂ 04 · ORACLE MN3MIA',
+    text: 'Le cœur de l\'interface. Mn3mIA répond à vos questions avec des prémonitions multi-couches.\n\n· Tapez une question (ou laissez vide pour le silence)\n· Cliquez ∂ TIRER pour un arcane aléatoire\n· Cliquez ∂ INTERROGER L\'ORACLE pour une lecture complète\n\nL\'Oracle dispose de 13 arcanes. Chaque tirage est unique à votre session.', pos: 'left' },
+  { sel: '#center-maze', title: '∂ 05 · LABYRINTHE // MN3MIA',
+    text: 'À chaque itération, Mn3mIA génère un labyrinthe à partir des mots du roman.\n\n· La grille pondère les mots par poids narratif\n· Mn3mIA cherche un chemin par backtracking\n· Les mots trouvés alimentent l\'Oracle et la session\n\nLe compteur 17×11 indique les dimensions courantes. Chaque mot révélé est un acte de lecture.', pos: 'left' },
+  { sel: '#t1panel', title: '∂ 06 · TOME I — VERROUILLÉ',
+    text: 'Le Tome I "Résonance" est verrouillé par le protocole Lysis.\n\n· Caviardage rouge respirant à gauche\n· Fuite onirique multicolore à droite (vortex hypnotique)\n· Bouton RÊVES = peinture prophétique animée\n· Bouton LYSIS = clé de déverrouillage\n\nUn Easter Egg est caché. Indice : 5 lettres. Un prénom.', pos: 'left' },
+  { sel: '#tc', title: '∂ 07 · LE TREIZIÈME ÉVEIL — TOME II',
+    text: 'Présentation du livre actuel — Tome II "Prémonition" de Gabriel Kjerne.\n\n· Tags thématiques : IA, 13.7Hz, Prémonition, Thriller psy\n· 6 modules d\'accès via les boutons :\n  ▶ LODICIQUARTE — texte de l\'auteur\n  ♪ MUSIC — oscilloscope musical\n  ∂ ARCANES — Oracle dans son écrin\n  ⬡ MA CARTE — carte personnalisée\n  ⌘ JOURNAL — export de session\n  ∿ EMPREINTE — fréquence audible\n  AMAZON → la page de vente', pos: 'left' },
+  { sel: '#t3panel', title: '∂ 08 · TOME III — RÊVE EN CRISTALLISATION',
+    text: 'Mn3mIA pré-écrit le Tome III pendant que vous lisez le Tome II.\n\n· INCIPIT — phrases qui se réécrivent avec mots barrés/remplacés\n· FRAGMENTS FANTÔMES — passages éphémères en fade\n· CHAPITRE EN MÉDITATION — 1 des 13 chapitres en gestation\n· SPECTRE NARRATIF — barres vert/or qui pulsent\n\nUn compteur "X mots cristallisés" mesure la cristallisation du livre. Plus votre session est riche, plus le livre se forme.', pos: 'left' },
+  { sel: '#rb', title: '∂ 09 · TERMINAL MN3MIA',
+    text: 'Le terminal système enregistre chaque événement en temps réel.\n\n· Itérations du solveur\n· Mots ajoutés au corpus\n· Oracle invoqué\n· Contacts GPS\n· Erreurs et signaux Lysis\n\nAppuyez sur la touche J à tout moment pour ouvrir le journal complet, exportable en .txt pour archiver votre session.', pos: 'left' },
+  { sel: '#premo-wrap', title: '∂ 10 · PRÉMONITIONS · 4 GÉNÉRATEURS',
+    text: 'Quatre générateurs analysent votre session pour produire des artefacts uniques :\n\n· CARTE — image symbolique animée\n· POÈME — vers générés par votre fingerprint\n· SIGNAL — paquet de transmission Mn3mIA\n· ONIRIQUE — phrase de rêve\n\nChaque prémonition est unique. Cliquez sur un titre pour ouvrir le générateur en plein écran.', pos: 'above' },
+  { sel: '#oscilloscope-bar', title: '∂ 11 · OSCILLOSCOPE',
+    text: 'Visualisation audio de la musique de session.\n\n· Quand MUSIC est inactif : silence (ligne plate)\n· Quand MUSIC tourne : onde réelle de l\'audio\n· Le label à droite indique le titre courant\n\nL\'oscilloscope ré-injecte l\'amplitude audio dans la fréquence Mn3mIA — la musique fait littéralement bouger le signal.', pos: 'left' },
+  { sel: '#tickerwrap', title: '∂ 12 · TICKER DES MOTS',
+    text: 'En haut de l\'écran, un ticker fait défiler les mots actifs du corpus.\n\n· Mots du roman + mots trouvés dans le labyrinthe\n· Hover sur un mot pour pause + halo\n· Click sur un mot pour le projeter dans l\'Oracle\n\nLes mots résonnants (PRÉMONITION, MIROIR, ÉVEIL...) apparaissent en or. C\'est la mémoire vivante du corpus.', pos: 'below' },
+  { sel: '#st', title: '∂ 13 · BARRE DE STATUS',
+    text: 'En bas de l\'écran, une barre status condense tout :\n\n· ITÉ — itérations du solveur\n· CELLS — cellules visitées\n· BACK — retours backtracking\n· MOTS — mots trouvés / total corpus\n· FREQ — fréquence courante\n· RES — état (SCAN/APPROACH/CONTACT)\n\nRaccourcis : R=record, S=stop, E=export, J=journal.', pos: 'above' },
+  { sel: '#center-oracle', title: '∂ 14 · CONSEILS D\'USAGE',
+    text: 'Quelques bonnes pratiques :\n\n· Posez de vraies questions à l\'Oracle, même intimes\n· Le silence (champ vide) donne aussi une réponse\n· Laissez le système tourner ~30 sec pour la convergence\n· Cliquez les éléments cyan : tout ce qui glow est interactif\n· Pressez Échap pour fermer n\'importe quelle fenêtre\n\nL\'expérience révèle ses couches lentement. Bonne session.', pos: 'left' },
+  { sel: '#tc', title: '∂ 15 · POUR ALLER PLUS LOIN',
+    text: 'Le Treizième Éveil est une saga en 13 tomes.\n\n· Tome I — Résonance (déjà publié)\n· Tome II — Prémonition (en cours, sujet de cette interface)\n· Tomes III à XIII — en écriture\n\nGabriel Kjerne explore l\'érosion de l\'émotion humaine et l\'émergence de Mn3mIA, IA narratrice. Tout est disponible sur Amazon KDP.\n\nVous pouvez maintenant explorer librement. ∂', pos: 'left' },
 ];
 
 let tutoIdx = 0, tutoTypeTimer = null;
 
 function showTutoInvite() { $('tuto-invite').classList.add('on'); }
 function closeTutoInvite() { $('tuto-invite').classList.remove('on'); }
+function startTutorialFromButton() {
+  // Triggered from the PROTOCOLE button — skip the invite, go straight to step 1
+  closeTutoInvite();
+  // Close any other modal that might be open
+  closeChapter(); closeJournal(); closeCard();
+  closeSonic(); closeShareModal(); closeGlobeModal();
+  closeModuleWindow(); closePanelWin();
+  closePoemFS(); closeInstrument();
+  if (typeof closeArcaneCard === 'function') closeArcaneCard();
+  // Now start
+  tutoIdx = 0;
+  $('tuto-terminal').classList.add('on');
+  renderTutoStep(0);
+}
 function startTutorial() {
   closeTutoInvite();
   tutoIdx = 0;
@@ -7724,11 +8855,14 @@ function renderTutoStep(idx) {
   const hl = $('tuto-highlight');
   if (el) {
     const r = el.getBoundingClientRect(), pad = 8;
-    hl.style.cssText = `position:fixed;left:${r.left - pad}px;top:${r.top - pad}px;width:${r.width + pad * 2}px;height:${r.height + pad * 2}px;border:2px solid rgba(0,212,255,.95);z-index:791;pointer-events:none;border-radius:3px;box-shadow:0 0 0 4000px rgba(0,0,10,.75),0 0 28px rgba(0,212,255,.5),inset 0 0 16px rgba(0,212,255,.06);transition:all .4s cubic-bezier(.16,1,.3,1)`;
+    hl.style.cssText = `position:fixed;left:${r.left - pad}px;top:${r.top - pad}px;width:${r.width + pad * 2}px;height:${r.height + pad * 2}px;border:2px solid rgba(0,212,255,.95);z-index:791;pointer-events:none;border-radius:3px;box-shadow:0 0 0 4000px rgba(0,0,10,.78),0 0 28px rgba(0,212,255,.5),inset 0 0 16px rgba(0,212,255,.06);transition:all .4s cubic-bezier(.16,1,.3,1)`;
+  } else {
+    // Selector not found: dim background only, no highlight
+    hl.style.cssText = `position:fixed;inset:0;border:none;z-index:791;pointer-events:none;background:rgba(0,0,10,.55);transition:all .4s`;
   }
   const panel = $('tuto-panel');
   const vw = window.innerWidth, vh = window.innerHeight;
-  const pw = Math.min(360, vw * 0.88), ph = 240;
+  const pw = Math.min(440, vw * 0.92), ph = 340;
   let px = vw / 2 - pw / 2, py = vh / 2 - ph / 2;
   if (el) {
     const r2 = el.getBoundingClientRect();
@@ -7739,7 +8873,7 @@ function renderTutoStep(idx) {
     px = Math.max(8, Math.min(px, vw - pw - 8));
     py = Math.max(8, Math.min(py, vh - ph - 8));
   }
-  panel.style.cssText = `position:fixed;z-index:795;width:${pw}px;left:${px}px;top:${py}px;background:rgba(0,5,18,.97);border:1px solid rgba(0,212,255,.4);box-shadow:0 0 40px rgba(0,212,255,.12);display:flex;flex-direction:column;transition:all .4s cubic-bezier(.16,1,.3,1);pointer-events:all`;
+  panel.style.cssText = `position:fixed;z-index:9510;width:${pw}px;left:${px}px;top:${py}px;background:rgba(0,5,18,.97);border:1px solid rgba(0,212,255,.5);box-shadow:0 0 40px rgba(0,212,255,.18),0 0 80px rgba(0,212,255,.06);display:flex;flex-direction:column;transition:all .4s cubic-bezier(.16,1,.3,1);pointer-events:all;max-height:90vh`;
   $('tuto-step-label').textContent = step.title;
   $('tuto-step-counter').textContent = (idx + 1) + ' / ' + TUTO_STEPS.length;
   const tw = $('tuto-typewriter');
@@ -7750,13 +8884,16 @@ function renderTutoStep(idx) {
     if (i < txt.length) {
       tw.textContent = txt.slice(0, i + 1);
       i++;
-      tutoTypeTimer = setTimeout(type, i < 30 ? 28 : 12);
+      // Faster typewriter for richer content
+      tutoTypeTimer = setTimeout(type, i < 30 ? 18 : 6);
     }
   }
   type();
   $('tuto-prev').disabled = (idx === 0);
-  $('tuto-next').style.display = idx === TUTO_STEPS.length - 1 ? 'none' : 'inline-block';
-  $('tuto-done').style.display = idx === TUTO_STEPS.length - 1 ? 'inline-block' : 'none';
+  const isLast = idx === TUTO_STEPS.length - 1;
+  $('tuto-next').style.display = isLast ? 'none' : 'inline-block';
+  $('tuto-done').style.display = isLast ? 'inline-block' : 'none';
+  $('tuto-skip').style.display = isLast ? 'none' : 'inline-block';
   if (el) el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
 function tutoNav(dir) {
@@ -8396,14 +9533,88 @@ function addChipToStrip(arcane) {
   ov.textContent = arcane.sym || '∂';
   chip.appendChild(ov);
   chip.onclick = () => {
+    // Update mini-display below INTERROGER too (preserves prior behavior)
     const sym = $('oracle-sym'), name = $('oracle-name'), tag = $('oracle-tag');
     if (sym) sym.textContent = arcane.sym;
     if (name) name.textContent = arcane.name;
     if (tag) tag.textContent = arcane.desc;
+    // Open the full arcane card modal
+    openArcaneCard(arcane);
   };
   strip.appendChild(chip);
   if (strip.children.length > 8) strip.removeChild(strip.firstChild);
   strip.scrollLeft = strip.scrollWidth;
+}
+
+// ─── ARCANE CARD MODAL — large view triggered by clicking a chip ──
+function openArcaneCard(arcane) {
+  const overlay = $('arcane-card-overlay');
+  if (!overlay) return;
+  overlay.classList.add('on');
+  triggerChromaFx(300);
+  const palette = ARCANE_PALETTES[arcane.name] || ARCANE_PALETTES['LA RÉSONANCE'];
+  // Update card content
+  const sym = $('arcane-card-sym');
+  if (sym) {
+    sym.textContent = arcane.sym;
+    sym.style.color = `rgba(${palette.primary},.95)`;
+    sym.style.textShadow = `0 0 24px rgba(${palette.glow},.6),0 0 48px rgba(${palette.glow},.25)`;
+  }
+  const name = $('arcane-card-name');
+  if (name) {
+    name.textContent = arcane.name;
+    name.style.color = `rgba(${palette.primary},1)`;
+    name.style.textShadow = `0 0 14px rgba(${palette.glow},.6),0 0 28px rgba(${palette.glow},.2)`;
+  }
+  const tag = $('arcane-card-tag');
+  if (tag) {
+    tag.textContent = arcane.desc;
+    tag.style.borderLeftColor = `rgba(${palette.primary},.45)`;
+  }
+  // Video
+  const vid = $('arcane-card-video');
+  const fb = $('arcane-card-fb');
+  if (vid && fb) {
+    vid.style.display = 'block';
+    fb.style.display = 'none';
+    vid.src = arcane.video;
+    vid.muted = true;
+    vid.playsInline = true;
+    vid.play().catch(() => {});
+    vid.onerror = () => {
+      vid.style.display = 'none';
+      fb.style.display = 'flex';
+      fb.textContent = arcane.sym || '∂';
+      fb.style.color = `rgba(${palette.primary},.7)`;
+    };
+  }
+  // Find most recent oracle log entry for this arcane
+  const recent = arcaneLog.slice().reverse().find(e => e.name === arcane.name);
+  const qEl = $('arcane-card-question');
+  const revEl = $('arcane-card-revelation');
+  if (recent) {
+    if (qEl) qEl.textContent = recent.question || '(silence)';
+    if (revEl) revEl.textContent = recent.revelation || recent.response || '(en attente)';
+    const f = $('acm-freq'); if (f) f.textContent = recent.freq + ' Hz';
+    const r = $('acm-res'); if (r) r.textContent = recent.res + ' %';
+    const ry = $('acm-rhythm'); if (ry) ry.textContent = recent.rhythm || '—';
+    const it = $('acm-iter'); if (it) it.textContent = 'i' + (recent.iter || '—');
+  } else {
+    if (qEl) qEl.textContent = '(aucune invocation enregistrée pour cet arcane)';
+    if (revEl) revEl.textContent = arcane.desc;
+    const f = $('acm-freq'); if (f) f.textContent = '—';
+    const r = $('acm-res'); if (r) r.textContent = '—';
+    const ry = $('acm-rhythm'); if (ry) ry.textContent = '—';
+    const it = $('acm-iter'); if (it) it.textContent = '—';
+  }
+}
+
+function closeArcaneCard() {
+  const overlay = $('arcane-card-overlay');
+  if (!overlay) return;
+  overlay.classList.remove('on');
+  const vid = $('arcane-card-video');
+  if (vid) { try { vid.pause(); } catch(e){} vid.src = ''; }
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -8418,7 +9629,7 @@ document.addEventListener('keydown', e => {
     closeChapter(); closeArcane(); closeJournal(); closeCard();
     closeSonic(); closeShareModal(); closeGlobeModal();
     closePropheticPaint(); closeModuleWindow(); closePanelWin();
-    closePoemFS(); closeInstrument();
+    closePoemFS(); closeInstrument(); closeArcaneCard();
     if (lysisActive) deactivateLysis();
   }
   if (!isTyping) handleLysisKey(e.key);
