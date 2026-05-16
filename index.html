@@ -1589,482 +1589,445 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:799;
 #inst-history .ih-time{color:rgba(0,212,255,.45);min-width:32px}
 #inst-history .ih-val{color:rgba(255,220,140,.85);font-weight:700}
 
-/* MOBILE */
+/* MOBILE — ULTRA SIMPLE & ROCK-SOLID
+   ════════════════════════════════════════════════════════════════
+   Design philosophy on mobile:
+   - NO effects, NO animations, NO backdrops, NO gradients (except Oracle fan signature)
+   - Flat panels, clear labels, big OBVIOUS buttons
+   - Every action triggers via a real <button> — never a container onclick
+   - All canvas hidden except the Oracle fan (replaced by static cards)
+   - Maximum stability: 100% ergonomic
+   ════════════════════════════════════════════════════════════════ */
 @media(max-width:768px){
-  /* ━━━ PERFORMANCE: kill backdrop-filter (killer of FPS on Android) ━━━ */
-  #arcane-overlay, #instrument-overlay, #arcane-card-overlay,
-  #journal-overlay, #card-overlay, #poem-fs, #share-overlay,
-  #panel-win-overlay, #module-overlay, #etat1-overlay,
-  #lysis-overlay, #prophetic-overlay, #sonic-overlay, #tuto-invite,
-  #globe-modal{
+  /* ━━━ RESET: kill every fancy effect ━━━ */
+  *,*::before,*::after{
+    animation:none!important;
+    transition:none!important;
     backdrop-filter:none!important;
     -webkit-backdrop-filter:none!important;
-    background:rgba(0,2,8,.97)!important;
+    box-shadow:none!important;
+    text-shadow:none!important;
+    mix-blend-mode:normal!important;
+    filter:none!important;
+    transform:none!important;
   }
-  /* ━━━ PERFORMANCE: simpler transitions ━━━ */
-  *, *::before, *::after{
-    transition-duration:.15s!important;
-  }
-  /* Kill mix-blend-mode (also expensive) */
-  .chroma-fx{display:none!important}
-  /* ═══ MOBILE LAYOUT — flat & ordered per user request ═══════════
-     Order: 1. ORACLE  2. LABYRINTHE  3. OUTILS  4. TOME 1
-            5. TOME 2  6. TOME 3  7. GLOBE  8. FRÉQUENCE
-            9. TERMINAL  10. PRÉMONITIONS
-     Reordering is done by JS (reorderForMobile)
-  ═══════════════════════════════════════════════════════════════ */
-  #app{overflow:hidden;grid-template-rows:24px 1fr 20px}
-  #main{
-    grid-template-columns:1fr;
-    overflow-y:scroll;  /* always scroll, even if content fits */
-    overflow-x:hidden;
-    -webkit-overflow-scrolling:touch;  /* iOS momentum scroll */
-    height:calc(100vh - 44px);
-    display:flex;flex-direction:column;
-    overscroll-behavior:contain;
-    scroll-snap-type:none;
-    /* ━━━ VISIBLE SCROLLBAR — clear visual feedback ━━━ */
-    scrollbar-width:thin;
-    scrollbar-color:rgba(0,212,255,.55) rgba(0,8,20,.5);
-  }
-  #main::-webkit-scrollbar{
-    width:6px;
-  }
-  #main::-webkit-scrollbar-track{
-    background:rgba(0,8,20,.5);
-    border-left:1px solid rgba(0,212,255,.1);
-  }
-  #main::-webkit-scrollbar-thumb{
-    background:linear-gradient(180deg,rgba(0,212,255,.7),rgba(180,100,255,.7));
-    border-radius:3px;
-    box-shadow:0 0 6px rgba(0,212,255,.4);
-  }
-  #main::-webkit-scrollbar-thumb:active{
-    background:linear-gradient(180deg,rgba(120,240,255,.9),rgba(220,180,255,.9));
-  }
-  /* CSS Containment — tells browser each panel is independent → much smoother scroll */
-  #center-oracle,#center-maze,#conv-wrap,#t1panel,#tc,#t3panel,#gw,#fw,#rb,#premo-wrap{
-    contain:layout style paint;
-  }
-  /* Empty wrappers — children moved out by JS at boot */
-  #left,#center,#right{display:none}
-  /* Flatten the column containers — let their children flow directly in main */
-  #left,#center,#right{
-    display:contents;  /* magic: children become direct children of #main */
+  /* Re-enable transform on active states for tactile feedback (no animation, just instant) */
+  /* (we don't actually need any transforms — the :active background change is enough) */
+
+  /* Hide all decorative canvas + body overlays */
+  body::before,body::after,
+  .chroma-fx,
+  #stream-canvas,
+  #gc,#fc,                                  /* globe + freq graph */
+  #galv-cv,#lock-cv,#spec-cv,#trace-cv,    /* 4 instruments */
+  #t1redact-cv,#t1dream-cv,                 /* tome 1 dream + caviardage */
+  #t3panel canvas,                           /* tome 3 spectro */
+  #oscilloscope-canvas,                      /* oscilloscope */
+  #card-canvas,
+  #intro-canvas{
+    display:none!important;
   }
 
-  /* Panel sizes for mobile — order handled by JS reorderForMobile() */
-  #center-oracle{border-right:none;border-bottom:2px solid rgba(180,100,255,.3);
-    flex:0 0 auto;min-height:280px;width:100%;height:auto}
-  #center-maze{border-right:none;border-bottom:2px solid var(--border);
-    flex:0 0 auto;min-height:340px;width:100%;height:auto}
-  #conv-wrap{border-right:none;border-bottom:2px solid var(--border);
-    width:100%;flex:0 0 auto;height:auto;min-height:680px;
-    display:flex;flex-direction:column;overflow:visible}
-  /* Make absolutely sure all 4 instruments render in mobile */
-  #conv-instruments{
-    grid-template-columns:1fr!important;
-    grid-template-rows:repeat(4,minmax(130px,auto))!important;
-    gap:8px!important;
-    padding:8px!important;
-    min-height:580px!important;
-    width:100%!important;
-    overflow:visible!important;
-  }
-  #conv-instruments > .conv-inst{
-    display:flex!important;
-    flex-direction:column!important;
-    visibility:visible!important;
-    opacity:1!important;
-  }
-  #t1panel{border-right:none;border-bottom:2px solid var(--border);
-    width:100%;height:auto;min-height:170px;flex:0 0 auto}
-  #tc{border-right:none;border-bottom:2px solid var(--border);
-    width:100%;height:auto;min-height:auto;flex:0 0 auto}
-  #t3panel{border-right:none;border-bottom:2px solid var(--border);
-    width:100%;height:auto;min-height:170px;flex:0 0 auto}
-  #gw{border-right:none;border-bottom:2px solid var(--border);
-    width:100%;height:220px;flex:0 0 auto}
-  #fw{border-right:none;border-bottom:2px solid var(--border);
-    width:100%;height:180px;flex:0 0 auto}
-  #rb{border-right:none;border-bottom:2px solid var(--border);
-    width:100%;height:140px;flex:0 0 auto;overflow-y:auto}
-  #premo-wrap{
-    display:flex!important;flex-direction:column!important;
-    height:auto!important;grid-template-columns:unset!important;overflow:visible!important;
-    width:100%;flex:0 0 auto}
-  #osc-wrap{display:none}
-  #tc-d{display:none}
-
-  /* ═══ CONVERGENCE / 4 OUTILS — stacked vertically for max readability ══ */
-  #conv-instruments{
-    grid-template-columns:1fr!important;
-    grid-template-rows:repeat(4,auto)!important;
-    gap:8px!important;
-    padding:8px!important;
-  }
-  .conv-inst{
-    min-height:120px!important;
-    padding:10px!important;
-    border:1px solid rgba(0,212,255,.25)!important;
-    background:rgba(0,8,20,.7)!important;
-    -webkit-tap-highlight-color:rgba(0,212,255,.3);
-  }
-  .conv-inst:active{
-    background:rgba(0,30,60,.85)!important;
-    border-color:rgba(0,212,255,.7)!important;
-    box-shadow:0 0 18px rgba(0,212,255,.4),inset 0 0 12px rgba(0,212,255,.15)!important;
-  }
-  .inst-label{
-    font-size:9px!important;
-    letter-spacing:.2em!important;
-    margin-bottom:6px!important;
-    color:rgba(0,212,255,.7)!important;
-  }
-  #galv-cv,#lock-cv,#spec-cv,#trace-cv{
-    width:100%!important;
-    height:90px!important;
-  }
-  .inst-readout-mini{font-size:11px!important;letter-spacing:.15em!important}
-
-  /* T1 — Lysis: dream + caviardage stacked */
-  #t1panel{display:flex!important;flex-direction:column!important}
-  #t1redact-cv,#t1dream-cv{height:80px!important}
-
-  /* T3 — Tome III spectrogram + fragments visible on mobile */
-  #t3spectro{display:none}
-  #t3fragments{display:none}
-  #t3panel{padding-bottom:8px}
-
-  /* Premonitions — stacked */
-  #tarot-col{height:260px;min-height:260px;flex:none;
-    border-right:none!important;border-bottom:1px solid var(--border)}
-  #premo-col{display:flex;flex-direction:column;overflow:visible}
-  .premo-card{min-height:100px;height:auto;flex:none;border-right:none!important}
-  .premo-body{overflow:visible;min-height:80px}
-  #card-canvas{max-width:90vw}
-
-  #etat1-box{grid-template-columns:1fr;grid-template-rows:auto;gap:16px}
-  /* ═══ ARCANE MODAL — mobile layout
-     - Bigger textarea (easier to type)
-     - Padding at bottom to make room for the floating FAB
-     - Bigger dashboard for readability
-  ═══════════════════════════════════════════════════════════════ */
-  #arcane-box{padding:14px 14px 24px;width:96vw;max-height:88vh}
-  #arc-title{font-size:14px!important;letter-spacing:.18em!important}
-  #arc-subtitle{font-size:8px!important;letter-spacing:.15em!important;margin-top:6px!important}
-  #arc-question{
-    font-size:13px!important;
-    line-height:1.5!important;
-    padding:16px 16px!important;
-    min-height:90px!important;
-    height:90px!important;
-    max-height:110px!important;
-  }
-  #arc-question::placeholder{font-size:11px!important;line-height:1.5!important}
-  #arc-live-analysis{font-size:8px!important}
-  #arc-live-hint{display:none}
-  /* Add space at the bottom of the modal so FAB doesn't overlap content */
-  #arcane-box{padding-bottom:120px!important}
-  /* Bigger dashboard for readability */
-  #arc-dashboard{padding:8px 8px!important}
-  .arc-dash-label{font-size:7.5px!important;letter-spacing:.15em!important}
-  .arc-dash-val{font-size:8.5px!important}
-  /* Close button: bigger touch target */
-  #arc-close-permanent{
-    width:48px!important;height:48px!important;
-    font-size:18px!important;
-    top:8px!important;right:8px!important;
-    touch-action:manipulation;
-    -webkit-tap-highlight-color:rgba(180,100,255,.4);
-  }
-  #arc-card-wrap{flex-direction:column}
-  #arc-video-frame{flex:none;height:200px;min-height:200px}
-  #arc-card-name{font-size:14px!important;letter-spacing:.18em!important}
-  #arc-card-tagline{font-size:9px!important;line-height:1.6!important}
-  #arc-card-response{font-size:11px!important;line-height:1.7!important}
-  /* Bigger action buttons after reveal */
-  #arc-actions{gap:10px;flex-wrap:wrap;padding:12px 0!important;
-    position:relative;z-index:55!important;width:100%}
-  .arc-btn{
-    min-height:54px!important;
-    font-size:11px!important;
-    padding:16px 18px!important;
-    flex:1 1 100%;min-width:0;
-    touch-action:manipulation!important;
-    -webkit-tap-highlight-color:rgba(0,212,255,.4)!important;
-    position:relative!important;z-index:56!important;
-    pointer-events:auto!important;
-    -webkit-appearance:none!important;appearance:none!important;
-    cursor:pointer!important;
-    letter-spacing:.18em!important;
-    font-weight:700!important;
-  }
-  .arc-btn:active{
-    background:rgba(0,212,255,.25)!important;
-    color:#fff!important;
-  }
-
-  #etat1-box{grid-template-columns:1fr;grid-template-rows:auto;gap:16px}
-  #etat1-globe-wrap,#etat1-freq-wrap{display:none}
-  #etat1-question{font-size:14px}
-  /* (old 2-col conv-instruments rule removed — see above for 1-col stack) */
-  #globe-modal-box{width:100vw;height:100vh}
-  #globe-modal-body{grid-template-columns:1fr;grid-template-rows:1fr auto;overflow-y:auto}
-  #globe-map-wrap{min-height:50vh;border-right:none;border-bottom:1px solid rgba(255,51,102,.18)}
-  #globe-info-panel{max-height:none}
-  #globe-coord-readout{display:none}
-  #instrument-overlay{padding:12px}
-  #instrument-box{width:96vw;max-height:90vh}
-  #inst-body{grid-template-columns:1fr;grid-template-rows:auto auto;min-height:0}
-  #inst-canvas-wrap{min-height:280px;padding:14px;border-right:none;
-    border-bottom:1px solid rgba(0,212,255,.12)}
-  #inst-info-panel{padding:14px 16px;font-size:9px}
-  #inst-history{max-height:90px}
-
-  /* ═══ ORACLE FAN — mobile-optimized ═════════════════════════
-     Bigger title, bigger cards, more spacing. Tap target = entire panel
-  ═══════════════════════════════════════════════════════════════ */
-  #center-oracle{min-height:280px!important}
-  #oracle-fan-wrap{padding:18px 12px 22px!important}
-  #oracle-fan{height:140px}
-  .ofan-card{width:54px;height:80px;
-    /* Stronger glow for tap feedback on dark mobile screens */
-    box-shadow:0 4px 18px rgba(0,0,0,.6),0 0 16px rgba(180,100,255,.32),inset 0 0 18px rgba(180,100,255,.1)!important}
-  #oracle-fan-title{font-size:12px!important;letter-spacing:.32em!important;margin-bottom:6px}
-  #oracle-fan-subtitle{font-size:8px!important;letter-spacing:.1em;margin-bottom:14px}
-  #oracle-fan-cta{font-size:11px!important;padding:14px 22px!important;letter-spacing:.22em!important;
-    min-height:48px;display:inline-flex;align-items:center;justify-content:center}
-  #oracle-fan-cta-sub{font-size:8px!important;letter-spacing:.24em!important;margin-top:8px}
-  /* Strong visual feedback when the panel is tapped */
-  #oracle-fan-wrap:active{background:radial-gradient(ellipse at center,rgba(180,100,255,.14),transparent 70%)!important}
-  #oracle-fan-wrap:active .ofan-card{
-    transform:translateX(-50%) rotate(calc(var(--i) * 16deg)) translateY(calc(abs(var(--i)) * 4px - 12px))!important;
-    border-color:rgba(255,220,255,1)!important;
-    box-shadow:0 8px 30px rgba(0,0,0,.8),0 0 32px rgba(255,180,255,.7),inset 0 0 26px rgba(180,100,255,.2)!important;
-  }
-  #oracle-fan-wrap:active #oracle-fan-cta{
-    background:rgba(180,100,255,.32)!important;
-    color:#fff!important;
-    border-color:rgba(255,220,255,1)!important;
-    box-shadow:0 0 30px rgba(220,180,255,.7),inset 0 0 18px rgba(180,100,255,.2)!important;
-  }
-
-  /* ═══ FLOATING ARC SUBMIT FAB — mobile ══════════════════════════ */
-  #arc-submit-fab{
-    bottom:5vh!important;
-    /* Generous padding for thumb taps */
-    padding:18px 28px!important;
-    font-size:12px!important;
-    letter-spacing:.22em!important;
-    /* Width responsive but capped */
-    min-width:280px;
-    width:88vw;
-    max-width:400px;
-    /* Beefier border on mobile so the tap edge is clearer */
-    border-width:2px!important;
-  }
-
-  /* ═══ TOUCH TARGETS — Material Design recommends 48×48dp minimum ══ */
-  .pbtn, #amazon-link, #tuto-yes, #tuto-no,
-  #tuto-prev, #tuto-next, #tuto-done, #tuto-skip{
-    min-height:44px;padding:12px 14px!important;
-    font-size:10px!important;letter-spacing:.12em!important;
-    touch-action:manipulation;
-    -webkit-tap-highlight-color:rgba(0,212,255,.25)}
-  #tc-links{gap:8px!important;padding:10px 12px!important}
-  /* AMAZON link should be a real button-sized tap target */
-  #amazon-link{
-    min-height:44px!important;
-    display:inline-flex!important;
-    align-items:center!important;
-    padding:12px 16px!important;
-    font-size:10px!important;
-  }
-
-  /* ━━━ PROTOCOLE: more visible on mobile, full row width, separated ━━━ */
-  .pbtn-protocol{
-    flex:1 1 100%!important;
-    min-width:0!important;
-    background:rgba(180,100,255,.15)!important;
-    border-color:rgba(180,100,255,.75)!important;
-    color:rgba(230,180,255,.98)!important;
-    text-shadow:0 0 8px rgba(180,100,255,.4);
-    font-weight:700!important;
-    font-size:10px!important;
-    letter-spacing:.18em!important;
-    order:99;  /* push to end of flex row */
-    margin-top:8px;  /* visual separation from other buttons */
-    border-top:2px solid rgba(180,100,255,.4)!important;
-  }
-  #amazon-link{
-    flex:1 1 100%!important;
-    order:100;  /* very last */
-    margin-top:4px;
-  }
-
-  /* ═══ TUTO PANEL — bigger, more readable mobile ═══════════════ */
-  #tuto-panel{
-    width:96vw!important;max-width:96vw!important;
-    left:2vw!important;right:2vw!important;
-    top:auto!important;bottom:3vh!important;
-    max-height:65vh!important;
-  }
-  #tuto-panel-body{font-size:12px!important;line-height:1.75!important;
-    padding:16px 16px!important;max-height:46vh!important}
-  #tuto-step-label{font-size:9px!important;letter-spacing:.18em!important}
-  #tuto-step-counter{font-size:8px!important}
-  #tuto-panel-nav{padding:12px 14px!important;gap:8px!important}
-  #tuto-panel-nav button{font-size:10px!important;padding:12px 8px!important;
-    min-height:46px;letter-spacing:.12em!important;
-    touch-action:manipulation;
-    -webkit-tap-highlight-color:rgba(0,212,255,.25);
-  }
-  #tuto-highlight{box-shadow:0 0 0 4000px rgba(0,0,10,.55),0 0 16px rgba(0,212,255,.4)!important}
-
-  /* ═══ INVITE — full-mobile, accessible ═══════════════════════════ */
-  #tuto-invite-box{width:92vw;max-width:92vw;padding:28px 22px!important}
-  #tuto-invite-msg{font-size:12px!important;line-height:1.7!important}
-  #tuto-yes{font-size:12px!important;padding:18px 20px!important;min-height:54px;
-    width:100%!important;margin-bottom:8px;letter-spacing:.18em;
-    touch-action:manipulation;
-    -webkit-tap-highlight-color:rgba(0,212,255,.3);}
-  #tuto-no{font-size:11px!important;padding:14px 16px!important;min-height:48px;
-    width:100%!important;
-    touch-action:manipulation;}
-  #tuto-invite-btns{flex-direction:column!important;width:100%}
-
-  /* ━━━ INTRO: hide the ENTER button on mobile (auto-start in 8.5s) ━━━ */
+  /* Hide ENTER button (intro auto-starts) */
   #intro-skip{display:none!important}
 
-  /* ━━━ MOBILE TOUCH FIX: top ticker + bottom status bar must not steal scroll
-     Without this, touching the top/bottom of the screen does nothing
-     because the ticker/status absorb the event instead of bubbling
-     to #main which is the scrollable container. */
+  /* Hide ticker + status bar from scrollable area */
   #ticker,#ticker *,#sb,#sb *{
     pointer-events:none!important;
     touch-action:none!important;
   }
 
-  /* ━━━ MOBILE PERF: kill body decorations (scanlines + vignette + chroma) ━━━ */
-  body::before,body::after,.chroma-fx{display:none!important}
+  /* ━━━ MAIN LAYOUT — flat vertical scroll ━━━ */
+  #app{overflow:hidden;grid-template-rows:24px 1fr 20px}
+  #main{
+    grid-template-columns:1fr;
+    overflow-y:scroll;
+    overflow-x:hidden;
+    -webkit-overflow-scrolling:touch;
+    height:calc(100vh - 44px);
+    display:flex;flex-direction:column;
+    overscroll-behavior:contain;
+    background:#020410;
+  }
+  /* Visible scrollbar */
+  #main::-webkit-scrollbar{width:6px}
+  #main::-webkit-scrollbar-track{background:rgba(0,8,20,.6)}
+  #main::-webkit-scrollbar-thumb{
+    background:rgba(0,212,255,.65);
+    border-radius:3px;
+  }
+  /* Empty wrappers (children moved by JS) */
+  #left,#center,#right{display:none}
 
-  /* ━━━ CLOSE BUTTONS: huge tap targets on mobile ━━━
-     Every modal must have an easy-to-tap close button. */
-  #journal-close,#card-close,#sonic-close,#share-close,
-  #prophetic-close,#mw-close,#pw-close,#poem-fs-close,
-  #globe-modal-close,#inst-close,#arc-close-permanent,
-  #arcane-card-close,#tuto-no{
-    font-size:18px!important;
-    min-width:48px!important;min-height:48px!important;
-    padding:10px 14px!important;
-    display:inline-flex!important;
-    align-items:center!important;
-    justify-content:center!important;
-    touch-action:manipulation!important;
-    -webkit-tap-highlight-color:rgba(255,80,120,.4)!important;
-    cursor:pointer!important;
-    z-index:9999!important;
+  /* ━━━ PANELS — flat, sober frames ━━━ */
+  #center-oracle,#center-maze,#conv-wrap,#t1panel,#tc,#t3panel,#gw,#fw,#rb,#premo-wrap{
+    border-right:none!important;
+    border-bottom:1px solid rgba(0,212,255,.18)!important;
+    border-left:none!important;
+    border-top:none!important;
+    width:100%!important;
+    flex:0 0 auto!important;
+    height:auto!important;
+    min-height:0!important;
+    overflow:visible!important;
+    background:#04081a!important;
+    padding:0!important;
     position:relative!important;
-    pointer-events:auto!important;
-  }
-  /* The big ✕ icon stays clear */
-  #poem-fs-close,#share-close,#globe-modal-close{
-    background:rgba(0,8,20,.95)!important;
-    border:1px solid rgba(0,212,255,.5)!important;
-    color:rgba(255,255,255,.95)!important;
   }
 
-  /* ━━━ MOBILE: OUVRIR buttons injected on each interactive frame ━━━
-     These replace container-level onclicks for cleaner UX.
-     Big, obvious, never-missed.
-  */
-  .mobile-open-btn{
-    -webkit-appearance:none;appearance:none;
-    display:block;
-    width:calc(100% - 16px);
-    margin:10px 8px 8px;
-    padding:14px 16px;
+  /* ━━━ PANEL HEADERS — sober label on top ━━━ */
+  #oracle-hdr,#mhdr,#conv-hdr,#t1redact-cv ~ *,
+  #t1panel > div:first-child,#tc-d,#t3panel > div:first-child,
+  #gw-h,#fw-h,#rb-h,#tarot-h{
+    /* Don't aggressively override — just normalize */
+  }
+
+  /* ━━━ ORACLE FAN — keep, it's the signature ━━━ */
+  #center-oracle{
+    border-bottom:2px solid rgba(180,100,255,.4)!important;
+    padding:14px 12px 18px!important;
+  }
+  #oracle-fan-wrap{
+    padding:8px 0!important;
+    background:transparent!important;
+  }
+  #oracle-fan-title{font-size:13px!important;letter-spacing:.32em!important;
+    margin-bottom:6px!important;color:rgba(220,180,255,1)!important}
+  #oracle-fan-subtitle{font-size:9px!important;letter-spacing:.1em!important;
+    margin-bottom:14px!important;color:rgba(0,212,255,.7)!important}
+  #oracle-fan{height:130px!important;perspective:none!important}
+  .ofan-card{
+    width:54px!important;height:80px!important;
+    /* Restore the fan transform — this is the only allowed transform */
+    transform:translateX(-50%) rotate(calc(var(--i) * 11deg)) translateY(calc(abs(var(--i)) * 3px))!important;
+    border:1px solid rgba(180,100,255,.6)!important;
+    background:linear-gradient(145deg,#1a0830,#0a0418 55%,#1a0830)!important;
+  }
+  #oracle-fan-glow{display:none!important}
+  #oracle-fan-cta,#oracle-fan-cta-sub{display:none!important}  /* replaced by mobile-open-btn */
+
+  /* ━━━ PANEL TEXT — readable static info ━━━ */
+  /* Each panel shows its title + brief info, then the OUVRIR button */
+  .mobile-panel-title{
     font-family:'Orbitron',monospace;
     font-size:11px;font-weight:700;
     letter-spacing:.22em;
+    color:rgba(0,212,255,.95);
+    padding:14px 16px 6px;
+  }
+  .mobile-panel-info{
+    font-family:'Share Tech Mono',monospace;
+    font-size:11px;line-height:1.55;
+    color:rgba(180,210,240,.75);
+    padding:0 16px 12px;
+    letter-spacing:.02em;
+  }
+  .mobile-panel-meta{
+    font-family:'Share Tech Mono',monospace;
+    font-size:9.5px;letter-spacing:.1em;
+    color:rgba(0,255,170,.65);
+    padding:0 16px 8px;
+  }
+
+  /* ━━━ OUVRIR BUTTONS — big, obvious, instant ━━━ */
+  .mobile-open-btn{
+    -webkit-appearance:none;appearance:none;
+    display:block;
+    width:calc(100% - 24px);
+    margin:8px 12px 16px;
+    padding:18px 16px;
+    font-family:'Orbitron',monospace;
+    font-size:12px;font-weight:700;
+    letter-spacing:.22em;
     color:#fff;
-    background:rgba(0,212,255,.18);
-    border:1px solid rgba(0,212,255,.75);
-    text-shadow:0 0 8px rgba(0,212,255,.5);
-    box-shadow:0 0 14px rgba(0,212,255,.2),inset 0 0 8px rgba(0,212,255,.08);
+    background:rgba(0,212,255,.2);
+    border:2px solid rgba(0,212,255,.75);
     cursor:pointer;
     touch-action:manipulation;
     -webkit-tap-highlight-color:rgba(0,212,255,.4);
     outline:none;
-    transition:none;
-    min-height:48px;
+    min-height:56px;
     position:relative;
     z-index:20;
+    pointer-events:auto!important;
   }
   .mobile-open-btn:active{
-    background:rgba(0,212,255,.4);
-    border-color:rgba(120,230,255,1);
+    background:rgba(0,212,255,.5);
+    border-color:rgba(180,240,255,1);
     color:#fff;
   }
   .mobile-open-btn.mob-pink{
-    background:rgba(255,80,120,.18);
+    background:rgba(255,80,120,.2);
     border-color:rgba(255,80,120,.75);
-    text-shadow:0 0 8px rgba(255,80,120,.5);
     -webkit-tap-highlight-color:rgba(255,80,120,.4);
   }
-  .mobile-open-btn.mob-pink:active{background:rgba(255,80,120,.4)}
+  .mobile-open-btn.mob-pink:active{background:rgba(255,80,120,.5)}
   .mobile-open-btn.mob-purple{
-    background:rgba(180,100,255,.2);
+    background:rgba(180,100,255,.22);
     border-color:rgba(180,100,255,.8);
-    text-shadow:0 0 8px rgba(180,100,255,.5);
     -webkit-tap-highlight-color:rgba(180,100,255,.4);
   }
-  .mobile-open-btn.mob-purple:active{background:rgba(180,100,255,.42)}
+  .mobile-open-btn.mob-purple:active{background:rgba(180,100,255,.5)}
   .mobile-open-btn.mob-green{
-    background:rgba(0,255,170,.16);
+    background:rgba(0,255,170,.18);
     border-color:rgba(0,255,170,.7);
-    text-shadow:0 0 8px rgba(0,255,170,.5);
     -webkit-tap-highlight-color:rgba(0,255,170,.4);
   }
-  .mobile-open-btn.mob-green:active{background:rgba(0,255,170,.38)}
+  .mobile-open-btn.mob-green:active{background:rgba(0,255,170,.42)}
   .mobile-open-btn.mob-gold{
-    background:rgba(255,204,0,.16);
-    border-color:rgba(255,204,0,.7);
+    background:rgba(255,204,0,.2);
+    border-color:rgba(255,204,0,.75);
     color:rgba(255,240,180,1);
-    text-shadow:0 0 8px rgba(255,204,0,.5);
     -webkit-tap-highlight-color:rgba(255,204,0,.4);
   }
-  .mobile-open-btn.mob-gold:active{background:rgba(255,204,0,.38)}
+  .mobile-open-btn.mob-gold:active{background:rgba(255,204,0,.45)}
 
-  /* ━━━ DISABLE costly CSS animations (kept on desktop) ━━━ */
-  #t1panel::before, #tc::before, #center-oracle::before{display:none}
+  /* ━━━ TC-LINKS (Tome 2 module buttons) — pleine largeur, sobres ━━━ */
+  #tc-links{
+    display:flex!important;
+    flex-direction:column!important;
+    gap:8px!important;
+    padding:8px 12px 12px!important;
+    background:transparent!important;
+  }
+  .pbtn,#amazon-link{
+    -webkit-appearance:none;appearance:none;
+    display:flex!important;
+    align-items:center!important;
+    justify-content:center!important;
+    width:100%!important;
+    padding:16px 14px!important;
+    font-family:'Orbitron',monospace!important;
+    font-size:11px!important;
+    font-weight:700!important;
+    letter-spacing:.18em!important;
+    color:rgba(0,212,255,.95)!important;
+    background:rgba(0,212,255,.08)!important;
+    border:1px solid rgba(0,212,255,.4)!important;
+    min-height:54px!important;
+    touch-action:manipulation!important;
+    -webkit-tap-highlight-color:rgba(0,212,255,.4)!important;
+    cursor:pointer!important;
+    text-decoration:none!important;
+    outline:none!important;
+  }
+  .pbtn:active,#amazon-link:active{
+    background:rgba(0,212,255,.3)!important;
+    border-color:rgba(120,230,255,1)!important;
+    color:#fff!important;
+  }
+  .pbtn-protocol{
+    background:rgba(180,100,255,.2)!important;
+    border:1px solid rgba(180,100,255,.75)!important;
+    color:rgba(230,180,255,1)!important;
+  }
+  .pbtn-protocol:active{background:rgba(180,100,255,.5)!important}
+  #amazon-link{
+    background:rgba(255,153,0,.12)!important;
+    border:1px solid rgba(255,153,0,.55)!important;
+    color:rgba(255,200,100,.95)!important;
+  }
+  #amazon-link:active{background:rgba(255,153,0,.35)!important}
 
-  /* ━━━ MOBILE PERF: kill all decorative CSS animations ━━━
-     Animations cost GPU compositor work every frame. We keep only
-     the ones essential to the UX (Oracle fan card-float for feedback).
-  */
-  .pbtn,.pbtn-protocol{animation:none!important}
-  #oracle-fan-title{animation:none!important}
-  #oracle-fan-cta{animation:none!important}
-  #oracle-fan-glow{animation:none!important}
-  #oracle-fan-cta::before{animation:none!important;display:none}
-  /* Tutorial breathing — kill, just a static button */
-  #tuto-yes,#tuto-no{animation:none!important}
-  /* Modal/overlay sweep effects */
-  #arc-submit-fab::before{animation:none!important;display:none}
-  #arc-submit-fab::after{animation:none!important;display:none}
-  #arc-submit-fab{animation:none!important}
-  /* Card pulses, sigil pulses */
-  .ofan-back::before{animation:none!important}
-  .ofan-card{animation:none!important}
-  /* Ticker scroll: keep but slow it down */
-  #ttrack{animation-duration:120s!important}
+  /* ━━━ MAZE (labyrinthe) — keep visible (it's the narrative) ━━━ */
+  #center-maze{
+    min-height:340px!important;
+    background:#040810!important;
+  }
 
-  /* Stream canvas (top-row glitch overlay) — kill on mobile, it's purely decorative */
-  #stream-canvas{display:none!important}
+  /* ━━━ MODALS — sober, no blur, big close buttons ━━━ */
+  #arcane-overlay,#instrument-overlay,#arcane-card-overlay,
+  #journal-overlay,#card-overlay,#poem-fs,#share-overlay,
+  #panel-win-overlay,#module-overlay,#etat1-overlay,
+  #lysis-overlay,#prophetic-overlay,#sonic-overlay,#tuto-invite,
+  #globe-modal{
+    background:rgba(0,2,8,.98)!important;
+  }
+  /* Close buttons — huge tap targets */
+  #journal-close,#card-close,#sonic-close,#share-close,
+  #prophetic-close,#mw-close,#pw-close,#poem-fs-close,
+  #globe-modal-close,#inst-close,#arc-close-permanent,
+  #arcane-card-close{
+    font-size:20px!important;
+    min-width:56px!important;
+    min-height:56px!important;
+    padding:14px!important;
+    display:inline-flex!important;
+    align-items:center!important;
+    justify-content:center!important;
+    background:rgba(40,8,12,.95)!important;
+    border:1px solid rgba(255,80,120,.6)!important;
+    color:rgba(255,200,200,1)!important;
+    touch-action:manipulation!important;
+    -webkit-tap-highlight-color:rgba(255,80,120,.5)!important;
+    cursor:pointer!important;
+    z-index:9999!important;
+    position:absolute!important;
+    top:8px!important;
+    right:8px!important;
+    pointer-events:auto!important;
+  }
+  #journal-close:active,#card-close:active,#sonic-close:active,
+  #share-close:active,#prophetic-close:active,#mw-close:active,
+  #pw-close:active,#poem-fs-close:active,#globe-modal-close:active,
+  #inst-close:active,#arc-close-permanent:active,#arcane-card-close:active{
+    background:rgba(80,16,24,.95)!important;
+    color:#fff!important;
+  }
+
+  /* Action buttons inside modals (post-reveal: Nouvelle question, Partager, Fermer) */
+  .arc-btn{
+    -webkit-appearance:none;appearance:none;
+    display:flex!important;
+    align-items:center!important;
+    justify-content:center!important;
+    width:100%!important;
+    flex:1 1 100%!important;
+    padding:18px 16px!important;
+    font-family:'Orbitron',monospace!important;
+    font-size:12px!important;
+    font-weight:700!important;
+    letter-spacing:.2em!important;
+    color:rgba(220,235,255,.95)!important;
+    background:rgba(0,212,255,.15)!important;
+    border:1px solid rgba(0,212,255,.55)!important;
+    min-height:56px!important;
+    margin-bottom:8px;
+    touch-action:manipulation!important;
+    -webkit-tap-highlight-color:rgba(0,212,255,.45)!important;
+    cursor:pointer!important;
+    outline:none!important;
+    pointer-events:auto!important;
+    position:relative!important;
+    z-index:60!important;
+  }
+  .arc-btn:active{
+    background:rgba(0,212,255,.4)!important;
+    color:#fff!important;
+  }
+  #arc-actions{
+    display:flex!important;
+    flex-direction:column!important;
+    gap:8px!important;
+    padding:14px 12px!important;
+    width:100%!important;
+  }
+
+  /* Arcane modal */
+  #arcane-box{
+    padding:14px 14px 24px!important;
+    width:98vw!important;
+    max-height:92vh!important;
+    background:#040818!important;
+    border:1px solid rgba(180,100,255,.4)!important;
+  }
+  #arc-question{
+    font-size:14px!important;
+    line-height:1.55!important;
+    padding:16px 14px!important;
+    min-height:100px!important;
+    height:100px!important;
+    background:rgba(0,4,12,.85)!important;
+    color:rgba(220,230,255,1)!important;
+    border:1px solid rgba(180,100,255,.45)!important;
+    outline:none!important;
+    -webkit-appearance:none!important;
+    appearance:none!important;
+    width:100%!important;
+    box-sizing:border-box!important;
+  }
+  #arc-question:focus{
+    border-color:rgba(180,100,255,.85)!important;
+  }
+  #arc-question::placeholder{font-size:12px!important;color:rgba(180,150,220,.5)!important}
+
+  /* FAB consultation button */
+  #arc-submit-fab{
+    position:fixed!important;
+    bottom:12px!important;
+    left:8px!important;right:8px!important;
+    transform:none!important;
+    width:auto!important;
+    max-width:none!important;
+    min-width:0!important;
+    padding:20px 16px!important;
+    font-size:13px!important;
+    letter-spacing:.22em!important;
+    border:2px solid rgba(220,180,255,.9)!important;
+    background:rgba(120,60,200,.7)!important;
+    z-index:99999!important;
+    touch-action:manipulation!important;
+    -webkit-tap-highlight-color:rgba(220,180,255,.5)!important;
+    pointer-events:auto!important;
+  }
+  #arc-submit-fab:active{background:rgba(180,100,255,.9)!important;color:#fff!important}
+  #arcane-overlay.on #arc-submit-fab{display:block!important}
+  #arcane-overlay.revealing #arc-submit-fab{display:none!important}
+  #arcane-box{padding-bottom:120px!important}
+
+  /* Tutorial */
+  #tuto-panel{
+    width:96vw!important;max-width:96vw!important;
+    left:2vw!important;right:2vw!important;
+    top:auto!important;bottom:3vh!important;
+    max-height:65vh!important;
+    background:#040818!important;
+    border:1px solid rgba(0,212,255,.45)!important;
+  }
+  #tuto-panel-body{font-size:12px!important;line-height:1.7!important;
+    padding:16px 16px!important;max-height:46vh!important}
+  #tuto-step-label{font-size:9px!important;letter-spacing:.18em!important}
+  #tuto-panel-nav{padding:10px 12px!important;gap:8px!important}
+  #tuto-panel-nav button{
+    font-size:11px!important;padding:14px 8px!important;
+    min-height:50px;letter-spacing:.12em!important;
+    touch-action:manipulation;
+    -webkit-tap-highlight-color:rgba(0,212,255,.3);
+    outline:none!important;
+  }
+  #tuto-highlight{
+    box-shadow:0 0 0 4000px rgba(0,0,10,.65)!important;
+  }
+
+  #tuto-invite-box{width:92vw;max-width:92vw;padding:24px 18px!important;
+    background:#040818!important;border:1px solid rgba(0,212,255,.45)!important}
+  #tuto-invite-msg{font-size:12px!important;line-height:1.7!important}
+  #tuto-yes{font-size:12px!important;padding:18px 18px!important;min-height:54px;
+    width:100%!important;margin-bottom:8px;
+    touch-action:manipulation;
+    -webkit-tap-highlight-color:rgba(0,212,255,.4);}
+  #tuto-no{font-size:11px!important;padding:16px 16px!important;min-height:50px;
+    width:100%!important;
+    touch-action:manipulation;}
+  #tuto-invite-btns{flex-direction:column!important;width:100%}
+
+  /* Globe modal */
+  #globe-modal-box{width:100vw!important;height:100vh!important}
+  #globe-modal-body{grid-template-columns:1fr!important;grid-template-rows:1fr auto!important;overflow-y:auto!important}
+  #globe-map-wrap{min-height:55vh!important;border-right:none!important}
+  #globe-info-panel{max-height:none!important}
+
+  /* Instrument modal */
+  #instrument-overlay{padding:8px!important}
+  #instrument-box{width:98vw!important;max-height:94vh!important}
+  #inst-body{grid-template-columns:1fr!important;grid-template-rows:auto 1fr!important;min-height:0!important}
+  #inst-canvas-wrap{min-height:240px!important;padding:14px!important;border-right:none!important;
+    border-bottom:1px solid rgba(0,212,255,.15)!important}
+  #inst-info-panel{padding:14px 16px!important;font-size:10px!important}
+  #inst-history{max-height:100px!important}
+
+  /* Arcane card modal (full-view chip) */
+  #arcane-card-overlay{padding:8px!important;background:rgba(0,2,8,.98)!important}
+  #arcane-card-box{
+    grid-template-columns:1fr!important;
+    grid-template-rows:auto 1fr!important;
+    width:98vw!important;max-height:94vh!important}
+  #arcane-card-media{min-height:280px!important;border-right:none!important;
+    border-bottom:1px solid rgba(180,100,255,.2)!important}
+  #arcane-card-info{padding:18px 18px!important}
+  #arcane-card-sym{font-size:40px!important}
+  #arcane-card-name{font-size:16px!important}
 }
-
 @media(max-width:480px){
   /* Extra-narrow phones — note: conv-instruments rule above already handles 1-col stack */
   .conv-inst{min-height:110px}
@@ -2961,119 +2924,162 @@ if (IS_MOBILE) {
     }
   }, {capture: true});
 
-  // ─── Disable container-level onclick handlers on mobile
-  // Replace them with explicit "OUVRIR" buttons added at boot.
-  // This is the cleanest UX: no accidental triggers from broad zones.
   document.addEventListener('DOMContentLoaded', () => {
     disableContainerClicks();
-    injectOpenButtons();
+    injectMobileFrames();
   });
   if (document.readyState !== 'loading') {
     disableContainerClicks();
-    injectOpenButtons();
+    injectMobileFrames();
   }
 }
 
 function disableContainerClicks() {
   if (!IS_MOBILE) return;
-  // List of containers whose onclick must be neutralized on mobile.
-  // Their action moves to an explicit OUVRIR button injected below.
-  const containers = [
-    {id:'gw',          action:null,                      label:null},  // globe — opens via dedicated overlay
-    {id:'fw',          action:null,                      label:null},
-    {id:'t1panel',     action:"openPanelWin('tome1')",   label:'∂ OUVRIR TOME I'},
-    {id:'tc-inner',    action:"openPanelWin('tome2')",   label:'∂ OUVRIR TOME II'},
-    {id:'t3panel',     action:"openPanelWin('tome3')",   label:'∂ OUVRIR TOME III'},
-    {id:'tarot-col',   action:"openPanelWin('premo')",   label:'∂ OUVRIR PRÉMONITIONS'},
-    {id:'osc-wrap',    action:"openPanelWin('osc')",     label:'∂ OUVRIR OSCILLOSCOPE'},
-    {id:'rb',          action:"openJournal()",            label:'∂ OUVRIR JOURNAL'},
-  ];
-  containers.forEach(c => {
-    const el = document.getElementById(c.id);
-    if (el) el.removeAttribute('onclick');
-  });
-  // Also strip onclick from .conv-inst (replaced by explicit OUVRIR buttons)
-  document.querySelectorAll('.conv-inst').forEach(el => {
-    // Save the original action as a data attribute, then strip onclick
-    const orig = el.getAttribute('onclick');
-    if (orig) {
-      el.setAttribute('data-action', orig);
+  // Strip every container-level onclick — only the explicit OUVRIR buttons fire actions
+  ['gw','fw','t1panel','tc-inner','t3panel','tarot-col','osc-wrap','rb','center-oracle'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      const orig = el.getAttribute('onclick');
+      if (orig) el.setAttribute('data-action', orig);
       el.removeAttribute('onclick');
     }
   });
-  // Premo cards
-  document.querySelectorAll('.premo-card').forEach(el => {
+  document.querySelectorAll('.conv-inst, .premo-card').forEach(el => {
     const orig = el.getAttribute('onclick');
-    if (orig) {
-      el.setAttribute('data-action', orig);
-      el.removeAttribute('onclick');
-    }
+    if (orig) { el.setAttribute('data-action', orig); el.removeAttribute('onclick'); }
   });
+  // Oracle fan: keep clickable but only via its dedicated button below
+  const ofan = document.getElementById('oracle-fan-wrap');
+  if (ofan) { ofan.removeAttribute('onclick'); }
 }
 
-function injectOpenButtons() {
+function injectMobileFrames() {
   if (!IS_MOBILE) return;
 
-  // ─── Generic helper: add an OUVRIR button to a panel ───
-  function addOpenBtn(parentSel, action, label, color) {
-    const parent = document.querySelector(parentSel);
-    if (!parent || parent.querySelector('.mobile-open-btn')) return;
+  // Helper: build a static "frame" inside a panel.
+  // Adds an optional title + info paragraph + an OUVRIR button at the bottom.
+  function setupFrame(panelId, opts) {
+    const panel = document.getElementById(panelId);
+    if (!panel) return;
+    if (panel.querySelector('.mobile-open-btn')) return;
+    // Insert title before everything else
+    if (opts.title) {
+      const t = document.createElement('div');
+      t.className = 'mobile-panel-title';
+      t.textContent = opts.title;
+      panel.insertBefore(t, panel.firstChild);
+    }
+    if (opts.info) {
+      const inf = document.createElement('div');
+      inf.className = 'mobile-panel-info';
+      inf.innerHTML = opts.info;
+      // After the title
+      const ttl = panel.querySelector('.mobile-panel-title');
+      if (ttl) ttl.parentNode.insertBefore(inf, ttl.nextSibling);
+      else panel.insertBefore(inf, panel.firstChild);
+    }
+    // Add the OUVRIR button at the END
     const btn = document.createElement('button');
     btn.type = 'button';
-    btn.className = 'mobile-open-btn';
-    btn.setAttribute('data-action', action);
-    btn.innerHTML = label;
-    if (color === 'pink')   btn.classList.add('mob-pink');
-    if (color === 'purple') btn.classList.add('mob-purple');
-    if (color === 'green')  btn.classList.add('mob-green');
-    if (color === 'gold')   btn.classList.add('mob-gold');
+    btn.className = 'mobile-open-btn' + (opts.color ? ' mob-' + opts.color : '');
+    btn.textContent = opts.label;
     btn.addEventListener('click', (e) => {
       e.stopPropagation();
-      try { (new Function(action))(); } catch(err) { console.error('OUVRIR action failed:', action, err); }
+      try { (new Function(opts.action))(); } catch(err) { console.error('OUVRIR failed:', opts.action, err); }
     });
-    parent.appendChild(btn);
+    panel.appendChild(btn);
   }
 
-  // ─── Panels with OUVRIR buttons ───
-  addOpenBtn('#gw',       "openGlobeModal()",            '⚲ EXPLORER CONTACTS GPS', 'gold');
-  addOpenBtn('#t1panel',  "openPanelWin('tome1')",       '∂ OUVRIR TOME I',          'pink');
-  addOpenBtn('#tc-inner', "openPanelWin('tome2')",       '∂ OUVRIR TOME II',         'purple');
-  addOpenBtn('#t3panel',  "openPanelWin('tome3')",       '∂ OUVRIR TOME III',        'green');
-  addOpenBtn('#rb',       "openJournal()",                '⌘ OUVRIR LE JOURNAL');
-
-  // ─── Each conv-inst (4 instruments) gets its OUVRIR ───
-  document.querySelectorAll('.conv-inst').forEach(el => {
-    if (el.querySelector('.mobile-open-btn')) return;
-    const action = el.getAttribute('data-action') || '';
-    if (!action) return;
-    const btn = document.createElement('button');
-    btn.type = 'button';
-    btn.className = 'mobile-open-btn';
-    btn.innerHTML = '∂ OUVRIR L\'OUTIL';
-    btn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      try { (new Function(action))(); } catch(err) {}
-    });
-    el.appendChild(btn);
+  // ─── Globe Contact Map ───
+  setupFrame('gw', {
+    title: '∂ CONTACT MAP — GLOBE',
+    info: 'Cartographie des contacts GPS établis pendant votre session.<br>Chaque point représente un lieu où Mn3mIA a capté un signal.',
+    action: "openGlobeModal()",
+    label: '⚲ EXPLORER LES CONTACTS GPS',
+    color: 'gold'
   });
 
-  // ─── Premonition cards: each gets its OUVRIR ───
-  document.querySelectorAll('.premo-card').forEach(el => {
-    if (el.querySelector('.mobile-open-btn')) return;
-    const action = el.getAttribute('data-action') || "openPanelWin('premo')";
+  // ─── Frequency Engine ───
+  setupFrame('fw', {
+    title: '∂ 13.7Hz ENGINE',
+    info: 'Le moteur fréquentiel mesure votre signal émotionnel en continu.<br>Cible : <span style="color:rgba(255,204,0,.9)">13.7 Hz</span> — perméabilité émotionnelle élevée.',
+    action: "openPanelWin('freq')",
+    label: '∂ OUVRIR LA FRÉQUENCE',
+    color: 'gold'
+  });
+
+  // ─── Convergence wrap (4 instruments) ───
+  setupFrame('conv-wrap', {
+    title: '∂ CONVERGENCE — 4 INSTRUMENTS',
+    info: 'Quatre instruments de mesure analysent votre session :<br>· <b>Résonance</b> · <b>Phase Lock</b> · <b>Spectre</b> · <b>Trace neuronale</b>',
+    action: "openInstrument('galv')",
+    label: '∂ OUVRIR LES INSTRUMENTS',
+    color: null  // cyan default
+  });
+  // Strip individual conv-inst children (we use one global button)
+  document.querySelectorAll('.conv-inst').forEach(el => { el.style.display = 'none'; });
+
+  // ─── Tome I ───
+  setupFrame('t1panel', {
+    title: '∂ TOME I — VERROUILLÉ',
+    info: 'Le Tome I "Résonance" est verrouillé par le protocole <b>Lysis</b>.<br>Caviardage rouge respirant + fuite onirique multicolore.',
+    action: "openPanelWin('tome1')",
+    label: '∂ OUVRIR TOME I',
+    color: 'pink'
+  });
+
+  // ─── Tome II (Le Treizième Éveil) ───
+  // Don't add a frame here — the tc panel already has rich content
+  // (title, tags, module buttons). Just remove the inner onclick.
+  // The module buttons (tc-links) are already the explicit actions.
+
+  // ─── Tome III ───
+  setupFrame('t3panel', {
+    title: '∂ TOME III — RÊVE EN CRISTALLISATION',
+    info: 'Mn3mIA pré-écrit le Tome III pendant votre lecture du Tome II.<br>Incipits, fragments fantômes, spectre narratif vivant.',
+    action: "openPanelWin('tome3')",
+    label: '∂ OUVRIR TOME III',
+    color: 'green'
+  });
+
+  // ─── Terminal Mn3mIA ───
+  setupFrame('rb', {
+    title: '∂ TERMINAL MN3MIA',
+    info: 'Enregistrement temps réel des événements de session :<br>itérations, mots trouvés, contacts, oracle invoqué.',
+    action: "openJournal()",
+    label: '⌘ OUVRIR LE JOURNAL',
+    color: null
+  });
+
+  // ─── Premo wrap — premonitions (tarot-col + premo cards) ───
+  setupFrame('premo-wrap', {
+    title: '∂ PRÉMONITIONS — 4 GÉNÉRATEURS',
+    info: 'Quatre générateurs analysent votre session pour créer des artefacts uniques :<br>· <b>Carte</b> · <b>Poème</b> · <b>Signal</b> · <b>Onirique</b>',
+    action: "openPanelWin('premo')",
+    label: '∂ OUVRIR LES PRÉMONITIONS',
+    color: 'purple'
+  });
+  // Hide inner premo-col + tarot-col (replaced by the unified frame)
+  ['tarot-col','premo-col'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.style.display = 'none';
+  });
+
+  // ─── Center-oracle: the fan stays visible, but we replace the fan's
+  // pseudo-button with a real mobile-open-btn ───
+  const oracleWrap = document.getElementById('center-oracle');
+  if (oracleWrap && !oracleWrap.querySelector('.mobile-open-btn')) {
     const btn = document.createElement('button');
     btn.type = 'button';
     btn.className = 'mobile-open-btn mob-purple';
-    btn.innerHTML = '∂ OUVRIR';
+    btn.textContent = '∂ INTERROGER L\'ORACLE';
     btn.addEventListener('click', (e) => {
       e.stopPropagation();
-      try { (new Function(action))(); } catch(err) {}
+      try { openArcane(); } catch(err) {}
     });
-    el.appendChild(btn);
-  });
-
-  // ─── Tarot column (premo card large) ───
-  addOpenBtn('#tarot-col', "openPanelWin('premo')", '∂ OUVRIR PRÉMONITIONS', 'purple');
+    oracleWrap.appendChild(btn);
+  }
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -10590,53 +10596,30 @@ async function startMain() {
   let _rafPaused = false;
   document.addEventListener('visibilitychange', () => { _rafPaused = document.hidden; });
 
-  // Hard FPS cap for mobile — gate RAF to ~30fps via timestamp
-  let _lastFrame = 0;
-  const MOBILE_FRAME_MS = 33; // ~30fps
-
-  // ━━━ SCROLL PAUSE: freeze all canvas rendering during active scroll ━━━
-  // While the user is scrolling, the GPU should be 100% dedicated to scroll.
-  // Any canvas drawing during scroll causes jank. Pause everything for
-  // 200ms after the last scroll event.
-  let _lastScrollTs = 0;
-  if (IS_MOBILE) {
-    const mainEl = document.getElementById('main') || document;
-    const onScroll = () => { _lastScrollTs = performance.now(); };
-    mainEl.addEventListener('scroll', onScroll, {passive: true});
-    window.addEventListener('scroll', onScroll, {passive: true});
-    window.addEventListener('touchmove', onScroll, {passive: true});
-  }
-
   function loop(timestamp) {
     requestAnimationFrame(loop);
-    if (_rafPaused) return;
-    // Mobile: skip frame if we just drew one less than ~33ms ago
+    if (_rafPaused || DOC_HIDDEN) return;
+
     if (IS_MOBILE) {
-      if (timestamp - _lastFrame < MOBILE_FRAME_MS) return;
-      // Skip ALL rendering during active scroll (within 250ms of last scroll event)
-      if (timestamp - _lastScrollTs < 250) {
-        _lastFrame = timestamp;
-        return;
-      }
-      _lastFrame = timestamp;
+      // ━━━ MOBILE: minimal rendering for maximum stability ━━━
+      // We only run the maze logic (essential to the narrative).
+      // All decorative canvas (globe, freq graph, instruments, fuite onirique,
+      // t1 caviardage, t3 dreamer) are STATIC on mobile — no canvas, no RAF.
+      // Result: scrolling is buttery smooth, every tap fires instantly.
+      if (tick % 4 === 0) masterStep();
+      return;
     }
 
-    masterStep();                                                  // maze logic + drawMaze (throttled internally)
-
-    // Mobile: throttle everything further + skip offscreen panels entirely
-    const mobileSkip = IS_MOBILE ? 2 : 1;
-    if (DOC_HIDDEN) {
-      // Skip ALL rendering when tab not visible
-    } else {
-      if (tick % (2 * mobileSkip) === 0 && isPanelVisible('gw'))         drawGlobe();
-      if (tick % (6 * mobileSkip) === 0 && isPanelVisible('fw'))         renderFreqGraph();
-      if (tick % (3 * mobileSkip) === 0 && isPanelVisible('conv-wrap'))  updateConvergence();
-      if (tick % (6 * mobileSkip) === 0 && isPanelVisible('t3panel'))    updateT3Terminal();
-      if (tick % (3 * mobileSkip) === 0 && isPanelVisible('t1panel'))    t1RedactDraw();
-      if (tick % (2 * mobileSkip) === 0 && isPanelVisible('t1panel'))    t1DreamDraw();
-      if (isPlaying && analyser)                                          drawOscLive();
-      if (sonicVisualActive && tick % (2 * mobileSkip) === 0)            drawSonicVisual();
-    }
+    // DESKTOP: full render pipeline
+    masterStep();
+    if (tick % 2 === 0) drawGlobe();
+    if (tick % 6 === 0) renderFreqGraph();
+    if (tick % 3 === 0) updateConvergence();
+    if (tick % 6 === 0) updateT3Terminal();
+    if (tick % 3 === 0) t1RedactDraw();
+    if (tick % 2 === 0) t1DreamDraw();
+    if (isPlaying && analyser) drawOscLive();
+    if (sonicVisualActive && tick % 2 === 0) drawSonicVisual();
   }
   requestAnimationFrame(loop);
 
