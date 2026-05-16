@@ -1641,7 +1641,24 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:799;
   #center-maze{border-right:none;border-bottom:2px solid var(--border);
     flex:0 0 auto;min-height:340px;width:100%;height:auto}
   #conv-wrap{border-right:none;border-bottom:2px solid var(--border);
-    width:100%;flex:0 0 auto;height:auto;min-height:600px}
+    width:100%;flex:0 0 auto;height:auto;min-height:680px;
+    display:flex;flex-direction:column;overflow:visible}
+  /* Make absolutely sure all 4 instruments render in mobile */
+  #conv-instruments{
+    grid-template-columns:1fr!important;
+    grid-template-rows:repeat(4,minmax(130px,auto))!important;
+    gap:8px!important;
+    padding:8px!important;
+    min-height:580px!important;
+    width:100%!important;
+    overflow:visible!important;
+  }
+  #conv-instruments > .conv-inst{
+    display:flex!important;
+    flex-direction:column!important;
+    visibility:visible!important;
+    opacity:1!important;
+  }
   #t1panel{border-right:none;border-bottom:2px solid var(--border);
     width:100%;height:auto;min-height:170px;flex:0 0 auto}
   #tc{border-right:none;border-bottom:2px solid var(--border);
@@ -1765,14 +1782,7 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:799;
   #etat1-box{grid-template-columns:1fr;grid-template-rows:auto;gap:16px}
   #etat1-globe-wrap,#etat1-freq-wrap{display:none}
   #etat1-question{font-size:14px}
-  #conv-instruments{grid-template-columns:1fr 1fr;grid-template-rows:auto auto;gap:5px}
-  .conv-inst{min-height:90px}
-  #spec-cv{height:60px!important;width:100%!important}
-  #trace-cv{height:60px!important;width:100%!important}
-  #galv-cv{width:100%!important;height:90px!important}
-  #lock-cv{width:100%!important;height:90px!important}
-  #conv-instruments .conv-inst{padding:4px}
-  .inst-label{font-size:6px!important}
+  /* (old 2-col conv-instruments rule removed — see above for 1-col stack) */
   #globe-modal-box{width:100vw;height:100vh}
   #globe-modal-body{grid-template-columns:1fr;grid-template-rows:1fr auto;overflow-y:auto}
   #globe-map-wrap{min-height:50vh;border-right:none;border-bottom:1px solid rgba(255,51,102,.18)}
@@ -1904,14 +1914,34 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:799;
   /* ━━━ DISABLE costly CSS animations (kept on desktop) ━━━ */
   #t1panel::before, #tc::before, #center-oracle::before{display:none}
 
+  /* ━━━ MOBILE PERF: kill all decorative CSS animations ━━━
+     Animations cost GPU compositor work every frame. We keep only
+     the ones essential to the UX (Oracle fan card-float for feedback).
+  */
+  .pbtn,.pbtn-protocol{animation:none!important}
+  #oracle-fan-title{animation:none!important}
+  #oracle-fan-cta{animation:none!important}
+  #oracle-fan-glow{animation:none!important}
+  #oracle-fan-cta::before{animation:none!important;display:none}
+  /* Tutorial breathing — kill, just a static button */
+  #tuto-yes,#tuto-no{animation:none!important}
+  /* Modal/overlay sweep effects */
+  #arc-submit-fab::before{animation:none!important;display:none}
+  #arc-submit-fab::after{animation:none!important;display:none}
+  #arc-submit-fab{animation:none!important}
+  /* Card pulses, sigil pulses */
+  .ofan-back::before{animation:none!important}
+  .ofan-card{animation:none!important}
+  /* Ticker scroll: keep but slow it down */
+  #ttrack{animation-duration:120s!important}
+
   /* Stream canvas (top-row glitch overlay) — kill on mobile, it's purely decorative */
   #stream-canvas{display:none!important}
 }
 
 @media(max-width:480px){
-  /* Extra-narrow phones: even more aggressive */
-  #conv-instruments{grid-template-columns:1fr!important;grid-template-rows:repeat(4,auto)!important}
-  .conv-inst{min-height:80px}
+  /* Extra-narrow phones — note: conv-instruments rule above already handles 1-col stack */
+  .conv-inst{min-height:110px}
 }
 
 /* Reduced motion */
@@ -2838,6 +2868,21 @@ function reorderForMobile() {
     const el = document.getElementById(id);
     if (el) el.style.display = 'none';
   });
+  // Force canvas resize on all instruments after reflow.
+  // Canvas elements lose their drawing surface when moved in some browsers.
+  setTimeout(() => {
+    ['galv-cv','lock-cv','spec-cv','trace-cv','t1redact-cv','t1dream-cv','gc','fc','mc','pc','osc-canvas','tarot-canvas'].forEach(id => {
+      const cv = document.getElementById(id);
+      if (cv && cv.tagName === 'CANVAS') {
+        // Force size recompute by triggering a layout read then write
+        const w = cv.clientWidth, h = cv.clientHeight;
+        if (w > 0 && h > 0) {
+          cv.width = w;
+          cv.height = h;
+        }
+      }
+    });
+  }, 100);
 }
 // Run as early as possible — after DOM ready
 if (document.readyState === 'loading') {
@@ -2875,6 +2920,14 @@ function setupPanelVisibility() {
     entries.forEach(e => {
       const id = e.target.id;
       if (id in PANEL_VISIBLE) PANEL_VISIBLE[id] = e.isIntersecting;
+      // Pause/resume tarot video based on premo-wrap visibility (mobile perf)
+      if (IS_MOBILE && id === 'premo-wrap') {
+        const v = document.getElementById('tarot-video');
+        if (v) {
+          if (e.isIntersecting) { v.play().catch(() => {}); }
+          else { v.pause(); }
+        }
+      }
     });
   }, { rootMargin: '50px 0px', threshold: 0.01 });
   Object.keys(PANEL_VISIBLE).forEach(id => {
@@ -10300,9 +10353,18 @@ async function startMain() {
   let _rafPaused = false;
   document.addEventListener('visibilitychange', () => { _rafPaused = document.hidden; });
 
-  function loop() {
+  // Hard FPS cap for mobile — gate RAF to ~30fps via timestamp
+  let _lastFrame = 0;
+  const MOBILE_FRAME_MS = 33; // ~30fps
+
+  function loop(timestamp) {
     requestAnimationFrame(loop);
     if (_rafPaused) return;
+    // Mobile: skip frame if we just drew one less than ~33ms ago
+    if (IS_MOBILE) {
+      if (timestamp - _lastFrame < MOBILE_FRAME_MS) return;
+      _lastFrame = timestamp;
+    }
 
     masterStep();                                                  // maze logic + drawMaze (throttled internally)
 
