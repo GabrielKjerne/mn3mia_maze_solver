@@ -75,11 +75,18 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:799;
   background-size:200% 100%;width:0;transition:width 7s linear;
   box-shadow:0 0 8px var(--cyan);animation:bar-shimmer 1.5s linear infinite}
 @keyframes bar-shimmer{from{background-position:0% 0}to{background-position:200% 0}}
-#intro-skip{margin-top:20px;font-size:9px;letter-spacing:.3em;color:rgba(0,212,255,.55);
-  cursor:pointer;opacity:0;animation:introFade .8s 1.8s forwards;transition:color .2s;
-  padding:6px 16px;border:1px solid rgba(0,212,255,.2);position:relative;z-index:2}
-#intro-skip:hover{color:var(--cyan);border-color:rgba(0,212,255,.6);
-  box-shadow:0 0 18px rgba(0,212,255,.2)}
+#intro-skip{margin-top:20px;font-size:11px;letter-spacing:.3em;color:rgba(0,212,255,.7);
+  cursor:pointer;opacity:0;animation:introFade .8s 1.8s forwards;transition:color .2s,background .2s,border-color .2s;
+  padding:14px 28px;border:1px solid rgba(0,212,255,.35);position:relative;z-index:10;
+  min-width:160px;min-height:48px;display:inline-flex;align-items:center;justify-content:center;
+  background:rgba(0,30,60,.4);
+  touch-action:manipulation;
+  -webkit-tap-highlight-color:rgba(0,212,255,.4);
+  -webkit-user-select:none;user-select:none;
+  font-family:'Orbitron',monospace;font-weight:700}
+#intro-skip:hover,#intro-skip:active{color:var(--cyan);border-color:rgba(0,212,255,.8);
+  background:rgba(0,212,255,.12);
+  box-shadow:0 0 18px rgba(0,212,255,.35)}
 @keyframes introFade{0%{opacity:0;transform:translateY(10px)}100%{opacity:1;transform:translateY(0)}}
 
 /* Intro starfield canvas */
@@ -1555,36 +1562,111 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:799;
   }
   /* Kill mix-blend-mode (also expensive) */
   .chroma-fx{display:none!important}
-  /* ━━━ LAYOUT ━━━ */
+  /* ═══ MOBILE LAYOUT — flat & ordered per user request ═══════════
+     Order:
+       1. ORACLE (interroger)
+       2. LABYRINTHE
+       3. OUTILS (4 instruments, stacked for max readability)
+       4. TOME 1 (Lysis)
+       5. TOME 2 (Le Treizième Éveil + modules)
+       6. TOME 3 (cristallisation)
+       7. CONTACT MAP (globe)
+       8. FRÉQUENCE
+       9. TERMINAL
+      10. PRÉMONITIONS (cartes, poèmes, signal, onirique)
+  ═══════════════════════════════════════════════════════════════ */
   #app{overflow:hidden;grid-template-rows:24px 1fr 20px}
-  #main{grid-template-columns:1fr;
+  #main{
+    grid-template-columns:1fr;
     overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;
-    height:calc(100vh - 44px);display:block;
-    will-change:scroll-position}
-  #left{display:flex;flex-direction:row;height:170px;flex-shrink:0;
-    border-right:none;border-bottom:1px solid var(--border)}
-  #gw{flex:0 0 48%;border-bottom:none;border-right:1px solid var(--border)}
-  #fw{flex:1}
-  #center{display:flex;flex-direction:column;min-height:520px;height:auto;
-    border-right:none;border-bottom:1px solid var(--border)}
-  #center-oracle{flex:0 0 auto;min-height:230px}
-  #center-maze{flex:1;min-height:280px}
-  #right{display:flex;flex-direction:column;height:auto}
+    height:calc(100vh - 44px);
+    display:flex;flex-direction:column;
+    overscroll-behavior:contain;  /* don't trigger pull-to-refresh on Android */
+    scroll-snap-type:none;
+  }
+  /* CSS Containment — tells browser each panel is independent → much smoother scroll */
+  #center-oracle,#center-maze,#conv-wrap,#t1panel,#tc,#t3panel,#gw,#fw,#rb,#premo-wrap{
+    contain:layout style paint;
+  }
+  /* Flatten the column containers — let their children flow directly in main */
+  #left,#center,#right{
+    display:contents;  /* magic: children become direct children of #main */
+  }
+  /* Flatten the column containers — let their children flow directly in main */
+  #left,#center,#right{
+    display:contents;  /* magic: children become direct children of #main */
+  }
+
+  /* Reordering via flex order */
+  #center-oracle{order:1;border-right:none;border-bottom:2px solid rgba(180,100,255,.3);
+    flex:0 0 auto;min-height:280px;width:100%}
+  #center-maze{order:2;border-right:none;border-bottom:2px solid var(--border);
+    flex:0 0 auto;min-height:320px;width:100%}
+  #conv-wrap{order:3;border-right:none;border-bottom:2px solid var(--border);
+    width:100%}
+  /* Convergence header for mobile */
+  #t1panel{order:4;border-right:none;border-bottom:2px solid var(--border);
+    width:100%;height:auto;min-height:170px}
+  #tc{order:5;border-right:none;border-bottom:2px solid var(--border);
+    width:100%;height:auto;min-height:auto}
+  #t3panel{order:6;border-right:none;border-bottom:2px solid var(--border);
+    width:100%;height:auto;min-height:160px}
+  #gw{order:7;border-right:none;border-bottom:2px solid var(--border);
+    width:100%;height:200px;flex:0 0 auto}
+  #fw{order:8;border-right:none;border-bottom:2px solid var(--border);
+    width:100%;height:160px;flex:0 0 auto}
+  #rb{order:9;border-right:none;border-bottom:2px solid var(--border);
+    width:100%;height:120px;overflow-y:auto}
+  #premo-wrap{order:10;
+    display:flex!important;flex-direction:column!important;
+    height:auto!important;grid-template-columns:unset!important;overflow:visible!important;
+    width:100%}
+  #osc-wrap{display:none}  /* hidden on mobile, oscilloscope in tc panel */
   #tc-d{display:none}
-  #osc-wrap{height:40px}
-  #t1panel{height:80px}
-  #t3panel{height:78px}
+
+  /* ═══ CONVERGENCE / 4 OUTILS — stacked vertically for max readability ══ */
+  #conv-instruments{
+    grid-template-columns:1fr!important;
+    grid-template-rows:repeat(4,auto)!important;
+    gap:8px!important;
+    padding:8px!important;
+  }
+  .conv-inst{
+    min-height:120px!important;
+    padding:10px!important;
+    border:1px solid rgba(0,212,255,.25)!important;
+    background:rgba(0,8,20,.7)!important;
+  }
+  .inst-label{
+    font-size:9px!important;
+    letter-spacing:.2em!important;
+    margin-bottom:6px!important;
+    color:rgba(0,212,255,.7)!important;
+  }
+  #galv-cv,#lock-cv,#spec-cv,#trace-cv{
+    width:100%!important;
+    height:90px!important;
+  }
+  .inst-readout-mini{font-size:11px!important;letter-spacing:.15em!important}
+
+  /* T1 — Lysis: dream + caviardage stacked */
+  #t1panel{display:flex!important;flex-direction:column!important}
+  #t1redact-cv,#t1dream-cv{height:80px!important}
+
+  /* T3 — Tome III spectrogram + fragments visible on mobile */
   #t3spectro{display:none}
   #t3fragments{display:none}
-  #rb{height:60px;overflow-y:auto}
-  #premo-wrap{display:flex!important;flex-direction:column!important;
-    height:auto!important;grid-template-columns:unset!important;overflow:visible!important}
+  #t3panel{padding-bottom:8px}
+
+  /* Premonitions — stacked */
   #tarot-col{height:260px;min-height:260px;flex:none;
     border-right:none!important;border-bottom:1px solid var(--border)}
   #premo-col{display:flex;flex-direction:column;overflow:visible}
   .premo-card{min-height:100px;height:auto;flex:none;border-right:none!important}
   .premo-body{overflow:visible;min-height:80px}
   #card-canvas{max-width:90vw}
+
+  #etat1-box{grid-template-columns:1fr;grid-template-rows:auto;gap:16px}
   /* ═══ ARCANE MODAL — mobile layout
      - Bigger textarea (easier to type)
      - Padding at bottom to make room for the floating FAB
@@ -2638,6 +2720,44 @@ let DOC_HIDDEN = false;
 document.addEventListener('visibilitychange', () => {
   DOC_HIDDEN = document.hidden;
 });
+
+// ═══════════════════════════════════════════════════════════
+// 👁️ PANEL VISIBILITY TRACKING — pause RAF for offscreen panels on mobile
+// ═══════════════════════════════════════════════════════════
+// Each tracked panel sets PANEL_VISIBLE[id] = true/false based on IntersectionObserver.
+// Drawing functions check this before rendering. Massive perf win on mobile scroll.
+const PANEL_VISIBLE = {
+  'gw':true, 'fw':true, 'conv-wrap':true,
+  't1panel':true, 'tc':true, 't3panel':true,
+  'center-oracle':true, 'center-maze':true,
+  'rb':true, 'premo-wrap':true,
+};
+function isPanelVisible(id) {
+  // On desktop, everything is always visible
+  if (!IS_MOBILE) return true;
+  return PANEL_VISIBLE[id] !== false;
+}
+// Set up the observer once DOM ready
+function setupPanelVisibility() {
+  if (!('IntersectionObserver' in window)) return;
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      const id = e.target.id;
+      if (id in PANEL_VISIBLE) PANEL_VISIBLE[id] = e.isIntersecting;
+    });
+  }, { rootMargin: '50px 0px', threshold: 0.01 });
+  Object.keys(PANEL_VISIBLE).forEach(id => {
+    const el = document.getElementById(id);
+    if (el) observer.observe(el);
+  });
+}
+// Call after DOM ready
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', setupPanelVisibility);
+} else {
+  setupPanelVisibility();
+}
+
 const mc = $('mc'), ctx = mc.getContext('2d', {alpha:false});
 const pc = $('pc'), pctx = pc.getContext('2d');
 const gc = $('gc'), gctx = gc.getContext('2d', {alpha:false});
@@ -2780,6 +2900,18 @@ window.addEventListener('load', () => {
   const bar = $('intro-bar');
   setTimeout(() => { if (bar) bar.style.width = '100%'; }, 100);
   setTimeout(() => enterApp(), 8500);
+  // Defensive binding for ENTRER button — works on mobile + desktop
+  const skip = $('intro-skip');
+  if (skip) {
+    skip.onclick = null;
+    const handler = (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      enterApp();
+    };
+    skip.addEventListener('click', handler, false);
+    skip.addEventListener('touchend', handler, {passive:false});
+  }
 });
 
 window.addEventListener('resize', () => {
@@ -10040,19 +10172,19 @@ async function startMain() {
 
     masterStep();                                                  // maze logic + drawMaze (throttled internally)
 
-    // Mobile: throttle everything further (half the rate)
+    // Mobile: throttle everything further + skip offscreen panels entirely
     const mobileSkip = IS_MOBILE ? 2 : 1;
     if (DOC_HIDDEN) {
       // Skip ALL rendering when tab not visible
     } else {
-      if (tick % (2 * mobileSkip) === 0) drawGlobe();                              // ~30fps desktop, ~15fps mobile
-      if (tick % (6 * mobileSkip) === 0) renderFreqGraph();                        // ~10/5 fps
-      if (tick % (3 * mobileSkip) === 0) updateConvergence();                      // ~20/10 fps — 4 instruments
-      if (tick % (6 * mobileSkip) === 0) updateT3Terminal();                       // ~10/5 fps
-      if (tick % (3 * mobileSkip) === 0) t1RedactDraw();                           // ~20/10 fps
-      if (tick % (2 * mobileSkip) === 0) t1DreamDraw();                            // ~30/15 fps — fuite onirique
-      if (isPlaying && analyser) drawOscLive();                                    // 60fps when playing music
-      if (sonicVisualActive && tick % (2 * mobileSkip) === 0) drawSonicVisual();   // ~30/15 fps
+      if (tick % (2 * mobileSkip) === 0 && isPanelVisible('gw'))         drawGlobe();
+      if (tick % (6 * mobileSkip) === 0 && isPanelVisible('fw'))         renderFreqGraph();
+      if (tick % (3 * mobileSkip) === 0 && isPanelVisible('conv-wrap'))  updateConvergence();
+      if (tick % (6 * mobileSkip) === 0 && isPanelVisible('t3panel'))    updateT3Terminal();
+      if (tick % (3 * mobileSkip) === 0 && isPanelVisible('t1panel'))    t1RedactDraw();
+      if (tick % (2 * mobileSkip) === 0 && isPanelVisible('t1panel'))    t1DreamDraw();
+      if (isPlaying && analyser)                                          drawOscLive();
+      if (sonicVisualActive && tick % (2 * mobileSkip) === 0)            drawSonicVisual();
     }
   }
   requestAnimationFrame(loop);
