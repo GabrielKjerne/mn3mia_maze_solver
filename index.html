@@ -79,6 +79,7 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:799;
 @keyframes bar-shimmer{from{background-position:0% 0}to{background-position:200% 0}}
 #intro-skip{
   /* Native button reset */
+  -webkit-appearance:none;appearance:none;
   font-family:'Orbitron',monospace;font-weight:700;
   font-size:12px;letter-spacing:.3em;
   color:rgba(0,212,255,.95);
@@ -88,28 +89,37 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:799;
   margin-top:24px;
   cursor:pointer;
   position:relative;
-  z-index:9999;  /* absolute top of intro */
+  z-index:9999;
   min-width:180px;min-height:54px;
   display:inline-flex;align-items:center;justify-content:center;
   touch-action:manipulation;
-  -webkit-tap-highlight-color:rgba(0,212,255,.5);
+  -webkit-tap-highlight-color:transparent;  /* No blue flash on tap */
   -webkit-user-select:none;user-select:none;
-  /* opacity simple fade-in via opacity only — NO transform animation */
+  outline:none !important;  /* Kill any focus ring */
+  outline-offset:0 !important;
   opacity:0;
   animation:introBtnFade .8s 1.8s forwards;
   pointer-events:auto !important;
-  transition:background .2s,border-color .2s,color .2s,box-shadow .2s;
+  transition:none;  /* No transitions to interfere with hit-test */
+  box-shadow:0 0 18px rgba(0,212,255,.3),inset 0 0 12px rgba(0,212,255,.08);
+}
+#intro-skip:focus,#intro-skip:focus-visible,#intro-skip:focus-within{
+  outline:none !important;
   box-shadow:0 0 18px rgba(0,212,255,.3),inset 0 0 12px rgba(0,212,255,.08);
 }
 @keyframes introBtnFade{
   0%{opacity:0}
   100%{opacity:1}
 }
-#intro-skip:hover,#intro-skip:active{
+#intro-skip:hover{
   color:#fff;
   border-color:rgba(0,212,255,1);
   background:rgba(0,80,140,.85);
   box-shadow:0 0 28px rgba(0,212,255,.6),inset 0 0 18px rgba(0,212,255,.15);
+}
+#intro-skip:active{
+  background:rgba(0,212,255,.3);
+  color:#fff;
 }
 @keyframes introFade{0%{opacity:0;transform:translateY(10px)}100%{opacity:1;transform:translateY(0)}}
 
@@ -746,7 +756,7 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:799;
   -webkit-user-select:none;user-select:none;
 }
 #arcane-overlay.on #arc-submit-fab{display:inline-block}
-#arcane-overlay.revealing #arc-submit-fab{display:none}
+#arcane-overlay.revealing #arc-submit-fab{display:none !important}
 @keyframes arcFabBreathStatic{
   0%,100%{box-shadow:0 0 28px rgba(180,100,255,.6),0 0 70px rgba(180,100,255,.32),0 8px 28px rgba(0,0,0,.7),inset 0 0 22px rgba(220,180,255,.2)}
   50%{box-shadow:0 0 50px rgba(220,180,255,.95),0 0 110px rgba(180,100,255,.55),0 10px 36px rgba(0,0,0,.8),inset 0 0 36px rgba(220,180,255,.35)}
@@ -868,13 +878,24 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:799;
 #arc-card-signature{font-size:6px;letter-spacing:.14em;color:rgba(180,100,255,.32);text-align:right}
 #arc-card-data{font-size:5.5px;letter-spacing:.07em;color:rgba(0,212,255,.25);
   border-top:1px solid rgba(0,212,255,.07);padding-top:4px}
-#arc-actions{display:flex;gap:8px;justify-content:center}
-.arc-btn{font-family:'Share Tech Mono',monospace;font-size:7.5px;letter-spacing:.16em;
-  padding:5px 14px;background:transparent;cursor:pointer;transition:all .2s}
-#arc-btn-again{border:1px solid rgba(180,100,255,.38);color:rgba(180,100,255,.65)}
-#arc-btn-again:hover{background:rgba(180,100,255,.09);box-shadow:0 0 8px rgba(180,100,255,.2)}
-#arc-btn-close2{border:1px solid rgba(0,212,255,.28);color:rgba(0,212,255,.45)}
-#arc-btn-close2:hover{background:rgba(0,212,255,.07)}
+#arc-actions{display:flex;gap:8px;justify-content:center;
+  position:relative;z-index:50;width:100%;flex-wrap:wrap;
+  padding:10px 0;margin-top:8px}
+.arc-btn{font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:.16em;
+  padding:10px 16px;background:rgba(0,2,12,.7);cursor:pointer;transition:all .2s;
+  position:relative;z-index:51;
+  min-height:40px;display:inline-flex;align-items:center;justify-content:center;
+  touch-action:manipulation;
+  -webkit-tap-highlight-color:rgba(0,212,255,.3);
+  -webkit-appearance:none;appearance:none;
+  pointer-events:auto !important}
+.arc-btn:active{background:rgba(180,100,255,.18)}
+#arc-btn-again{border:1px solid rgba(180,100,255,.55);color:rgba(220,180,255,.95)}
+#arc-btn-again:hover,#arc-btn-again:active{background:rgba(180,100,255,.15);
+  box-shadow:0 0 12px rgba(180,100,255,.3);color:#fff}
+#arc-btn-close2{border:1px solid rgba(0,212,255,.45);color:rgba(180,220,255,.9)}
+#arc-btn-close2:hover,#arc-btn-close2:active{background:rgba(0,212,255,.12);
+  color:#fff;box-shadow:0 0 12px rgba(0,212,255,.25)}
 
 /* Lysis */
 #lysis-overlay{z-index:651;pointer-events:none;background:transparent;backdrop-filter:none}
@@ -1744,14 +1765,17 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:799;
   #arc-card-tagline{font-size:9px!important;line-height:1.6!important}
   #arc-card-response{font-size:11px!important;line-height:1.7!important}
   /* Bigger action buttons after reveal */
-  #arc-actions{gap:8px;flex-wrap:wrap}
+  #arc-actions{gap:10px;flex-wrap:wrap;padding:12px 0!important;
+    position:relative;z-index:55!important;width:100%}
   .arc-btn{
-    min-height:46px!important;
-    font-size:9.5px!important;
+    min-height:48px!important;
+    font-size:10px!important;
     padding:14px 16px!important;
     flex:1 1 auto;min-width:140px;
-    touch-action:manipulation;
-    -webkit-tap-highlight-color:rgba(0,212,255,.25);
+    touch-action:manipulation!important;
+    -webkit-tap-highlight-color:rgba(0,212,255,.3);
+    position:relative!important;z-index:56!important;
+    pointer-events:auto!important;
   }
 
   #etat1-box{grid-template-columns:1fr;grid-template-rows:auto;gap:16px}
@@ -3001,6 +3025,16 @@ function enterApp() {
   triggerGlitch();
   $('intro').classList.add('out');
   $('app').classList.add('on');
+  // ━━━ TAP SHIELD: absorb any residual tap that might leak through
+  // the intro fade-out and hit elements behind it (PROTOCOLE, etc.)
+  const shield = document.createElement('div');
+  shield.id = 'tap-shield';
+  shield.style.cssText = 'position:fixed;inset:0;z-index:99998;background:transparent;pointer-events:auto';
+  shield.addEventListener('touchstart', e => { e.preventDefault(); e.stopPropagation(); }, {passive:false, capture:true});
+  shield.addEventListener('click', e => { e.preventDefault(); e.stopPropagation(); }, {capture:true});
+  document.body.appendChild(shield);
+  setTimeout(() => { if (shield.parentNode) shield.parentNode.removeChild(shield); }, 900);
+  // Resume normal flow
   setTimeout(() => stopIntroStars(), 1300);
   setTimeout(() => startMain(), 1200);
   setTimeout(() => checkReturnSession(), 2000);
@@ -10298,14 +10332,16 @@ function closeModuleWindow() {
 // may not auto-attach to window. We force-export the critical ones.
 // ═══════════════════════════════════════════════════════════
 [
-  'startArcaneReading','openArcane','closeArcane','doOracleTirer',
+  'startArcaneReading','openArcane','closeArcane','resetArcane','doOracleTirer',
   'openChapter','closeChapter','toggleMusic','generateVisitCard','closeCard',
   'openJournal','closeJournal','openSonic','closeSonic',
   'startTutorial','startTutorialFromButton','endTutorial','tutoNav',
   'closeGlobeModal','openInstrument','closeInstrument',
   'openArcaneCard','closeArcaneCard',
   'closeShareModal','closePropheticPaint','closeModuleWindow','closePanelWin',
-  'closePoemFS','openPanelWin'
+  'closePoemFS','openPanelWin',
+  'shareSession','enterApp','showTutoInvite','closeTutoInvite',
+  'arcUpdateLiveAnalysis','arcUpdateDashboard'
 ].forEach(name => {
   try {
     const fn = eval(name);
