@@ -61,7 +61,8 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:799;
   transition:opacity 1.2s ease;overflow:hidden}
 #intro.out{opacity:0;pointer-events:none}
 #intro-logo{font-family:'Orbitron',monospace;font-weight:900;text-align:center;
-  opacity:0;animation:introFade 1.5s .3s forwards;position:relative;z-index:2}
+  opacity:0;animation:introFade 1.5s .3s forwards;position:relative;z-index:2;
+  pointer-events:none}
 #intro-logo .sym{font-size:clamp(28px,6vw,72px);color:var(--cyan);
   text-shadow:0 0 40px var(--cyan),0 0 80px rgba(0,212,255,.3);letter-spacing:.15em}
 #intro-logo .t1{font-size:clamp(10px,2.2vw,26px);letter-spacing:.5em;color:rgba(0,212,255,.7);
@@ -70,23 +71,46 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:799;
   text-shadow:0 0 25px var(--gold);margin-top:6px}
 #intro-logo .t3{font-size:clamp(8px,1.4vw,16px);letter-spacing:.4em;color:rgba(0,212,255,.5);margin-top:14px}
 #intro-progress{width:200px;height:1px;background:rgba(0,212,255,.15);margin-top:30px;
-  opacity:0;animation:introFade .8s 1.2s forwards;overflow:hidden;position:relative;z-index:2}
+  opacity:0;animation:introFade .8s 1.2s forwards;overflow:hidden;position:relative;z-index:2;
+  pointer-events:none}
 #intro-bar{height:100%;background:linear-gradient(90deg,var(--cyan),var(--purple),var(--cyan));
   background-size:200% 100%;width:0;transition:width 7s linear;
   box-shadow:0 0 8px var(--cyan);animation:bar-shimmer 1.5s linear infinite}
 @keyframes bar-shimmer{from{background-position:0% 0}to{background-position:200% 0}}
-#intro-skip{margin-top:20px;font-size:11px;letter-spacing:.3em;color:rgba(0,212,255,.7);
-  cursor:pointer;opacity:0;animation:introFade .8s 1.8s forwards;transition:color .2s,background .2s,border-color .2s;
-  padding:14px 28px;border:1px solid rgba(0,212,255,.35);position:relative;z-index:10;
-  min-width:160px;min-height:48px;display:inline-flex;align-items:center;justify-content:center;
-  background:rgba(0,30,60,.4);
+#intro-skip{
+  /* Native button reset */
+  font-family:'Orbitron',monospace;font-weight:700;
+  font-size:12px;letter-spacing:.3em;
+  color:rgba(0,212,255,.95);
+  background:rgba(0,40,80,.7);
+  border:2px solid rgba(0,212,255,.6);
+  padding:16px 32px;
+  margin-top:24px;
+  cursor:pointer;
+  position:relative;
+  z-index:9999;  /* absolute top of intro */
+  min-width:180px;min-height:54px;
+  display:inline-flex;align-items:center;justify-content:center;
   touch-action:manipulation;
-  -webkit-tap-highlight-color:rgba(0,212,255,.4);
+  -webkit-tap-highlight-color:rgba(0,212,255,.5);
   -webkit-user-select:none;user-select:none;
-  font-family:'Orbitron',monospace;font-weight:700}
-#intro-skip:hover,#intro-skip:active{color:var(--cyan);border-color:rgba(0,212,255,.8);
-  background:rgba(0,212,255,.12);
-  box-shadow:0 0 18px rgba(0,212,255,.35)}
+  /* opacity simple fade-in via opacity only — NO transform animation */
+  opacity:0;
+  animation:introBtnFade .8s 1.8s forwards;
+  pointer-events:auto !important;
+  transition:background .2s,border-color .2s,color .2s,box-shadow .2s;
+  box-shadow:0 0 18px rgba(0,212,255,.3),inset 0 0 12px rgba(0,212,255,.08);
+}
+@keyframes introBtnFade{
+  0%{opacity:0}
+  100%{opacity:1}
+}
+#intro-skip:hover,#intro-skip:active{
+  color:#fff;
+  border-color:rgba(0,212,255,1);
+  background:rgba(0,80,140,.85);
+  box-shadow:0 0 28px rgba(0,212,255,.6),inset 0 0 18px rgba(0,212,255,.15);
+}
 @keyframes introFade{0%{opacity:0;transform:translateY(10px)}100%{opacity:1;transform:translateY(0)}}
 
 /* Intro starfield canvas */
@@ -1581,47 +1605,61 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:799;
     overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;
     height:calc(100vh - 44px);
     display:flex;flex-direction:column;
-    overscroll-behavior:contain;  /* don't trigger pull-to-refresh on Android */
+    overscroll-behavior:contain;
     scroll-snap-type:none;
+    touch-action:pan-y;  /* explicit vertical pan permission */
+  }
+  /* ═══ CRITICAL: allow scroll through all tappable panels ═══
+     touch-action:pan-y on every panel that has onclick means:
+     - vertical swipe = scroll page (NOT capture)
+     - quick tap with no scroll = the onclick fires
+  ═══════════════════════════════════════════════════════════════ */
+  #center-oracle,#oracle-fan-wrap,#oracle-fan,
+  #t1panel,#tc,#t3panel,#gw,#fw,#rb,#premo-wrap,#tarot-col,.premo-card,
+  #conv-wrap,#conv-instruments,.conv-inst,
+  #t1panel-cv,#t1redact-cv,#t1dream-cv,
+  #t3panel-cv,#tc-cv{
+    touch-action:pan-y !important;
+  }
+  /* Scrollable inner zones get pan-x too */
+  #rb,#oracle-strip{
+    touch-action:pan-y pan-x !important;
   }
   /* CSS Containment — tells browser each panel is independent → much smoother scroll */
   #center-oracle,#center-maze,#conv-wrap,#t1panel,#tc,#t3panel,#gw,#fw,#rb,#premo-wrap{
     contain:layout style paint;
   }
-  /* Flatten the column containers — let their children flow directly in main */
-  #left,#center,#right{
-    display:contents;  /* magic: children become direct children of #main */
-  }
+  /* Empty parents — children moved out by JS at boot */
+  #left,#center,#right{display:none}
   /* Flatten the column containers — let their children flow directly in main */
   #left,#center,#right{
     display:contents;  /* magic: children become direct children of #main */
   }
 
-  /* Reordering via flex order */
-  #center-oracle{order:1;border-right:none;border-bottom:2px solid rgba(180,100,255,.3);
-    flex:0 0 auto;min-height:280px;width:100%}
-  #center-maze{order:2;border-right:none;border-bottom:2px solid var(--border);
-    flex:0 0 auto;min-height:320px;width:100%}
-  #conv-wrap{order:3;border-right:none;border-bottom:2px solid var(--border);
-    width:100%}
-  /* Convergence header for mobile */
-  #t1panel{order:4;border-right:none;border-bottom:2px solid var(--border);
-    width:100%;height:auto;min-height:170px}
-  #tc{order:5;border-right:none;border-bottom:2px solid var(--border);
-    width:100%;height:auto;min-height:auto}
-  #t3panel{order:6;border-right:none;border-bottom:2px solid var(--border);
-    width:100%;height:auto;min-height:160px}
-  #gw{order:7;border-right:none;border-bottom:2px solid var(--border);
-    width:100%;height:200px;flex:0 0 auto}
-  #fw{order:8;border-right:none;border-bottom:2px solid var(--border);
-    width:100%;height:160px;flex:0 0 auto}
-  #rb{order:9;border-right:none;border-bottom:2px solid var(--border);
-    width:100%;height:120px;overflow-y:auto}
-  #premo-wrap{order:10;
+  /* Panel sizes for mobile — order handled by JS reorderForMobile() */
+  #center-oracle{border-right:none;border-bottom:2px solid rgba(180,100,255,.3);
+    flex:0 0 auto;min-height:280px;width:100%;height:auto}
+  #center-maze{border-right:none;border-bottom:2px solid var(--border);
+    flex:0 0 auto;min-height:340px;width:100%;height:auto}
+  #conv-wrap{border-right:none;border-bottom:2px solid var(--border);
+    width:100%;flex:0 0 auto;height:auto;min-height:600px}
+  #t1panel{border-right:none;border-bottom:2px solid var(--border);
+    width:100%;height:auto;min-height:170px;flex:0 0 auto}
+  #tc{border-right:none;border-bottom:2px solid var(--border);
+    width:100%;height:auto;min-height:auto;flex:0 0 auto}
+  #t3panel{border-right:none;border-bottom:2px solid var(--border);
+    width:100%;height:auto;min-height:170px;flex:0 0 auto}
+  #gw{border-right:none;border-bottom:2px solid var(--border);
+    width:100%;height:220px;flex:0 0 auto}
+  #fw{border-right:none;border-bottom:2px solid var(--border);
+    width:100%;height:180px;flex:0 0 auto}
+  #rb{border-right:none;border-bottom:2px solid var(--border);
+    width:100%;height:140px;flex:0 0 auto;overflow-y:auto}
+  #premo-wrap{
     display:flex!important;flex-direction:column!important;
     height:auto!important;grid-template-columns:unset!important;overflow:visible!important;
-    width:100%}
-  #osc-wrap{display:none}  /* hidden on mobile, oscilloscope in tc panel */
+    width:100%;flex:0 0 auto}
+  #osc-wrap{display:none}
   #tc-d{display:none}
 
   /* ═══ CONVERGENCE / 4 OUTILS — stacked vertically for max readability ══ */
@@ -1882,7 +1920,7 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:799;
     <div class="t3">GABRIEL KJERNE — MN3MIA ONLINE</div>
   </div>
   <div id="intro-progress"><div id="intro-bar"></div></div>
-  <div id="intro-skip" onclick="enterApp()">[ ENTRER ]</div>
+  <button type="button" id="intro-skip" onclick="enterApp()">[ ENTRER ]</button>
 </div>
 
 <!-- APP -->
@@ -2715,6 +2753,44 @@ function shouldRender(key) {
 }
 // Tag body for CSS to use
 if (IS_MOBILE) document.documentElement.classList.add('is-mobile');
+
+// ═══════════════════════════════════════════════════════════
+// 📱 MOBILE LAYOUT REORDER — move panels to #main, in user-requested order
+// ═══════════════════════════════════════════════════════════
+function reorderForMobile() {
+  if (!IS_MOBILE) return;
+  const main = document.getElementById('main');
+  if (!main) return;
+  // Order requested by user:
+  const orderIds = [
+    'center-oracle',  // 1. Interroger l'Oracle (fan)
+    'center-maze',    // 2. Labyrinthe
+    'conv-wrap',      // 3. Outils (4 instruments)
+    't1panel',        // 4. Tome 1
+    'tc',             // 5. Tome 2
+    't3panel',        // 6. Tome 3
+    'gw',             // 7. Contact Map
+    'fw',             // 8. Fréquence
+    'rb',             // 9. Terminal
+    'premo-wrap',     // 10. Prémonitions
+  ];
+  orderIds.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) main.appendChild(el);  // appendChild moves the element if already in DOM
+  });
+  // Clean up empty wrappers
+  ['left','center','right'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.style.display = 'none';
+  });
+}
+// Run as early as possible — after DOM ready
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', reorderForMobile);
+} else {
+  reorderForMobile();
+}
+
 // Pause heavy stuff when tab is hidden (saves battery + framerate when user comes back)
 let DOC_HIDDEN = false;
 document.addEventListener('visibilitychange', () => {
