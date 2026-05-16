@@ -1608,17 +1608,10 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:799;
   /* Kill mix-blend-mode (also expensive) */
   .chroma-fx{display:none!important}
   /* ═══ MOBILE LAYOUT — flat & ordered per user request ═══════════
-     Order:
-       1. ORACLE (interroger)
-       2. LABYRINTHE
-       3. OUTILS (4 instruments, stacked for max readability)
-       4. TOME 1 (Lysis)
-       5. TOME 2 (Le Treizième Éveil + modules)
-       6. TOME 3 (cristallisation)
-       7. CONTACT MAP (globe)
-       8. FRÉQUENCE
-       9. TERMINAL
-      10. PRÉMONITIONS (cartes, poèmes, signal, onirique)
+     Order: 1. ORACLE  2. LABYRINTHE  3. OUTILS  4. TOME 1
+            5. TOME 2  6. TOME 3  7. GLOBE  8. FRÉQUENCE
+            9. TERMINAL  10. PRÉMONITIONS
+     Reordering is done by JS (reorderForMobile)
   ═══════════════════════════════════════════════════════════════ */
   #app{overflow:hidden;grid-template-rows:24px 1fr 20px}
   #main{
@@ -1628,29 +1621,14 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:799;
     display:flex;flex-direction:column;
     overscroll-behavior:contain;
     scroll-snap-type:none;
-    touch-action:pan-y;  /* explicit vertical pan permission */
-  }
-  /* ═══ CRITICAL: allow scroll through all tappable panels ═══
-     touch-action:pan-y on every panel that has onclick means:
-     - vertical swipe = scroll page (NOT capture)
-     - quick tap with no scroll = the onclick fires
-  ═══════════════════════════════════════════════════════════════ */
-  #center-oracle,#oracle-fan-wrap,#oracle-fan,
-  #t1panel,#tc,#t3panel,#gw,#fw,#rb,#premo-wrap,#tarot-col,.premo-card,
-  #conv-wrap,#conv-instruments,.conv-inst,
-  #t1panel-cv,#t1redact-cv,#t1dream-cv,
-  #t3panel-cv,#tc-cv{
-    touch-action:pan-y !important;
-  }
-  /* Scrollable inner zones get pan-x too */
-  #rb,#oracle-strip{
-    touch-action:pan-y pan-x !important;
+    /* IMPORTANT: don't restrict touch-action on #main — let browser
+       handle scroll naturally. Tap-vs-scroll is handled in JS. */
   }
   /* CSS Containment — tells browser each panel is independent → much smoother scroll */
   #center-oracle,#center-maze,#conv-wrap,#t1panel,#tc,#t3panel,#gw,#fw,#rb,#premo-wrap{
     contain:layout style paint;
   }
-  /* Empty parents — children moved out by JS at boot */
+  /* Empty wrappers — children moved out by JS at boot */
   #left,#center,#right{display:none}
   /* Flatten the column containers — let their children flow directly in main */
   #left,#center,#right{
@@ -1695,6 +1673,12 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:799;
     padding:10px!important;
     border:1px solid rgba(0,212,255,.25)!important;
     background:rgba(0,8,20,.7)!important;
+    -webkit-tap-highlight-color:rgba(0,212,255,.3);
+  }
+  .conv-inst:active{
+    background:rgba(0,30,60,.85)!important;
+    border-color:rgba(0,212,255,.7)!important;
+    box-shadow:0 0 18px rgba(0,212,255,.4),inset 0 0 12px rgba(0,212,255,.15)!important;
   }
   .inst-label{
     font-size:9px!important;
@@ -1862,7 +1846,7 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:799;
     font-size:10px!important;
   }
 
-  /* ━━━ PROTOCOLE: more visible on mobile, full row width ━━━ */
+  /* ━━━ PROTOCOLE: more visible on mobile, full row width, separated ━━━ */
   .pbtn-protocol{
     flex:1 1 100%!important;
     min-width:0!important;
@@ -1874,6 +1858,13 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:799;
     font-size:10px!important;
     letter-spacing:.18em!important;
     order:99;  /* push to end of flex row */
+    margin-top:8px;  /* visual separation from other buttons */
+    border-top:2px solid rgba(180,100,255,.4)!important;
+  }
+  #amazon-link{
+    flex:1 1 100%!important;
+    order:100;  /* very last */
+    margin-top:4px;
   }
 
   /* ═══ TUTO PANEL — bigger, more readable mobile ═══════════════ */
@@ -1906,6 +1897,9 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:799;
     width:100%!important;
     touch-action:manipulation;}
   #tuto-invite-btns{flex-direction:column!important;width:100%}
+
+  /* ━━━ INTRO: hide the ENTER button on mobile (auto-start in 8.5s) ━━━ */
+  #intro-skip{display:none!important}
 
   /* ━━━ DISABLE costly CSS animations (kept on desktop) ━━━ */
   #t1panel::before, #tc::before, #center-oracle::before{display:none}
@@ -2070,14 +2064,14 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:799;
           </div>
         </div>
         <div id="tc-links">
-          <button class="pbtn" style="--pd:0s"    onclick="openChapter()">▶ LODICIQUARTE</button>
-          <button id="btn-music" class="pbtn" style="--pd:.15s" onclick="toggleMusic()">♪ MUSIC</button>
-          <button class="pbtn" style="--pd:.30s" onclick="openArcane()">∂ ARCANES</button>
-          <button class="pbtn" style="--pd:.45s" onclick="generateVisitCard()">⬡ MA CARTE</button>
-          <button class="pbtn" style="--pd:.60s" onclick="openJournal()">⌘ JOURNAL</button>
-          <button id="btn-sonic" class="pbtn" style="--pd:.75s" onclick="openSonic()">∿ EMPREINTE</button>
-          <button id="btn-protocol" class="pbtn pbtn-protocol" style="--pd:.90s" onclick="startTutorialFromButton()" title="Présentation guidée de l'interface">⌁ PROTOCOLE</button>
-          <a id="amazon-link" href="https://www.amazon.fr/stores/Gabriel-Kjerne/author/B0FQ61M4TR" target="_blank">📚 AMAZON →</a>
+          <button class="pbtn" style="--pd:0s"    onclick="event.stopPropagation();openChapter()">▶ LODICIQUARTE</button>
+          <button id="btn-music" class="pbtn" style="--pd:.15s" onclick="event.stopPropagation();toggleMusic()">♪ MUSIC</button>
+          <button class="pbtn" style="--pd:.30s" onclick="event.stopPropagation();openArcane()">∂ ARCANES</button>
+          <button class="pbtn" style="--pd:.45s" onclick="event.stopPropagation();generateVisitCard()">⬡ MA CARTE</button>
+          <button class="pbtn" style="--pd:.60s" onclick="event.stopPropagation();openJournal()">⌘ JOURNAL</button>
+          <button id="btn-sonic" class="pbtn" style="--pd:.75s" onclick="event.stopPropagation();openSonic()">∿ EMPREINTE</button>
+          <button id="btn-protocol" class="pbtn pbtn-protocol" style="--pd:.90s" onclick="event.stopPropagation();startTutorialFromButton()" title="Présentation guidée de l'interface">⌁ PROTOCOLE</button>
+          <a id="amazon-link" href="https://www.amazon.fr/stores/Gabriel-Kjerne/author/B0FQ61M4TR" target="_blank" onclick="event.stopPropagation()">📚 AMAZON →</a>
         </div>
       </div>
 
@@ -2133,7 +2127,7 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:799;
           </div>
         </div>
         <div id="premo-col">
-          <div class="premo-card poem" onclick="openPoemFS()" title="Poème en plein écran">
+          <div class="premo-card poem" onclick="event.stopPropagation();openPoemFS()" title="Poème en plein écran">
             <div class="premo-hdr">
               <span class="premo-title">∂ POÈME ⛶</span>
               <span class="premo-iter" id="pi-0">—</span>
@@ -2779,6 +2773,43 @@ function shouldRender(key) {
 if (IS_MOBILE) document.documentElement.classList.add('is-mobile');
 
 // ═══════════════════════════════════════════════════════════
+// 👆 TAP-VS-SCROLL DETECTION (mobile only)
+// ═══════════════════════════════════════════════════════════
+// Problem: when an element has onclick, Chrome Android may fire it
+// during a scroll gesture, or refuse to fire it after a short scroll.
+// Solution: track touch position; if finger moved > 10px between
+// touchstart and touchend, suppress the click. Otherwise let it through.
+// This is the cleanest, most reliable approach for mobile.
+if (IS_MOBILE) {
+  let _touchStartX = 0, _touchStartY = 0;
+  let _touchMoved = false;
+  const MOVE_THRESHOLD = 10; // pixels
+
+  document.addEventListener('touchstart', (e) => {
+    if (!e.touches || e.touches.length !== 1) return;
+    _touchStartX = e.touches[0].clientX;
+    _touchStartY = e.touches[0].clientY;
+    _touchMoved = false;
+  }, {passive: true, capture: true});
+
+  document.addEventListener('touchmove', (e) => {
+    if (_touchMoved || !e.touches || e.touches.length !== 1) return;
+    const dx = Math.abs(e.touches[0].clientX - _touchStartX);
+    const dy = Math.abs(e.touches[0].clientY - _touchStartY);
+    if (dx > MOVE_THRESHOLD || dy > MOVE_THRESHOLD) _touchMoved = true;
+  }, {passive: true, capture: true});
+
+  // Intercept click at capture: if finger moved, swallow it.
+  document.addEventListener('click', (e) => {
+    if (_touchMoved) {
+      e.preventDefault();
+      e.stopImmediatePropagation();
+      _touchMoved = false;
+    }
+  }, {capture: true});
+}
+
+// ═══════════════════════════════════════════════════════════
 // 📱 MOBILE LAYOUT REORDER — move panels to #main, in user-requested order
 // ═══════════════════════════════════════════════════════════
 function reorderForMobile() {
@@ -3025,20 +3056,13 @@ function enterApp() {
   triggerGlitch();
   $('intro').classList.add('out');
   $('app').classList.add('on');
-  // ━━━ TAP SHIELD: absorb any residual tap that might leak through
-  // the intro fade-out and hit elements behind it (PROTOCOLE, etc.)
-  const shield = document.createElement('div');
-  shield.id = 'tap-shield';
-  shield.style.cssText = 'position:fixed;inset:0;z-index:99998;background:transparent;pointer-events:auto';
-  shield.addEventListener('touchstart', e => { e.preventDefault(); e.stopPropagation(); }, {passive:false, capture:true});
-  shield.addEventListener('click', e => { e.preventDefault(); e.stopPropagation(); }, {capture:true});
-  document.body.appendChild(shield);
-  setTimeout(() => { if (shield.parentNode) shield.parentNode.removeChild(shield); }, 900);
-  // Resume normal flow
   setTimeout(() => stopIntroStars(), 1300);
   setTimeout(() => startMain(), 1200);
   setTimeout(() => checkReturnSession(), 2000);
-  setTimeout(() => showTutoInvite(), 4000);
+  // ━━━ Tuto invite: only on desktop (auto-popup is too aggressive on mobile)
+  if (!IS_MOBILE) {
+    setTimeout(() => showTutoInvite(), 4000);
+  }
 }
 
 function checkUrlFreqOnLoad() {
@@ -10339,9 +10363,10 @@ function closeModuleWindow() {
   'closeGlobeModal','openInstrument','closeInstrument',
   'openArcaneCard','closeArcaneCard',
   'closeShareModal','closePropheticPaint','closeModuleWindow','closePanelWin',
-  'closePoemFS','openPanelWin',
+  'closePoemFS','openPanelWin','openPoemFS','openPropheticPaint',
   'shareSession','enterApp','showTutoInvite','closeTutoInvite',
-  'arcUpdateLiveAnalysis','arcUpdateDashboard'
+  'arcUpdateLiveAnalysis','arcUpdateDashboard',
+  'copyShareText','downloadCard','exportJournal','toggleSonicPlay'
 ].forEach(name => {
   try {
     const fn = eval(name);
