@@ -1631,6 +1631,17 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:799;
   /* Hide ENTER button (intro auto-starts) */
   #intro-skip{display:none!important}
 
+  /* ━━━ HIDE ALL TUTORIAL/PROTOCOLE ON MOBILE ━━━
+     Per user request: protocole is confusing and unreliable on mobile.
+     Removed entirely from the mobile experience.
+  */
+  #tuto-invite,#tuto-terminal,#tuto-panel,#tuto-highlight,
+  #btn-protocol,.pbtn-protocol{
+    display:none!important;
+    pointer-events:none!important;
+    visibility:hidden!important;
+  }
+
   /* Hide ticker + status bar from scrollable area */
   #ticker,#ticker *,#sb,#sb *{
     pointer-events:none!important;
@@ -2894,13 +2905,13 @@ if (IS_MOBILE) document.documentElement.classList.add('is-mobile');
 // ═══════════════════════════════════════════════════════════
 // 👆 MOBILE TAP SYSTEM — simple scroll-vs-tap detection
 // ═══════════════════════════════════════════════════════════
-// 1. If finger moved > 10px between touchstart and touchend → ignore click
+// 1. If finger moved > 15px between touchstart and touchend → ignore click
 // 2. Otherwise let the click fire normally
 // No double-tap: every interactive frame has an explicit "OUVRIR" button.
 if (IS_MOBILE) {
   let _touchStartX = 0, _touchStartY = 0;
   let _touchMoved = false;
-  const MOVE_THRESHOLD = 10;
+  const MOVE_THRESHOLD = 15;  // 15px tolerance (was 10) — accommodates finger tremor
 
   document.addEventListener('touchstart', (e) => {
     if (!e.touches || e.touches.length !== 1) return;
@@ -2927,11 +2938,80 @@ if (IS_MOBILE) {
   document.addEventListener('DOMContentLoaded', () => {
     disableContainerClicks();
     injectMobileFrames();
+    bindOracleActionButtons();
   });
   if (document.readyState !== 'loading') {
     disableContainerClicks();
     injectMobileFrames();
+    bindOracleActionButtons();
   }
+}
+
+// ═══════════════════════════════════════════════════════════
+// 🛠 REBIND ORACLE ACTION BUTTONS — bulletproof on mobile
+// ═══════════════════════════════════════════════════════════
+// The 3 post-reveal buttons (NOUVELLE QUESTION, PARTAGER, FERMER)
+// + journal/card/sonic action buttons may have their inline onclick
+// suppressed by the global touch-move handler if user's finger trembles.
+// We rebind them with a dedicated touchend handler that ALWAYS fires.
+function bindOracleActionButtons() {
+  if (!IS_MOBILE) return;
+  // Find all .arc-btn buttons + close buttons in modals
+  const targets = [
+    {selector: '#arc-btn-again',     action: () => { if (typeof resetArcane === 'function') resetArcane(); }},
+    {selector: '#arc-btn-close2',    action: () => { if (typeof closeArcane === 'function') closeArcane(); }},
+    {selector: '#arc-close-permanent', action: () => { if (typeof closeArcane === 'function') closeArcane(); }},
+    {selector: '#journal-close',     action: () => { if (typeof closeJournal === 'function') closeJournal(); }},
+    {selector: '#card-close',        action: () => { if (typeof closeCard === 'function') closeCard(); }},
+    {selector: '#sonic-close',       action: () => { if (typeof closeSonic === 'function') closeSonic(); }},
+    {selector: '#share-close',       action: () => { if (typeof closeShareModal === 'function') closeShareModal(); }},
+    {selector: '#prophetic-close',   action: () => { if (typeof closePropheticPaint === 'function') closePropheticPaint(); }},
+    {selector: '#mw-close',          action: () => { if (typeof closeModuleWindow === 'function') closeModuleWindow(); }},
+    {selector: '#pw-close',          action: () => { if (typeof closePanelWin === 'function') closePanelWin(); }},
+    {selector: '#poem-fs-close',     action: () => { if (typeof closePoemFS === 'function') closePoemFS(); }},
+    {selector: '#globe-modal-close', action: () => { if (typeof closeGlobeModal === 'function') closeGlobeModal(); }},
+    {selector: '#inst-close',        action: () => { if (typeof closeInstrument === 'function') closeInstrument(); }},
+    {selector: '#arcane-card-close', action: () => { if (typeof closeArcaneCard === 'function') closeArcaneCard(); }},
+  ];
+  targets.forEach(({selector, action}) => {
+    const el = document.querySelector(selector);
+    if (!el) return;
+    // Strip onclick attribute to prevent double-fire
+    el.removeAttribute('onclick');
+    // Direct touchend handler — fires immediately, bypassing scroll detection
+    el.addEventListener('touchend', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      action();
+    }, {passive: false});
+    // Fallback click handler for desktop/keyboard
+    el.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      action();
+    });
+  });
+  // Bind .arc-btn buttons by their original onclick attribute value
+  document.querySelectorAll('.arc-btn').forEach(el => {
+    const inlineOnclick = el.getAttribute('onclick');
+    if (!inlineOnclick) return;
+    // Capture the action as a closure
+    const action = () => {
+      try { (new Function(inlineOnclick))(); }
+      catch(err) { console.error('arc-btn action failed:', inlineOnclick, err); }
+    };
+    el.removeAttribute('onclick');
+    el.addEventListener('touchend', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      action();
+    }, {passive: false});
+    el.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      action();
+    });
+  });
 }
 
 function disableContainerClicks() {
@@ -8394,6 +8474,11 @@ function showArcaneReveal(result, question) {
   const phaseR = $('arc-phase-r');
   phaseR.style.display = 'flex';
 
+  // Re-bind action buttons on mobile to guarantee they fire
+  if (IS_MOBILE && typeof bindOracleActionButtons === 'function') {
+    bindOracleActionButtons();
+  }
+
   const arcane = result.arcane;
   const premo = result.premo;
   const palette = ARCANE_PALETTES[arcane.name] || ARCANE_PALETTES['LA RÉSONANCE'];
@@ -9752,9 +9837,13 @@ const TUTO_STEPS = [
 
 let tutoIdx = 0, tutoTypeTimer = null;
 
-function showTutoInvite() { $('tuto-invite').classList.add('on'); }
+function showTutoInvite() {
+  if (IS_MOBILE) return;  // No tutorial on mobile per user request
+  $('tuto-invite').classList.add('on');
+}
 function closeTutoInvite() { $('tuto-invite').classList.remove('on'); }
 function startTutorialFromButton() {
+  if (IS_MOBILE) return;  // No tutorial on mobile
   // Triggered from the PROTOCOLE button — skip the invite, go straight to step 1
   closeTutoInvite();
   // Close any other modal that might be open
@@ -9769,6 +9858,7 @@ function startTutorialFromButton() {
   renderTutoStep(0);
 }
 function startTutorial() {
+  if (IS_MOBILE) return;  // No tutorial on mobile
   closeTutoInvite();
   tutoIdx = 0;
   $('tuto-terminal').classList.add('on');
