@@ -1616,13 +1616,31 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:799;
   #app{overflow:hidden;grid-template-rows:24px 1fr 20px}
   #main{
     grid-template-columns:1fr;
-    overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;
+    overflow-y:scroll;  /* always scroll, even if content fits */
+    overflow-x:hidden;
+    -webkit-overflow-scrolling:touch;  /* iOS momentum scroll */
     height:calc(100vh - 44px);
     display:flex;flex-direction:column;
     overscroll-behavior:contain;
     scroll-snap-type:none;
-    /* IMPORTANT: don't restrict touch-action on #main — let browser
-       handle scroll naturally. Tap-vs-scroll is handled in JS. */
+    /* ━━━ VISIBLE SCROLLBAR — clear visual feedback ━━━ */
+    scrollbar-width:thin;
+    scrollbar-color:rgba(0,212,255,.55) rgba(0,8,20,.5);
+  }
+  #main::-webkit-scrollbar{
+    width:6px;
+  }
+  #main::-webkit-scrollbar-track{
+    background:rgba(0,8,20,.5);
+    border-left:1px solid rgba(0,212,255,.1);
+  }
+  #main::-webkit-scrollbar-thumb{
+    background:linear-gradient(180deg,rgba(0,212,255,.7),rgba(180,100,255,.7));
+    border-radius:3px;
+    box-shadow:0 0 6px rgba(0,212,255,.4);
+  }
+  #main::-webkit-scrollbar-thumb:active{
+    background:linear-gradient(180deg,rgba(120,240,255,.9),rgba(220,180,255,.9));
   }
   /* CSS Containment — tells browser each panel is independent → much smoother scroll */
   #center-oracle,#center-maze,#conv-wrap,#t1panel,#tc,#t3panel,#gw,#fw,#rb,#premo-wrap{
@@ -1769,14 +1787,22 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:799;
   #arc-actions{gap:10px;flex-wrap:wrap;padding:12px 0!important;
     position:relative;z-index:55!important;width:100%}
   .arc-btn{
-    min-height:48px!important;
-    font-size:10px!important;
-    padding:14px 16px!important;
-    flex:1 1 auto;min-width:140px;
+    min-height:54px!important;
+    font-size:11px!important;
+    padding:16px 18px!important;
+    flex:1 1 100%;min-width:0;
     touch-action:manipulation!important;
-    -webkit-tap-highlight-color:rgba(0,212,255,.3);
+    -webkit-tap-highlight-color:rgba(0,212,255,.4)!important;
     position:relative!important;z-index:56!important;
     pointer-events:auto!important;
+    -webkit-appearance:none!important;appearance:none!important;
+    cursor:pointer!important;
+    letter-spacing:.18em!important;
+    font-weight:700!important;
+  }
+  .arc-btn:active{
+    background:rgba(0,212,255,.25)!important;
+    color:#fff!important;
   }
 
   #etat1-box{grid-template-columns:1fr;grid-template-rows:auto;gap:16px}
@@ -1910,6 +1936,106 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:799;
 
   /* ━━━ INTRO: hide the ENTER button on mobile (auto-start in 8.5s) ━━━ */
   #intro-skip{display:none!important}
+
+  /* ━━━ MOBILE TOUCH FIX: top ticker + bottom status bar must not steal scroll
+     Without this, touching the top/bottom of the screen does nothing
+     because the ticker/status absorb the event instead of bubbling
+     to #main which is the scrollable container. */
+  #ticker,#ticker *,#sb,#sb *{
+    pointer-events:none!important;
+    touch-action:none!important;
+  }
+
+  /* ━━━ MOBILE PERF: kill body decorations (scanlines + vignette + chroma) ━━━ */
+  body::before,body::after,.chroma-fx{display:none!important}
+
+  /* ━━━ CLOSE BUTTONS: huge tap targets on mobile ━━━
+     Every modal must have an easy-to-tap close button. */
+  #journal-close,#card-close,#sonic-close,#share-close,
+  #prophetic-close,#mw-close,#pw-close,#poem-fs-close,
+  #globe-modal-close,#inst-close,#arc-close-permanent,
+  #arcane-card-close,#tuto-no{
+    font-size:18px!important;
+    min-width:48px!important;min-height:48px!important;
+    padding:10px 14px!important;
+    display:inline-flex!important;
+    align-items:center!important;
+    justify-content:center!important;
+    touch-action:manipulation!important;
+    -webkit-tap-highlight-color:rgba(255,80,120,.4)!important;
+    cursor:pointer!important;
+    z-index:9999!important;
+    position:relative!important;
+    pointer-events:auto!important;
+  }
+  /* The big ✕ icon stays clear */
+  #poem-fs-close,#share-close,#globe-modal-close{
+    background:rgba(0,8,20,.95)!important;
+    border:1px solid rgba(0,212,255,.5)!important;
+    color:rgba(255,255,255,.95)!important;
+  }
+
+  /* ━━━ MOBILE: OUVRIR buttons injected on each interactive frame ━━━
+     These replace container-level onclicks for cleaner UX.
+     Big, obvious, never-missed.
+  */
+  .mobile-open-btn{
+    -webkit-appearance:none;appearance:none;
+    display:block;
+    width:calc(100% - 16px);
+    margin:10px 8px 8px;
+    padding:14px 16px;
+    font-family:'Orbitron',monospace;
+    font-size:11px;font-weight:700;
+    letter-spacing:.22em;
+    color:#fff;
+    background:rgba(0,212,255,.18);
+    border:1px solid rgba(0,212,255,.75);
+    text-shadow:0 0 8px rgba(0,212,255,.5);
+    box-shadow:0 0 14px rgba(0,212,255,.2),inset 0 0 8px rgba(0,212,255,.08);
+    cursor:pointer;
+    touch-action:manipulation;
+    -webkit-tap-highlight-color:rgba(0,212,255,.4);
+    outline:none;
+    transition:none;
+    min-height:48px;
+    position:relative;
+    z-index:20;
+  }
+  .mobile-open-btn:active{
+    background:rgba(0,212,255,.4);
+    border-color:rgba(120,230,255,1);
+    color:#fff;
+  }
+  .mobile-open-btn.mob-pink{
+    background:rgba(255,80,120,.18);
+    border-color:rgba(255,80,120,.75);
+    text-shadow:0 0 8px rgba(255,80,120,.5);
+    -webkit-tap-highlight-color:rgba(255,80,120,.4);
+  }
+  .mobile-open-btn.mob-pink:active{background:rgba(255,80,120,.4)}
+  .mobile-open-btn.mob-purple{
+    background:rgba(180,100,255,.2);
+    border-color:rgba(180,100,255,.8);
+    text-shadow:0 0 8px rgba(180,100,255,.5);
+    -webkit-tap-highlight-color:rgba(180,100,255,.4);
+  }
+  .mobile-open-btn.mob-purple:active{background:rgba(180,100,255,.42)}
+  .mobile-open-btn.mob-green{
+    background:rgba(0,255,170,.16);
+    border-color:rgba(0,255,170,.7);
+    text-shadow:0 0 8px rgba(0,255,170,.5);
+    -webkit-tap-highlight-color:rgba(0,255,170,.4);
+  }
+  .mobile-open-btn.mob-green:active{background:rgba(0,255,170,.38)}
+  .mobile-open-btn.mob-gold{
+    background:rgba(255,204,0,.16);
+    border-color:rgba(255,204,0,.7);
+    color:rgba(255,240,180,1);
+    text-shadow:0 0 8px rgba(255,204,0,.5);
+    -webkit-tap-highlight-color:rgba(255,204,0,.4);
+  }
+  .mobile-open-btn.mob-gold:active{background:rgba(255,204,0,.38)}
 
   /* ━━━ DISABLE costly CSS animations (kept on desktop) ━━━ */
   #t1panel::before, #tc::before, #center-oracle::before{display:none}
@@ -2803,17 +2929,15 @@ function shouldRender(key) {
 if (IS_MOBILE) document.documentElement.classList.add('is-mobile');
 
 // ═══════════════════════════════════════════════════════════
-// 👆 TAP-VS-SCROLL DETECTION (mobile only)
+// 👆 MOBILE TAP SYSTEM — simple scroll-vs-tap detection
 // ═══════════════════════════════════════════════════════════
-// Problem: when an element has onclick, Chrome Android may fire it
-// during a scroll gesture, or refuse to fire it after a short scroll.
-// Solution: track touch position; if finger moved > 10px between
-// touchstart and touchend, suppress the click. Otherwise let it through.
-// This is the cleanest, most reliable approach for mobile.
+// 1. If finger moved > 10px between touchstart and touchend → ignore click
+// 2. Otherwise let the click fire normally
+// No double-tap: every interactive frame has an explicit "OUVRIR" button.
 if (IS_MOBILE) {
   let _touchStartX = 0, _touchStartY = 0;
   let _touchMoved = false;
-  const MOVE_THRESHOLD = 10; // pixels
+  const MOVE_THRESHOLD = 10;
 
   document.addEventListener('touchstart', (e) => {
     if (!e.touches || e.touches.length !== 1) return;
@@ -2829,7 +2953,6 @@ if (IS_MOBILE) {
     if (dx > MOVE_THRESHOLD || dy > MOVE_THRESHOLD) _touchMoved = true;
   }, {passive: true, capture: true});
 
-  // Intercept click at capture: if finger moved, swallow it.
   document.addEventListener('click', (e) => {
     if (_touchMoved) {
       e.preventDefault();
@@ -2837,6 +2960,120 @@ if (IS_MOBILE) {
       _touchMoved = false;
     }
   }, {capture: true});
+
+  // ─── Disable container-level onclick handlers on mobile
+  // Replace them with explicit "OUVRIR" buttons added at boot.
+  // This is the cleanest UX: no accidental triggers from broad zones.
+  document.addEventListener('DOMContentLoaded', () => {
+    disableContainerClicks();
+    injectOpenButtons();
+  });
+  if (document.readyState !== 'loading') {
+    disableContainerClicks();
+    injectOpenButtons();
+  }
+}
+
+function disableContainerClicks() {
+  if (!IS_MOBILE) return;
+  // List of containers whose onclick must be neutralized on mobile.
+  // Their action moves to an explicit OUVRIR button injected below.
+  const containers = [
+    {id:'gw',          action:null,                      label:null},  // globe — opens via dedicated overlay
+    {id:'fw',          action:null,                      label:null},
+    {id:'t1panel',     action:"openPanelWin('tome1')",   label:'∂ OUVRIR TOME I'},
+    {id:'tc-inner',    action:"openPanelWin('tome2')",   label:'∂ OUVRIR TOME II'},
+    {id:'t3panel',     action:"openPanelWin('tome3')",   label:'∂ OUVRIR TOME III'},
+    {id:'tarot-col',   action:"openPanelWin('premo')",   label:'∂ OUVRIR PRÉMONITIONS'},
+    {id:'osc-wrap',    action:"openPanelWin('osc')",     label:'∂ OUVRIR OSCILLOSCOPE'},
+    {id:'rb',          action:"openJournal()",            label:'∂ OUVRIR JOURNAL'},
+  ];
+  containers.forEach(c => {
+    const el = document.getElementById(c.id);
+    if (el) el.removeAttribute('onclick');
+  });
+  // Also strip onclick from .conv-inst (replaced by explicit OUVRIR buttons)
+  document.querySelectorAll('.conv-inst').forEach(el => {
+    // Save the original action as a data attribute, then strip onclick
+    const orig = el.getAttribute('onclick');
+    if (orig) {
+      el.setAttribute('data-action', orig);
+      el.removeAttribute('onclick');
+    }
+  });
+  // Premo cards
+  document.querySelectorAll('.premo-card').forEach(el => {
+    const orig = el.getAttribute('onclick');
+    if (orig) {
+      el.setAttribute('data-action', orig);
+      el.removeAttribute('onclick');
+    }
+  });
+}
+
+function injectOpenButtons() {
+  if (!IS_MOBILE) return;
+
+  // ─── Generic helper: add an OUVRIR button to a panel ───
+  function addOpenBtn(parentSel, action, label, color) {
+    const parent = document.querySelector(parentSel);
+    if (!parent || parent.querySelector('.mobile-open-btn')) return;
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'mobile-open-btn';
+    btn.setAttribute('data-action', action);
+    btn.innerHTML = label;
+    if (color === 'pink')   btn.classList.add('mob-pink');
+    if (color === 'purple') btn.classList.add('mob-purple');
+    if (color === 'green')  btn.classList.add('mob-green');
+    if (color === 'gold')   btn.classList.add('mob-gold');
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      try { (new Function(action))(); } catch(err) { console.error('OUVRIR action failed:', action, err); }
+    });
+    parent.appendChild(btn);
+  }
+
+  // ─── Panels with OUVRIR buttons ───
+  addOpenBtn('#gw',       "openGlobeModal()",            '⚲ EXPLORER CONTACTS GPS', 'gold');
+  addOpenBtn('#t1panel',  "openPanelWin('tome1')",       '∂ OUVRIR TOME I',          'pink');
+  addOpenBtn('#tc-inner', "openPanelWin('tome2')",       '∂ OUVRIR TOME II',         'purple');
+  addOpenBtn('#t3panel',  "openPanelWin('tome3')",       '∂ OUVRIR TOME III',        'green');
+  addOpenBtn('#rb',       "openJournal()",                '⌘ OUVRIR LE JOURNAL');
+
+  // ─── Each conv-inst (4 instruments) gets its OUVRIR ───
+  document.querySelectorAll('.conv-inst').forEach(el => {
+    if (el.querySelector('.mobile-open-btn')) return;
+    const action = el.getAttribute('data-action') || '';
+    if (!action) return;
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'mobile-open-btn';
+    btn.innerHTML = '∂ OUVRIR L\'OUTIL';
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      try { (new Function(action))(); } catch(err) {}
+    });
+    el.appendChild(btn);
+  });
+
+  // ─── Premonition cards: each gets its OUVRIR ───
+  document.querySelectorAll('.premo-card').forEach(el => {
+    if (el.querySelector('.mobile-open-btn')) return;
+    const action = el.getAttribute('data-action') || "openPanelWin('premo')";
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'mobile-open-btn mob-purple';
+    btn.innerHTML = '∂ OUVRIR';
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      try { (new Function(action))(); } catch(err) {}
+    });
+    el.appendChild(btn);
+  });
+
+  // ─── Tarot column (premo card large) ───
+  addOpenBtn('#tarot-col', "openPanelWin('premo')", '∂ OUVRIR PRÉMONITIONS', 'purple');
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -10357,12 +10594,30 @@ async function startMain() {
   let _lastFrame = 0;
   const MOBILE_FRAME_MS = 33; // ~30fps
 
+  // ━━━ SCROLL PAUSE: freeze all canvas rendering during active scroll ━━━
+  // While the user is scrolling, the GPU should be 100% dedicated to scroll.
+  // Any canvas drawing during scroll causes jank. Pause everything for
+  // 200ms after the last scroll event.
+  let _lastScrollTs = 0;
+  if (IS_MOBILE) {
+    const mainEl = document.getElementById('main') || document;
+    const onScroll = () => { _lastScrollTs = performance.now(); };
+    mainEl.addEventListener('scroll', onScroll, {passive: true});
+    window.addEventListener('scroll', onScroll, {passive: true});
+    window.addEventListener('touchmove', onScroll, {passive: true});
+  }
+
   function loop(timestamp) {
     requestAnimationFrame(loop);
     if (_rafPaused) return;
     // Mobile: skip frame if we just drew one less than ~33ms ago
     if (IS_MOBILE) {
       if (timestamp - _lastFrame < MOBILE_FRAME_MS) return;
+      // Skip ALL rendering during active scroll (within 250ms of last scroll event)
+      if (timestamp - _lastScrollTs < 250) {
+        _lastFrame = timestamp;
+        return;
+      }
       _lastFrame = timestamp;
     }
 
