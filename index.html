@@ -2,7 +2,10 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <title>∂ — Le Treizième Éveil</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&display=swap');
@@ -80,7 +83,7 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:799;
 @keyframes introFade{0%{opacity:0;transform:translateY(10px)}100%{opacity:1;transform:translateY(0)}}
 
 /* Intro starfield canvas */
-#intro-canvas{position:absolute;inset:0;z-index:1;opacity:.6}
+#intro-canvas{position:absolute;inset:0;z-index:1;opacity:.6;pointer-events:none}
 
 /* ═══════════════════════════════
    MAIN APP
@@ -196,91 +199,138 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:799;
 ═══════════════════════════════ */
 #center{display:flex;flex-direction:column;border-right:1px solid var(--border);overflow:hidden}
 #center-oracle{flex:0 0 44%;display:flex;flex-direction:column;
-  background:rgba(8,0,22,.99);border-bottom:2px solid rgba(180,100,255,.3);overflow:visible;
+  background:rgba(8,0,22,.99);border-bottom:2px solid rgba(180,100,255,.3);overflow:hidden;
   position:relative;min-height:0}
 #center-oracle::before{content:'';position:absolute;inset:0;
-  background:radial-gradient(circle at top right,rgba(180,100,255,.08),transparent 60%);
-  pointer-events:none}
+  background:radial-gradient(circle at center,rgba(180,100,255,.10),transparent 65%);
+  pointer-events:none;z-index:0}
 #oracle-hdr{padding:3px 8px;background:rgba(18,0,38,.97);border-bottom:1px solid rgba(180,100,255,.18);
-  display:flex;justify-content:space-between;align-items:center;flex-shrink:0;position:relative;z-index:1}
+  display:flex;justify-content:space-between;align-items:center;flex-shrink:0;position:relative;z-index:2}
 #oracle-hdr-l{font-family:'Orbitron',monospace;font-size:6.5px;font-weight:700;letter-spacing:.2em;
   color:rgba(180,100,255,.8);text-shadow:0 0 7px rgba(180,100,255,.3)}
 #oracle-hdr-r{font-size:6px;letter-spacing:.1em;color:rgba(180,100,255,.35);
   cursor:pointer;padding:1px 6px;border:1px solid rgba(180,100,255,.18);transition:all .2s}
 #oracle-hdr-r:hover{color:rgba(180,100,255,.9);background:rgba(180,100,255,.1);
   box-shadow:0 0 8px rgba(180,100,255,.2)}
-#oracle-body{flex:1;display:flex;flex-direction:column;padding:5px 7px;gap:4px;overflow:visible;min-height:0;
-  position:relative;z-index:1}
-#oracle-display{display:flex;gap:7px;align-items:flex-start;flex-shrink:0}
-#oracle-sym{font-size:26px;color:rgba(180,100,255,.75);text-shadow:0 0 14px rgba(180,100,255,.4);
-  line-height:1;flex-shrink:0}
-#oracle-info{flex:1;min-width:0}
-#oracle-name{font-family:'Orbitron',monospace;font-size:9px;font-weight:900;letter-spacing:.18em;
-  color:rgba(180,100,255,.95);margin-bottom:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-#oracle-tag{font-size:7px;letter-spacing:.1em;color:rgba(0,212,255,.5);font-style:italic;margin-bottom:3px}
-#oracle-resp{font-family:'Share Tech Mono',monospace;font-size:6.5px;line-height:1.5;
-  color:rgba(200,185,230,.65);overflow:hidden;max-height:48px}
-#oracle-input-row{display:flex;gap:5px;flex-shrink:0;position:relative;z-index:6}
-#oracle-q{flex:1;background:rgba(0,2,12,.8);border:none;border-bottom:1px solid rgba(180,100,255,.28);
-  color:rgba(220,200,255,.85);font-family:'Share Tech Mono',monospace;
-  font-size:8.5px;padding:4px 7px;resize:none;outline:none;line-height:1.4;
-  transition:border-color .25s,box-shadow .25s;position:relative;z-index:6}
-#oracle-q:focus{border-bottom-color:rgba(180,100,255,.7);
-  box-shadow:0 1px 0 rgba(180,100,255,.3)}
-#oracle-q::placeholder{color:rgba(180,100,255,.22);font-style:italic}
-#oracle-tirer{font-family:'Orbitron',monospace;font-size:7px;font-weight:700;letter-spacing:.15em;
-  padding:4px 10px;background:rgba(180,100,255,.1);border:1px solid rgba(180,100,255,.45);
-  color:rgba(200,150,255,.9);cursor:pointer;transition:all .25s;flex-shrink:0;position:relative;
-  overflow:hidden;z-index:6;-webkit-tap-highlight-color:rgba(180,100,255,.3);touch-action:manipulation}
-#oracle-tirer:hover{background:rgba(180,100,255,.2);box-shadow:0 0 10px rgba(180,100,255,.3);
-  transform:translateY(-1px)}
-#oracle-tirer:active{transform:translateY(0)}
-#oracle-interroger{width:100%;padding:12px 0;font-family:'Orbitron',monospace;font-size:11px;font-weight:900;
-  letter-spacing:.32em;color:rgba(230,200,255,1);background:linear-gradient(135deg,rgba(180,100,255,.12),rgba(0,212,255,.08),rgba(180,100,255,.12));
-  border:1px solid rgba(180,100,255,.65);cursor:pointer;flex-shrink:0;
-  position:relative;overflow:hidden;transition:letter-spacing .3s,box-shadow .3s,background .3s,transform .2s,color .3s;
-  text-shadow:0 0 12px rgba(180,100,255,.55),0 0 24px rgba(180,100,255,.25);
-  animation:oracleBtnBreath 3.4s ease-in-out infinite;z-index:7;
-  -webkit-tap-highlight-color:rgba(180,100,255,.3);touch-action:manipulation;
-  pointer-events:auto!important}
-#oracle-interroger > *{pointer-events:none}
-@keyframes oracleBtnBreath{
-  0%,100%{box-shadow:0 0 0 rgba(180,100,255,0),inset 0 0 12px rgba(180,100,255,.04)}
-  50%{box-shadow:0 0 22px rgba(180,100,255,.4),0 0 44px rgba(180,100,255,.15),inset 0 0 16px rgba(180,100,255,.10)}
+
+/* ═══ ORACLE FAN — éventail de cartes cliquable ═══════════════ */
+#oracle-fan-wrap{flex:1;position:relative;cursor:pointer;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:14px 12px 18px;z-index:1;
+  -webkit-tap-highlight-color:rgba(180,100,255,.25);touch-action:manipulation;
+  transition:background .35s}
+#oracle-fan-wrap:hover{background:radial-gradient(ellipse at center,rgba(180,100,255,.06),transparent 70%)}
+#oracle-fan-title{font-family:'Orbitron',monospace;font-size:11px;font-weight:900;
+  letter-spacing:.4em;color:rgba(220,180,255,.95);
+  text-shadow:0 0 10px rgba(180,100,255,.6),0 0 22px rgba(180,100,255,.25);
+  margin-bottom:5px;pointer-events:none;
+  animation:ofanTitleBreath 3.2s ease-in-out infinite}
+@keyframes ofanTitleBreath{
+  0%,100%{text-shadow:0 0 10px rgba(180,100,255,.55),0 0 22px rgba(180,100,255,.2)}
+  50%{text-shadow:0 0 16px rgba(220,180,255,.85),0 0 32px rgba(180,100,255,.4)}
 }
-#oracle-interroger::before{content:'';position:absolute;top:0;left:-50%;width:50%;height:100%;
-  background:linear-gradient(90deg,transparent,rgba(220,180,255,.22),transparent);
-  animation:oracleBtnSweep 3.6s linear infinite;z-index:1;pointer-events:none}
-@keyframes oracleBtnSweep{0%{left:-50%}100%{left:150%}}
-#oracle-interroger::after{content:'';position:absolute;inset:0;
-  background:radial-gradient(ellipse at center,rgba(180,100,255,.08) 0%,transparent 65%);
-  pointer-events:none;z-index:0;opacity:.5;animation:oracleBtnHalo 4s ease-in-out infinite}
-@keyframes oracleBtnHalo{0%,100%{opacity:.4}50%{opacity:.85}}
-#oracle-interroger:hover{background:linear-gradient(135deg,rgba(180,100,255,.28),rgba(0,212,255,.18),rgba(180,100,255,.28));
-  letter-spacing:.4em;color:#fff;transform:translateY(-1px);
-  box-shadow:0 0 32px rgba(180,100,255,.6),0 0 60px rgba(180,100,255,.25),inset 0 0 18px rgba(180,100,255,.18)}
-#oracle-interroger:active{transform:translateY(0)}
-#oracle-interroger .oi-sigil{display:inline-block;color:rgba(255,220,150,.95);
-  text-shadow:0 0 14px rgba(255,204,0,.6);animation:oracleSigilPulse 1.8s ease-in-out infinite;
-  margin-right:8px;font-size:13px;vertical-align:middle}
-@keyframes oracleSigilPulse{
-  0%,100%{transform:scale(1) rotate(0deg);text-shadow:0 0 10px rgba(255,204,0,.5)}
-  50%{transform:scale(1.18) rotate(3deg);text-shadow:0 0 20px rgba(255,204,0,.9),0 0 36px rgba(255,180,40,.4)}
+#oracle-fan-subtitle{font-family:'Share Tech Mono',monospace;font-size:7.5px;font-style:italic;
+  letter-spacing:.12em;color:rgba(0,212,255,.55);margin-bottom:14px;pointer-events:none}
+
+/* The fan container itself */
+#oracle-fan{position:relative;width:100%;height:130px;
+  display:flex;justify-content:center;align-items:flex-end;
+  pointer-events:none;perspective:600px}
+.ofan-card{position:absolute;width:54px;height:80px;
+  bottom:0;left:50%;
+  transform-origin:center 110%;
+  /* Each card uses its --i variable for the fan spread */
+  transform:translateX(-50%) rotate(calc(var(--i) * 11deg)) translateY(calc(abs(var(--i)) * 3px));
+  background:linear-gradient(145deg,#1a0830,#0a0418 55%,#1a0830);
+  border:1px solid rgba(180,100,255,.55);
+  box-shadow:0 4px 18px rgba(0,0,0,.6),0 0 12px rgba(180,100,255,.18),inset 0 0 18px rgba(180,100,255,.06);
+  transition:transform .55s cubic-bezier(.16,1,.3,1),box-shadow .55s,border-color .35s;
+  overflow:hidden;
+  pointer-events:auto}
+.ofan-card:nth-child(1){animation:ofanCardFloat 4.5s ease-in-out infinite}
+.ofan-card:nth-child(2){animation:ofanCardFloat 4.2s ease-in-out infinite .3s}
+.ofan-card:nth-child(3){animation:ofanCardFloat 4.0s ease-in-out infinite .6s}
+.ofan-card:nth-child(4){animation:ofanCardFloat 4.3s ease-in-out infinite .15s}
+.ofan-card:nth-child(5){animation:ofanCardFloat 4.1s ease-in-out infinite .45s}
+.ofan-card:nth-child(6){animation:ofanCardFloat 4.4s ease-in-out infinite .75s}
+.ofan-card:nth-child(7){animation:ofanCardFloat 4.2s ease-in-out infinite .9s}
+@keyframes ofanCardFloat{
+  0%,100%{filter:brightness(1)}
+  50%{filter:brightness(1.15) drop-shadow(0 0 10px rgba(180,100,255,.4))}
 }
-#oracle-strip{display:flex;gap:6px;overflow-x:auto;flex-shrink:0;padding:6px 2px;scrollbar-width:none;align-items:center;position:relative;z-index:1}
-#oracle-strip::-webkit-scrollbar{display:none}
-.o-chip{width:54px;height:78px;position:relative;flex-shrink:0;border:1px solid rgba(180,100,255,.5);
-  background:rgba(8,0,20,.9);overflow:hidden;cursor:pointer;
-  box-shadow:0 0 8px rgba(180,100,255,.15);
-  transition:transform .25s,border-color .25s,box-shadow .25s}
-.o-chip:hover{border-color:rgba(180,100,255,.95);transform:translateY(-4px) scale(1.08);
-  box-shadow:0 0 18px rgba(180,100,255,.5),0 0 32px rgba(180,100,255,.2)}
-.o-chip video{width:100%;height:100%;object-fit:cover;display:block}
-.o-chip-sym{position:absolute;bottom:0;left:0;right:0;text-align:center;font-size:11px;
-  font-family:'Orbitron',monospace;font-weight:900;color:rgba(220,180,255,.98);
-  background:linear-gradient(transparent,rgba(0,0,10,.85) 45%);padding:4px 0 2px;
-  text-shadow:0 0 6px rgba(180,100,255,.7);letter-spacing:.04em}
-.o-chip-fb{display:flex;align-items:center;justify-content:center;height:100%;font-size:22px;color:rgba(180,100,255,.7)}
+/* Card back pattern — mysterious sigil */
+.ofan-back{position:absolute;inset:3px;
+  background:
+    radial-gradient(circle at 50% 35%,rgba(220,180,255,.32) 0%,transparent 35%),
+    repeating-linear-gradient(45deg,transparent 0 5px,rgba(180,100,255,.06) 5px 6px),
+    repeating-linear-gradient(-45deg,transparent 0 5px,rgba(0,212,255,.04) 5px 6px),
+    linear-gradient(180deg,rgba(20,8,45,.7),rgba(8,2,20,.95));
+  border:1px solid rgba(180,100,255,.4);
+  display:flex;align-items:center;justify-content:center;
+  pointer-events:none}
+.ofan-back::before{content:'∂';font-family:'Orbitron',monospace;font-size:26px;font-weight:900;
+  color:rgba(220,180,255,.85);text-shadow:0 0 10px rgba(180,100,255,.8),0 0 22px rgba(180,100,255,.4);
+  animation:ofanSigilPulse 2.2s ease-in-out infinite}
+.ofan-back::after{content:'';position:absolute;inset:8px;
+  border:1px dashed rgba(180,100,255,.22);
+  pointer-events:none}
+@keyframes ofanSigilPulse{
+  0%,100%{transform:scale(1) rotate(0);opacity:.85}
+  50%{transform:scale(1.12) rotate(2deg);opacity:1}
+}
+
+/* Hover lift effect: spread the fan more + raise individual cards */
+#oracle-fan-wrap:hover .ofan-card{
+  transform:translateX(-50%) rotate(calc(var(--i) * 14deg)) translateY(calc(abs(var(--i)) * 4px - 8px));
+  border-color:rgba(220,180,255,.85);
+  box-shadow:0 6px 24px rgba(0,0,0,.7),0 0 22px rgba(180,100,255,.45),inset 0 0 22px rgba(180,100,255,.12)}
+
+/* Each card individually rises on hover */
+.ofan-card:hover{
+  transform:translateX(-50%) rotate(calc(var(--i) * 14deg)) translateY(calc(abs(var(--i)) * 4px - 22px)) scale(1.08)!important;
+  border-color:rgba(255,220,255,1)!important;
+  box-shadow:0 8px 30px rgba(0,0,0,.8),0 0 36px rgba(255,180,255,.7),inset 0 0 26px rgba(180,100,255,.2)!important;
+  z-index:5;
+}
+
+/* Pulsing background glow behind fan */
+#oracle-fan-glow{position:absolute;left:50%;bottom:18px;width:240px;height:60px;
+  transform:translateX(-50%);pointer-events:none;
+  background:radial-gradient(ellipse at center,rgba(180,100,255,.32) 0%,transparent 70%);
+  animation:ofanGlowPulse 3s ease-in-out infinite;
+  filter:blur(8px)}
+@keyframes ofanGlowPulse{
+  0%,100%{opacity:.4;transform:translateX(-50%) scale(1)}
+  50%{opacity:.85;transform:translateX(-50%) scale(1.18)}
+}
+
+/* CTA at bottom — calls attention without being a "button" you have to hit */
+#oracle-fan-cta{font-family:'Orbitron',monospace;font-size:9px;font-weight:700;
+  letter-spacing:.34em;color:rgba(230,200,255,.95);
+  margin-top:14px;padding:8px 18px;
+  background:rgba(180,100,255,.14);
+  border:1px solid rgba(220,180,255,.6);
+  text-shadow:0 0 8px rgba(180,100,255,.5);
+  pointer-events:none;
+  position:relative;overflow:hidden;
+  animation:ofanCtaBreath 3.2s ease-in-out infinite}
+@keyframes ofanCtaBreath{
+  0%,100%{box-shadow:0 0 10px rgba(180,100,255,.2),inset 0 0 8px rgba(180,100,255,.06)}
+  50%{box-shadow:0 0 26px rgba(180,100,255,.55),0 0 50px rgba(180,100,255,.2),inset 0 0 14px rgba(180,100,255,.16)}
+}
+#oracle-fan-cta::before{content:'';position:absolute;top:0;left:-50%;width:40%;height:100%;
+  background:linear-gradient(90deg,transparent,rgba(220,180,255,.28),transparent);
+  animation:ofanCtaSweep 3.4s linear infinite}
+@keyframes ofanCtaSweep{0%{left:-40%}100%{left:140%}}
+#oracle-fan-wrap:hover #oracle-fan-cta{
+  background:rgba(180,100,255,.28);
+  color:#fff;letter-spacing:.4em;
+  border-color:rgba(255,220,255,1);
+  box-shadow:0 0 30px rgba(220,180,255,.7),inset 0 0 18px rgba(180,100,255,.2)}
+#oracle-fan-cta-sub{font-family:'Share Tech Mono',monospace;font-size:7px;
+  letter-spacing:.32em;color:rgba(0,212,255,.65);font-style:italic;
+  margin-top:6px;pointer-events:none;
+  text-shadow:0 0 6px rgba(0,212,255,.3)}
 
 #center-maze{flex:1;display:flex;flex-direction:column;overflow:hidden;min-height:0}
 #mhdr{padding:3px 9px;background:rgba(0,14,28,.88);border-bottom:1px solid var(--border);
@@ -589,12 +639,14 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:799;
 #arc-subtitle{font-size:7.5px;letter-spacing:.22em;color:rgba(0,212,255,.48);
   text-align:center;position:relative;z-index:2}
 
-#arc-question-wrap{position:relative;width:100%;z-index:2}
+#arc-question-wrap{position:relative;width:100%;z-index:2;flex-shrink:0}
 #arc-question{width:100%;background:rgba(0,2,12,.78);
   border:1px solid rgba(180,100,255,.3);border-bottom:2px solid rgba(180,100,255,.55);
   color:rgba(220,200,255,.92);font-family:'Share Tech Mono',monospace;
   font-size:11px;line-height:1.6;padding:14px 16px;resize:none;outline:none;
-  letter-spacing:.05em;min-height:70px;transition:all .25s;position:relative;z-index:2}
+  letter-spacing:.05em;min-height:70px;max-height:90px;height:70px;
+  transition:all .25s;position:relative;z-index:2;
+  display:block;box-sizing:border-box}
 #arc-question:focus{border-color:rgba(180,100,255,.7);
   box-shadow:0 0 18px rgba(180,100,255,.18),inset 0 0 12px rgba(180,100,255,.04)}
 #arc-question::placeholder{color:rgba(180,100,255,.32);font-style:italic;
@@ -609,31 +661,126 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:799;
 #arc-live-analysis{display:flex;justify-content:space-between;align-items:center;width:100%;
   font-family:'Share Tech Mono',monospace;font-size:6.5px;letter-spacing:.08em;
   color:rgba(180,100,255,.4);padding:0 2px;position:relative;z-index:2;
-  margin-top:-4px}
+  margin-top:-4px;flex-shrink:0;pointer-events:none}
 #arc-live-stats{transition:color .3s,text-shadow .3s}
 #arc-live-stats.active{color:rgba(120,255,200,.78);
   text-shadow:0 0 5px rgba(0,255,170,.3)}
 #arc-live-hint{color:rgba(180,100,255,.32);font-size:6px}
 
-#arc-submit{font-family:'Orbitron',monospace;font-size:9px;font-weight:700;
-  letter-spacing:.28em;padding:10px 26px;background:rgba(180,100,255,.08);
-  border:1px solid rgba(180,100,255,.45);color:rgba(200,150,255,.9);cursor:pointer;
-  transition:all .3s;position:relative;overflow:hidden;z-index:2;
-  animation:arcSubmitBreath 3.2s ease-in-out infinite;
-  -webkit-tap-highlight-color:rgba(180,100,255,.3);touch-action:manipulation}
-#arc-submit > *{pointer-events:none}
-@keyframes arcSubmitBreath{0%,100%{box-shadow:0 0 0 rgba(180,100,255,0)}
-  50%{box-shadow:0 0 14px rgba(180,100,255,.18)}}
-#arc-submit:hover{background:rgba(180,100,255,.18);box-shadow:0 0 22px rgba(180,100,255,.35);
-  transform:translateY(-1px);color:rgba(220,180,255,.98)}
-#arc-submit.armed{background:rgba(180,100,255,.14);
-  border-color:rgba(180,100,255,.7);color:rgba(220,180,255,.98);
-  box-shadow:0 0 18px rgba(180,100,255,.3)}
-#arc-submit-shimmer{position:absolute;top:0;left:-100%;width:50%;height:100%;
-  background:linear-gradient(90deg,transparent,rgba(180,100,255,.18),transparent);
-  animation:none;z-index:1}
-#arc-submit.armed #arc-submit-shimmer{animation:armedShimmer 2.2s linear infinite}
-@keyframes armedShimmer{0%{left:-50%}100%{left:150%}}
+/* AGGRESSIVE FIX: ensure nothing in arcane-box blocks clicks on arc-submit */
+#arc-bg-canvas{pointer-events:none!important}
+#arc-question-glow{pointer-events:none!important}
+#arc-live-analysis,#arc-live-analysis *{pointer-events:none}
+#arc-live-stats,#arc-live-hint{pointer-events:none}
+#arc-title-wrap,#arc-title,#arc-listening,#arc-listening-dot,#arc-listening-label{pointer-events:none}
+#arc-subtitle{pointer-events:none}
+#arc-dashboard,#arc-dashboard *{pointer-events:none}
+
+/* ═══ FLOATING CONSULTER BUTTON ═══════════════════════════════
+   Outside arcane-box, fixed position. Three rules to make this rock-solid:
+   1. NO transform animation on the button itself (breaks hit-test)
+   2. Animation lives on a pseudo-element layer with pointer-events:none
+   3. The button keeps a fixed rect → click works EVERYWHERE on the rect
+═══════════════════════════════════════════════════════════════ */
+#arc-submit-fab{
+  position:fixed;
+  left:50%;
+  bottom:6vh;
+  z-index:9999;
+  display:none;
+  /* BIG button — easy to hit on mobile */
+  min-width:280px;
+  padding:22px 44px;
+  font-family:'Orbitron',monospace;
+  font-size:13px;
+  font-weight:900;
+  letter-spacing:.34em;
+  color:#fff;
+  background:linear-gradient(135deg,rgba(180,100,255,.55),rgba(120,60,200,.65),rgba(180,100,255,.55));
+  border:2px solid rgba(220,180,255,.95);
+  cursor:pointer;
+  text-shadow:0 0 10px rgba(255,255,255,.55),0 0 20px rgba(180,100,255,.65);
+  box-shadow:
+    0 0 28px rgba(180,100,255,.6),
+    0 0 70px rgba(180,100,255,.32),
+    0 8px 28px rgba(0,0,0,.7),
+    inset 0 0 22px rgba(220,180,255,.2);
+  -webkit-tap-highlight-color:rgba(180,100,255,.5);
+  touch-action:manipulation;
+  /* ONLY translate — no scale that would break hit-test */
+  transform:translateX(-50%);
+  /* Animate ONLY box-shadow — keeps hit area stable */
+  animation:arcFabBreathStatic 2.8s ease-in-out infinite;
+  overflow:visible;
+  -webkit-user-select:none;user-select:none;
+}
+#arcane-overlay.on #arc-submit-fab{display:inline-block}
+#arcane-overlay.revealing #arc-submit-fab{display:none}
+@keyframes arcFabBreathStatic{
+  0%,100%{box-shadow:0 0 28px rgba(180,100,255,.6),0 0 70px rgba(180,100,255,.32),0 8px 28px rgba(0,0,0,.7),inset 0 0 22px rgba(220,180,255,.2)}
+  50%{box-shadow:0 0 50px rgba(220,180,255,.95),0 0 110px rgba(180,100,255,.55),0 10px 36px rgba(0,0,0,.8),inset 0 0 36px rgba(220,180,255,.35)}
+}
+/* Pulsing ring — decorative, uses transform but on pseudo-element only */
+#arc-submit-fab::after{
+  content:'';position:absolute;inset:-6px;
+  border:1px solid rgba(220,180,255,.45);
+  pointer-events:none;
+  animation:arcFabPulseRing 2.8s ease-in-out infinite;
+}
+@keyframes arcFabPulseRing{
+  0%,100%{opacity:.25;transform:scale(1)}
+  50%{opacity:.85;transform:scale(1.10)}
+}
+/* Sweep highlight */
+#arc-submit-fab::before{
+  content:'';position:absolute;top:0;left:-60%;width:50%;height:100%;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.42),transparent);
+  animation:arcFabSweep 2.8s linear infinite;
+  pointer-events:none;
+}
+@keyframes arcFabSweep{0%{left:-60%}100%{left:160%}}
+#arc-submit-fab:hover{
+  background:linear-gradient(135deg,rgba(200,140,255,.7),rgba(150,80,230,.8),rgba(200,140,255,.7));
+  letter-spacing:.4em;
+  color:#fff;
+}
+#arc-submit-fab:active{
+  background:rgba(180,100,255,.85);
+  /* Brief tap feedback */
+  transform:translateX(-50%) scale(.97);
+}
+
+#arc-submit-wrap{
+  width:100%;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  padding:8px 0;
+  position:relative;
+  z-index:100;
+}
+#arc-submit{
+  display:inline-block;
+  font-family:'Orbitron',monospace;
+  font-size:11px;
+  font-weight:700;
+  letter-spacing:.22em;
+  padding:14px 32px;
+  background:rgba(180,100,255,.18);
+  border:1px solid rgba(180,100,255,.7);
+  color:rgba(230,200,255,1);
+  cursor:pointer;
+  text-shadow:0 0 8px rgba(180,100,255,.5);
+  -webkit-tap-highlight-color:rgba(180,100,255,.4);
+  touch-action:manipulation;
+  position:relative;
+  z-index:101;
+}
+#arc-submit:hover{background:rgba(180,100,255,.3);
+  border-color:rgba(220,180,255,1);color:#fff}
+#arc-submit:active{background:rgba(180,100,255,.45);transform:scale(.98)}
+#arc-submit.armed{background:rgba(180,100,255,.28);
+  border-color:rgba(220,180,255,1);color:#fff}
 
 #arc-dashboard{width:100%;display:flex;flex-direction:column;gap:3px;
   padding:6px 8px;background:rgba(0,2,10,.5);
@@ -1438,9 +1585,55 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:799;
   .premo-card{min-height:100px;height:auto;flex:none;border-right:none!important}
   .premo-body{overflow:visible;min-height:80px}
   #card-canvas{max-width:90vw}
-  #arcane-box{padding:10px;width:96vw;max-height:88vh}
+  /* ═══ ARCANE MODAL — mobile layout
+     - Bigger textarea (easier to type)
+     - Padding at bottom to make room for the floating FAB
+     - Bigger dashboard for readability
+  ═══════════════════════════════════════════════════════════════ */
+  #arcane-box{padding:14px 14px 24px;width:96vw;max-height:88vh}
+  #arc-title{font-size:14px!important;letter-spacing:.18em!important}
+  #arc-subtitle{font-size:8px!important;letter-spacing:.15em!important;margin-top:6px!important}
+  #arc-question{
+    font-size:13px!important;
+    line-height:1.5!important;
+    padding:16px 16px!important;
+    min-height:90px!important;
+    height:90px!important;
+    max-height:110px!important;
+  }
+  #arc-question::placeholder{font-size:11px!important;line-height:1.5!important}
+  #arc-live-analysis{font-size:8px!important}
+  #arc-live-hint{display:none}
+  /* Add space at the bottom of the modal so FAB doesn't overlap content */
+  #arcane-box{padding-bottom:120px!important}
+  /* Bigger dashboard for readability */
+  #arc-dashboard{padding:8px 8px!important}
+  .arc-dash-label{font-size:7.5px!important;letter-spacing:.15em!important}
+  .arc-dash-val{font-size:8.5px!important}
+  /* Close button: bigger touch target */
+  #arc-close-permanent{
+    width:48px!important;height:48px!important;
+    font-size:18px!important;
+    top:8px!important;right:8px!important;
+    touch-action:manipulation;
+    -webkit-tap-highlight-color:rgba(180,100,255,.4);
+  }
   #arc-card-wrap{flex-direction:column}
-  #arc-video-frame{flex:none;height:160px;min-height:160px}
+  #arc-video-frame{flex:none;height:200px;min-height:200px}
+  #arc-card-name{font-size:14px!important;letter-spacing:.18em!important}
+  #arc-card-tagline{font-size:9px!important;line-height:1.6!important}
+  #arc-card-response{font-size:11px!important;line-height:1.7!important}
+  /* Bigger action buttons after reveal */
+  #arc-actions{gap:8px;flex-wrap:wrap}
+  .arc-btn{
+    min-height:46px!important;
+    font-size:9.5px!important;
+    padding:14px 16px!important;
+    flex:1 1 auto;min-width:140px;
+    touch-action:manipulation;
+    -webkit-tap-highlight-color:rgba(0,212,255,.25);
+  }
+
   #etat1-box{grid-template-columns:1fr;grid-template-rows:auto;gap:16px}
   #etat1-globe-wrap,#etat1-freq-wrap{display:none}
   #etat1-question{font-size:14px}
@@ -1465,16 +1658,65 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:799;
   #inst-info-panel{padding:14px 16px;font-size:9px}
   #inst-history{max-height:90px}
 
-  /* ━━━ TOUCH TARGETS (44×44 minimum per Material/Apple HIG) ━━━ */
-  .pbtn, #amazon-link, #oracle-tirer, #tuto-yes, #tuto-no,
+  /* ═══ ORACLE FAN — mobile-optimized ═════════════════════════
+     Bigger title, bigger cards, more spacing. Tap target = entire panel
+  ═══════════════════════════════════════════════════════════════ */
+  #center-oracle{min-height:280px!important}
+  #oracle-fan-wrap{padding:18px 12px 22px!important}
+  #oracle-fan{height:140px}
+  .ofan-card{width:54px;height:80px;
+    /* Stronger glow for tap feedback on dark mobile screens */
+    box-shadow:0 4px 18px rgba(0,0,0,.6),0 0 16px rgba(180,100,255,.32),inset 0 0 18px rgba(180,100,255,.1)!important}
+  #oracle-fan-title{font-size:12px!important;letter-spacing:.32em!important;margin-bottom:6px}
+  #oracle-fan-subtitle{font-size:8px!important;letter-spacing:.1em;margin-bottom:14px}
+  #oracle-fan-cta{font-size:11px!important;padding:14px 22px!important;letter-spacing:.22em!important;
+    min-height:48px;display:inline-flex;align-items:center;justify-content:center}
+  #oracle-fan-cta-sub{font-size:8px!important;letter-spacing:.24em!important;margin-top:8px}
+  /* Strong visual feedback when the panel is tapped */
+  #oracle-fan-wrap:active{background:radial-gradient(ellipse at center,rgba(180,100,255,.14),transparent 70%)!important}
+  #oracle-fan-wrap:active .ofan-card{
+    transform:translateX(-50%) rotate(calc(var(--i) * 16deg)) translateY(calc(abs(var(--i)) * 4px - 12px))!important;
+    border-color:rgba(255,220,255,1)!important;
+    box-shadow:0 8px 30px rgba(0,0,0,.8),0 0 32px rgba(255,180,255,.7),inset 0 0 26px rgba(180,100,255,.2)!important;
+  }
+  #oracle-fan-wrap:active #oracle-fan-cta{
+    background:rgba(180,100,255,.32)!important;
+    color:#fff!important;
+    border-color:rgba(255,220,255,1)!important;
+    box-shadow:0 0 30px rgba(220,180,255,.7),inset 0 0 18px rgba(180,100,255,.2)!important;
+  }
+
+  /* ═══ FLOATING ARC SUBMIT FAB — mobile ══════════════════════════ */
+  #arc-submit-fab{
+    bottom:5vh!important;
+    /* Generous padding for thumb taps */
+    padding:18px 28px!important;
+    font-size:12px!important;
+    letter-spacing:.22em!important;
+    /* Width responsive but capped */
+    min-width:280px;
+    width:88vw;
+    max-width:400px;
+    /* Beefier border on mobile so the tap edge is clearer */
+    border-width:2px!important;
+  }
+
+  /* ═══ TOUCH TARGETS — Material Design recommends 48×48dp minimum ══ */
+  .pbtn, #amazon-link, #tuto-yes, #tuto-no,
   #tuto-prev, #tuto-next, #tuto-done, #tuto-skip{
-    min-height:36px;padding:8px 12px!important;
-    font-size:9px!important;letter-spacing:.1em!important;
+    min-height:44px;padding:12px 14px!important;
+    font-size:10px!important;letter-spacing:.12em!important;
     touch-action:manipulation;
-    -webkit-tap-highlight-color:rgba(0,212,255,.2)}
-  #oracle-interroger{padding:16px 0!important;font-size:12px!important;
-    min-height:48px;touch-action:manipulation}
-  #tc-links{gap:6px!important;padding:8px 10px!important}
+    -webkit-tap-highlight-color:rgba(0,212,255,.25)}
+  #tc-links{gap:8px!important;padding:10px 12px!important}
+  /* AMAZON link should be a real button-sized tap target */
+  #amazon-link{
+    min-height:44px!important;
+    display:inline-flex!important;
+    align-items:center!important;
+    padding:12px 16px!important;
+    font-size:10px!important;
+  }
 
   /* ━━━ PROTOCOLE: more visible on mobile, full row width ━━━ */
   .pbtn-protocol{
@@ -1490,27 +1732,35 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:799;
     order:99;  /* push to end of flex row */
   }
 
-  /* ━━━ TUTO PANEL: bigger text, easier nav, full-width ━━━ */
+  /* ═══ TUTO PANEL — bigger, more readable mobile ═══════════════ */
   #tuto-panel{
     width:96vw!important;max-width:96vw!important;
     left:2vw!important;right:2vw!important;
-    top:auto!important;bottom:4vh!important;
-    max-height:60vh!important;
+    top:auto!important;bottom:3vh!important;
+    max-height:65vh!important;
   }
-  #tuto-panel-body{font-size:11px!important;line-height:1.7!important;
-    padding:14px 14px!important;max-height:42vh!important}
-  #tuto-panel-nav{padding:10px 12px!important}
-  #tuto-panel-nav button{font-size:9px!important;padding:10px 8px!important;
-    min-height:40px;letter-spacing:.12em!important}
+  #tuto-panel-body{font-size:12px!important;line-height:1.75!important;
+    padding:16px 16px!important;max-height:46vh!important}
+  #tuto-step-label{font-size:9px!important;letter-spacing:.18em!important}
+  #tuto-step-counter{font-size:8px!important}
+  #tuto-panel-nav{padding:12px 14px!important;gap:8px!important}
+  #tuto-panel-nav button{font-size:10px!important;padding:12px 8px!important;
+    min-height:46px;letter-spacing:.12em!important;
+    touch-action:manipulation;
+    -webkit-tap-highlight-color:rgba(0,212,255,.25);
+  }
   #tuto-highlight{box-shadow:0 0 0 4000px rgba(0,0,10,.55),0 0 16px rgba(0,212,255,.4)!important}
 
-  /* ━━━ INVITE: also full-mobile ━━━ */
-  #tuto-invite-box{width:92vw;max-width:92vw;padding:24px 18px!important}
-  #tuto-invite-msg{font-size:11px!important;line-height:1.6!important}
-  #tuto-yes{font-size:11px!important;padding:14px 18px!important;min-height:48px;
-    width:100%!important;margin-bottom:6px}
-  #tuto-no{font-size:10px!important;padding:12px 16px!important;min-height:44px;
-    width:100%!important}
+  /* ═══ INVITE — full-mobile, accessible ═══════════════════════════ */
+  #tuto-invite-box{width:92vw;max-width:92vw;padding:28px 22px!important}
+  #tuto-invite-msg{font-size:12px!important;line-height:1.7!important}
+  #tuto-yes{font-size:12px!important;padding:18px 20px!important;min-height:54px;
+    width:100%!important;margin-bottom:8px;letter-spacing:.18em;
+    touch-action:manipulation;
+    -webkit-tap-highlight-color:rgba(0,212,255,.3);}
+  #tuto-no{font-size:11px!important;padding:14px 16px!important;min-height:48px;
+    width:100%!important;
+    touch-action:manipulation;}
   #tuto-invite-btns{flex-direction:column!important;width:100%}
 
   /* ━━━ DISABLE costly CSS animations (kept on desktop) ━━━ */
@@ -1608,21 +1858,21 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:799;
           <span id="oracle-hdr-l">∂ ORACLE MN3MIA</span>
           <span id="oracle-hdr-r" onclick="openArcane()" title="Oracle plein écran">DÉVELOPPER ⛶</span>
         </div>
-        <div id="oracle-body">
-          <div id="oracle-display">
-            <div id="oracle-sym">∂</div>
-            <div id="oracle-info">
-              <div id="oracle-name">— EN ATTENTE —</div>
-              <div id="oracle-tag">Posez une question ou tirez un arcane</div>
-              <div id="oracle-resp"></div>
-            </div>
+        <div id="oracle-fan-wrap" onclick="openArcane()" title="Cliquez sur les cartes pour interroger l'Oracle">
+          <div id="oracle-fan-title">∂ TIREZ UNE CARTE ∂</div>
+          <div id="oracle-fan-subtitle">L'arcane vous précède — cliquez pour invoquer Mn3mIA</div>
+          <div id="oracle-fan">
+            <div class="ofan-card" style="--i:-3"><div class="ofan-back"></div></div>
+            <div class="ofan-card" style="--i:-2"><div class="ofan-back"></div></div>
+            <div class="ofan-card" style="--i:-1"><div class="ofan-back"></div></div>
+            <div class="ofan-card" style="--i:0"><div class="ofan-back"></div></div>
+            <div class="ofan-card" style="--i:1"><div class="ofan-back"></div></div>
+            <div class="ofan-card" style="--i:2"><div class="ofan-back"></div></div>
+            <div class="ofan-card" style="--i:3"><div class="ofan-back"></div></div>
           </div>
-          <div id="oracle-input-row">
-            <textarea id="oracle-q" placeholder="Votre question… ou silence." rows="2"></textarea>
-            <button id="oracle-tirer" onclick="doOracleTirer()">∂ TIRER</button>
-          </div>
-          <button id="oracle-interroger" onclick="openArcane()"><span class="oi-sigil">∂</span>INTERROGER L'ORACLE</button>
-          <div id="oracle-strip"></div>
+          <div id="oracle-fan-glow"></div>
+          <div id="oracle-fan-cta">∂ INTERROGER L'ORACLE</div>
+          <div id="oracle-fan-cta-sub">via les arcanes</div>
         </div>
       </div>
       <div id="center-maze">
@@ -1848,10 +2098,6 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:799;
       <span id="arc-live-stats">en attente de signal…</span>
       <span id="arc-live-hint">⌘+Entrée pour valider</span>
     </div>
-    <button id="arc-submit" onclick="startArcaneReading()">
-      <span id="arc-submit-shimmer"></span>
-      <span style="position:relative;z-index:2">∂ CONSULTER LES ARCANES</span>
-    </button>
     <div id="arc-dashboard">
       <div class="arc-dash-row">
         <span class="arc-dash-label">FRÉQUENCE</span>
@@ -1901,6 +2147,8 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:799;
     </div>
   </div>
 </div>
+<!-- FLOATING ACTION BUTTON: at body level, NOTHING can overlap it -->
+<button id="arc-submit-fab" type="button" onclick="startArcaneReading()">∂ CONSULTER L'ORACLE</button>
 
 <div id="arcane-card-overlay" onclick="if(event.target===this)closeArcaneCard()">
   <div id="arcane-card-box">
@@ -2549,27 +2797,6 @@ function enterApp() {
   setTimeout(() => startMain(), 1200);
   setTimeout(() => checkReturnSession(), 2000);
   setTimeout(() => showTutoInvite(), 4000);
-  // Defensive: rebind critical buttons via JS in case onclick attribute was overridden
-  // Handles both click (desktop) and touchend (mobile) for reliability
-  setTimeout(() => {
-    function rebind(id, action) {
-      const el = $(id);
-      if (!el) return;
-      el.onclick = null;
-      // Clone to remove any lingering listeners
-      const clone = el.cloneNode(true);
-      el.parentNode.replaceChild(clone, el);
-      const handler = (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        action();
-      };
-      clone.addEventListener('click', handler, false);
-      clone.addEventListener('touchend', handler, false);
-    }
-    rebind('oracle-tirer', () => doOracleTirer());
-    rebind('oracle-interroger', () => openArcane());
-  }, 1400);
 }
 
 function checkUrlFreqOnLoad() {
@@ -7179,18 +7406,6 @@ function arcAttachListeners() {
       }
     });
   }
-  // Defensive: rebind the CONSULTER button via JS so onclick attribute can't be the failure point
-  const submit = $('arc-submit');
-  if (submit) {
-    submit.onclick = null;
-    const handler = (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      if (typeof startArcaneReading === 'function') startArcaneReading();
-    };
-    submit.addEventListener('click', handler, false);
-    submit.addEventListener('touchend', handler, false);
-  }
   const cv = $('arc-bg-canvas');
   if (cv) {
     cv.addEventListener('mousemove', e => {
@@ -7219,23 +7434,12 @@ function arcAttachListeners() {
 function openArcane() {
   arcaneOpen = true;
   $('arcane-overlay').classList.add('on');
+  // Show the floating consult button (it's at body level now)
+  const fab = $('arc-submit-fab');
+  if (fab) fab.style.display = 'block';
   triggerChromaFx(400);
   resetArcane();
   arcAttachListeners();
-  // Always rebind submit button — it's critical and must work every time
-  const submit = $('arc-submit');
-  if (submit) {
-    // Clone to nuke all old listeners, then add fresh
-    const clone = submit.cloneNode(true);
-    submit.parentNode.replaceChild(clone, submit);
-    const handler = (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      if (typeof startArcaneReading === 'function') startArcaneReading();
-    };
-    clone.addEventListener('click', handler, false);
-    clone.addEventListener('touchend', handler, false);
-  }
   // 1. Auto-focus textarea after modal animation
   setTimeout(() => {
     const tx = $('arc-question');
@@ -7255,6 +7459,10 @@ function openArcane() {
 function closeArcane() {
   arcaneOpen = false;
   $('arcane-overlay').classList.remove('on');
+  $('arcane-overlay').classList.remove('revealing');
+  // Hide the floating consult button
+  const fab = $('arc-submit-fab');
+  if (fab) fab.style.display = 'none';
   // Stop bg
   ARC_BG.active = false;
   if (ARC_BG.raf) { cancelAnimationFrame(ARC_BG.raf); ARC_BG.raf = null; }
@@ -7263,6 +7471,10 @@ function closeArcane() {
 }
 
 function resetArcane() {
+  // Show the floating consult button again
+  $('arcane-overlay').classList.remove('revealing');
+  const fab = $('arc-submit-fab');
+  if (fab && arcaneOpen) fab.style.display = 'block';
   const q = $('arc-question');
   if (q) { q.value = ''; q.style.display = 'block'; }
   const sub = $('arc-submit'); if (sub) { sub.style.display = 'block'; sub.classList.remove('armed'); }
@@ -7518,6 +7730,10 @@ async function startArcaneReading() {
   const q = rawQ || '∂';
   arcCurrentQuestion = rawQ || '(question silencieuse)';
   arcHideQuestionUI();
+  // Hide the floating consult button while reading
+  $('arcane-overlay').classList.add('revealing');
+  const fab = $('arc-submit-fab');
+  if (fab) fab.style.display = 'none';
   const phaseC = $('arc-phase-c');
   phaseC.style.display = 'flex';
   arcPuzzlePieces = []; arcProgress = 0; arcTick = 0;
@@ -9867,6 +10083,27 @@ function closeModuleWindow() {
   const m = $('module-window');
   if (m) m.classList.remove('on');
 }
+
+// ═══════════════════════════════════════════════════════════
+// 🌐 GLOBAL EXPORTS — ensure inline onclick handlers always find functions
+// In strict mode + some browsers, top-level function declarations
+// may not auto-attach to window. We force-export the critical ones.
+// ═══════════════════════════════════════════════════════════
+[
+  'startArcaneReading','openArcane','closeArcane','doOracleTirer',
+  'openChapter','closeChapter','toggleMusic','generateVisitCard','closeCard',
+  'openJournal','closeJournal','openSonic','closeSonic',
+  'startTutorial','startTutorialFromButton','endTutorial','tutoNav',
+  'closeGlobeModal','openInstrument','closeInstrument',
+  'openArcaneCard','closeArcaneCard',
+  'closeShareModal','closePropheticPaint','closeModuleWindow','closePanelWin',
+  'closePoemFS','openPanelWin'
+].forEach(name => {
+  try {
+    const fn = eval(name);
+    if (typeof fn === 'function') window[name] = fn;
+  } catch(e) { /* not defined yet — skip */ }
+});
 
 </script>
 </body>
