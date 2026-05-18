@@ -2,9 +2,7 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=1280">
-<!-- viewport width=1280 so mobile devices render the PC layout.
-     User can pinch-zoom freely to navigate. PC ignores this meta. -->
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
@@ -63,8 +61,7 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:799;
   transition:opacity 1.2s ease;overflow:hidden}
 #intro.out{opacity:0;pointer-events:none}
 #intro-logo{font-family:'Orbitron',monospace;font-weight:900;text-align:center;
-  opacity:0;animation:introFade 1.5s .3s forwards;position:relative;z-index:2;
-  pointer-events:none}
+  opacity:0;animation:introFade 1.5s .3s forwards;position:relative;z-index:2}
 #intro-logo .sym{font-size:clamp(28px,6vw,72px);color:var(--cyan);
   text-shadow:0 0 40px var(--cyan),0 0 80px rgba(0,212,255,.3);letter-spacing:.15em}
 #intro-logo .t1{font-size:clamp(10px,2.2vw,26px);letter-spacing:.5em;color:rgba(0,212,255,.7);
@@ -73,56 +70,16 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:799;
   text-shadow:0 0 25px var(--gold);margin-top:6px}
 #intro-logo .t3{font-size:clamp(8px,1.4vw,16px);letter-spacing:.4em;color:rgba(0,212,255,.5);margin-top:14px}
 #intro-progress{width:200px;height:1px;background:rgba(0,212,255,.15);margin-top:30px;
-  opacity:0;animation:introFade .8s 1.2s forwards;overflow:hidden;position:relative;z-index:2;
-  pointer-events:none}
+  opacity:0;animation:introFade .8s 1.2s forwards;overflow:hidden;position:relative;z-index:2}
 #intro-bar{height:100%;background:linear-gradient(90deg,var(--cyan),var(--purple),var(--cyan));
   background-size:200% 100%;width:0;transition:width 7s linear;
   box-shadow:0 0 8px var(--cyan);animation:bar-shimmer 1.5s linear infinite}
 @keyframes bar-shimmer{from{background-position:0% 0}to{background-position:200% 0}}
-#intro-skip{
-  /* Native button reset */
-  -webkit-appearance:none;appearance:none;
-  font-family:'Orbitron',monospace;font-weight:700;
-  font-size:12px;letter-spacing:.3em;
-  color:rgba(0,212,255,.95);
-  background:rgba(0,40,80,.7);
-  border:2px solid rgba(0,212,255,.6);
-  padding:16px 32px;
-  margin-top:24px;
-  cursor:pointer;
-  position:relative;
-  z-index:9999;
-  min-width:180px;min-height:54px;
-  display:inline-flex;align-items:center;justify-content:center;
-  touch-action:manipulation;
-  -webkit-tap-highlight-color:transparent;  /* No blue flash on tap */
-  -webkit-user-select:none;user-select:none;
-  outline:none !important;  /* Kill any focus ring */
-  outline-offset:0 !important;
-  opacity:0;
-  animation:introBtnFade .8s 1.8s forwards;
-  pointer-events:auto !important;
-  transition:none;  /* No transitions to interfere with hit-test */
-  box-shadow:0 0 18px rgba(0,212,255,.3),inset 0 0 12px rgba(0,212,255,.08);
-}
-#intro-skip:focus,#intro-skip:focus-visible,#intro-skip:focus-within{
-  outline:none !important;
-  box-shadow:0 0 18px rgba(0,212,255,.3),inset 0 0 12px rgba(0,212,255,.08);
-}
-@keyframes introBtnFade{
-  0%{opacity:0}
-  100%{opacity:1}
-}
-#intro-skip:hover{
-  color:#fff;
-  border-color:rgba(0,212,255,1);
-  background:rgba(0,80,140,.85);
-  box-shadow:0 0 28px rgba(0,212,255,.6),inset 0 0 18px rgba(0,212,255,.15);
-}
-#intro-skip:active{
-  background:rgba(0,212,255,.3);
-  color:#fff;
-}
+#intro-skip{margin-top:20px;font-size:9px;letter-spacing:.3em;color:rgba(0,212,255,.55);
+  cursor:pointer;opacity:0;animation:introFade .8s 1.8s forwards;transition:color .2s;
+  padding:6px 16px;border:1px solid rgba(0,212,255,.2);position:relative;z-index:2}
+#intro-skip:hover{color:var(--cyan);border-color:rgba(0,212,255,.6);
+  box-shadow:0 0 18px rgba(0,212,255,.2)}
 @keyframes introFade{0%{opacity:0;transform:translateY(10px)}100%{opacity:1;transform:translateY(0)}}
 
 /* Intro starfield canvas */
@@ -758,7 +715,7 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:799;
   -webkit-user-select:none;user-select:none;
 }
 #arcane-overlay.on #arc-submit-fab{display:inline-block}
-#arcane-overlay.revealing #arc-submit-fab{display:none !important}
+#arcane-overlay.revealing #arc-submit-fab{display:none}
 @keyframes arcFabBreathStatic{
   0%,100%{box-shadow:0 0 28px rgba(180,100,255,.6),0 0 70px rgba(180,100,255,.32),0 8px 28px rgba(0,0,0,.7),inset 0 0 22px rgba(220,180,255,.2)}
   50%{box-shadow:0 0 50px rgba(220,180,255,.95),0 0 110px rgba(180,100,255,.55),0 10px 36px rgba(0,0,0,.8),inset 0 0 36px rgba(220,180,255,.35)}
@@ -880,24 +837,13 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:799;
 #arc-card-signature{font-size:6px;letter-spacing:.14em;color:rgba(180,100,255,.32);text-align:right}
 #arc-card-data{font-size:5.5px;letter-spacing:.07em;color:rgba(0,212,255,.25);
   border-top:1px solid rgba(0,212,255,.07);padding-top:4px}
-#arc-actions{display:flex;gap:8px;justify-content:center;
-  position:relative;z-index:50;width:100%;flex-wrap:wrap;
-  padding:10px 0;margin-top:8px}
-.arc-btn{font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:.16em;
-  padding:10px 16px;background:rgba(0,2,12,.7);cursor:pointer;transition:all .2s;
-  position:relative;z-index:51;
-  min-height:40px;display:inline-flex;align-items:center;justify-content:center;
-  touch-action:manipulation;
-  -webkit-tap-highlight-color:rgba(0,212,255,.3);
-  -webkit-appearance:none;appearance:none;
-  pointer-events:auto !important}
-.arc-btn:active{background:rgba(180,100,255,.18)}
-#arc-btn-again{border:1px solid rgba(180,100,255,.55);color:rgba(220,180,255,.95)}
-#arc-btn-again:hover,#arc-btn-again:active{background:rgba(180,100,255,.15);
-  box-shadow:0 0 12px rgba(180,100,255,.3);color:#fff}
-#arc-btn-close2{border:1px solid rgba(0,212,255,.45);color:rgba(180,220,255,.9)}
-#arc-btn-close2:hover,#arc-btn-close2:active{background:rgba(0,212,255,.12);
-  color:#fff;box-shadow:0 0 12px rgba(0,212,255,.25)}
+#arc-actions{display:flex;gap:8px;justify-content:center}
+.arc-btn{font-family:'Share Tech Mono',monospace;font-size:7.5px;letter-spacing:.16em;
+  padding:5px 14px;background:transparent;cursor:pointer;transition:all .2s}
+#arc-btn-again{border:1px solid rgba(180,100,255,.38);color:rgba(180,100,255,.65)}
+#arc-btn-again:hover{background:rgba(180,100,255,.09);box-shadow:0 0 8px rgba(180,100,255,.2)}
+#arc-btn-close2{border:1px solid rgba(0,212,255,.28);color:rgba(0,212,255,.45)}
+#arc-btn-close2:hover{background:rgba(0,212,255,.07)}
 
 /* Lysis */
 #lysis-overlay{z-index:651;pointer-events:none;background:transparent;backdrop-filter:none}
@@ -1520,7 +1466,7 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:799;
 .acm-key{color:rgba(180,100,255,.55)}
 .acm-val{color:rgba(255,220,140,.92);font-weight:700}
 
-@media(max-width:1px){ /* DISABLED — was 768px */
+@media(max-width:768px){
   #arcane-card-overlay{padding:10px}
   #arcane-card-box{grid-template-columns:1fr;grid-template-rows:auto 1fr;
     width:96vw;max-height:94vh}
@@ -1591,459 +1537,243 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:799;
 #inst-history .ih-time{color:rgba(0,212,255,.45);min-width:32px}
 #inst-history .ih-val{color:rgba(255,220,140,.85);font-weight:700}
 
-/* MOBILE — ULTRA SIMPLE & ROCK-SOLID
-   ════════════════════════════════════════════════════════════════
-   Design philosophy on mobile:
-   - NO effects, NO animations, NO backdrops, NO gradients (except Oracle fan signature)
-   - Flat panels, clear labels, big OBVIOUS buttons
-   - Every action triggers via a real <button> — never a container onclick
-   - All canvas hidden except the Oracle fan (replaced by static cards)
-   - Maximum stability: 100% ergonomic
-   ════════════════════════════════════════════════════════════════ */
-@media(max-width:1px){ /* DISABLED — was 768px */
-  /* ━━━ RESET: kill every fancy effect ━━━ */
-  *,*::before,*::after{
-    animation:none!important;
-    transition:none!important;
+/* MOBILE */
+@media(max-width:768px){
+  /* ━━━ PERFORMANCE: kill backdrop-filter (killer of FPS on Android) ━━━ */
+  #arcane-overlay, #instrument-overlay, #arcane-card-overlay,
+  #journal-overlay, #card-overlay, #poem-fs, #share-overlay,
+  #panel-win-overlay, #module-overlay, #etat1-overlay,
+  #lysis-overlay, #prophetic-overlay, #sonic-overlay, #tuto-invite,
+  #globe-modal{
     backdrop-filter:none!important;
     -webkit-backdrop-filter:none!important;
-    box-shadow:none!important;
-    text-shadow:none!important;
-    mix-blend-mode:normal!important;
-    filter:none!important;
-    transform:none!important;
+    background:rgba(0,2,8,.97)!important;
   }
-  /* Re-enable transform on active states for tactile feedback (no animation, just instant) */
-  /* (we don't actually need any transforms — the :active background change is enough) */
-
-  /* Hide all decorative canvas + body overlays */
-  body::before,body::after,
-  .chroma-fx,
-  #stream-canvas,
-  #gc,#fc,                                  /* globe + freq graph */
-  #galv-cv,#lock-cv,#spec-cv,#trace-cv,    /* 4 instruments */
-  #t1redact-cv,#t1dream-cv,                 /* tome 1 dream + caviardage */
-  #t3panel canvas,                           /* tome 3 spectro */
-  #oscilloscope-canvas,                      /* oscilloscope */
-  #card-canvas,
-  #intro-canvas{
-    display:none!important;
+  /* ━━━ PERFORMANCE: simpler transitions ━━━ */
+  *, *::before, *::after{
+    transition-duration:.15s!important;
   }
-
-  /* Hide ENTER button (intro auto-starts) */
-  #intro-skip{display:none!important}
-
-  /* ━━━ HIDE ALL TUTORIAL/PROTOCOLE ON MOBILE ━━━
-     Per user request: protocole is confusing and unreliable on mobile.
-     Removed entirely from the mobile experience.
-  */
-  #tuto-invite,#tuto-terminal,#tuto-panel,#tuto-highlight,
-  #btn-protocol,.pbtn-protocol{
-    display:none!important;
-    pointer-events:none!important;
-    visibility:hidden!important;
-  }
-
-  /* Hide ticker + status bar from scrollable area */
-  #ticker,#ticker *,#sb,#sb *{
-    pointer-events:none!important;
-    touch-action:none!important;
-  }
-
-  /* ━━━ MAIN LAYOUT — flat vertical scroll ━━━ */
+  /* Kill mix-blend-mode (also expensive) */
+  .chroma-fx{display:none!important}
+  /* ━━━ LAYOUT ━━━ */
   #app{overflow:hidden;grid-template-rows:24px 1fr 20px}
-  #main{
-    grid-template-columns:1fr;
-    overflow-y:scroll;
-    overflow-x:hidden;
-    -webkit-overflow-scrolling:touch;
-    height:calc(100vh - 44px);
-    display:flex;flex-direction:column;
-    overscroll-behavior:contain;
-    background:#020410;
+  #main{grid-template-columns:1fr;
+    overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;
+    height:calc(100vh - 44px);display:block;
+    will-change:scroll-position}
+  #left{display:flex;flex-direction:row;height:170px;flex-shrink:0;
+    border-right:none;border-bottom:1px solid var(--border)}
+  #gw{flex:0 0 48%;border-bottom:none;border-right:1px solid var(--border)}
+  #fw{flex:1}
+  #center{display:flex;flex-direction:column;min-height:520px;height:auto;
+    border-right:none;border-bottom:1px solid var(--border)}
+  #center-oracle{flex:0 0 auto;min-height:230px}
+  #center-maze{flex:1;min-height:280px}
+  #right{display:flex;flex-direction:column;height:auto}
+  #tc-d{display:none}
+  #osc-wrap{height:40px}
+  #t1panel{height:80px}
+  #t3panel{height:78px}
+  #t3spectro{display:none}
+  #t3fragments{display:none}
+  #rb{height:60px;overflow-y:auto}
+  #premo-wrap{display:flex!important;flex-direction:column!important;
+    height:auto!important;grid-template-columns:unset!important;overflow:visible!important}
+  #tarot-col{height:260px;min-height:260px;flex:none;
+    border-right:none!important;border-bottom:1px solid var(--border)}
+  #premo-col{display:flex;flex-direction:column;overflow:visible}
+  .premo-card{min-height:100px;height:auto;flex:none;border-right:none!important}
+  .premo-body{overflow:visible;min-height:80px}
+  #card-canvas{max-width:90vw}
+  /* ═══ ARCANE MODAL — mobile layout
+     - Bigger textarea (easier to type)
+     - Padding at bottom to make room for the floating FAB
+     - Bigger dashboard for readability
+  ═══════════════════════════════════════════════════════════════ */
+  #arcane-box{padding:14px 14px 24px;width:96vw;max-height:88vh}
+  #arc-title{font-size:14px!important;letter-spacing:.18em!important}
+  #arc-subtitle{font-size:8px!important;letter-spacing:.15em!important;margin-top:6px!important}
+  #arc-question{
+    font-size:13px!important;
+    line-height:1.5!important;
+    padding:16px 16px!important;
+    min-height:90px!important;
+    height:90px!important;
+    max-height:110px!important;
   }
-  /* Visible scrollbar */
-  #main::-webkit-scrollbar{width:6px}
-  #main::-webkit-scrollbar-track{background:rgba(0,8,20,.6)}
-  #main::-webkit-scrollbar-thumb{
-    background:rgba(0,212,255,.65);
-    border-radius:3px;
-  }
-  /* Empty wrappers (children moved by JS) */
-  #left,#center,#right{display:none}
-
-  /* ━━━ PANELS — flat, sober frames ━━━ */
-  #center-oracle,#center-maze,#conv-wrap,#t1panel,#tc,#t3panel,#gw,#fw,#rb,#premo-wrap{
-    border-right:none!important;
-    border-bottom:1px solid rgba(0,212,255,.18)!important;
-    border-left:none!important;
-    border-top:none!important;
-    width:100%!important;
-    flex:0 0 auto!important;
-    height:auto!important;
-    min-height:0!important;
-    overflow:visible!important;
-    background:#04081a!important;
-    padding:0!important;
-    position:relative!important;
-  }
-
-  /* ━━━ PANEL HEADERS — sober label on top ━━━ */
-  #oracle-hdr,#mhdr,#conv-hdr,#t1redact-cv ~ *,
-  #t1panel > div:first-child,#tc-d,#t3panel > div:first-child,
-  #gw-h,#fw-h,#rb-h,#tarot-h{
-    /* Don't aggressively override — just normalize */
-  }
-
-  /* ━━━ ORACLE FAN — keep, it's the signature ━━━ */
-  #center-oracle{
-    border-bottom:2px solid rgba(180,100,255,.4)!important;
-    padding:14px 12px 18px!important;
-  }
-  #oracle-fan-wrap{
-    padding:8px 0!important;
-    background:transparent!important;
-  }
-  #oracle-fan-title{font-size:13px!important;letter-spacing:.32em!important;
-    margin-bottom:6px!important;color:rgba(220,180,255,1)!important}
-  #oracle-fan-subtitle{font-size:9px!important;letter-spacing:.1em!important;
-    margin-bottom:14px!important;color:rgba(0,212,255,.7)!important}
-  #oracle-fan{height:130px!important;perspective:none!important}
-  .ofan-card{
-    width:54px!important;height:80px!important;
-    /* Restore the fan transform — this is the only allowed transform */
-    transform:translateX(-50%) rotate(calc(var(--i) * 11deg)) translateY(calc(abs(var(--i)) * 3px))!important;
-    border:1px solid rgba(180,100,255,.6)!important;
-    background:linear-gradient(145deg,#1a0830,#0a0418 55%,#1a0830)!important;
-  }
-  #oracle-fan-glow{display:none!important}
-  #oracle-fan-cta,#oracle-fan-cta-sub{display:none!important}  /* replaced by mobile-open-btn */
-
-  /* ━━━ PANEL TEXT — readable static info ━━━ */
-  /* Each panel shows its title + brief info, then the OUVRIR button */
-  .mobile-panel-title{
-    font-family:'Orbitron',monospace;
-    font-size:11px;font-weight:700;
-    letter-spacing:.22em;
-    color:rgba(0,212,255,.95);
-    padding:14px 16px 6px;
-  }
-  .mobile-panel-info{
-    font-family:'Share Tech Mono',monospace;
-    font-size:11px;line-height:1.55;
-    color:rgba(180,210,240,.75);
-    padding:0 16px 12px;
-    letter-spacing:.02em;
-  }
-  .mobile-panel-meta{
-    font-family:'Share Tech Mono',monospace;
-    font-size:9.5px;letter-spacing:.1em;
-    color:rgba(0,255,170,.65);
-    padding:0 16px 8px;
-  }
-
-  /* ━━━ OUVRIR BUTTONS — big, obvious, instant ━━━ */
-  .mobile-open-btn{
-    -webkit-appearance:none;appearance:none;
-    display:block;
-    width:calc(100% - 24px);
-    margin:8px 12px 16px;
-    padding:18px 16px;
-    font-family:'Orbitron',monospace;
-    font-size:12px;font-weight:700;
-    letter-spacing:.22em;
-    color:#fff;
-    background:rgba(0,212,255,.2);
-    border:2px solid rgba(0,212,255,.75);
-    cursor:pointer;
+  #arc-question::placeholder{font-size:11px!important;line-height:1.5!important}
+  #arc-live-analysis{font-size:8px!important}
+  #arc-live-hint{display:none}
+  /* Add space at the bottom of the modal so FAB doesn't overlap content */
+  #arcane-box{padding-bottom:120px!important}
+  /* Bigger dashboard for readability */
+  #arc-dashboard{padding:8px 8px!important}
+  .arc-dash-label{font-size:7.5px!important;letter-spacing:.15em!important}
+  .arc-dash-val{font-size:8.5px!important}
+  /* Close button: bigger touch target */
+  #arc-close-permanent{
+    width:48px!important;height:48px!important;
+    font-size:18px!important;
+    top:8px!important;right:8px!important;
     touch-action:manipulation;
-    -webkit-tap-highlight-color:rgba(0,212,255,.4);
-    outline:none;
-    min-height:56px;
-    position:relative;
-    z-index:20;
-    pointer-events:auto!important;
-  }
-  .mobile-open-btn:active{
-    background:rgba(0,212,255,.5);
-    border-color:rgba(180,240,255,1);
-    color:#fff;
-  }
-  .mobile-open-btn.mob-pink{
-    background:rgba(255,80,120,.2);
-    border-color:rgba(255,80,120,.75);
-    -webkit-tap-highlight-color:rgba(255,80,120,.4);
-  }
-  .mobile-open-btn.mob-pink:active{background:rgba(255,80,120,.5)}
-  .mobile-open-btn.mob-purple{
-    background:rgba(180,100,255,.22);
-    border-color:rgba(180,100,255,.8);
     -webkit-tap-highlight-color:rgba(180,100,255,.4);
   }
-  .mobile-open-btn.mob-purple:active{background:rgba(180,100,255,.5)}
-  .mobile-open-btn.mob-green{
-    background:rgba(0,255,170,.18);
-    border-color:rgba(0,255,170,.7);
-    -webkit-tap-highlight-color:rgba(0,255,170,.4);
+  #arc-card-wrap{flex-direction:column}
+  #arc-video-frame{flex:none;height:200px;min-height:200px}
+  #arc-card-name{font-size:14px!important;letter-spacing:.18em!important}
+  #arc-card-tagline{font-size:9px!important;line-height:1.6!important}
+  #arc-card-response{font-size:11px!important;line-height:1.7!important}
+  /* Bigger action buttons after reveal */
+  #arc-actions{gap:8px;flex-wrap:wrap}
+  .arc-btn{
+    min-height:46px!important;
+    font-size:9.5px!important;
+    padding:14px 16px!important;
+    flex:1 1 auto;min-width:140px;
+    touch-action:manipulation;
+    -webkit-tap-highlight-color:rgba(0,212,255,.25);
   }
-  .mobile-open-btn.mob-green:active{background:rgba(0,255,170,.42)}
-  .mobile-open-btn.mob-gold{
-    background:rgba(255,204,0,.2);
-    border-color:rgba(255,204,0,.75);
-    color:rgba(255,240,180,1);
-    -webkit-tap-highlight-color:rgba(255,204,0,.4);
-  }
-  .mobile-open-btn.mob-gold:active{background:rgba(255,204,0,.45)}
 
-  /* ━━━ TC-LINKS (Tome 2 module buttons) — pleine largeur, sobres ━━━ */
-  #tc-links{
-    display:flex!important;
-    flex-direction:column!important;
-    gap:8px!important;
-    padding:8px 12px 12px!important;
-    background:transparent!important;
+  #etat1-box{grid-template-columns:1fr;grid-template-rows:auto;gap:16px}
+  #etat1-globe-wrap,#etat1-freq-wrap{display:none}
+  #etat1-question{font-size:14px}
+  #conv-instruments{grid-template-columns:1fr 1fr;grid-template-rows:auto auto;gap:5px}
+  .conv-inst{min-height:90px}
+  #spec-cv{height:60px!important;width:100%!important}
+  #trace-cv{height:60px!important;width:100%!important}
+  #galv-cv{width:100%!important;height:90px!important}
+  #lock-cv{width:100%!important;height:90px!important}
+  #conv-instruments .conv-inst{padding:4px}
+  .inst-label{font-size:6px!important}
+  #globe-modal-box{width:100vw;height:100vh}
+  #globe-modal-body{grid-template-columns:1fr;grid-template-rows:1fr auto;overflow-y:auto}
+  #globe-map-wrap{min-height:50vh;border-right:none;border-bottom:1px solid rgba(255,51,102,.18)}
+  #globe-info-panel{max-height:none}
+  #globe-coord-readout{display:none}
+  #instrument-overlay{padding:12px}
+  #instrument-box{width:96vw;max-height:90vh}
+  #inst-body{grid-template-columns:1fr;grid-template-rows:auto auto;min-height:0}
+  #inst-canvas-wrap{min-height:280px;padding:14px;border-right:none;
+    border-bottom:1px solid rgba(0,212,255,.12)}
+  #inst-info-panel{padding:14px 16px;font-size:9px}
+  #inst-history{max-height:90px}
+
+  /* ═══ ORACLE FAN — mobile-optimized ═════════════════════════
+     Bigger title, bigger cards, more spacing. Tap target = entire panel
+  ═══════════════════════════════════════════════════════════════ */
+  #center-oracle{min-height:280px!important}
+  #oracle-fan-wrap{padding:18px 12px 22px!important}
+  #oracle-fan{height:140px}
+  .ofan-card{width:54px;height:80px;
+    /* Stronger glow for tap feedback on dark mobile screens */
+    box-shadow:0 4px 18px rgba(0,0,0,.6),0 0 16px rgba(180,100,255,.32),inset 0 0 18px rgba(180,100,255,.1)!important}
+  #oracle-fan-title{font-size:12px!important;letter-spacing:.32em!important;margin-bottom:6px}
+  #oracle-fan-subtitle{font-size:8px!important;letter-spacing:.1em;margin-bottom:14px}
+  #oracle-fan-cta{font-size:11px!important;padding:14px 22px!important;letter-spacing:.22em!important;
+    min-height:48px;display:inline-flex;align-items:center;justify-content:center}
+  #oracle-fan-cta-sub{font-size:8px!important;letter-spacing:.24em!important;margin-top:8px}
+  /* Strong visual feedback when the panel is tapped */
+  #oracle-fan-wrap:active{background:radial-gradient(ellipse at center,rgba(180,100,255,.14),transparent 70%)!important}
+  #oracle-fan-wrap:active .ofan-card{
+    transform:translateX(-50%) rotate(calc(var(--i) * 16deg)) translateY(calc(abs(var(--i)) * 4px - 12px))!important;
+    border-color:rgba(255,220,255,1)!important;
+    box-shadow:0 8px 30px rgba(0,0,0,.8),0 0 32px rgba(255,180,255,.7),inset 0 0 26px rgba(180,100,255,.2)!important;
   }
-  .pbtn,#amazon-link{
-    -webkit-appearance:none;appearance:none;
-    display:flex!important;
-    align-items:center!important;
-    justify-content:center!important;
-    width:100%!important;
-    padding:16px 14px!important;
-    font-family:'Orbitron',monospace!important;
-    font-size:11px!important;
-    font-weight:700!important;
-    letter-spacing:.18em!important;
-    color:rgba(0,212,255,.95)!important;
-    background:rgba(0,212,255,.08)!important;
-    border:1px solid rgba(0,212,255,.4)!important;
-    min-height:54px!important;
-    touch-action:manipulation!important;
-    -webkit-tap-highlight-color:rgba(0,212,255,.4)!important;
-    cursor:pointer!important;
-    text-decoration:none!important;
-    outline:none!important;
-  }
-  .pbtn:active,#amazon-link:active{
-    background:rgba(0,212,255,.3)!important;
-    border-color:rgba(120,230,255,1)!important;
+  #oracle-fan-wrap:active #oracle-fan-cta{
+    background:rgba(180,100,255,.32)!important;
     color:#fff!important;
+    border-color:rgba(255,220,255,1)!important;
+    box-shadow:0 0 30px rgba(220,180,255,.7),inset 0 0 18px rgba(180,100,255,.2)!important;
   }
-  .pbtn-protocol{
-    background:rgba(180,100,255,.2)!important;
-    border:1px solid rgba(180,100,255,.75)!important;
-    color:rgba(230,180,255,1)!important;
+
+  /* ═══ FLOATING ARC SUBMIT FAB — mobile ══════════════════════════ */
+  #arc-submit-fab{
+    bottom:5vh!important;
+    /* Generous padding for thumb taps */
+    padding:18px 28px!important;
+    font-size:12px!important;
+    letter-spacing:.22em!important;
+    /* Width responsive but capped */
+    min-width:280px;
+    width:88vw;
+    max-width:400px;
+    /* Beefier border on mobile so the tap edge is clearer */
+    border-width:2px!important;
   }
-  .pbtn-protocol:active{background:rgba(180,100,255,.5)!important}
+
+  /* ═══ TOUCH TARGETS — Material Design recommends 48×48dp minimum ══ */
+  .pbtn, #amazon-link, #tuto-yes, #tuto-no,
+  #tuto-prev, #tuto-next, #tuto-done, #tuto-skip{
+    min-height:44px;padding:12px 14px!important;
+    font-size:10px!important;letter-spacing:.12em!important;
+    touch-action:manipulation;
+    -webkit-tap-highlight-color:rgba(0,212,255,.25)}
+  #tc-links{gap:8px!important;padding:10px 12px!important}
+  /* AMAZON link should be a real button-sized tap target */
   #amazon-link{
-    background:rgba(255,153,0,.12)!important;
-    border:1px solid rgba(255,153,0,.55)!important;
-    color:rgba(255,200,100,.95)!important;
-  }
-  #amazon-link:active{background:rgba(255,153,0,.35)!important}
-
-  /* ━━━ MAZE (labyrinthe) — keep visible (it's the narrative) ━━━ */
-  #center-maze{
-    min-height:340px!important;
-    background:#040810!important;
-  }
-
-  /* ━━━ MODALS — sober, no blur, big close buttons ━━━ */
-  #arcane-overlay,#instrument-overlay,#arcane-card-overlay,
-  #journal-overlay,#card-overlay,#poem-fs,#share-overlay,
-  #panel-win-overlay,#module-overlay,#etat1-overlay,
-  #lysis-overlay,#prophetic-overlay,#sonic-overlay,#tuto-invite,
-  #globe-modal{
-    background:rgba(0,2,8,.98)!important;
-  }
-  /* Close buttons — huge tap targets */
-  #journal-close,#card-close,#sonic-close,#share-close,
-  #prophetic-close,#mw-close,#pw-close,#poem-fs-close,
-  #globe-modal-close,#inst-close,#arc-close-permanent,
-  #arcane-card-close{
-    font-size:20px!important;
-    min-width:56px!important;
-    min-height:56px!important;
-    padding:14px!important;
+    min-height:44px!important;
     display:inline-flex!important;
     align-items:center!important;
-    justify-content:center!important;
-    background:rgba(40,8,12,.95)!important;
-    border:1px solid rgba(255,80,120,.6)!important;
-    color:rgba(255,200,200,1)!important;
-    touch-action:manipulation!important;
-    -webkit-tap-highlight-color:rgba(255,80,120,.5)!important;
-    cursor:pointer!important;
-    z-index:9999!important;
-    position:absolute!important;
-    top:8px!important;
-    right:8px!important;
-    pointer-events:auto!important;
-  }
-  #journal-close:active,#card-close:active,#sonic-close:active,
-  #share-close:active,#prophetic-close:active,#mw-close:active,
-  #pw-close:active,#poem-fs-close:active,#globe-modal-close:active,
-  #inst-close:active,#arc-close-permanent:active,#arcane-card-close:active{
-    background:rgba(80,16,24,.95)!important;
-    color:#fff!important;
+    padding:12px 16px!important;
+    font-size:10px!important;
   }
 
-  /* Action buttons inside modals (post-reveal: Nouvelle question, Partager, Fermer) */
-  .arc-btn{
-    -webkit-appearance:none;appearance:none;
-    display:flex!important;
-    align-items:center!important;
-    justify-content:center!important;
-    width:100%!important;
+  /* ━━━ PROTOCOLE: more visible on mobile, full row width ━━━ */
+  .pbtn-protocol{
     flex:1 1 100%!important;
-    padding:18px 16px!important;
-    font-family:'Orbitron',monospace!important;
-    font-size:12px!important;
-    font-weight:700!important;
-    letter-spacing:.2em!important;
-    color:rgba(220,235,255,.95)!important;
-    background:rgba(0,212,255,.15)!important;
-    border:1px solid rgba(0,212,255,.55)!important;
-    min-height:56px!important;
-    margin-bottom:8px;
-    touch-action:manipulation!important;
-    -webkit-tap-highlight-color:rgba(0,212,255,.45)!important;
-    cursor:pointer!important;
-    outline:none!important;
-    pointer-events:auto!important;
-    position:relative!important;
-    z-index:60!important;
-  }
-  .arc-btn:active{
-    background:rgba(0,212,255,.4)!important;
-    color:#fff!important;
-  }
-  #arc-actions{
-    display:flex!important;
-    flex-direction:column!important;
-    gap:8px!important;
-    padding:14px 12px!important;
-    width:100%!important;
-  }
-
-  /* Arcane modal */
-  #arcane-box{
-    padding:14px 14px 24px!important;
-    width:98vw!important;
-    max-height:92vh!important;
-    background:#040818!important;
-    border:1px solid rgba(180,100,255,.4)!important;
-  }
-  #arc-question{
-    font-size:14px!important;
-    line-height:1.55!important;
-    padding:16px 14px!important;
-    min-height:100px!important;
-    height:100px!important;
-    background:rgba(0,4,12,.85)!important;
-    color:rgba(220,230,255,1)!important;
-    border:1px solid rgba(180,100,255,.45)!important;
-    outline:none!important;
-    -webkit-appearance:none!important;
-    appearance:none!important;
-    width:100%!important;
-    box-sizing:border-box!important;
-  }
-  #arc-question:focus{
-    border-color:rgba(180,100,255,.85)!important;
-  }
-  #arc-question::placeholder{font-size:12px!important;color:rgba(180,150,220,.5)!important}
-
-  /* FAB consultation button */
-  #arc-submit-fab{
-    position:fixed!important;
-    bottom:12px!important;
-    left:8px!important;right:8px!important;
-    transform:none!important;
-    width:auto!important;
-    max-width:none!important;
     min-width:0!important;
-    padding:20px 16px!important;
-    font-size:13px!important;
-    letter-spacing:.22em!important;
-    border:2px solid rgba(220,180,255,.9)!important;
-    background:rgba(120,60,200,.7)!important;
-    z-index:99999!important;
-    touch-action:manipulation!important;
-    -webkit-tap-highlight-color:rgba(220,180,255,.5)!important;
-    pointer-events:auto!important;
+    background:rgba(180,100,255,.15)!important;
+    border-color:rgba(180,100,255,.75)!important;
+    color:rgba(230,180,255,.98)!important;
+    text-shadow:0 0 8px rgba(180,100,255,.4);
+    font-weight:700!important;
+    font-size:10px!important;
+    letter-spacing:.18em!important;
+    order:99;  /* push to end of flex row */
   }
-  #arc-submit-fab:active{background:rgba(180,100,255,.9)!important;color:#fff!important}
-  #arcane-overlay.on #arc-submit-fab{display:block!important}
-  #arcane-overlay.revealing #arc-submit-fab{display:none!important}
-  #arcane-box{padding-bottom:120px!important}
 
-  /* Tutorial */
+  /* ═══ TUTO PANEL — bigger, more readable mobile ═══════════════ */
   #tuto-panel{
     width:96vw!important;max-width:96vw!important;
     left:2vw!important;right:2vw!important;
     top:auto!important;bottom:3vh!important;
     max-height:65vh!important;
-    background:#040818!important;
-    border:1px solid rgba(0,212,255,.45)!important;
   }
-  #tuto-panel-body{font-size:12px!important;line-height:1.7!important;
+  #tuto-panel-body{font-size:12px!important;line-height:1.75!important;
     padding:16px 16px!important;max-height:46vh!important}
   #tuto-step-label{font-size:9px!important;letter-spacing:.18em!important}
-  #tuto-panel-nav{padding:10px 12px!important;gap:8px!important}
-  #tuto-panel-nav button{
-    font-size:11px!important;padding:14px 8px!important;
-    min-height:50px;letter-spacing:.12em!important;
+  #tuto-step-counter{font-size:8px!important}
+  #tuto-panel-nav{padding:12px 14px!important;gap:8px!important}
+  #tuto-panel-nav button{font-size:10px!important;padding:12px 8px!important;
+    min-height:46px;letter-spacing:.12em!important;
     touch-action:manipulation;
-    -webkit-tap-highlight-color:rgba(0,212,255,.3);
-    outline:none!important;
+    -webkit-tap-highlight-color:rgba(0,212,255,.25);
   }
-  #tuto-highlight{
-    box-shadow:0 0 0 4000px rgba(0,0,10,.65)!important;
-  }
+  #tuto-highlight{box-shadow:0 0 0 4000px rgba(0,0,10,.55),0 0 16px rgba(0,212,255,.4)!important}
 
-  #tuto-invite-box{width:92vw;max-width:92vw;padding:24px 18px!important;
-    background:#040818!important;border:1px solid rgba(0,212,255,.45)!important}
+  /* ═══ INVITE — full-mobile, accessible ═══════════════════════════ */
+  #tuto-invite-box{width:92vw;max-width:92vw;padding:28px 22px!important}
   #tuto-invite-msg{font-size:12px!important;line-height:1.7!important}
-  #tuto-yes{font-size:12px!important;padding:18px 18px!important;min-height:54px;
-    width:100%!important;margin-bottom:8px;
+  #tuto-yes{font-size:12px!important;padding:18px 20px!important;min-height:54px;
+    width:100%!important;margin-bottom:8px;letter-spacing:.18em;
     touch-action:manipulation;
-    -webkit-tap-highlight-color:rgba(0,212,255,.4);}
-  #tuto-no{font-size:11px!important;padding:16px 16px!important;min-height:50px;
+    -webkit-tap-highlight-color:rgba(0,212,255,.3);}
+  #tuto-no{font-size:11px!important;padding:14px 16px!important;min-height:48px;
     width:100%!important;
     touch-action:manipulation;}
   #tuto-invite-btns{flex-direction:column!important;width:100%}
 
-  /* Globe modal */
-  #globe-modal-box{width:100vw!important;height:100vh!important}
-  #globe-modal-body{grid-template-columns:1fr!important;grid-template-rows:1fr auto!important;overflow-y:auto!important}
-  #globe-map-wrap{min-height:55vh!important;border-right:none!important}
-  #globe-info-panel{max-height:none!important}
+  /* ━━━ DISABLE costly CSS animations (kept on desktop) ━━━ */
+  #t1panel::before, #tc::before, #center-oracle::before{display:none}
 
-  /* Instrument modal */
-  #instrument-overlay{padding:8px!important}
-  #instrument-box{width:98vw!important;max-height:94vh!important}
-  #inst-body{grid-template-columns:1fr!important;grid-template-rows:auto 1fr!important;min-height:0!important}
-  #inst-canvas-wrap{min-height:240px!important;padding:14px!important;border-right:none!important;
-    border-bottom:1px solid rgba(0,212,255,.15)!important}
-  #inst-info-panel{padding:14px 16px!important;font-size:10px!important}
-  #inst-history{max-height:100px!important}
-
-  /* Arcane card modal (full-view chip) */
-  #arcane-card-overlay{padding:8px!important;background:rgba(0,2,8,.98)!important}
-  #arcane-card-box{
-    grid-template-columns:1fr!important;
-    grid-template-rows:auto 1fr!important;
-    width:98vw!important;max-height:94vh!important}
-  #arcane-card-media{min-height:280px!important;border-right:none!important;
-    border-bottom:1px solid rgba(180,100,255,.2)!important}
-  #arcane-card-info{padding:18px 18px!important}
-  #arcane-card-sym{font-size:40px!important}
-  #arcane-card-name{font-size:16px!important}
+  /* Stream canvas (top-row glitch overlay) — kill on mobile, it's purely decorative */
+  #stream-canvas{display:none!important}
 }
-@media(max-width:1px){ /* DISABLED — was 480px */
-  /* Extra-narrow phones — note: conv-instruments rule above already handles 1-col stack */
-  .conv-inst{min-height:110px}
+
+@media(max-width:480px){
+  /* Extra-narrow phones: even more aggressive */
+  #conv-instruments{grid-template-columns:1fr!important;grid-template-rows:repeat(4,auto)!important}
+  .conv-inst{min-height:80px}
 }
 
 /* Reduced motion */
@@ -2070,7 +1800,7 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:799;
     <div class="t3">GABRIEL KJERNE — MN3MIA ONLINE</div>
   </div>
   <div id="intro-progress"><div id="intro-bar"></div></div>
-  <button type="button" id="intro-skip" onclick="enterApp()">[ ENTRER ]</button>
+  <div id="intro-skip" onclick="enterApp()">[ ENTRER ]</div>
 </div>
 
 <!-- APP -->
@@ -2196,14 +1926,14 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:799;
           </div>
         </div>
         <div id="tc-links">
-          <button class="pbtn" style="--pd:0s"    onclick="event.stopPropagation();openChapter()">▶ LODICIQUARTE</button>
-          <button id="btn-music" class="pbtn" style="--pd:.15s" onclick="event.stopPropagation();toggleMusic()">♪ MUSIC</button>
-          <button class="pbtn" style="--pd:.30s" onclick="event.stopPropagation();openArcane()">∂ ARCANES</button>
-          <button class="pbtn" style="--pd:.45s" onclick="event.stopPropagation();generateVisitCard()">⬡ MA CARTE</button>
-          <button class="pbtn" style="--pd:.60s" onclick="event.stopPropagation();openJournal()">⌘ JOURNAL</button>
-          <button id="btn-sonic" class="pbtn" style="--pd:.75s" onclick="event.stopPropagation();openSonic()">∿ EMPREINTE</button>
-          <button id="btn-protocol" class="pbtn pbtn-protocol" style="--pd:.90s" onclick="event.stopPropagation();startTutorialFromButton()" title="Présentation guidée de l'interface">⌁ PROTOCOLE</button>
-          <a id="amazon-link" href="https://www.amazon.fr/stores/Gabriel-Kjerne/author/B0FQ61M4TR" target="_blank" onclick="event.stopPropagation()">📚 AMAZON →</a>
+          <button class="pbtn" style="--pd:0s"    onclick="openChapter()">▶ LODICIQUARTE</button>
+          <button id="btn-music" class="pbtn" style="--pd:.15s" onclick="toggleMusic()">♪ MUSIC</button>
+          <button class="pbtn" style="--pd:.30s" onclick="openArcane()">∂ ARCANES</button>
+          <button class="pbtn" style="--pd:.45s" onclick="generateVisitCard()">⬡ MA CARTE</button>
+          <button class="pbtn" style="--pd:.60s" onclick="openJournal()">⌘ JOURNAL</button>
+          <button id="btn-sonic" class="pbtn" style="--pd:.75s" onclick="openSonic()">∿ EMPREINTE</button>
+          <button id="btn-protocol" class="pbtn pbtn-protocol" style="--pd:.90s" onclick="startTutorialFromButton()" title="Présentation guidée de l'interface">⌁ PROTOCOLE</button>
+          <a id="amazon-link" href="https://www.amazon.fr/stores/Gabriel-Kjerne/author/B0FQ61M4TR" target="_blank">📚 AMAZON →</a>
         </div>
       </div>
 
@@ -2259,7 +1989,7 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:799;
           </div>
         </div>
         <div id="premo-col">
-          <div class="premo-card poem" onclick="event.stopPropagation();openPoemFS()" title="Poème en plein écran">
+          <div class="premo-card poem" onclick="openPoemFS()" title="Poème en plein écran">
             <div class="premo-hdr">
               <span class="premo-title">∂ POÈME ⛶</span>
               <span class="premo-iter" id="pi-0">—</span>
@@ -2885,10 +2615,14 @@ const $ = id => document.getElementById(id);
 // ═══════════════════════════════════════════════════════════
 // 📱 MOBILE DETECTION & FPS THROTTLING
 // ═══════════════════════════════════════════════════════════
-// IS_MOBILE FORCED TO FALSE — PC version used on all devices.
-// Per user request, the mobile-specific code paths caused too many
-// issues. We use the desktop UI/UX everywhere.
-const IS_MOBILE = false;
+// Detect mobile/tablet by viewport width OR user agent.
+// IS_MOBILE is checked everywhere to throttle expensive rendering.
+const IS_MOBILE = (() => {
+  const ua = navigator.userAgent || '';
+  const uaMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Mobile/i.test(ua);
+  const narrowScreen = window.innerWidth <= 820;
+  return uaMobile || narrowScreen;
+})();
 // Helper: should we throttle to 30fps for this canvas?
 // Returns true ~half the time on mobile (skip every other frame).
 const _fpsCounters = {};
@@ -2899,370 +2633,11 @@ function shouldRender(key) {
 }
 // Tag body for CSS to use
 if (IS_MOBILE) document.documentElement.classList.add('is-mobile');
-
-// ═══════════════════════════════════════════════════════════
-// 👆 MOBILE TAP SYSTEM — simple scroll-vs-tap detection
-// ═══════════════════════════════════════════════════════════
-// 1. If finger moved > 15px between touchstart and touchend → ignore click
-// 2. Otherwise let the click fire normally
-// No double-tap: every interactive frame has an explicit "OUVRIR" button.
-if (IS_MOBILE) {
-  let _touchStartX = 0, _touchStartY = 0;
-  let _touchMoved = false;
-  const MOVE_THRESHOLD = 15;  // 15px tolerance (was 10) — accommodates finger tremor
-
-  document.addEventListener('touchstart', (e) => {
-    if (!e.touches || e.touches.length !== 1) return;
-    _touchStartX = e.touches[0].clientX;
-    _touchStartY = e.touches[0].clientY;
-    _touchMoved = false;
-  }, {passive: true, capture: true});
-
-  document.addEventListener('touchmove', (e) => {
-    if (_touchMoved || !e.touches || e.touches.length !== 1) return;
-    const dx = Math.abs(e.touches[0].clientX - _touchStartX);
-    const dy = Math.abs(e.touches[0].clientY - _touchStartY);
-    if (dx > MOVE_THRESHOLD || dy > MOVE_THRESHOLD) _touchMoved = true;
-  }, {passive: true, capture: true});
-
-  document.addEventListener('click', (e) => {
-    if (_touchMoved) {
-      e.preventDefault();
-      e.stopImmediatePropagation();
-      _touchMoved = false;
-    }
-  }, {capture: true});
-
-  document.addEventListener('DOMContentLoaded', () => {
-    disableContainerClicks();
-    injectMobileFrames();
-    bindOracleActionButtons();
-  });
-  if (document.readyState !== 'loading') {
-    disableContainerClicks();
-    injectMobileFrames();
-    bindOracleActionButtons();
-  }
-}
-
-// ═══════════════════════════════════════════════════════════
-// 🛠 REBIND ORACLE ACTION BUTTONS — bulletproof on mobile
-// ═══════════════════════════════════════════════════════════
-// The 3 post-reveal buttons (NOUVELLE QUESTION, PARTAGER, FERMER)
-// + journal/card/sonic action buttons may have their inline onclick
-// suppressed by the global touch-move handler if user's finger trembles.
-// We rebind them with a dedicated touchend handler that ALWAYS fires.
-function bindOracleActionButtons() {
-  if (!IS_MOBILE) return;
-  // Find all .arc-btn buttons + close buttons in modals
-  const targets = [
-    {selector: '#arc-btn-again',     action: () => { if (typeof resetArcane === 'function') resetArcane(); }},
-    {selector: '#arc-btn-close2',    action: () => { if (typeof closeArcane === 'function') closeArcane(); }},
-    {selector: '#arc-close-permanent', action: () => { if (typeof closeArcane === 'function') closeArcane(); }},
-    {selector: '#journal-close',     action: () => { if (typeof closeJournal === 'function') closeJournal(); }},
-    {selector: '#card-close',        action: () => { if (typeof closeCard === 'function') closeCard(); }},
-    {selector: '#sonic-close',       action: () => { if (typeof closeSonic === 'function') closeSonic(); }},
-    {selector: '#share-close',       action: () => { if (typeof closeShareModal === 'function') closeShareModal(); }},
-    {selector: '#prophetic-close',   action: () => { if (typeof closePropheticPaint === 'function') closePropheticPaint(); }},
-    {selector: '#mw-close',          action: () => { if (typeof closeModuleWindow === 'function') closeModuleWindow(); }},
-    {selector: '#pw-close',          action: () => { if (typeof closePanelWin === 'function') closePanelWin(); }},
-    {selector: '#poem-fs-close',     action: () => { if (typeof closePoemFS === 'function') closePoemFS(); }},
-    {selector: '#globe-modal-close', action: () => { if (typeof closeGlobeModal === 'function') closeGlobeModal(); }},
-    {selector: '#inst-close',        action: () => { if (typeof closeInstrument === 'function') closeInstrument(); }},
-    {selector: '#arcane-card-close', action: () => { if (typeof closeArcaneCard === 'function') closeArcaneCard(); }},
-  ];
-  targets.forEach(({selector, action}) => {
-    const el = document.querySelector(selector);
-    if (!el) return;
-    // Strip onclick attribute to prevent double-fire
-    el.removeAttribute('onclick');
-    // Direct touchend handler — fires immediately, bypassing scroll detection
-    el.addEventListener('touchend', (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      action();
-    }, {passive: false});
-    // Fallback click handler for desktop/keyboard
-    el.addEventListener('click', (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      action();
-    });
-  });
-  // Bind .arc-btn buttons by their original onclick attribute value
-  document.querySelectorAll('.arc-btn').forEach(el => {
-    const inlineOnclick = el.getAttribute('onclick');
-    if (!inlineOnclick) return;
-    // Capture the action as a closure
-    const action = () => {
-      try { (new Function(inlineOnclick))(); }
-      catch(err) { console.error('arc-btn action failed:', inlineOnclick, err); }
-    };
-    el.removeAttribute('onclick');
-    el.addEventListener('touchend', (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      action();
-    }, {passive: false});
-    el.addEventListener('click', (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      action();
-    });
-  });
-}
-
-function disableContainerClicks() {
-  if (!IS_MOBILE) return;
-  // Strip every container-level onclick — only the explicit OUVRIR buttons fire actions
-  ['gw','fw','t1panel','tc-inner','t3panel','tarot-col','osc-wrap','rb','center-oracle'].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) {
-      const orig = el.getAttribute('onclick');
-      if (orig) el.setAttribute('data-action', orig);
-      el.removeAttribute('onclick');
-    }
-  });
-  document.querySelectorAll('.conv-inst, .premo-card').forEach(el => {
-    const orig = el.getAttribute('onclick');
-    if (orig) { el.setAttribute('data-action', orig); el.removeAttribute('onclick'); }
-  });
-  // Oracle fan: keep clickable but only via its dedicated button below
-  const ofan = document.getElementById('oracle-fan-wrap');
-  if (ofan) { ofan.removeAttribute('onclick'); }
-}
-
-function injectMobileFrames() {
-  if (!IS_MOBILE) return;
-
-  // Helper: build a static "frame" inside a panel.
-  // Adds an optional title + info paragraph + an OUVRIR button at the bottom.
-  function setupFrame(panelId, opts) {
-    const panel = document.getElementById(panelId);
-    if (!panel) return;
-    if (panel.querySelector('.mobile-open-btn')) return;
-    // Insert title before everything else
-    if (opts.title) {
-      const t = document.createElement('div');
-      t.className = 'mobile-panel-title';
-      t.textContent = opts.title;
-      panel.insertBefore(t, panel.firstChild);
-    }
-    if (opts.info) {
-      const inf = document.createElement('div');
-      inf.className = 'mobile-panel-info';
-      inf.innerHTML = opts.info;
-      // After the title
-      const ttl = panel.querySelector('.mobile-panel-title');
-      if (ttl) ttl.parentNode.insertBefore(inf, ttl.nextSibling);
-      else panel.insertBefore(inf, panel.firstChild);
-    }
-    // Add the OUVRIR button at the END
-    const btn = document.createElement('button');
-    btn.type = 'button';
-    btn.className = 'mobile-open-btn' + (opts.color ? ' mob-' + opts.color : '');
-    btn.textContent = opts.label;
-    btn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      try { (new Function(opts.action))(); } catch(err) { console.error('OUVRIR failed:', opts.action, err); }
-    });
-    panel.appendChild(btn);
-  }
-
-  // ─── Globe Contact Map ───
-  setupFrame('gw', {
-    title: '∂ CONTACT MAP — GLOBE',
-    info: 'Cartographie des contacts GPS établis pendant votre session.<br>Chaque point représente un lieu où Mn3mIA a capté un signal.',
-    action: "openGlobeModal()",
-    label: '⚲ EXPLORER LES CONTACTS GPS',
-    color: 'gold'
-  });
-
-  // ─── Frequency Engine ───
-  setupFrame('fw', {
-    title: '∂ 13.7Hz ENGINE',
-    info: 'Le moteur fréquentiel mesure votre signal émotionnel en continu.<br>Cible : <span style="color:rgba(255,204,0,.9)">13.7 Hz</span> — perméabilité émotionnelle élevée.',
-    action: "openPanelWin('freq')",
-    label: '∂ OUVRIR LA FRÉQUENCE',
-    color: 'gold'
-  });
-
-  // ─── Convergence wrap (4 instruments) ───
-  setupFrame('conv-wrap', {
-    title: '∂ CONVERGENCE — 4 INSTRUMENTS',
-    info: 'Quatre instruments de mesure analysent votre session :<br>· <b>Résonance</b> · <b>Phase Lock</b> · <b>Spectre</b> · <b>Trace neuronale</b>',
-    action: "openInstrument('galv')",
-    label: '∂ OUVRIR LES INSTRUMENTS',
-    color: null  // cyan default
-  });
-  // Strip individual conv-inst children (we use one global button)
-  document.querySelectorAll('.conv-inst').forEach(el => { el.style.display = 'none'; });
-
-  // ─── Tome I ───
-  setupFrame('t1panel', {
-    title: '∂ TOME I — VERROUILLÉ',
-    info: 'Le Tome I "Résonance" est verrouillé par le protocole <b>Lysis</b>.<br>Caviardage rouge respirant + fuite onirique multicolore.',
-    action: "openPanelWin('tome1')",
-    label: '∂ OUVRIR TOME I',
-    color: 'pink'
-  });
-
-  // ─── Tome II (Le Treizième Éveil) ───
-  // Don't add a frame here — the tc panel already has rich content
-  // (title, tags, module buttons). Just remove the inner onclick.
-  // The module buttons (tc-links) are already the explicit actions.
-
-  // ─── Tome III ───
-  setupFrame('t3panel', {
-    title: '∂ TOME III — RÊVE EN CRISTALLISATION',
-    info: 'Mn3mIA pré-écrit le Tome III pendant votre lecture du Tome II.<br>Incipits, fragments fantômes, spectre narratif vivant.',
-    action: "openPanelWin('tome3')",
-    label: '∂ OUVRIR TOME III',
-    color: 'green'
-  });
-
-  // ─── Terminal Mn3mIA ───
-  setupFrame('rb', {
-    title: '∂ TERMINAL MN3MIA',
-    info: 'Enregistrement temps réel des événements de session :<br>itérations, mots trouvés, contacts, oracle invoqué.',
-    action: "openJournal()",
-    label: '⌘ OUVRIR LE JOURNAL',
-    color: null
-  });
-
-  // ─── Premo wrap — premonitions (tarot-col + premo cards) ───
-  setupFrame('premo-wrap', {
-    title: '∂ PRÉMONITIONS — 4 GÉNÉRATEURS',
-    info: 'Quatre générateurs analysent votre session pour créer des artefacts uniques :<br>· <b>Carte</b> · <b>Poème</b> · <b>Signal</b> · <b>Onirique</b>',
-    action: "openPanelWin('premo')",
-    label: '∂ OUVRIR LES PRÉMONITIONS',
-    color: 'purple'
-  });
-  // Hide inner premo-col + tarot-col (replaced by the unified frame)
-  ['tarot-col','premo-col'].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.style.display = 'none';
-  });
-
-  // ─── Center-oracle: the fan stays visible, but we replace the fan's
-  // pseudo-button with a real mobile-open-btn ───
-  const oracleWrap = document.getElementById('center-oracle');
-  if (oracleWrap && !oracleWrap.querySelector('.mobile-open-btn')) {
-    const btn = document.createElement('button');
-    btn.type = 'button';
-    btn.className = 'mobile-open-btn mob-purple';
-    btn.textContent = '∂ INTERROGER L\'ORACLE';
-    btn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      try { openArcane(); } catch(err) {}
-    });
-    oracleWrap.appendChild(btn);
-  }
-}
-
-// ═══════════════════════════════════════════════════════════
-// 📱 MOBILE LAYOUT REORDER — move panels to #main, in user-requested order
-// ═══════════════════════════════════════════════════════════
-function reorderForMobile() {
-  if (!IS_MOBILE) return;
-  const main = document.getElementById('main');
-  if (!main) return;
-  // Order requested by user:
-  const orderIds = [
-    'center-oracle',  // 1. Interroger l'Oracle (fan)
-    'center-maze',    // 2. Labyrinthe
-    'conv-wrap',      // 3. Outils (4 instruments)
-    't1panel',        // 4. Tome 1
-    'tc',             // 5. Tome 2
-    't3panel',        // 6. Tome 3
-    'gw',             // 7. Contact Map
-    'fw',             // 8. Fréquence
-    'rb',             // 9. Terminal
-    'premo-wrap',     // 10. Prémonitions
-  ];
-  orderIds.forEach(id => {
-    const el = document.getElementById(id);
-    if (el) main.appendChild(el);  // appendChild moves the element if already in DOM
-  });
-  // Clean up empty wrappers
-  ['left','center','right'].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.style.display = 'none';
-  });
-  // Force canvas resize on all instruments after reflow.
-  // Canvas elements lose their drawing surface when moved in some browsers.
-  setTimeout(() => {
-    ['galv-cv','lock-cv','spec-cv','trace-cv','t1redact-cv','t1dream-cv','gc','fc','mc','pc','osc-canvas','tarot-canvas'].forEach(id => {
-      const cv = document.getElementById(id);
-      if (cv && cv.tagName === 'CANVAS') {
-        // Force size recompute by triggering a layout read then write
-        const w = cv.clientWidth, h = cv.clientHeight;
-        if (w > 0 && h > 0) {
-          cv.width = w;
-          cv.height = h;
-        }
-      }
-    });
-  }, 100);
-}
-// Run as early as possible — after DOM ready
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', reorderForMobile);
-} else {
-  reorderForMobile();
-}
-
 // Pause heavy stuff when tab is hidden (saves battery + framerate when user comes back)
 let DOC_HIDDEN = false;
 document.addEventListener('visibilitychange', () => {
   DOC_HIDDEN = document.hidden;
 });
-
-// ═══════════════════════════════════════════════════════════
-// 👁️ PANEL VISIBILITY TRACKING — pause RAF for offscreen panels on mobile
-// ═══════════════════════════════════════════════════════════
-// Each tracked panel sets PANEL_VISIBLE[id] = true/false based on IntersectionObserver.
-// Drawing functions check this before rendering. Massive perf win on mobile scroll.
-const PANEL_VISIBLE = {
-  'gw':true, 'fw':true, 'conv-wrap':true,
-  't1panel':true, 'tc':true, 't3panel':true,
-  'center-oracle':true, 'center-maze':true,
-  'rb':true, 'premo-wrap':true,
-};
-function isPanelVisible(id) {
-  // On desktop, everything is always visible
-  if (!IS_MOBILE) return true;
-  return PANEL_VISIBLE[id] !== false;
-}
-// Set up the observer once DOM ready
-function setupPanelVisibility() {
-  if (!('IntersectionObserver' in window)) return;
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach(e => {
-      const id = e.target.id;
-      if (id in PANEL_VISIBLE) PANEL_VISIBLE[id] = e.isIntersecting;
-      // Pause/resume tarot video based on premo-wrap visibility (mobile perf)
-      if (IS_MOBILE && id === 'premo-wrap') {
-        const v = document.getElementById('tarot-video');
-        if (v) {
-          if (e.isIntersecting) { v.play().catch(() => {}); }
-          else { v.pause(); }
-        }
-      }
-    });
-  }, { rootMargin: '50px 0px', threshold: 0.01 });
-  Object.keys(PANEL_VISIBLE).forEach(id => {
-    const el = document.getElementById(id);
-    if (el) observer.observe(el);
-  });
-}
-// Call after DOM ready
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', setupPanelVisibility);
-} else {
-  setupPanelVisibility();
-}
-
 const mc = $('mc'), ctx = mc.getContext('2d', {alpha:false});
 const pc = $('pc'), pctx = pc.getContext('2d');
 const gc = $('gc'), gctx = gc.getContext('2d', {alpha:false});
@@ -3405,18 +2780,6 @@ window.addEventListener('load', () => {
   const bar = $('intro-bar');
   setTimeout(() => { if (bar) bar.style.width = '100%'; }, 100);
   setTimeout(() => enterApp(), 8500);
-  // Defensive binding for ENTRER button — works on mobile + desktop
-  const skip = $('intro-skip');
-  if (skip) {
-    skip.onclick = null;
-    const handler = (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      enterApp();
-    };
-    skip.addEventListener('click', handler, false);
-    skip.addEventListener('touchend', handler, {passive:false});
-  }
 });
 
 window.addEventListener('resize', () => {
@@ -3433,10 +2796,7 @@ function enterApp() {
   setTimeout(() => stopIntroStars(), 1300);
   setTimeout(() => startMain(), 1200);
   setTimeout(() => checkReturnSession(), 2000);
-  // ━━━ Tuto invite: only on desktop (auto-popup is too aggressive on mobile)
-  if (!IS_MOBILE) {
-    setTimeout(() => showTutoInvite(), 4000);
-  }
+  setTimeout(() => showTutoInvite(), 4000);
 }
 
 function checkUrlFreqOnLoad() {
@@ -8472,11 +7832,6 @@ function showArcaneReveal(result, question) {
   const phaseR = $('arc-phase-r');
   phaseR.style.display = 'flex';
 
-  // Re-bind action buttons on mobile to guarantee they fire
-  if (IS_MOBILE && typeof bindOracleActionButtons === 'function') {
-    bindOracleActionButtons();
-  }
-
   const arcane = result.arcane;
   const premo = result.premo;
   const palette = ARCANE_PALETTES[arcane.name] || ARCANE_PALETTES['LA RÉSONANCE'];
@@ -9835,13 +9190,9 @@ const TUTO_STEPS = [
 
 let tutoIdx = 0, tutoTypeTimer = null;
 
-function showTutoInvite() {
-  if (IS_MOBILE) return;  // No tutorial on mobile per user request
-  $('tuto-invite').classList.add('on');
-}
+function showTutoInvite() { $('tuto-invite').classList.add('on'); }
 function closeTutoInvite() { $('tuto-invite').classList.remove('on'); }
 function startTutorialFromButton() {
-  if (IS_MOBILE) return;  // No tutorial on mobile
   // Triggered from the PROTOCOLE button — skip the invite, go straight to step 1
   closeTutoInvite();
   // Close any other modal that might be open
@@ -9856,7 +9207,6 @@ function startTutorialFromButton() {
   renderTutoStep(0);
 }
 function startTutorial() {
-  if (IS_MOBILE) return;  // No tutorial on mobile
   closeTutoInvite();
   tutoIdx = 0;
   $('tuto-terminal').classList.add('on');
@@ -10684,30 +10034,26 @@ async function startMain() {
   let _rafPaused = false;
   document.addEventListener('visibilitychange', () => { _rafPaused = document.hidden; });
 
-  function loop(timestamp) {
+  function loop() {
     requestAnimationFrame(loop);
-    if (_rafPaused || DOC_HIDDEN) return;
+    if (_rafPaused) return;
 
-    if (IS_MOBILE) {
-      // ━━━ MOBILE: minimal rendering for maximum stability ━━━
-      // We only run the maze logic (essential to the narrative).
-      // All decorative canvas (globe, freq graph, instruments, fuite onirique,
-      // t1 caviardage, t3 dreamer) are STATIC on mobile — no canvas, no RAF.
-      // Result: scrolling is buttery smooth, every tap fires instantly.
-      if (tick % 4 === 0) masterStep();
-      return;
+    masterStep();                                                  // maze logic + drawMaze (throttled internally)
+
+    // Mobile: throttle everything further (half the rate)
+    const mobileSkip = IS_MOBILE ? 2 : 1;
+    if (DOC_HIDDEN) {
+      // Skip ALL rendering when tab not visible
+    } else {
+      if (tick % (2 * mobileSkip) === 0) drawGlobe();                              // ~30fps desktop, ~15fps mobile
+      if (tick % (6 * mobileSkip) === 0) renderFreqGraph();                        // ~10/5 fps
+      if (tick % (3 * mobileSkip) === 0) updateConvergence();                      // ~20/10 fps — 4 instruments
+      if (tick % (6 * mobileSkip) === 0) updateT3Terminal();                       // ~10/5 fps
+      if (tick % (3 * mobileSkip) === 0) t1RedactDraw();                           // ~20/10 fps
+      if (tick % (2 * mobileSkip) === 0) t1DreamDraw();                            // ~30/15 fps — fuite onirique
+      if (isPlaying && analyser) drawOscLive();                                    // 60fps when playing music
+      if (sonicVisualActive && tick % (2 * mobileSkip) === 0) drawSonicVisual();   // ~30/15 fps
     }
-
-    // DESKTOP: full render pipeline
-    masterStep();
-    if (tick % 2 === 0) drawGlobe();
-    if (tick % 6 === 0) renderFreqGraph();
-    if (tick % 3 === 0) updateConvergence();
-    if (tick % 6 === 0) updateT3Terminal();
-    if (tick % 3 === 0) t1RedactDraw();
-    if (tick % 2 === 0) t1DreamDraw();
-    if (isPlaying && analyser) drawOscLive();
-    if (sonicVisualActive && tick % 2 === 0) drawSonicVisual();
   }
   requestAnimationFrame(loop);
 
@@ -10744,17 +10090,14 @@ function closeModuleWindow() {
 // may not auto-attach to window. We force-export the critical ones.
 // ═══════════════════════════════════════════════════════════
 [
-  'startArcaneReading','openArcane','closeArcane','resetArcane','doOracleTirer',
+  'startArcaneReading','openArcane','closeArcane','doOracleTirer',
   'openChapter','closeChapter','toggleMusic','generateVisitCard','closeCard',
   'openJournal','closeJournal','openSonic','closeSonic',
   'startTutorial','startTutorialFromButton','endTutorial','tutoNav',
   'closeGlobeModal','openInstrument','closeInstrument',
   'openArcaneCard','closeArcaneCard',
   'closeShareModal','closePropheticPaint','closeModuleWindow','closePanelWin',
-  'closePoemFS','openPanelWin','openPoemFS','openPropheticPaint',
-  'shareSession','enterApp','showTutoInvite','closeTutoInvite',
-  'arcUpdateLiveAnalysis','arcUpdateDashboard',
-  'copyShareText','downloadCard','exportJournal','toggleSonicPlay'
+  'closePoemFS','openPanelWin'
 ].forEach(name => {
   try {
     const fn = eval(name);
