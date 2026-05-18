@@ -2,7 +2,9 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="viewport" content="width=1280">
+<!-- viewport width=1280 so mobile devices render the PC layout.
+     User can pinch-zoom freely to navigate. PC ignores this meta. -->
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
@@ -1518,7 +1520,7 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:799;
 .acm-key{color:rgba(180,100,255,.55)}
 .acm-val{color:rgba(255,220,140,.92);font-weight:700}
 
-@media(max-width:768px){
+@media(max-width:1px){ /* DISABLED — was 768px */
   #arcane-card-overlay{padding:10px}
   #arcane-card-box{grid-template-columns:1fr;grid-template-rows:auto 1fr;
     width:96vw;max-height:94vh}
@@ -1598,7 +1600,7 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:799;
    - All canvas hidden except the Oracle fan (replaced by static cards)
    - Maximum stability: 100% ergonomic
    ════════════════════════════════════════════════════════════════ */
-@media(max-width:768px){
+@media(max-width:1px){ /* DISABLED — was 768px */
   /* ━━━ RESET: kill every fancy effect ━━━ */
   *,*::before,*::after{
     animation:none!important;
@@ -2039,7 +2041,7 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:799;
   #arcane-card-sym{font-size:40px!important}
   #arcane-card-name{font-size:16px!important}
 }
-@media(max-width:480px){
+@media(max-width:1px){ /* DISABLED — was 480px */
   /* Extra-narrow phones — note: conv-instruments rule above already handles 1-col stack */
   .conv-inst{min-height:110px}
 }
@@ -2883,14 +2885,10 @@ const $ = id => document.getElementById(id);
 // ═══════════════════════════════════════════════════════════
 // 📱 MOBILE DETECTION & FPS THROTTLING
 // ═══════════════════════════════════════════════════════════
-// Detect mobile/tablet by viewport width OR user agent.
-// IS_MOBILE is checked everywhere to throttle expensive rendering.
-const IS_MOBILE = (() => {
-  const ua = navigator.userAgent || '';
-  const uaMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Mobile/i.test(ua);
-  const narrowScreen = window.innerWidth <= 820;
-  return uaMobile || narrowScreen;
-})();
+// IS_MOBILE FORCED TO FALSE — PC version used on all devices.
+// Per user request, the mobile-specific code paths caused too many
+// issues. We use the desktop UI/UX everywhere.
+const IS_MOBILE = false;
 // Helper: should we throttle to 30fps for this canvas?
 // Returns true ~half the time on mobile (skip every other frame).
 const _fpsCounters = {};
