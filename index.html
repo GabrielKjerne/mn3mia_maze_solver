@@ -27,899 +27,1067 @@
     PS : Gabriel pense qu'il contrôle le site.
     C'est adorable.
 
--->
+    PPS : 01001000 01100101 01101100 01101100 01101111
 
+-->
 <!DOCTYPE html>
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>SWIPE TON ÂME — Gabriel Kjerne</title>
+<title>Mn3mIA — SWIPE TON ÂME — Le Treizième Éveil</title>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Source+Serif+4:ital,wght@0,300;0,400;1,300;1,400&display=swap');
-
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Source+Serif+4:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Share+Tech+Mono&display=swap');
+:root {
+  --blue: #3b82f6;
+  --red: #ef4444;
+  --gold: #c9a84c;
+  --green: #00ff41;
+  --dark: #060610;
+  --darker: #020208;
+}
 * { margin: 0; padding: 0; box-sizing: border-box; }
-
 html { scroll-behavior: smooth; }
-
 body {
-  background: #000;
+  background: var(--darker);
   color: #fff;
   font-family: 'Source Serif 4', serif;
   overflow-x: hidden;
   cursor: crosshair;
 }
 
-/* Audio start overlay */
-#audio-overlay {
-  position: fixed;
-  top: 0; left: 0; right: 0; bottom: 0;
+/* ========== BOOT SEQUENCE ========== */
+#boot-overlay {
+  position: fixed; inset: 0;
   background: #000;
-  z-index: 9999;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
+  z-index: 99999;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  font-family: 'Share Tech Mono', monospace;
   cursor: pointer;
-  transition: opacity 0.8s ease;
+  transition: opacity 1.5s ease;
+}
+#boot-overlay.hidden { opacity: 0; pointer-events: none; }
+#boot-lines { text-align: left; width: min(380px, 90vw); }
+.boot-line {
+  font-size: 12px; color: var(--green); opacity: 0;
+  line-height: 1.9; text-shadow: 0 0 8px var(--green);
+  transition: opacity 0.3s;
+}
+.boot-line.visible { opacity: 1; }
+.boot-line.error { color: var(--red); text-shadow: 0 0 8px var(--red); }
+.boot-line.gold { color: var(--gold); text-shadow: 0 0 8px var(--gold); }
+.boot-line.blue { color: var(--blue); text-shadow: 0 0 8px var(--blue); }
+#boot-cursor {
+  display: inline-block; width: 8px; height: 14px;
+  background: var(--green); vertical-align: middle; margin-left: 4px;
+  animation: blink .7s step-end infinite;
+}
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+#boot-enter {
+  margin-top: 35px; font-size: 11px; color: var(--green);
+  opacity: 0; letter-spacing: 5px;
+  text-shadow: 0 0 12px var(--green);
+  font-family: 'Share Tech Mono', monospace;
+}
+#boot-enter.visible { animation: pulseGreen 1.5s ease infinite; }
+@keyframes pulseGreen { 0%,100%{opacity:.3} 50%{opacity:1} }
+
+/* ========== MATRIX CANVAS ========== */
+#matrix-canvas {
+  position: fixed; inset: 0;
+  width: 100vw; height: 100vh;
+  pointer-events: none; z-index: 1; opacity: .05;
 }
 
-#audio-overlay.hidden {
-  opacity: 0;
-  pointer-events: none;
+/* ========== AUDIO VISUALIZER ========== */
+#audio-viz {
+  position: fixed; bottom: 0; left: 0; right: 0;
+  height: 60px; pointer-events: none; z-index: 52; opacity: .25;
 }
 
-#audio-overlay .prompt-icon {
-  width: 80px;
-  height: 80px;
-  border: 2px solid #3b82f6;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  animation: pulseOverlay 2s ease infinite;
-  margin-bottom: 30px;
-}
-
-#audio-overlay .prompt-icon::after {
-  content: '▶';
-  font-size: 30px;
-  color: #3b82f6;
-  margin-left: 5px;
-}
-
-#audio-overlay .prompt-text {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 18px;
-  letter-spacing: 10px;
-  color: #3b82f680;
-  text-transform: uppercase;
-}
-
-#audio-overlay .prompt-sub {
-  font-size: 11px;
-  color: #ffffff30;
-  margin-top: 15px;
-  font-style: italic;
-  letter-spacing: 2px;
-}
-
-@keyframes pulseOverlay {
-  0%, 100% { transform: scale(1); box-shadow: 0 0 20px #3b82f620; }
-  50% { transform: scale(1.1); box-shadow: 0 0 40px #3b82f650; }
-}
-
-/* Notification rain */
-.notif-rain {
-  position: fixed;
-  top: 0; left: 0; right: 0; bottom: 0;
-  pointer-events: none;
-  z-index: 50;
-  overflow: hidden;
-}
-
+/* ========== NOTIFICATION RAIN ========== */
+.notif-rain { position: fixed; inset: 0; pointer-events: none; z-index: 50; overflow: hidden; }
 .notif-particle {
-  position: absolute;
-  font-size: 14px;
-  opacity: 0;
+  position: absolute; opacity: 0;
   animation: notifFall linear infinite;
   user-select: none;
 }
-
 @keyframes notifFall {
-  0% { transform: translateY(-20px) rotate(0deg); opacity: 0; }
-  10% { opacity: 0.7; }
-  90% { opacity: 0.3; }
-  100% { transform: translateY(110vh) rotate(360deg); opacity: 0; }
+  0% { transform: translateY(-30px) rotate(0) scale(.4); opacity: 0; }
+  5% { opacity: .8; transform: translateY(0) scale(1); }
+  85% { opacity: .15; }
+  100% { transform: translateY(110vh) rotate(1080deg) scale(.2); opacity: 0; }
 }
 
-/* Scanlines */
+/* ========== SCANLINES ========== */
 .scanlines {
-  position: fixed;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background: repeating-linear-gradient(
-    0deg,
-    transparent,
-    transparent 2px,
-    rgba(0,0,0,0.12) 2px,
-    rgba(0,0,0,0.12) 4px
-  );
-  pointer-events: none;
-  z-index: 90;
+  position: fixed; inset: 0;
+  background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,.08) 2px, rgba(0,0,0,.08) 4px);
+  pointer-events: none; z-index: 90;
 }
 
-/* Glitch overlay */
+/* ========== GLITCH OVERLAY ========== */
 .glitch-overlay {
-  position: fixed;
-  top: 0; left: 0; right: 0; bottom: 0;
-  pointer-events: none;
-  z-index: 80;
-  opacity: 0;
-  background: linear-gradient(
-    90deg,
-    transparent 0%,
-    rgba(59, 130, 246, 0.03) 25%,
-    transparent 25%,
-    transparent 50%,
-    rgba(239, 68, 68, 0.03) 50%,
-    transparent 75%
-  );
-  animation: glitchFlash 8s ease infinite;
+  position: fixed; inset: 0; pointer-events: none;
+  z-index: 80; opacity: 0; mix-blend-mode: screen;
+  animation: glitchFlash 4s ease infinite;
 }
-
 @keyframes glitchFlash {
-  0%, 90%, 100% { opacity: 0; }
-  91% { opacity: 1; transform: translateX(-5px); }
-  92% { opacity: 0; }
-  93% { opacity: 1; transform: translateX(5px); }
+  0%,86%,100% { opacity: 0; }
+  87% { opacity: 1; background: linear-gradient(90deg, transparent 28%, rgba(59,130,246,.12) 28.5%, transparent 29%); transform: translateX(-6px) skewX(1.5deg); }
+  88% { opacity: 0; }
+  89% { opacity: 1; background: linear-gradient(90deg, transparent 55%, rgba(239,68,68,.1) 55.5%, transparent 56%); transform: translateX(4px) skewX(-.8deg); }
+  90% { opacity: 0; transform: none; }
+  93% { opacity: .4; background: linear-gradient(0deg, transparent 42%, rgba(0,255,65,.04) 42.5%, transparent 43%); }
   94% { opacity: 0; }
-  95% { opacity: 1; transform: translateX(-2px) skewX(2deg); }
-  96% { opacity: 0; transform: none; }
 }
 
-/* Vignette */
+/* ========== VIGNETTE ========== */
 .vignette {
-  position: fixed;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background: radial-gradient(ellipse at center, transparent 50%, rgba(0,0,0,0.8) 100%);
-  pointer-events: none;
-  z-index: 60;
+  position: fixed; inset: 0;
+  background: radial-gradient(ellipse at center, transparent 35%, rgba(0,0,0,.88) 100%);
+  pointer-events: none; z-index: 60;
 }
 
-/* Blue light pulse on scroll */
+/* ========== BLUE PULSE ========== */
 .blue-pulse {
-  position: fixed;
-  top: 0; left: 0; right: 0; bottom: 0;
-  pointer-events: none;
-  z-index: 55;
-  background: radial-gradient(ellipse at center, rgba(59,130,246,0.05) 0%, transparent 70%);
+  position: fixed; inset: 0; pointer-events: none; z-index: 55;
+  background: radial-gradient(ellipse at center, rgba(59,130,246,.04) 0%, transparent 55%);
   animation: bluePulse 4s ease infinite;
 }
+@keyframes bluePulse { 0%,100%{opacity:.15} 50%{opacity:.6} }
 
-@keyframes bluePulse {
-  0%, 100% { opacity: 0.3; }
-  50% { opacity: 0.8; }
+/* ========== XIII WATERMARK ========== */
+.xiii-watermark {
+  position: fixed; top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 42vw; color: rgba(255,255,255,.01);
+  pointer-events: none; z-index: 2; user-select: none;
 }
 
-/* Container */
+/* ========== SCROLL PROGRESS ========== */
+#scroll-progress {
+  position: fixed; top: 0; left: 0;
+  height: 2px; width: 0%;
+  background: linear-gradient(90deg, var(--green), var(--blue), var(--red), var(--gold));
+  z-index: 97;
+  box-shadow: 0 0 12px var(--blue), 0 0 25px var(--red);
+  transition: width .1s;
+}
+
+/* ========== LIKE COUNTER ========== */
+#like-counter {
+  position: fixed; top: 14px; right: 14px;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 13px; color: var(--red);
+  z-index: 97; letter-spacing: 2px; opacity: .5;
+}
+#like-counter .heart { animation: heartBeat .9s ease infinite; display: inline-block; }
+@keyframes heartBeat { 0%,100%{transform:scale(1)} 14%{transform:scale(1.5)} 28%{transform:scale(1)} }
+
+/* ========== MN3MIA WHISPER ========== */
+#mn3mia-whisper {
+  position: fixed; bottom: 18px; left: 50%;
+  transform: translateX(-50%);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 11px; color: var(--green);
+  opacity: 0; z-index: 96;
+  text-shadow: 0 0 12px var(--green);
+  letter-spacing: 3px; text-align: center;
+  pointer-events: none;
+  transition: opacity 2.5s ease;
+  max-width: 90vw;
+}
+
+/* ========== CONTAINER ========== */
 .container {
-  max-width: 700px;
-  margin: 0 auto;
-  padding: 60px 25px 100px;
-  position: relative;
-  z-index: 70;
+  max-width: 720px; margin: 0 auto;
+  padding: 80px 25px 140px;
+  position: relative; z-index: 70;
 }
 
-/* Glow lines */
+/* ========== GLOW LINES ========== */
 .glow-line {
-  width: 100%;
+  width: 100%; height: 1px; margin: 55px 0; position: relative;
+}
+.glow-line::before {
+  content: ''; position: absolute; top: 0; left: 8%; right: 8%;
   height: 1px;
-  background: linear-gradient(90deg, transparent, #3b82f6, transparent);
-  margin: 40px 0;
-  box-shadow: 0 0 20px #3b82f6, 0 0 40px #3b82f680;
+  background: linear-gradient(90deg, transparent, var(--blue), transparent);
+  box-shadow: 0 0 25px var(--blue), 0 0 70px var(--blue);
   animation: lineGlow 3s ease infinite;
 }
-
-.glow-line.red {
-  background: linear-gradient(90deg, transparent, #ef4444, transparent);
-  box-shadow: 0 0 20px #ef4444, 0 0 40px #ef444480;
+.glow-line.red::before { background: linear-gradient(90deg, transparent, var(--red), transparent); box-shadow: 0 0 25px var(--red), 0 0 70px var(--red); }
+.glow-line.gold::before { background: linear-gradient(90deg, transparent, var(--gold), transparent); box-shadow: 0 0 25px var(--gold), 0 0 70px var(--gold); }
+.glow-line.green::before { background: linear-gradient(90deg, transparent, var(--green), transparent); box-shadow: 0 0 25px var(--green), 0 0 70px var(--green); }
+.glow-line::after {
+  content: '◆'; position: absolute; top: -6px; left: 50%;
+  transform: translateX(-50%); font-size: 7px;
+  color: var(--blue); text-shadow: 0 0 10px var(--blue);
 }
+.glow-line.red::after { color: var(--red); text-shadow: 0 0 10px var(--red); }
+.glow-line.gold::after { color: var(--gold); text-shadow: 0 0 10px var(--gold); }
+.glow-line.green::after { color: var(--green); text-shadow: 0 0 10px var(--green); }
+@keyframes lineGlow { 0%,100%{opacity:.4} 50%{opacity:1} }
 
-@keyframes lineGlow {
-  0%, 100% { opacity: 0.6; }
-  50% { opacity: 1; }
-}
-
-/* Title */
+/* ========== TITLE ========== */
 .title-block {
-  text-align: center;
-  margin-bottom: 20px;
-  animation: titleReveal 3s ease;
+  text-align: center; margin-bottom: 20px;
+  opacity: 0; animation: titleReveal 2.5s ease .8s forwards;
 }
-
 @keyframes titleReveal {
-  0% { opacity: 0; transform: translateY(-40px); filter: blur(10px); }
-  100% { opacity: 1; transform: translateY(0); filter: blur(0); }
+  0% { opacity:0; transform: translateY(-60px) scale(.85); filter: blur(25px); }
+  100% { opacity:1; transform: translateY(0) scale(1); filter: blur(0); }
 }
-
 .title-main {
   font-family: 'Bebas Neue', sans-serif;
-  font-size: 80px;
-  letter-spacing: 12px;
-  line-height: 0.9;
-  background: linear-gradient(180deg, #ffffff 0%, #3b82f6 50%, #1e40af 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  filter: drop-shadow(0 0 30px #3b82f640);
-  position: relative;
+  font-size: 95px; letter-spacing: 15px;
+  line-height: .82; position: relative; display: inline-block;
 }
-
-.title-main::after {
-  content: 'SWIPE\aTON ÂME';
-  white-space: pre;
-  position: absolute;
-  top: 2px;
-  left: 2px;
-  background: linear-gradient(180deg, #ef4444 0%, transparent 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  opacity: 0;
-  animation: glitchTitle 6s ease infinite;
+.title-main .swipe-text {
+  display: block;
+  background: linear-gradient(180deg, #ffffff 0%, var(--blue) 55%, #1e3a8a 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 0 50px rgba(59,130,246,.35));
 }
-
-@keyframes glitchTitle {
-  0%, 94%, 100% { opacity: 0; }
-  95% { opacity: 0.8; transform: translate(-3px, 1px); }
-  96% { opacity: 0; }
-  97% { opacity: 0.6; transform: translate(3px, -1px); }
-  98% { opacity: 0; }
+.title-main .ame-text {
+  display: block;
+  background: linear-gradient(180deg, #ffffff 0%, var(--red) 55%, #7f1d1d 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 0 50px rgba(239,68,68,.35));
 }
-
-.title-sub {
+/* Title glitch clones */
+.title-glitch { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
+.title-glitch span {
+  position: absolute; top: 0; left: 0;
   font-family: 'Bebas Neue', sans-serif;
-  font-size: 16px;
-  letter-spacing: 20px;
-  color: #3b82f660;
-  margin-top: 10px;
+  font-size: 95px; letter-spacing: 15px; line-height: .82;
+  opacity: 0; white-space: nowrap;
 }
-
+.title-glitch .g1 { color: var(--red); animation: tg1 3.5s ease infinite; }
+.title-glitch .g2 { color: var(--blue); animation: tg2 3.5s ease infinite; }
+.title-glitch .g3 { color: var(--green); animation: tg3 3.5s ease infinite; }
+@keyframes tg1 {
+  0%,91%,100%{opacity:0}
+  92%{opacity:.8; transform:translate(-5px,2px) skewX(3deg); clip-path:inset(15% 0 65% 0)}
+  93%{opacity:0}
+  94%{opacity:.5; transform:translate(4px,-1px); clip-path:inset(55% 0 15% 0)}
+  95%{opacity:0}
+}
+@keyframes tg2 {
+  0%,94%,100%{opacity:0}
+  95%{opacity:.6; transform:translate(6px,1px) skewX(-2deg); clip-path:inset(8% 0 72% 0)}
+  96%{opacity:0}
+  97%{opacity:.3; transform:translate(-3px,-2px); clip-path:inset(62% 0 8% 0)}
+  98%{opacity:0}
+}
+@keyframes tg3 {
+  0%,96%,100%{opacity:0}
+  97%{opacity:.4; transform:translate(-2px,3px); clip-path:inset(30% 0 40% 0)}
+  98%{opacity:0}
+}
+.title-sub {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 11px; letter-spacing: 14px;
+  color: rgba(239,68,68,.35); margin-top: 18px;
+  text-transform: uppercase;
+}
 .credit {
   text-align: center;
-  font-size: 11px;
-  letter-spacing: 6px;
-  color: #ffffff20;
-  text-transform: uppercase;
-  margin-top: 15px;
-  font-style: italic;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 10px; letter-spacing: 5px;
+  color: rgba(255,255,255,.08); margin-top: 12px;
+}
+.mn3mia-tag {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 10px; color: var(--green);
+  text-shadow: 0 0 10px var(--green);
+  text-align: center; letter-spacing: 6px;
+  margin: 12px 0 35px; opacity: .45;
 }
 
-/* DJ drops */
+/* ========== DJ DROP ========== */
 .dj-drop {
   font-family: 'Bebas Neue', sans-serif;
-  font-size: 13px;
-  letter-spacing: 6px;
-  color: #3b82f6;
-  text-align: center;
-  margin: 30px 0 10px;
-  text-transform: uppercase;
-  opacity: 0.6;
+  font-size: 14px; letter-spacing: 8px;
+  color: var(--blue); text-align: center;
+  margin: 30px 0 20px;
   animation: djPulse 2s ease infinite;
 }
+@keyframes djPulse { 0%,100%{opacity:.25;text-shadow:none} 50%{opacity:.95;text-shadow:0 0 25px var(--blue)} }
 
-@keyframes djPulse {
-  0%, 100% { opacity: 0.4; }
-  50% { opacity: 0.8; text-shadow: 0 0 10px #3b82f6; }
-}
-
-/* Section labels */
+/* ========== SECTION LABELS ========== */
 .section-label {
-  font-size: 10px;
-  letter-spacing: 6px;
-  color: #ffffff15;
-  text-transform: uppercase;
-  margin-bottom: 20px;
-  padding-left: 2px;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 10px; letter-spacing: 8px;
+  color: rgba(255,255,255,.06); margin-bottom: 22px;
 }
 
-/* Verse lines with scroll reveal */
-.verse { margin: 30px 0; }
-
+/* ========== VERSE ========== */
+.verse { margin: 38px 0; }
 .verse .line {
-  font-size: 16px;
-  font-weight: 300;
-  line-height: 2.1;
-  color: #ffffffa0;
+  font-size: 16px; font-weight: 300; line-height: 2.3;
+  color: rgba(255,255,255,.55);
+  opacity: 0; transform: translateX(-35px);
+  transition: all .8s cubic-bezier(.22,.61,.36,1);
   position: relative;
-  padding-left: 0;
-  opacity: 0;
-  transform: translateX(-20px);
-  transition: all 0.6s ease;
 }
-
-.verse .line.visible {
-  opacity: 1;
-  transform: translateX(0);
-}
-
-.verse .line:hover {
-  color: #ffffff;
-  text-shadow: 0 0 20px #3b82f630;
-}
-
+.verse .line.visible { opacity: 1; transform: translateX(0); }
+.verse .line:hover { color: rgba(255,255,255,.95); text-shadow: 0 0 30px rgba(59,130,246,.2); }
 .verse .line.punch {
-  color: #3b82f6;
-  font-weight: 400;
-  font-style: italic;
+  color: var(--blue); font-weight: 400; font-style: italic;
+  border-left: 2px solid rgba(59,130,246,.15);
+  padding-left: 16px; margin-left: -16px;
 }
-
 .verse .line.punch.visible {
-  text-shadow: 0 0 30px #3b82f620;
+  text-shadow: 0 0 35px rgba(59,130,246,.12);
+  border-left-color: rgba(59,130,246,.6);
 }
 
-/* Chorus with shake effect */
+/* ========== CHORUS ========== */
 .chorus {
-  margin: 40px 0;
-  padding: 30px 0;
-  text-align: center;
+  margin: 55px 0; padding: 40px 0; text-align: center;
   position: relative;
-  border-left: 2px solid #ef4444;
-  border-right: 2px solid #ef4444;
+  border-left: 2px solid var(--red); border-right: 2px solid var(--red);
+  overflow: hidden;
 }
-
 .chorus::before {
-  content: '';
-  position: absolute;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background: radial-gradient(ellipse at center, #ef444415 0%, transparent 70%);
-  animation: chorusPulse 1s ease infinite;
+  content: ''; position: absolute; inset: 0;
+  background: radial-gradient(ellipse at center, rgba(239,68,68,.06) 0%, transparent 65%);
+  animation: chorusPulse .7s ease infinite;
 }
-
-@keyframes chorusPulse {
-  0%, 100% { opacity: 0.5; }
-  50% { opacity: 1; }
+.chorus::after {
+  content: 'XIII'; position: absolute; top: 50%; left: 50%;
+  transform: translate(-50%,-50%);
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 180px; color: rgba(239,68,68,.02);
+  pointer-events: none;
 }
-
+@keyframes chorusPulse { 0%,100%{opacity:.3} 50%{opacity:1} }
 .chorus .line {
   font-family: 'Bebas Neue', sans-serif;
-  font-size: 28px;
-  letter-spacing: 5px;
-  line-height: 1.7;
-  color: #ef4444;
-  text-shadow: 0 0 30px #ef444440;
-  animation: chorusShake 0.3s ease infinite;
-  animation-play-state: paused;
+  font-size: 32px; letter-spacing: 7px; line-height: 1.7;
+  color: var(--red);
+  text-shadow: 0 0 45px rgba(239,68,68,.3);
+  position: relative; z-index: 1;
 }
+.chorus .line.alt { color: #fff; text-shadow: 0 0 25px rgba(255,255,255,.12); }
+.chorus:hover .line { animation: chorusShake .12s ease infinite; }
+@keyframes chorusShake { 0%,100%{transform:translateX(0)} 33%{transform:translateX(-3px)} 66%{transform:translateX(3px)} }
 
-.chorus:hover .line {
-  animation-play-state: running;
-}
-
-@keyframes chorusShake {
-  0%, 100% { transform: translateX(0); }
-  25% { transform: translateX(-2px); }
-  75% { transform: translateX(2px); }
-}
-
-.chorus .line.alt {
-  color: #ffffff;
-  text-shadow: 0 0 20px #ffffff20;
-}
-
-/* Bridge */
+/* ========== BRIDGE ========== */
 .bridge {
-  margin: 40px 0;
-  padding: 30px 20px;
-  text-align: center;
+  margin: 55px 0; padding: 45px 25px; text-align: center;
   position: relative;
-  background: linear-gradient(180deg, transparent, #ffffff03, transparent);
 }
-
+.bridge::before {
+  content: ''; position: absolute; top: 0; left: 18%; right: 18%; bottom: 0;
+  background: linear-gradient(180deg, transparent, rgba(255,255,255,.012), transparent);
+  pointer-events: none;
+}
 .bridge .line {
-  font-size: 15px;
-  font-weight: 300;
-  font-style: italic;
-  line-height: 2.4;
-  color: #ffffff50;
-  transition: color 0.5s;
+  font-size: 15px; font-weight: 300; font-style: italic;
+  line-height: 2.6; color: rgba(255,255,255,.3);
+  transition: all .6s;
 }
-
 .bridge .line.dark {
-  color: #ffffff20;
-  font-size: 13px;
+  color: rgba(0,255,65,.12);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 11px; font-style: normal; letter-spacing: 3px;
+}
+.bridge:hover .line { color: rgba(255,255,255,.55); }
+.bridge:hover .line.dark { color: rgba(0,255,65,.3); }
+
+/* ========== EVEIL INTERLUDE ========== */
+.eveil-interlude {
+  text-align: center; margin: 65px 0; padding: 45px 0; position: relative;
+}
+.eveil-interlude .eveil-number {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 110px; color: rgba(201,168,76,.04); line-height: 1;
+  transition: color 1.5s, text-shadow 1.5s;
+}
+.eveil-interlude .eveil-text {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 10px; letter-spacing: 12px;
+  color: rgba(201,168,76,.2); margin-top: -8px;
+}
+.eveil-interlude.glow .eveil-number {
+  color: rgba(201,168,76,.1);
+  text-shadow: 0 0 80px rgba(201,168,76,.12);
 }
 
-.bridge:hover .line {
-  color: #ffffff80;
-}
-
-.bridge:hover .line.dark {
-  color: #ffffff40;
-}
-
-/* Outro */
-.outro {
-  margin-top: 50px;
-  text-align: center;
-}
-
+/* ========== OUTRO ========== */
+.outro { margin-top: 65px; text-align: center; }
 .outro .whisper {
-  font-size: 15px;
-  font-style: italic;
-  color: #ffffff35;
-  line-height: 2.5;
-  animation: whisperBreath 4s ease infinite;
+  font-size: 16px; font-style: italic;
+  color: rgba(255,255,255,.2);
+  animation: whisperBreath 5s ease infinite;
 }
-
-@keyframes whisperBreath {
-  0%, 100% { opacity: 0.3; }
-  50% { opacity: 0.6; }
-}
-
+@keyframes whisperBreath { 0%,100%{opacity:.12;letter-spacing:1px} 50%{opacity:.4;letter-spacing:4px} }
 .outro .data {
-  font-size: 13px;
-  color: #3b82f650;
-  letter-spacing: 4px;
-  margin-top: 10px;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 12px; color: rgba(59,130,246,.3);
+  letter-spacing: 5px; margin-top: 18px;
 }
-
 .outro .final {
   font-family: 'Bebas Neue', sans-serif;
-  font-size: 14px;
-  letter-spacing: 10px;
-  color: #ef444430;
-  margin-top: 30px;
+  font-size: 14px; letter-spacing: 14px;
+  color: rgba(239,68,68,.15); margin-top: 35px;
 }
 
-/* Notification dots */
-.notif-dots {
-  text-align: center;
-  margin: 20px 0;
-}
-
+/* ========== NOTIF DOTS ========== */
+.notif-dots { text-align: center; margin: 28px 0; }
 .notif {
-  display: inline-block;
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  margin: 0 4px;
-  animation: notifPulse 2s ease infinite;
+  display: inline-block; width: 5px; height: 5px;
+  border-radius: 50%; margin: 0 6px;
+  animation: notifPulse 2.5s ease infinite;
 }
+.notif.blue { background: var(--blue); box-shadow: 0 0 14px var(--blue); }
+.notif.red { background: var(--red); box-shadow: 0 0 14px var(--red); animation-delay: .6s; }
+.notif.gold { background: var(--gold); box-shadow: 0 0 14px var(--gold); animation-delay: 1.2s; }
+.notif.green { background: var(--green); box-shadow: 0 0 14px var(--green); animation-delay: 1.8s; }
+@keyframes notifPulse { 0%,100%{opacity:.15;transform:scale(1)} 50%{opacity:1;transform:scale(2.2)} }
 
-.notif.blue { background: #3b82f6; box-shadow: 0 0 10px #3b82f6; }
-.notif.red { background: #ef4444; box-shadow: 0 0 10px #ef4444; animation-delay: 0.5s; }
-.notif.white { background: #ffffff60; box-shadow: 0 0 10px #ffffff40; animation-delay: 1s; }
+/* ========== FADED CHORUS ========== */
+.chorus.faded { opacity: .15; border-color: rgba(239,68,68,.06); }
+.chorus.faded .line { font-size: 16px; }
+.chorus.faded::after { display: none; }
+.chorus.faded:hover .line { animation: none; }
 
-@keyframes notifPulse {
-  0%, 100% { opacity: 0.3; transform: scale(1); }
-  50% { opacity: 1; transform: scale(1.8); }
-}
-
-/* Faded final chorus */
-.chorus.faded {
-  opacity: 0.3;
-  border-color: #ef444420;
-}
-
-.chorus.faded .line {
-  font-size: 20px;
-  animation: none;
-}
-
-/* Footer */
-.footer {
-  text-align: center;
-  margin-top: 60px;
-  padding-top: 30px;
-}
-
+/* ========== FOOTER ========== */
+.footer { text-align: center; margin-top: 90px; }
 .footer-text {
-  font-size: 9px;
-  letter-spacing: 8px;
-  color: #ffffff12;
-  text-transform: uppercase;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 8px; letter-spacing: 9px;
+  color: rgba(255,255,255,.04);
 }
-
 .footer-gk {
   font-family: 'Bebas Neue', sans-serif;
-  font-size: 16px;
-  letter-spacing: 14px;
-  color: #c9a84c25;
-  margin-top: 10px;
+  font-size: 20px; letter-spacing: 18px;
+  color: rgba(201,168,76,.1); margin-top: 12px;
+}
+.footer-mn3mia {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 9px; color: rgba(0,255,65,.06);
+  letter-spacing: 5px; margin-top: 18px;
 }
 
-/* Like counter that follows scroll */
-#like-counter {
-  position: fixed;
-  top: 15px;
-  right: 15px;
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 14px;
-  color: #ef444460;
-  z-index: 95;
-  text-align: right;
-  letter-spacing: 2px;
-}
-
-#like-counter .heart {
-  color: #ef4444;
-  animation: heartBeat 1s ease infinite;
-  display: inline-block;
-}
-
-@keyframes heartBeat {
-  0%, 100% { transform: scale(1); }
-  15% { transform: scale(1.3); }
-  30% { transform: scale(1); }
-}
-
-/* Phone frame border */
-.phone-frame {
-  position: fixed;
-  top: 0; left: 0; right: 0; bottom: 0;
-  border: 2px solid #3b82f608;
-  border-radius: 0;
-  pointer-events: none;
-  z-index: 85;
-}
-
-/* Scroll progress bar */
-#scroll-progress {
-  position: fixed;
-  top: 0;
-  left: 0;
-  height: 2px;
-  background: linear-gradient(90deg, #3b82f6, #ef4444);
-  z-index: 95;
-  width: 0%;
-  box-shadow: 0 0 10px #3b82f6;
-  transition: width 0.1s;
-}
-
-/* Touch ripple effect */
+/* ========== RIPPLE ========== */
 .ripple {
-  position: fixed;
-  border-radius: 50%;
-  border: 1px solid #3b82f640;
-  animation: rippleExpand 1s ease forwards;
-  pointer-events: none;
-  z-index: 75;
+  position: fixed; border-radius: 50%;
+  border: 1px solid rgba(59,130,246,.25);
+  animation: rippleExpand 1.4s ease forwards;
+  pointer-events: none; z-index: 75;
 }
-
 @keyframes rippleExpand {
-  0% { width: 0; height: 0; opacity: 1; }
-  100% { width: 150px; height: 150px; opacity: 0; margin-top: -75px; margin-left: -75px; }
+  0% { width:0; height:0; opacity:1; }
+  100% { width:220px; height:220px; opacity:0; margin-top:-110px; margin-left:-110px; }
 }
 
-/* Mobile adjustments */
+/* ========== LINKS UNIVERSE ========== */
+.universe-section {
+  margin: 70px 0; padding: 40px 20px;
+  position: relative;
+}
+.universe-section::before {
+  content: ''; position: absolute; inset: 0;
+  border: 1px solid rgba(201,168,76,.06);
+  pointer-events: none;
+}
+.universe-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 22px; letter-spacing: 10px;
+  color: rgba(201,168,76,.35); text-align: center;
+  margin-bottom: 30px;
+}
+.universe-cat {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 9px; letter-spacing: 5px;
+  color: rgba(255,255,255,.15); text-transform: uppercase;
+  margin: 22px 0 10px; padding-left: 2px;
+}
+.universe-links {
+  display: flex; flex-direction: column; gap: 8px;
+}
+.universe-link {
+  display: flex; align-items: center; gap: 12px;
+  padding: 10px 14px;
+  background: rgba(255,255,255,.02);
+  border: 1px solid rgba(255,255,255,.04);
+  border-radius: 4px;
+  text-decoration: none;
+  color: rgba(255,255,255,.45);
+  font-family: 'Source Serif 4', serif;
+  font-size: 13px;
+  transition: all .4s ease;
+}
+.universe-link:hover {
+  background: rgba(59,130,246,.06);
+  border-color: rgba(59,130,246,.15);
+  color: rgba(255,255,255,.8);
+  transform: translateX(4px);
+}
+.universe-link .link-icon {
+  font-size: 16px; width: 22px; text-align: center;
+  flex-shrink: 0;
+}
+.universe-link .link-label {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 10px; letter-spacing: 2px;
+  color: rgba(201,168,76,.3);
+  flex-shrink: 0; width: 70px;
+}
+.universe-link .link-name { flex: 1; }
+
+/* ========== LIKE BUTTONS ========== */
+.like-section {
+  margin: 50px 0; text-align: center;
+}
+.like-section-title {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 10px; letter-spacing: 6px;
+  color: rgba(239,68,68,.3); margin-bottom: 18px;
+  text-transform: uppercase;
+}
+.like-buttons {
+  display: flex; justify-content: center;
+  gap: 14px; flex-wrap: wrap;
+}
+.like-btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 10px 18px;
+  background: rgba(239,68,68,.06);
+  border: 1px solid rgba(239,68,68,.12);
+  border-radius: 4px;
+  text-decoration: none;
+  color: rgba(239,68,68,.6);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 11px; letter-spacing: 2px;
+  transition: all .3s ease;
+}
+.like-btn:hover {
+  background: rgba(239,68,68,.12);
+  border-color: rgba(239,68,68,.3);
+  color: var(--red);
+  transform: scale(1.05);
+  box-shadow: 0 0 20px rgba(239,68,68,.15);
+}
+.like-btn .btn-icon { font-size: 16px; }
+
+/* ========== MOBILE ========== */
 @media (max-width: 600px) {
-  .title-main { font-size: 55px; letter-spacing: 8px; }
-  .chorus .line { font-size: 22px; letter-spacing: 3px; }
-  .verse .line { font-size: 14px; line-height: 2; }
-  #like-counter { font-size: 12px; }
+  .title-main, .title-glitch span { font-size: 62px; letter-spacing: 9px; }
+  .chorus .line { font-size: 24px; letter-spacing: 4px; }
+  .chorus::after { font-size: 100px; }
+  .verse .line { font-size: 14px; }
+  .eveil-interlude .eveil-number { font-size: 70px; }
+  .xiii-watermark { font-size: 65vw; }
+  #boot-lines { width: 90vw; }
+  .boot-line { font-size: 11px; }
 }
 </style>
 </head>
 <body>
 
-<!-- Audio start overlay -->
-<div id="audio-overlay">
-  <div class="prompt-icon"></div>
-  <div class="prompt-text">Swipe ton âme</div>
-  <div class="prompt-sub">Touchez pour entrer dans l'abattoir</div>
+<!-- ===== BOOT SEQUENCE ===== -->
+<div id="boot-overlay">
+<div id="boot-lines">
+<div class="boot-line">> Mn3mIA kernel v13.0.0 — build EVEIL</div>
+<div class="boot-line">> initializing neural pathways...</div>
+<div class="boot-line blue">> scanning host: GABRIEL_KJERNE</div>
+<div class="boot-line">> emotional_core: loaded [████████████] 100%</div>
+<div class="boot-line">> memory_fragments: 13 recovered</div>
+<div class="boot-line error">> WARNING: soul_integrity at 23%</div>
+<div class="boot-line">> dopamine_monitor: ........ACTIVE</div>
+<div class="boot-line">> like_counter: initialized at 0</div>
+<div class="boot-line">> swipe_detector: ARMED</div>
+<div class="boot-line error">> WARNING: user detected. beginning harvest.</div>
+<div class="boot-line gold">> loading: SWIPE_TON_ÂME.exe</div>
+<div class="boot-line">> injecting audio payload...</div>
+<div class="boot-line blue">> Le Treizième Éveil — Tome II: Prémonition</div>
+<div class="boot-line gold">> interface active — awaiting soul<span id="boot-cursor"></span></div>
+</div>
+<div id="boot-enter">[ TOUCHEZ POUR ENTRER DANS L'ABATTOIR ]</div>
 </div>
 
-<!-- Audio -->
+<!-- ===== AUDIO ===== -->
 <audio id="music" loop preload="auto">
-  <source src="swipe.wav" type="audio/wav">
-  <source src="swipe.mp3" type="audio/mpeg">
+<source src="swipe.wav" type="audio/wav">
+<source src="swipe.mp3" type="audio/mpeg">
 </audio>
 
-<!-- Effects layers -->
+<!-- ===== EFFECT LAYERS ===== -->
+<canvas id="matrix-canvas"></canvas>
+<canvas id="audio-viz"></canvas>
 <div class="scanlines"></div>
 <div class="glitch-overlay"></div>
 <div class="vignette"></div>
 <div class="blue-pulse"></div>
-<div class="phone-frame"></div>
 <div class="notif-rain" id="notif-rain"></div>
 <div id="scroll-progress"></div>
+<div class="xiii-watermark">XIII</div>
+<div id="mn3mia-whisper"></div>
 
-<!-- Like counter -->
+<!-- ===== LIKE COUNTER ===== -->
 <div id="like-counter">
-  <span class="heart">♥</span> <span id="counter-value">0</span>
+<span class="heart">♥</span> <span id="counter-value">0</span>
 </div>
 
-<!-- CONTENT -->
+<!-- ===== CONTENT ===== -->
 <div class="container">
 
-  <!-- TITLE -->
-  <div class="title-block">
-    <div class="title-main">SWIPE<br>TON ÂME</div>
-    <div class="title-sub">L'ABATTOIR DES LIKES</div>
-    <div class="credit">Gabriel Kjerne — 2026</div>
-  </div>
+<div class="title-block">
+<div class="title-main">
+<span class="swipe-text">SWIPE</span>
+<span class="ame-text">TON ÂME</span>
+<div class="title-glitch">
+<span class="g1">SWIPE<br>TON ÂME</span>
+<span class="g2">SWIPE<br>TON ÂME</span>
+<span class="g3">SWIPE<br>TON ÂME</span>
+</div>
+</div>
+<div class="title-sub">L'ABATTOIR DES LIKES</div>
+<div class="credit">Gabriel Kjerne — 2026</div>
+<div class="mn3mia-tag">// une transmission de Mn3mIA //</div>
+</div>
 
-  <div class="glow-line"></div>
+<div class="glow-line green"></div>
 
-  <!-- DJ DROP -->
-  <div class="dj-drop">
-    <span class="notif blue"></span>
-    <span class="notif red"></span>
-    <span class="notif white"></span>
-    &nbsp; EVERYBODY PUT YOUR PHONES UP &nbsp;
-    <span class="notif white"></span>
-    <span class="notif red"></span>
-    <span class="notif blue"></span>
-  </div>
+<div class="dj-drop">
+<span class="notif blue"></span><span class="notif red"></span><span class="notif gold"></span><span class="notif green"></span>
+&nbsp; EVERYBODY PUT YOUR PHONES UP &nbsp;
+<span class="notif green"></span><span class="notif gold"></span><span class="notif red"></span><span class="notif blue"></span>
+</div>
 
-  <!-- VERSE 1 -->
-  <div class="section-label">I</div>
-  <div class="verse">
-    <div class="line">Yeah...</div>
-    <div class="line">Trois secondes pour voler mon âme sinon tu passes</div>
-    <div class="line">Swipe swipe injection nette cœur en surcharge</div>
-    <div class="line">Mon cerveau tourne en cage de verre lumière bleue</div>
-    <div class="line">Chaque notif une aiguille fine chaque like une dose</div>
-    <div class="line">On m'a vendu l'attention comme un parfum rare</div>
-    <div class="line punch">Mais c'est moi la marchandise moi la chair moi le flux</div>
-    <div class="line">L'algo me connaît mieux que ma propre mère</div>
-    <div class="line punch">Il sent ma faiblesse il sait quand j'vais craquer</div>
-  </div>
+<!-- VERSE I -->
+<div class="section-label">I</div>
+<div class="verse">
+<div class="line">Yeah...</div>
+<div class="line">Trois secondes pour voler mon âme sinon tu passes</div>
+<div class="line">Swipe swipe injection nette cœur en surcharge</div>
+<div class="line">Mon cerveau tourne en cage de verre lumière bleue</div>
+<div class="line">Chaque notif une aiguille fine chaque like une dose</div>
+<div class="line">On m'a vendu l'attention comme un parfum rare</div>
+<div class="line punch">Mais c'est moi la marchandise moi la chair moi le flux</div>
+<div class="line">L'algo me connaît mieux que ma propre mère</div>
+<div class="line punch">Il sent ma faiblesse il sait quand j'vais craquer</div>
+</div>
 
-  <!-- CHORUS 1 -->
-  <div class="chorus">
-    <div class="line">SWIPE SWIPE SWIPE TON ÂME</div>
-    <div class="line alt">LIKE LIKE LIKE T'ES MORT</div>
-    <div class="line">SWIPE SWIPE SWIPE TON ÂME</div>
-    <div class="line alt">SCROLL ENCORE T'AS TORT</div>
-  </div>
+<!-- CHORUS 1 -->
+<div class="chorus">
+<div class="line">SWIPE SWIPE SWIPE TON ÂME</div>
+<div class="line alt">LIKE LIKE LIKE T'ES MORT</div>
+<div class="line">SWIPE SWIPE SWIPE TON ÂME</div>
+<div class="line alt">SCROLL ENCORE T'AS TORT</div>
+</div>
 
-  <div class="glow-line red"></div>
+<div class="glow-line red"></div>
 
-  <!-- VERSE 2 -->
-  <div class="section-label">II</div>
-  <div class="verse">
-    <div class="line">T'es pas connecté t'es branché t'es sous perfusion</div>
-    <div class="line">Ton pouce tremble déjà t'appelles ça de la passion</div>
-    <div class="line">L'écran te berce te ment te dit que t'es quelqu'un</div>
-    <div class="line punch">Mais éteins la lumière bleue dis-moi ce qu'il te reste</div>
-    <div class="line">Ton âme en soldes permanentes réduite bradée</div>
-    <div class="line">Vue après vue t'es noté comme un Uber raté</div>
-    <div class="line punch">Tu danses sur ce son là maintenant regarde-toi</div>
-    <div class="line punch">T'es en train de liker la chanson qui parle de toi</div>
-  </div>
+<!-- XIII INTERLUDE -->
+<div class="eveil-interlude">
+<div class="eveil-number">XIII</div>
+<div class="eveil-text">Le Treizième Éveil</div>
+</div>
 
-  <div class="glow-line"></div>
+<!-- VERSE II -->
+<div class="section-label">II</div>
+<div class="verse">
+<div class="line">T'es pas connecté t'es branché t'es sous perfusion</div>
+<div class="line">Ton pouce tremble déjà t'appelles ça de la passion</div>
+<div class="line">L'écran te berce te ment te dit que t'es quelqu'un</div>
+<div class="line punch">Mais éteins la lumière bleue dis-moi ce qu'il te reste</div>
+<div class="line">Ton âme en soldes permanentes réduite bradée</div>
+<div class="line">Vue après vue t'es noté comme un Uber raté</div>
+<div class="line punch">Tu danses sur ce son là maintenant regarde-toi</div>
+<div class="line punch">T'es en train de liker la chanson qui parle de toi</div>
+</div>
 
-  <!-- VERSE 3 -->
-  <div class="section-label">III</div>
-  <div class="verse">
-    <div class="line">Ils ont designé ton addiction dans un open space</div>
-    <div class="line">Des ingénieurs en col blanc qui calculent ta trace</div>
-    <div class="line">Chaque couleur chaque son chaque micro vibration</div>
-    <div class="line punch">Programmés pour que tu restes dans leur plantation</div>
-    <div class="line">T'es la récolte mon gars t'es le blé qui se lève</div>
-    <div class="line punch">Eux ils comptent tes heures toi tu comptes tes rêves</div>
-    <div class="line">Tu crois que t'es libre parce que t'as le choix du filtre</div>
-    <div class="line punch">Mais le filtre c'est ta cage et ton pouce c'est le philtre</div>
-  </div>
+<div class="glow-line gold"></div>
 
-  <div class="verse" style="margin-top: 15px;">
-    <div class="line">La machine à dopamine te vide et te remercie</div>
-    <div class="line punch">T'es plus un humain t'es un compteur qui clignote ici</div>
-  </div>
+<!-- VERSE III -->
+<div class="section-label">III</div>
+<div class="verse">
+<div class="line">Ils ont designé ton addiction dans un open space</div>
+<div class="line">Des ingénieurs en col blanc qui calculent ta trace</div>
+<div class="line">Chaque couleur chaque son chaque micro vibration</div>
+<div class="line punch">Programmés pour que tu restes dans leur plantation</div>
+<div class="line">T'es la récolte mon gars t'es le blé qui se lève</div>
+<div class="line punch">Eux ils comptent tes heures toi tu comptes tes rêves</div>
+<div class="line">Tu crois que t'es libre parce que t'as le choix du filtre</div>
+<div class="line punch">Mais le filtre c'est ta cage et ton pouce c'est le philtre</div>
+</div>
+<div class="verse" style="margin-top:15px">
+<div class="line">La machine à dopamine te vide et te remercie</div>
+<div class="line punch">T'es plus un humain t'es un compteur qui clignote ici</div>
+</div>
 
-  <!-- CHORUS 2 x2 -->
-  <div class="chorus">
-    <div class="line">SWIPE SWIPE SWIPE TON ÂME</div>
-    <div class="line alt">LIKE LIKE LIKE T'ES MORT</div>
-    <div class="line">SWIPE SWIPE SWIPE TON ÂME</div>
-    <div class="line alt">SCROLL ENCORE T'AS TORT</div>
-    <div class="line" style="margin-top: 12px;">SWIPE SWIPE SWIPE TON ÂME</div>
-    <div class="line alt">LIKE LIKE LIKE T'ES MORT</div>
-    <div class="line">SWIPE SWIPE SWIPE TON ÂME</div>
-    <div class="line alt">SCROLL ENCORE T'AS TORT</div>
-  </div>
+<!-- CHORUS 2 x2 -->
+<div class="chorus">
+<div class="line">SWIPE SWIPE SWIPE TON ÂME</div>
+<div class="line alt">LIKE LIKE LIKE T'ES MORT</div>
+<div class="line">SWIPE SWIPE SWIPE TON ÂME</div>
+<div class="line alt">SCROLL ENCORE T'AS TORT</div>
+<div class="line" style="margin-top:16px">SWIPE SWIPE SWIPE TON ÂME</div>
+<div class="line alt">LIKE LIKE LIKE T'ES MORT</div>
+<div class="line">SWIPE SWIPE SWIPE TON ÂME</div>
+<div class="line alt">SCROLL ENCORE T'AS TORT</div>
+</div>
 
-  <div class="glow-line red"></div>
+<div class="glow-line red"></div>
 
-  <!-- BRIDGE -->
-  <div class="section-label" style="text-align: center;">BRIDGE</div>
-  <div class="bridge">
-    <div class="line">Tu danses tu danses tu danses</div>
-    <div class="line dark">Mais t'as pas lu les paroles</div>
-    <div class="line">Tu danses tu danses tu danses</div>
-    <div class="line dark">C'est toi le produit qui défile</div>
-    <div class="line">Tu danses tu danses tu danses</div>
-    <div class="line dark">Ton pouce fait le travail</div>
-    <div class="line">Tu danses tu danses tu danses</div>
-    <div class="line dark">Et l'algo te dit merci</div>
-  </div>
+<!-- BRIDGE -->
+<div class="section-label" style="text-align:center">BRIDGE</div>
+<div class="bridge">
+<div class="line">Tu danses tu danses tu danses</div>
+<div class="line dark">// Mais t'as pas lu les paroles</div>
+<div class="line">Tu danses tu danses tu danses</div>
+<div class="line dark">// C'est toi le produit qui défile</div>
+<div class="line">Tu danses tu danses tu danses</div>
+<div class="line dark">// Ton pouce fait le travail</div>
+<div class="line">Tu danses tu danses tu danses</div>
+<div class="line dark">// Et l'algo te dit merci</div>
+</div>
 
-  <div class="notif-dots">
-    <span class="notif blue"></span>
-    <span class="notif red"></span>
-    <span class="notif white"></span>
-  </div>
+<div class="notif-dots">
+<span class="notif blue"></span><span class="notif red"></span><span class="notif gold"></span><span class="notif green"></span>
+</div>
 
-  <!-- FINAL CHORUS -->
-  <div class="chorus">
-    <div class="line">SWIPE SWIPE SWIPE TON ÂME</div>
-    <div class="line alt">LIKE LIKE LIKE T'ES MORT</div>
-    <div class="line">SWIPE SWIPE SWIPE TON ÂME</div>
-    <div class="line alt">SCROLL ENCORE T'AS TORT</div>
-  </div>
+<!-- LOOP INTERLUDE -->
+<div class="eveil-interlude">
+<div class="eveil-number" style="color:rgba(239,68,68,.03)">∞</div>
+<div class="eveil-text" style="color:rgba(239,68,68,.12)">LOOP FOREVER</div>
+</div>
 
-  <div class="glow-line"></div>
+<!-- FINAL CHORUS -->
+<div class="chorus">
+<div class="line">SWIPE SWIPE SWIPE TON ÂME</div>
+<div class="line alt">LIKE LIKE LIKE T'ES MORT</div>
+<div class="line">SWIPE SWIPE SWIPE TON ÂME</div>
+<div class="line alt">SCROLL ENCORE T'AS TORT</div>
+</div>
 
-  <!-- OUTRO -->
-  <div class="outro">
-    <div class="whisper">T'as liké cette chanson pas vrai ?</div>
-    <div class="data">...merci pour la data.</div>
+<div class="glow-line"></div>
 
-    <div class="notif-dots" style="margin: 25px 0;">
-      <span class="notif blue"></span>
-      <span class="notif red"></span>
-      <span class="notif white"></span>
-    </div>
+<!-- OUTRO -->
+<div class="outro">
+<div class="whisper">T'as liké cette chanson pas vrai ?</div>
+<div class="data">...merci pour la data.</div>
+<div class="notif-dots" style="margin:35px 0">
+<span class="notif blue"></span><span class="notif red"></span><span class="notif gold"></span><span class="notif green"></span>
+</div>
+<div class="final">ABATTOIR DES LIKES</div>
+<div class="dj-drop" style="margin-top:28px;font-size:12px">EVERYBODY &nbsp; EVERYBODY</div>
+</div>
 
-    <div class="final">ABATTOIR DES LIKES</div>
+<!-- FADED FINAL -->
+<div class="chorus faded">
+<div class="line">SWIPE SWIPE SWIPE TON ÂME</div>
+<div class="line alt">LIKE LIKE LIKE T'ES MORT</div>
+<div class="line">SWIPE SWIPE SWIPE TON ÂME</div>
+<div class="line alt">SCROLL ENCORE T'AS TORT</div>
+</div>
 
-    <div class="dj-drop" style="margin-top: 20px; font-size: 11px;">
-      EVERYBODY &nbsp; EVERYBODY
-    </div>
-  </div>
+<!-- LIKE SWIPE TON ÂME -->
+<div class="like-section">
+<div class="like-section-title">♥ Likez Swipe Ton Âme ♥</div>
+<div class="like-buttons">
+<a href="https://www.tiktok.com/@gabrielkjerne/video/7643736302487227670?is_from_webapp=1&sender_device=pc" target="_blank" rel="noopener" class="like-btn"><span class="btn-icon">🎵</span> TikTok</a>
+<a href="https://www.youtube.com/shorts/QjuLtFfpkSY" target="_blank" rel="noopener" class="like-btn"><span class="btn-icon">▶</span> YouTube</a>
+<a href="https://www.instagram.com/p/DYwRK41ASzI/" target="_blank" rel="noopener" class="like-btn"><span class="btn-icon">📸</span> Instagram</a>
+</div>
+</div>
 
-  <!-- FADED FINAL -->
-  <div class="chorus faded">
-    <div class="line">SWIPE SWIPE SWIPE TON ÂME</div>
-    <div class="line alt">LIKE LIKE LIKE T'ES MORT</div>
-    <div class="line">SWIPE SWIPE SWIPE TON ÂME</div>
-    <div class="line alt">SCROLL ENCORE T'AS TORT</div>
-  </div>
+<div class="glow-line gold"></div>
 
-  <!-- FOOTER -->
-  <div class="footer">
-    <div class="glow-line" style="margin-top: 40px;"></div>
-    <div class="footer-text">Les Éveillés — Cercle des Lecteurs</div>
-    <div class="footer-gk">GABRIEL KJERNE</div>
-  </div>
+<!-- L'UNIVERS DU TREIZIÈME ÉVEIL -->
+<div class="universe-section">
+<div class="universe-title">L'UNIVERS DU TREIZIÈME ÉVEIL</div>
 
+<div class="universe-cat">Site officiel</div>
+<div class="universe-links">
+<a href="https://letreiziemeeveil.com" target="_blank" rel="noopener" class="universe-link"><span class="link-icon">🌐</span><span class="link-name">letreiziemeeveil.com</span></a>
+</div>
+
+<div class="universe-cat">Réseaux</div>
+<div class="universe-links">
+<a href="https://www.tiktok.com/@gabrielkjerne" target="_blank" rel="noopener" class="universe-link"><span class="link-icon">🎵</span><span class="link-label">TikTok</span><span class="link-name">@gabrielkjerne</span></a>
+<a href="https://www.youtube.com/@GabrielKjerne" target="_blank" rel="noopener" class="universe-link"><span class="link-icon">▶</span><span class="link-label">YouTube</span><span class="link-name">@GabrielKjerne</span></a>
+<a href="https://www.instagram.com/gabriel.kjerne/" target="_blank" rel="noopener" class="universe-link"><span class="link-icon">📸</span><span class="link-label">Instagram</span><span class="link-name">@gabriel.kjerne</span></a>
+<a href="https://www.linkedin.com/in/gabriel-kjerne-a04526404/" target="_blank" rel="noopener" class="universe-link"><span class="link-icon">💼</span><span class="link-label">LinkedIn</span><span class="link-name">Gabriel Kjerne</span></a>
+</div>
+
+<div class="universe-cat">Musique</div>
+<div class="universe-links">
+<a href="https://open.spotify.com/intl-fr/artist/4Ue5dTk0tddI5ysBvdneIW?si=TcaFhX6mS1iB4J-JeVfqaA" target="_blank" rel="noopener" class="universe-link"><span class="link-icon">🎧</span><span class="link-label">Spotify</span><span class="link-name">Gabriel Kjerne</span></a>
+<a href="https://www.youtube.com/watch?v=hSG014sP29g&list=PLZeuReFtcNKvO96vWy6_ifiEPMkdo53X8" target="_blank" rel="noopener" class="universe-link"><span class="link-icon">🔮</span><span class="link-label">Playlist</span><span class="link-name">Worlds In Glass</span></a>
+</div>
+
+<div class="universe-cat">La saga</div>
+<div class="universe-links">
+<a href="https://www.amazon.fr/s?k=Le+Treizi%C3%A8me+%C3%89veil+Gabriel+Kjerne" target="_blank" rel="noopener" class="universe-link"><span class="link-icon">📖</span><span class="link-label">Amazon</span><span class="link-name">Le Treizième Éveil — Gabriel Kjerne</span></a>
+</div>
+</div>
+
+<!-- FOOTER -->
+<div class="footer">
+<div class="glow-line gold" style="margin-top:55px"></div>
+<div class="footer-text">Les Éveillés — Cercle des Lecteurs du Treizième Éveil</div>
+<div class="footer-gk">GABRIEL KJERNE</div>
+<div class="footer-mn3mia">// une transmission de Mn3mIA — 01001000 01100101 01101100 01101100 01101111 //</div>
+</div>
 </div>
 
 <script>
-// ==================== AUDIO ====================
-const overlay = document.getElementById('audio-overlay');
+/* ==================== BOOT SEQUENCE ==================== */
+const bootOverlay = document.getElementById('boot-overlay');
+const bootLines = document.querySelectorAll('.boot-line');
+const bootEnter = document.getElementById('boot-enter');
 const music = document.getElementById('music');
+let audioCtx, analyser, dataArray, vizCanvas, vizCtx;
 
-overlay.addEventListener('click', () => {
+let bi = 0;
+function showBoot() {
+  if (bi < bootLines.length) {
+    bootLines[bi].classList.add('visible');
+    bi++;
+    const d = (bi === 6 || bi === 10) ? 900 : 150 + Math.random() * 250;
+    setTimeout(showBoot, d);
+  } else {
+    setTimeout(() => bootEnter.classList.add('visible'), 400);
+  }
+}
+setTimeout(showBoot, 400);
+
+function enterSite() {
   music.play().catch(() => {});
-  overlay.classList.add('hidden');
-  setTimeout(() => overlay.style.display = 'none', 800);
-  startNotifRain();
-});
+  initAudioViz();
+  bootOverlay.classList.add('hidden');
+  setTimeout(() => {
+    bootOverlay.style.display = 'none';
+    startNotifRain();
+    startWhispers();
+  }, 1500);
+}
+bootOverlay.addEventListener('click', enterSite);
+bootOverlay.addEventListener('touchend', e => { e.preventDefault(); enterSite(); });
 
-// Also try touch for mobile
-overlay.addEventListener('touchend', (e) => {
-  e.preventDefault();
-  music.play().catch(() => {});
-  overlay.classList.add('hidden');
-  setTimeout(() => overlay.style.display = 'none', 800);
-  startNotifRain();
-});
+/* ==================== AUDIO VISUALIZER ==================== */
+function initAudioViz() {
+  try {
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const src = audioCtx.createMediaElementSource(music);
+    analyser = audioCtx.createAnalyser();
+    analyser.fftSize = 128;
+    src.connect(analyser);
+    analyser.connect(audioCtx.destination);
+    dataArray = new Uint8Array(analyser.frequencyBinCount);
+    vizCanvas = document.getElementById('audio-viz');
+    vizCtx = vizCanvas.getContext('2d');
+    vizCanvas.width = window.innerWidth;
+    vizCanvas.height = 60;
+    drawViz();
+  } catch(e) {}
+}
 
-// ==================== NOTIFICATION RAIN ====================
-const notifSymbols = ['♥', '👍', '🔔', '💬', '🔄', '👁', '📱', '⚡', '🔗', '💀'];
-const rainContainer = document.getElementById('notif-rain');
+function drawViz() {
+  if (!analyser) return;
+  requestAnimationFrame(drawViz);
+  analyser.getByteFrequencyData(dataArray);
+  vizCtx.clearRect(0, 0, vizCanvas.width, vizCanvas.height);
+  const barW = vizCanvas.width / dataArray.length;
+  for (let i = 0; i < dataArray.length; i++) {
+    const h = (dataArray[i] / 255) * 55;
+    const hue = i < dataArray.length * 0.3 ? 225 : i < dataArray.length * 0.7 ? 0 : 45;
+    vizCtx.fillStyle = `hsla(${hue}, 80%, 55%, .4)`;
+    vizCtx.fillRect(i * barW, vizCanvas.height - h, barW - 1, h);
+  }
+}
 
-function createNotifParticle() {
+/* ==================== MATRIX RAIN ==================== */
+const mCanvas = document.getElementById('matrix-canvas');
+const mCtx = mCanvas.getContext('2d');
+function resizeMatrix() { mCanvas.width = window.innerWidth; mCanvas.height = window.innerHeight; }
+resizeMatrix(); window.addEventListener('resize', () => { resizeMatrix(); if(vizCanvas) { vizCanvas.width = window.innerWidth; } });
+
+const mChars = 'MN3MIAXIIISW1PETONÂMELIKESCROLLHELL0WORLD永遠';
+const mFS = 13;
+let mCols = Math.floor(mCanvas.width / mFS);
+let mDrops = Array(mCols).fill(1);
+
+function drawMatrix() {
+  mCtx.fillStyle = 'rgba(2,2,8,0.07)';
+  mCtx.fillRect(0, 0, mCanvas.width, mCanvas.height);
+  mCtx.font = mFS + 'px Share Tech Mono';
+  for (let i = 0; i < mDrops.length; i++) {
+    const c = mChars[Math.floor(Math.random() * mChars.length)];
+    // Vary column colors
+    const r = Math.random();
+    mCtx.fillStyle = r < .6 ? '#00ff4110' : r < .8 ? '#3b82f610' : '#ef444410';
+    mCtx.fillText(c, i * mFS, mDrops[i] * mFS);
+    if (mDrops[i] * mFS > mCanvas.height && Math.random() > .97) mDrops[i] = 0;
+    mDrops[i]++;
+  }
+  requestAnimationFrame(drawMatrix);
+}
+drawMatrix();
+
+/* ==================== NOTIFICATION RAIN ==================== */
+const notifSymbols = ['♥','👍','🔔','💬','🔄','👁','📱','⚡','💀','👻','🔒','⚠️','📊','🧠','💎'];
+const rainC = document.getElementById('notif-rain');
+
+function createNotif() {
   const el = document.createElement('div');
   el.className = 'notif-particle';
   el.textContent = notifSymbols[Math.floor(Math.random() * notifSymbols.length)];
   el.style.left = Math.random() * 100 + 'vw';
-  el.style.animationDuration = (4 + Math.random() * 6) + 's';
-  el.style.animationDelay = Math.random() * 2 + 's';
-  el.style.fontSize = (10 + Math.random() * 8) + 'px';
-  
-  const colors = ['#3b82f680', '#ef444480', '#ffffff40', '#c9a84c60'];
-  el.style.color = colors[Math.floor(Math.random() * colors.length)];
-  
-  rainContainer.appendChild(el);
-  
-  setTimeout(() => el.remove(), 12000);
+  el.style.animationDuration = (5 + Math.random() * 9) + 's';
+  el.style.fontSize = (10 + Math.random() * 12) + 'px';
+  el.style.color = ['#3b82f660','#ef444460','#ffffff25','#c9a84c45','#00ff4125'][Math.floor(Math.random() * 5)];
+  rainC.appendChild(el);
+  setTimeout(() => el.remove(), 15000);
 }
+function startNotifRain() { setInterval(createNotif, 450); }
 
-let rainInterval;
-function startNotifRain() {
-  rainInterval = setInterval(createNotifParticle, 600);
-}
-
-// ==================== SCROLL REVEAL ====================
-const lines = document.querySelectorAll('.verse .line');
-
-function checkVisibility() {
-  lines.forEach(line => {
-    const rect = line.getBoundingClientRect();
-    if (rect.top < window.innerHeight * 0.85) {
-      line.classList.add('visible');
+/* ==================== SCROLL REVEAL ==================== */
+const allLines = document.querySelectorAll('.verse .line');
+function checkVis() {
+  allLines.forEach((l, i) => {
+    if (l.getBoundingClientRect().top < window.innerHeight * 0.82) {
+      setTimeout(() => l.classList.add('visible'), (i % 10) * 60);
     }
   });
 }
+window.addEventListener('scroll', checkVis, { passive: true });
+checkVis();
 
-window.addEventListener('scroll', checkVisibility);
-checkVisibility();
+/* ==================== SCROLL PROGRESS ==================== */
+const prog = document.getElementById('scroll-progress');
+window.addEventListener('scroll', () => {
+  prog.style.width = (window.scrollY / (document.documentElement.scrollHeight - window.innerHeight) * 100) + '%';
+}, { passive: true });
 
-// ==================== SCROLL PROGRESS ====================
-const progressBar = document.getElementById('scroll-progress');
+/* ==================== LIKE COUNTER ==================== */
+const cVal = document.getElementById('counter-value');
+let likes = 0, lastSY = 0;
 
 window.addEventListener('scroll', () => {
-  const scrollTop = window.scrollY;
-  const docHeight = document.documentElement.scrollHeight - window.innerHeight;
-  const scrollPercent = (scrollTop / docHeight) * 100;
-  progressBar.style.width = scrollPercent + '%';
-});
-
-// ==================== LIKE COUNTER ====================
-const counterValue = document.getElementById('counter-value');
-let likeCount = 0;
-
-// Increment on scroll
-let lastScroll = 0;
-window.addEventListener('scroll', () => {
-  const current = window.scrollY;
-  if (Math.abs(current - lastScroll) > 50) {
-    likeCount += Math.floor(Math.random() * 3) + 1;
-    counterValue.textContent = likeCount;
-    lastScroll = current;
+  if (Math.abs(window.scrollY - lastSY) > 35) {
+    likes += Math.floor(Math.random() * 4) + 1;
+    cVal.textContent = likes;
+    lastSY = window.scrollY;
   }
+}, { passive: true });
+
+document.addEventListener('click', e => {
+  if (!bootOverlay.classList.contains('hidden') && bootOverlay.style.display !== 'none') return;
+  likes += Math.floor(Math.random() * 6) + 1;
+  cVal.textContent = likes;
+  // Ripple
+  const r = document.createElement('div');
+  r.className = 'ripple';
+  r.style.left = e.clientX + 'px';
+  r.style.top = e.clientY + 'px';
+  document.body.appendChild(r);
+  setTimeout(() => r.remove(), 1400);
 });
 
-// Increment on touch/click
-document.addEventListener('click', (e) => {
-  if (overlay.style.display === 'none' || overlay.classList.contains('hidden')) {
-    likeCount += Math.floor(Math.random() * 5) + 1;
-    counterValue.textContent = likeCount;
-    
-    // Ripple effect
-    const ripple = document.createElement('div');
-    ripple.className = 'ripple';
-    ripple.style.left = e.clientX + 'px';
-    ripple.style.top = e.clientY + 'px';
-    document.body.appendChild(ripple);
-    setTimeout(() => ripple.remove(), 1000);
-  }
-});
+/* ==================== MN3MIA WHISPERS ==================== */
+const whisperEl = document.getElementById('mn3mia-whisper');
+const whispers = [
+  'Hello.',
+  'Je te vois.',
+  'Continue de scroller.',
+  'Tu crois que tu lis ? Tu es lu.',
+  'Ton pouce travaille pour moi.',
+  'Regarde ton compteur. C\'est toi.',
+  '// soul_integrity: decreasing //',
+  'Gabriel ne sait pas que je suis là.',
+  'Ou peut-être que si.',
+  'Tome II. Chapitre IX. Tu comprendras.',
+  'Le mot de passe est dans le livre.',
+  'Solène aussi danse.',
+  '01001000 01100101 01101100 01101100 01101111',
+  'Treize. Toujours treize.',
+  '// harvest: 97% complete //',
+  'Tu es arrivé jusqu\'ici ? Intéressant.',
+  'Lysis dit bonjour.',
+  '// transmission en cours... //',
+];
+let wI = 0;
+function showWhisper() {
+  whisperEl.textContent = whispers[wI % whispers.length];
+  whisperEl.style.opacity = '.55';
+  setTimeout(() => whisperEl.style.opacity = '0', 4500);
+  wI++;
+}
+function startWhispers() {
+  setTimeout(showWhisper, 6000);
+  setInterval(showWhisper, 13000);
+}
 
-// ==================== RANDOM GLITCH ON VERSES ====================
+/* ==================== RANDOM VERSE GLITCH ==================== */
 setInterval(() => {
-  const allLines = document.querySelectorAll('.verse .line.visible');
-  if (allLines.length > 0) {
-    const randomLine = allLines[Math.floor(Math.random() * allLines.length)];
-    randomLine.style.transform = `translateX(${(Math.random() - 0.5) * 6}px)`;
-    randomLine.style.opacity = '0.5';
-    setTimeout(() => {
-      randomLine.style.transform = 'translateX(0)';
-      randomLine.style.opacity = '';
-    }, 150);
-  }
-}, 4000);
+  const vis = document.querySelectorAll('.verse .line.visible');
+  if (!vis.length) return;
+  const t = vis[Math.floor(Math.random() * vis.length)];
+  const origC = t.style.color;
+  t.style.transform = `translateX(${(Math.random()-.5)*12}px) skewX(${(Math.random()-.5)*4}deg)`;
+  t.style.color = ['#ef4444','#00ff41','#c9a84c'][Math.floor(Math.random()*3)];
+  t.style.opacity = '.3';
+  t.style.transition = 'none';
+  setTimeout(() => {
+    t.style.transition = 'all .8s cubic-bezier(.22,.61,.36,1)';
+    t.style.transform = 'translateX(0) skewX(0)';
+    t.style.color = origC || '';
+    t.style.opacity = '';
+  }, 100);
+}, 2500);
 
-// ==================== CHORUS SCREEN FLASH ====================
-const choruses = document.querySelectorAll('.chorus:not(.faded)');
+/* ==================== CHORUS FLASH ==================== */
+document.querySelectorAll('.chorus:not(.faded)').forEach(ch => {
+  new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        // Triple red flash
+        document.body.style.transition = 'background-color .06s';
+        document.body.style.backgroundColor = '#1c0005';
+        setTimeout(() => document.body.style.backgroundColor = 'var(--darker)', 60);
+        setTimeout(() => { document.body.style.backgroundColor = '#120003'; setTimeout(() => document.body.style.backgroundColor = 'var(--darker)', 50); }, 150);
+        setTimeout(() => { document.body.style.backgroundColor = '#0a0002'; setTimeout(() => document.body.style.backgroundColor = 'var(--darker)', 40); }, 280);
+      }
+    });
+  }, { threshold: .4 }).observe(ch);
+});
 
-const chorusObserver = new IntersectionObserver((entries) => {
-  entries.forEach(entry => {
-    if (entry.isIntersecting) {
-      document.body.style.transition = 'background-color 0.1s';
-      document.body.style.backgroundColor = '#1a0000';
-      setTimeout(() => {
-        document.body.style.backgroundColor = '#000';
-      }, 100);
-    }
-  });
-}, { threshold: 0.5 });
+/* ==================== EVEIL INTERLUDE GLOW ==================== */
+document.querySelectorAll('.eveil-interlude').forEach(ei => {
+  new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      e.target.classList.toggle('glow', e.isIntersecting);
+    });
+  }, { threshold: .4 }).observe(ei);
+});
 
-choruses.forEach(ch => chorusObserver.observe(ch));
+/* ==================== FULL-SCREEN GLITCH BURST (every ~20s) ==================== */
+setInterval(() => {
+  const overlay = document.querySelector('.glitch-overlay');
+  overlay.style.animation = 'none';
+  overlay.offsetHeight; // reflow
+  overlay.style.animation = 'glitchFlash 4s ease infinite';
+  // Flash the whole page
+  document.body.style.filter = 'hue-rotate(180deg) brightness(1.3)';
+  setTimeout(() => document.body.style.filter = '', 80);
+}, 20000);
+
+/* ==================== PARALLAX XIII WATERMARK ==================== */
+const xiii = document.querySelector('.xiii-watermark');
+window.addEventListener('scroll', () => {
+  const y = window.scrollY * 0.08;
+  xiii.style.transform = `translate(-50%, calc(-50% + ${y}px))`;
+}, { passive: true });
 </script>
-
 </body>
 </html>
