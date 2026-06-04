@@ -204,7 +204,16 @@ footer{padding:60px 22px 90px;text-align:center}
 #fin196{padding:70px 0 24px}
 .stage2{position:relative;width:100%;max-width:760px;margin:22px auto;aspect-ratio:1/1;border:1px solid var(--line);border-radius:16px;overflow:hidden;background:#000;box-shadow:0 30px 80px -30px #000, inset 0 0 120px rgba(0,0,0,.6)}
 .stage2 canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+@supports not (aspect-ratio:1/1){.stage2{height:min(92vw,560px)}}
 .stage2 .s2hint{position:absolute;left:0;right:0;bottom:12px;text-align:center;font-family:"Share Tech Mono",monospace;font-size:9px;letter-spacing:.24em;color:var(--warm);opacity:.5;text-transform:uppercase;pointer-events:none}
+.s2-ctl{position:absolute;left:50%;bottom:40px;transform:translateX(-50%);display:flex;gap:10px;z-index:6}
+.s2-ctl button{font-family:"Share Tech Mono",monospace;font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);background:rgba(0,0,0,.45);border:1px solid var(--line);border-radius:20px;padding:6px 12px;cursor:pointer;backdrop-filter:blur(4px);transition:.2s}
+.s2-ctl button.on{color:var(--warm);border-color:var(--warm)}
+.s2-fs{position:absolute;top:12px;right:12px;z-index:7;width:38px;height:38px;border-radius:10px;border:1px solid var(--line);background:rgba(0,0,0,.5);color:var(--cool);font-size:17px;line-height:1;cursor:pointer;backdrop-filter:blur(4px);transition:.2s}
+.s2-fs:hover{border-color:var(--cool);box-shadow:0 0 18px -6px var(--cool)}
+.stage2.fs{position:fixed;inset:0;width:100%;height:100%;max-width:none;aspect-ratio:auto;margin:0;border:0;border-radius:0;z-index:999;background:#000}
+.stage2.fs .s2-fs{width:44px;height:44px;font-size:20px;top:16px;right:16px}
+body.fs-lock{overflow:hidden}
 
 @media(max-width:480px){
   .cf{flex-basis:240px}
@@ -389,10 +398,15 @@ footer{padding:60px 22px 90px;text-align:center}
     <p class="body reveal" style="max-width:540px;margin:6px auto 0">Un dernier seuil. Fixez l'écran : derrière les chiffres qui tombent sans jamais se refermer, une note tenue. Touchez-la.</p>
   </div>
   <div class="wrap">
-    <div class="stage2">
+    <div class="stage2" id="stage2">
       <canvas id="stereo2"></canvas>
       <div class="hero-mid"></div>
       <div class="hero-dots" style="top:6%"><span><i></i></span><span><i style="animation-delay:.6s"></i></span></div>
+      <button class="s2-fs" id="s2fs" title="Plein écran" aria-label="Plein écran">⛶</button>
+      <div class="s2-ctl">
+        <button id="s2par" class="on">Parallèle</button>
+        <button id="s2cross">Croisé</button>
+      </div>
       <div class="s2hint">196 · 887 · 1675 · 7436 · 13783 · …  —  fusionnez</div>
     </div>
   </div>
@@ -682,7 +696,7 @@ document.getElementById('wa-link').addEventListener('click',e=>{if(document.getE
   const stage=document.querySelector('#fin196 .stage2'); if(!stage) return;
   const cvs=document.getElementById('stereo2'), g=cvs.getContext('2d');
   let cw,ch,HALF,CY,SCALE,DPR=1;
-  const D=6.0,Z_NEAR=D,Z_FAR=50; let SEP=0.10,t=0,last=0,running=false,sonar=[],sonarT=0;
+  const D=6.0,Z_NEAR=D,Z_FAR=50; let SEP=0.10,t=0,last=0,running=false,sonar=[],sonarT=0,mode='parallel';
   function resize(){DPR=Math.min(window.devicePixelRatio||1,2);const w=stage.clientWidth,h=stage.clientHeight;cvs.width=w*DPR;cvs.height=h*DPR;cw=cvs.width;ch=cvs.height;HALF=cw/2;CY=ch/2;SCALE=Math.min(HALF*0.46,ch*0.42)/3.2;}
   window.addEventListener('resize',resize);
   const proj=(X,Y,Z,ex)=>{const k=D/Z;return [ex+k*(X-ex),Y*k,k];};
@@ -723,13 +737,20 @@ document.getElementById('wa-link').addEventListener('click',e=>{if(document.getE
       for(let i=sonar.length-1;i>=0;i--){sonar[i].r+=dt*3.5;sonar[i].life-=dt*.6;if(sonar[i].life<=0)sonar.splice(i,1);}
     }
     g.fillStyle='rgba(5,5,6,0.32)';g.fillRect(0,0,cw,ch);
-    eye(-SEP,0);eye(SEP,HALF);
+    if(mode==='parallel'){eye(-SEP,0);eye(SEP,HALF);}else{eye(SEP,0);eye(-SEP,HALF);}
     requestAnimationFrame(step);
   }
   resize();requestAnimationFrame(step);
   new IntersectionObserver(es=>{running=es[0].isIntersecting;last=0;},{threshold:.06}).observe(stage);
   let actx;stage.style.cursor='pointer';
   stage.addEventListener('click',()=>{try{actx=actx||new (window.AudioContext||window.webkitAudioContext)();const o=actx.createOscillator(),gg=actx.createGain(),tt=actx.currentTime;o.type='sine';o.frequency.value=196;o.connect(gg);gg.connect(actx.destination);gg.gain.setValueAtTime(0,tt);gg.gain.linearRampToValueAtTime(.14,tt+.4);gg.gain.setValueAtTime(.14,tt+3);gg.gain.exponentialRampToValueAtTime(.0001,tt+5);o.start(tt);o.stop(tt+5.05);}catch(e){}});
+  // contrôles : vue parallèle/croisée + plein écran
+  const s2par=document.getElementById('s2par'),s2cross=document.getElementById('s2cross'),fsBtn=document.getElementById('s2fs');
+  if(s2par){s2par.onclick=e=>{e.stopPropagation();mode='parallel';s2par.classList.add('on');s2cross.classList.remove('on');};
+    s2cross.onclick=e=>{e.stopPropagation();mode='cross';s2cross.classList.add('on');s2par.classList.remove('on');};}
+  function setFS(on){stage.classList.toggle('fs',on);document.body.classList.toggle('fs-lock',on);if(fsBtn){fsBtn.textContent=on?'✕':'⛶';fsBtn.title=on?'Quitter':'Plein écran';}resize();setTimeout(resize,60);setTimeout(resize,280);}
+  if(fsBtn)fsBtn.onclick=e=>{e.stopPropagation();setFS(!stage.classList.contains('fs'));};
+  window.addEventListener('keydown',e=>{if(e.key==='Escape'&&stage.classList.contains('fs'))setFS(false);});
 })();
 </script>
 </body>
