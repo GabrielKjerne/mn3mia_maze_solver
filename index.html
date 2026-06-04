@@ -83,6 +83,12 @@ a{color:inherit;text-decoration:none}
 
 /* stereo controls */
 .stereo-ctl{display:flex;gap:10px;justify-content:center;margin-top:24px;pointer-events:auto}
+.hero-fs{position:absolute;top:50px;right:14px;z-index:8;width:38px;height:38px;border-radius:10px;border:1px solid var(--line);background:rgba(0,0,0,.45);color:var(--cool);font-size:17px;line-height:1;cursor:pointer;backdrop-filter:blur(4px);transition:.2s;pointer-events:auto}
+.hero-fs:hover{border-color:var(--cool);box-shadow:0 0 18px -6px var(--cool)}
+#hero.fs{position:fixed;inset:0;z-index:999;height:100vh;height:100svh}
+#hero.fs .hero-kicker,#hero.fs .hero-title,#hero.fs .hero-sub,#hero.fs .hero-tag,#hero.fs .scroll-hint{display:none}
+#hero.fs .hero-overlay{background:none;padding-bottom:30px}
+#hero.fs .hero-fs{top:16px;right:16px;width:44px;height:44px;font-size:20px}
 .stereo-ctl button{font-family:"Share Tech Mono",monospace;font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);background:rgba(0,0,0,.35);border:1px solid var(--line);border-radius:20px;padding:6px 12px;cursor:pointer;backdrop-filter:blur(4px);transition:.2s}
 .stereo-ctl button.on{color:var(--warm);border-color:var(--warm)}
 
@@ -134,13 +140,16 @@ p.body em{color:var(--ink);font-style:italic}
 /* ============================================================= GALLERY coverflow */
 #galerie{padding:90px 0 60px}
 .cf-wrap{position:relative;width:100%;overflow:hidden}
-.coverflow{display:flex;gap:0;overflow-x:auto;scroll-snap-type:x mandatory;padding:30px max(22px,calc(50% - 150px));-webkit-overflow-scrolling:touch;perspective:1400px;scrollbar-width:none}
+.coverflow{display:flex;gap:0;overflow-x:auto;scroll-snap-type:x proximity;padding:30px max(22px,calc(50% - 150px));-webkit-overflow-scrolling:touch;scrollbar-width:none}
 .coverflow::-webkit-scrollbar{display:none}
-.cf{flex:0 0 300px;scroll-snap-align:center;padding:0 10px;transform-style:preserve-3d;transition:transform .15s linear}
+.cf{flex:0 0 300px;scroll-snap-align:center;padding:0 10px;transition:transform .15s linear;will-change:transform}
 .cf .card{border-radius:14px;overflow:hidden;box-shadow:0 40px 80px -28px rgba(0,0,0,.9),0 0 0 1px var(--line);position:relative;cursor:pointer;transition:box-shadow .3s,filter .3s;filter:saturate(.9) brightness(.84);-webkit-box-reflect:below 8px linear-gradient(transparent 62%,rgba(0,0,0,.26))}
 .cf.active .card{filter:saturate(1) brightness(1.03);box-shadow:0 40px 90px -22px rgba(0,0,0,.95),0 0 0 1px rgba(95,214,201,.5),0 0 60px -12px var(--cool)}
 .cf .card::after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(180deg,rgba(95,214,201,.06),transparent 28% 72%,rgba(0,0,0,.4))}
 .cf-now{text-align:center;font-family:"Share Tech Mono",monospace;font-size:12px;letter-spacing:.3em;color:var(--warm);margin-top:8px;opacity:.85}
+.cf-arrow{position:absolute;top:50%;transform:translateY(-50%);z-index:10;width:46px;height:46px;border-radius:50%;border:1px solid var(--line);background:rgba(5,5,6,.62);color:var(--cool);font-size:26px;line-height:1;cursor:pointer;backdrop-filter:blur(4px);transition:.2s;display:flex;align-items:center;justify-content:center}
+.cf-arrow:hover{border-color:var(--cool);box-shadow:0 0 20px -6px var(--cool)}
+.cf-arrow.prev{left:8px}.cf-arrow.next{right:8px}
 .cf .card img{width:100%;aspect-ratio:9/16;object-fit:cover}
 .cf .card .num{position:absolute;top:10px;left:12px;font-family:"Share Tech Mono",monospace;font-size:11px;letter-spacing:.2em;color:var(--warm);text-shadow:0 0 8px #000}
 .cf-hint{text-align:center;font-family:"Share Tech Mono",monospace;font-size:10px;letter-spacing:.3em;color:var(--faint);text-transform:uppercase;margin-top:6px}
@@ -254,6 +263,7 @@ body.fs-lock{overflow:hidden}
   <canvas id="stereo"></canvas>
   <div class="hero-mid"></div>
   <div class="hero-dots"><span><i></i></span><span><i style="animation-delay:.6s"></i></span></div>
+  <button class="hero-fs" id="heroFs" title="Plein écran" aria-label="Plein écran">⛶</button>
   <div class="hero-overlay">
     <div class="hero-inner">
     <div class="hero-kicker">Le Treizième Éveil — Tome I</div>
@@ -350,6 +360,8 @@ body.fs-lock{overflow:hidden}
   <h2 class="reveal" style="text-align:center">La galerie<br>du Protocole</h2></div>
   <div class="cf-wrap">
     <div class="coverflow" id="coverflow"></div>
+    <button class="cf-arrow prev" id="cfPrev" aria-label="Précédent">‹</button>
+    <button class="cf-arrow next" id="cfNext" aria-label="Suivant">›</button>
   </div>
   <div class="cf-hint">← Glissez · Touchez pour agrandir →</div>
   <div class="cf-now" id="cfNow">C1 · 38</div>
@@ -423,7 +435,7 @@ body.fs-lock{overflow:hidden}
 <div id="lb"><span class="x" id="lbx">✕</span><span class="nav prev" id="lbprev">‹</span><img id="lbimg" src="" alt=""><span class="nav next" id="lbnext">›</span><div class="cap" id="lbcap"></div></div>
 
 <!-- ambient -->
-<audio id="amb" src="swipe.wav" loop preload="none"></audio>
+<audio id="amb" src="music.mp3" loop preload="auto"></audio>
 <button id="amb-btn" title="Ambiance sonore">♪</button>
 
 <script>
@@ -444,7 +456,7 @@ setInterval(()=>{const d=new Date();document.getElementById('clock').textContent
   const inner=hero.querySelector('.hero-inner');
   let cw,ch,HALF,CY,SCALE,DPR=1;
   const D=6.0,R=3.2,Z_NEAR=D,Z_FAR=46;
-  let SEP=0.10, mode='parallel', running=true;
+  let SEP=0.10, mode='parallel', running=true, fs=false;
   let t=0, clock=0, last=0, sonar=[], sonarT=0;
   const SPEED=.085, TWIST=.16;
 
@@ -452,6 +464,7 @@ setInterval(()=>{const d=new Date();document.getElementById('clock').textContent
     DPR=Math.min(window.devicePixelRatio||1,2);
     const w=hero.clientWidth,h=hero.clientHeight;
     cvs.width=w*DPR; cvs.height=h*DPR; cw=cvs.width; ch=cvs.height; HALF=cw/2;
+    if(fs){CY=ch*0.5;SCALE=Math.min(HALF*0.46,ch*0.42)/3.2;return;}
     const textH=(inner?inner.offsetHeight:0)*DPR;        // zone texte réservée
     let topZone=ch-(textH+62*DPR);
     if(topZone<ch*0.40) topZone=ch*0.40;                 // garde-fou
@@ -548,6 +561,10 @@ setInterval(()=>{const d=new Date();document.getElementById('clock').textContent
   new IntersectionObserver(es=>{running=es[0].isIntersecting;last=0;},{threshold:.05}).observe(hero);
   document.getElementById('bPar').onclick=()=>{mode='parallel';bPar.classList.add('on');bCross.classList.remove('on');};
   document.getElementById('bCross').onclick=()=>{mode='cross';bCross.classList.add('on');bPar.classList.remove('on');};
+  const heroFs=document.getElementById('heroFs');
+  function setHeroFS(on){fs=on;hero.classList.toggle('fs',on);document.body.classList.toggle('fs-lock',on);if(heroFs){heroFs.textContent=on?'✕':'⛶';heroFs.title=on?'Quitter':'Plein écran';}resize();setTimeout(resize,60);setTimeout(resize,280);}
+  if(heroFs)heroFs.onclick=()=>setHeroFS(!fs);
+  window.addEventListener('keydown',e=>{if(e.key==='Escape'&&fs)setHeroFS(false);});
 })();
 
 /* ================= REVEAL on scroll ================= */
@@ -592,9 +609,9 @@ function cfUpdate(){
   const c=cf.getBoundingClientRect(), center=c.left+c.width/2; let best=1,bestd=1e9;
   cf.querySelectorAll('.cf').forEach((el,idx)=>{
     const r=el.getBoundingClientRect(), d=(r.left+r.width/2-center)/c.width, ad=Math.abs(d);
-    const ry=Math.max(-58,Math.min(58,-d*92)), sc=Math.max(.66,1-ad*.55), z=-ad*240;
-    el.style.transform=`translateZ(${z}px) rotateY(${ry}deg) scale(${sc})`;
-    el.style.opacity=Math.max(.30,1-ad*.95); el.style.zIndex=String(100-Math.round(ad*100));
+    const ry=Math.max(-55,Math.min(55,-d*90)), sc=Math.max(.66,1-ad*.55), z=Math.max(-240,-ad*200);
+    el.style.transform=`perspective(1400px) translateZ(${z}px) rotateY(${ry}deg) scale(${sc})`;
+    el.style.opacity=Math.max(.30,1-ad*.95); el.style.zIndex=String(Math.max(1,100-Math.round(ad*80)));
     const isC=ad<.18; el.classList.toggle('active',isC);
     if(ad<bestd){bestd=ad;best=idx+1;}
   });
@@ -602,6 +619,9 @@ function cfUpdate(){
 }
 cf.addEventListener('scroll',()=>requestAnimationFrame(cfUpdate),{passive:true});
 addEventListener('resize',cfUpdate);setTimeout(cfUpdate,120);setTimeout(cfUpdate,500);
+(function(){const cwid=()=>{const c=cf.querySelector('.cf');return c?c.getBoundingClientRect().width:280;};
+  document.getElementById('cfPrev').onclick=()=>cf.scrollBy({left:-cwid(),behavior:'smooth'});
+  document.getElementById('cfNext').onclick=()=>cf.scrollBy({left:cwid(),behavior:'smooth'});})();
 
 /* lightbox + navigation */
 const lb=document.getElementById('lb'),lbi=document.getElementById('lbimg'),lbc=document.getElementById('lbcap');
@@ -618,7 +638,15 @@ lb.addEventListener('touchend',e=>{const dx=e.changedTouches[0].clientX-tx;if(Ma
 
 /* ================= ambient audio ================= */
 const amb=document.getElementById('amb'),ab=document.getElementById('amb-btn');
-ab.onclick=()=>{if(amb.paused){amb.volume=.5;amb.play().then(()=>{ab.textContent='⏸';}).catch(()=>{ab.textContent='⤫';});}else{amb.pause();ab.textContent='♪';}};
+amb.volume=.5;
+function playMusic(){amb.play().then(()=>{ab.textContent='⏸';removeKick();}).catch(()=>{});}
+function pauseMusic(){amb.pause();ab.textContent='♪';}
+ab.onclick=()=>{if(amb.paused)playMusic();else pauseMusic();};
+// lecture à l'ouverture ; si l'autoplay sonore est bloqué, démarre au tout premier geste
+function kick(){if(amb.paused)playMusic();}
+function removeKick(){['pointerdown','keydown','touchstart','scroll'].forEach(ev=>window.removeEventListener(ev,kick));}
+window.addEventListener('load',playMusic);
+['pointerdown','keydown','touchstart','scroll'].forEach(ev=>window.addEventListener(ev,kick,{passive:true}));
 
 /* WhatsApp placeholder */
 document.getElementById('wa-link').addEventListener('click',e=>{if(document.getElementById('wa-link').getAttribute('href')==='#'){e.preventDefault();}});
