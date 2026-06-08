@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#05060f">
 <title>Le Treizième Éveil — l'Interface</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;800&family=Cormorant+Garamond:ital@0;1&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 html,body{height:100%}
@@ -14,9 +14,13 @@ body{background:#05060f;overflow:hidden;touch-action:none;font-family:"Cinzel",s
 #gl{position:fixed;inset:0;z-index:0;display:block}
 .vig{position:fixed;inset:0;pointer-events:none;z-index:8;box-shadow:inset 0 0 340px 90px rgba(2,3,12,.78)}
 #labels{position:fixed;inset:0;z-index:5;pointer-events:none}
-.lab{position:absolute;transform:translate(-50%,-50%);font-weight:700;color:#fff;text-shadow:0 1px 12px rgba(0,0,0,.85);letter-spacing:.04em;will-change:transform,opacity}
+.lab{position:absolute;transform:translate(-50%,-50%);font-weight:700;color:#fff;text-shadow:0 1px 12px rgba(0,0,0,.85);letter-spacing:.04em;text-align:center;will-change:transform,opacity}
+.lab .rn{display:block}
+.lab .ti{display:block;margin-top:.15em;font-size:.6em;font-weight:400;font-style:italic;font-family:"Cormorant Garamond",serif;letter-spacing:.06em;opacity:0;transition:opacity .45s ease;color:#dfe9ff;text-shadow:0 1px 10px rgba(0,0,0,.9)}
 .lab.locked{opacity:.5}
+.lab.locked .rn{color:#aebbd6}
 .lab.sun{color:#13243f;text-shadow:0 1px 10px rgba(200,225,255,.85)}
+/* portail (conservé) */
 #portal{position:fixed;inset:0;z-index:120;display:none;perspective:1300px;overflow:hidden}
 #portal.go{display:block}
 #portal .door{position:absolute;inset:0;transform-origin:50% 100%;background:linear-gradient(180deg,#0a0a0c,#000);box-shadow:inset 0 0 0 2px rgba(255,255,255,.06)}
@@ -29,6 +33,24 @@ body{background:#05060f;overflow:hidden;touch-action:none;font-family:"Cinzel",s
 @keyframes pfall{to{transform:rotateX(88deg)}}
 @keyframes pglow{0%{opacity:0;transform:scale(.2)}60%{opacity:.9}100%{opacity:1;transform:scale(2.4)}}
 @keyframes pflash{0%,72%{opacity:0}90%{opacity:.9}100%{opacity:1}}
+/* portail d'éveil (geste requis pour le son) */
+#gate{position:fixed;inset:0;z-index:130;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#04060b;transition:opacity 1.8s ease}
+#gate.hidden{opacity:0;pointer-events:none}
+#gate .sigil{font-family:"Cinzel",serif;font-weight:800;letter-spacing:.2em;color:#cfe3ff;font-size:clamp(2.6rem,8vw,5rem);text-shadow:0 0 30px rgba(150,190,255,.55),0 0 90px rgba(120,160,255,.25);animation:breathe 5.5s ease-in-out infinite;text-indent:.2em}
+#gate .enter{margin-top:2.4rem;font-family:"Cinzel",serif;letter-spacing:.45em;text-transform:uppercase;font-size:.72rem;color:#f6d9a0;border:1px solid rgba(246,217,160,.35);padding:.9em 2.6em;border-radius:2px;background:rgba(246,217,160,.03);cursor:pointer;backdrop-filter:blur(2px);transition:all .5s ease;text-indent:.45em}
+#gate .enter:hover{background:rgba(246,217,160,.12);border-color:rgba(246,217,160,.75);color:#fff;box-shadow:0 0 34px rgba(246,217,160,.25)}
+#gate .whisper{margin-top:1.5rem;font-family:"Cormorant Garamond",serif;font-style:italic;color:rgba(159,180,216,.45);font-size:1.05rem;letter-spacing:.04em}
+@keyframes breathe{0%,100%{opacity:.6;transform:scale(.99)}50%{opacity:1;transform:scale(1.01)}}
+#footer{position:fixed;bottom:1.4rem;left:0;right:0;text-align:center;z-index:20;font-family:"Cinzel",serif;letter-spacing:.5em;font-size:.6rem;color:rgba(159,180,216,.32);text-transform:uppercase;pointer-events:none;opacity:0;transition:opacity 2s ease;text-indent:.5em}
+#footer.show{opacity:1}
+#sound-toggle{position:fixed;top:1.1rem;right:1.3rem;z-index:30;width:34px;height:34px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:rgba(159,180,216,.5);opacity:0;transition:opacity 2s ease,color .3s}
+#sound-toggle.show{opacity:1}
+#sound-toggle:hover{color:#cfe3ff}
+#sound-toggle.off #wave{opacity:.12}
+#num196{position:fixed;inset:0;z-index:25;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none;opacity:0;transition:opacity 1s ease}
+#num196.show{opacity:1}
+#num196 .n{font-family:"Cinzel",serif;font-weight:800;font-size:clamp(4rem,16vw,11rem);color:#f6d9a0;text-shadow:0 0 50px rgba(246,217,160,.7)}
+#num196 .s{font-family:"Cormorant Garamond",serif;font-style:italic;font-size:1.2rem;color:rgba(207,227,255,.75);margin-top:.4rem;letter-spacing:.04em}
 </style>
 </head>
 <body>
@@ -36,6 +58,18 @@ body{background:#05060f;overflow:hidden;touch-action:none;font-family:"Cinzel",s
 <div id="labels"></div>
 <div class="vig"></div>
 <div id="portal"><div class="glow"></div><div class="door"></div><div class="flash"></div></div>
+<div id="num196"><div class="n">196</div><div class="s">le palindrome qu'on cesse de chercher</div></div>
+<div id="gate">
+  <div class="sigil">XIII</div>
+  <div class="enter" id="enter-btn">Éveiller</div>
+  <div class="whisper">treize mondes attendent dans le verre</div>
+</div>
+<div id="footer">Le Treizième Éveil</div>
+<div id="sound-toggle" title="son">
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
+    <path d="M4 9v6h4l5 4V5L8 9H4z"/><path id="wave" d="M16 9a4 4 0 010 6"/>
+  </svg>
+</div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
@@ -55,112 +89,385 @@ const TOMES=[
   {n:'XII',col:'#e07bff',open:false,href:'#'},
   {n:'XIII',col:'#dfeaff',open:false,href:'#',center:true}
 ];
-if(!window.THREE){document.body.innerHTML='<p style="color:#fff;padding:24px">WebGL indisponible.</p>';}
-else{(function(){
-const MOBILE=innerWidth<620;
-const W0=()=>innerWidth,H0=()=>innerHeight;
-const scene=new THREE.Scene();
-const camera=new THREE.PerspectiveCamera(48,W0()/H0(),0.1,800);
-camera.position.set(0,7.5,19);
-let renderer;
-try{renderer=new THREE.WebGLRenderer({canvas:document.getElementById('gl'),antialias:true,alpha:true});}
-catch(e){document.body.innerHTML='<p style="color:#fff;padding:24px">WebGL indisponible.</p>';return;}
-renderer.setPixelRatio(Math.min(devicePixelRatio||1,2));
-renderer.setSize(W0(),H0());
-renderer.outputEncoding=THREE.sRGBEncoding;
-renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.0;
+if(!window.THREE){
+  document.body.innerHTML='<p style="color:#fff;padding:24px;font-family:Cinzel,serif">WebGL indisponible.</p>';
+}else{(function(){
+  const MOBILE = innerWidth < 620;
+  const W0=()=>innerWidth, H0=()=>innerHeight;
 
-function cnv(w,h){const c=document.createElement('canvas');c.width=w;c.height=h;return c;}
-function makeGlow(){const c=cnv(128,128),x=c.getContext('2d');const g=x.createRadialGradient(64,64,0,64,64,64);
-  g.addColorStop(0,'rgba(255,255,255,1)');g.addColorStop(.25,'rgba(255,255,255,.6)');g.addColorStop(1,'rgba(255,255,255,0)');x.fillStyle=g;x.fillRect(0,0,128,128);return new THREE.CanvasTexture(c);}
-const GLOW=makeGlow();
+  // titres connus ; les tomes scellés restent sans nom
+  const TITLES = { 'I':'R\u00e9sonance', 'II':'Pr\u00e9monition' };
+  const NOTES=[196.00,220.00,261.63,293.66,329.63,392.00,440.00,523.25,587.33,659.25,783.99,880.00,1046.50];
 
-/* ---- fond : tableau Quasar (sphère enveloppante) + reflets ---- */
-const bg=new THREE.Mesh(new THREE.SphereGeometry(220,48,48),new THREE.MeshBasicMaterial({color:0x0a0c18,side:THREE.BackSide,depthWrite:false}));
-scene.add(bg);
-new THREE.TextureLoader().load(QUASAR,tex=>{
-  tex.encoding=THREE.sRGBEncoding;tex.wrapS=THREE.RepeatWrapping;tex.repeat.x=2;
-  bg.material.map=tex;bg.material.color.set(0x586478);bg.material.needsUpdate=true;
-  try{const eq=tex.clone();eq.mapping=THREE.EquirectangularReflectionMapping;eq.needsUpdate=true;
-    const pm=new THREE.PMREMGenerator(renderer);scene.environment=pm.fromEquirectangular(eq).texture;}catch(e){}
-});
+  const scene=new THREE.Scene();
+  const camera=new THREE.PerspectiveCamera(48, W0()/H0(), 0.1, 900);
+  camera.position.set(0,7.5,19);
+  let renderer;
+  try{ renderer=new THREE.WebGLRenderer({canvas:document.getElementById('gl'),antialias:true,alpha:true}); }
+  catch(e){ document.body.innerHTML='<p style="color:#fff;padding:24px">WebGL indisponible.</p>'; return; }
+  renderer.setPixelRatio(Math.min(devicePixelRatio||1,2));
+  renderer.setSize(W0(),H0());
+  renderer.outputEncoding=THREE.sRGBEncoding;
+  renderer.toneMapping=THREE.ACESFilmicToneMapping; renderer.toneMappingExposure=1.0;
 
-/* ---- lumières (palette du tableau : bleu profond + rouille) ---- */
-scene.add(new THREE.AmbientLight(0x2b3952,0.9));
-const sunLight=new THREE.PointLight(0xdfeaff,2.2,0,2);scene.add(sunLight);
-const fill=new THREE.DirectionalLight(0xff7a44,0.35);fill.position.set(8,2,4);scene.add(fill);
-const fill2=new THREE.DirectionalLight(0x4a6fae,0.5);fill2.position.set(-6,4,-3);scene.add(fill2);
+  // ---------- textures ----------
+  function cnv(w,h){const c=document.createElement('canvas');c.width=w;c.height=h;return c;}
+  function makeGlow(){
+    const c=cnv(128,128),x=c.getContext('2d');
+    const g=x.createRadialGradient(64,64,0,64,64,64);
+    g.addColorStop(0,'rgba(255,255,255,1)');
+    g.addColorStop(.22,'rgba(255,255,255,.55)');
+    g.addColorStop(1,'rgba(255,255,255,0)');
+    x.fillStyle=g;x.fillRect(0,0,128,128);return new THREE.CanvasTexture(c);
+  }
+  const GLOW=makeGlow();
+  // rais volumétriques
+  function makeRays(n){
+    const S=256,c=cnv(S,S),x=c.getContext('2d');x.translate(S/2,S/2);
+    for(let i=0;i<n;i++){
+      const a=i/n*Math.PI*2;
+      const grad=x.createLinearGradient(0,0,Math.cos(a)*S/2,Math.sin(a)*S/2);
+      grad.addColorStop(0,'rgba(220,235,255,0)');
+      grad.addColorStop(0.15,'rgba(210,230,255,0.5)');
+      grad.addColorStop(1,'rgba(180,210,255,0)');
+      x.strokeStyle=grad; x.lineWidth=(i%2?2.2:1.1);
+      x.beginPath();x.moveTo(0,0);x.lineTo(Math.cos(a)*S/2,Math.sin(a)*S/2);x.stroke();
+    }
+    return new THREE.CanvasTexture(c);
+  }
+  const RAYS=makeRays(26);
+  // disque d'accrétion
+  function makeDisk(){
+    const S=512,c=cnv(S,S),x=c.getContext('2d');
+    const g=x.createRadialGradient(S/2,S/2,S*0.16,S/2,S/2,S*0.5);
+    g.addColorStop(0,'rgba(255,240,210,0)');
+    g.addColorStop(0.45,'rgba(255,150,70,0)');
+    g.addColorStop(0.62,'rgba(255,180,110,0.55)');
+    g.addColorStop(0.74,'rgba(255,230,190,0.7)');
+    g.addColorStop(0.85,'rgba(180,200,255,0.25)');
+    g.addColorStop(1,'rgba(120,150,255,0)');
+    x.fillStyle=g;x.beginPath();x.arc(S/2,S/2,S/2,0,Math.PI*2);x.fill();
+    return new THREE.CanvasTexture(c);
+  }
+  const DISK=makeDisk();
+  // givre
+  function makeFrost(){
+    const S=128,c=cnv(S,S),x=c.getContext('2d');
+    x.fillStyle='rgba(210,225,245,0.06)';x.fillRect(0,0,S,S);
+    for(let i=0;i<70;i++){
+      x.strokeStyle='rgba(220,235,255,'+(Math.random()*0.16)+')';
+      x.lineWidth=Math.random()*1.1;
+      const x0=Math.random()*S,y0=Math.random()*S;
+      x.beginPath();x.moveTo(x0,y0);x.lineTo(x0+(Math.random()-0.5)*42,y0+(Math.random()-0.5)*42);x.stroke();
+    }
+    const t=new THREE.CanvasTexture(c);t.wrapS=t.wrapT=THREE.RepeatWrapping;return t;
+  }
+  const FROST=makeFrost();
 
-/* ---- Soleil XIII = cœur du quasar (bleu-blanc) ---- */
-const sun=new THREE.Mesh(new THREE.SphereGeometry(1.5,48,48),new THREE.MeshBasicMaterial({color:0xeaf2ff}));
-scene.add(sun);
-function spr(col,s){const m=new THREE.Sprite(new THREE.SpriteMaterial({map:GLOW,color:col,transparent:true,blending:THREE.AdditiveBlending,depthWrite:false}));m.scale.set(s,s,1);scene.add(m);return m;}
-const sunGlow=spr(0xaecaff,8),sunGlow2=spr(0x4a64a0,15),sunGlow3=spr(0xe09858,5);
+  // ---------- fond : peinture + environnement ----------
+  const bg=new THREE.Mesh(new THREE.SphereGeometry(240,48,48),
+    new THREE.MeshBasicMaterial({color:0x0a0c18,side:THREE.BackSide,depthWrite:false}));
+  scene.add(bg);
+  new THREE.TextureLoader().load(QUASAR,tex=>{
+    tex.encoding=THREE.sRGBEncoding;tex.wrapS=THREE.RepeatWrapping;tex.repeat.x=2;
+    bg.material.map=tex;bg.material.color.set(0x4a5468);bg.material.needsUpdate=true;
+    try{const eq=tex.clone();eq.mapping=THREE.EquirectangularReflectionMapping;eq.needsUpdate=true;
+      const pm=new THREE.PMREMGenerator(renderer);scene.environment=pm.fromEquirectangular(eq).texture;}catch(e){}
+  });
 
-/* ---- planètes : verre cristallin réfractif teinté ---- */
-const planets=[],hitList=[],labelEl=[],labels=document.getElementById('labels');
-const rMin=3.4,rMax=12;
-for(let i=0;i<12;i++){
-  const d=TOMES[i],f=i/11,orbitR=rMin*Math.pow(rMax/rMin,f),pr=0.48+0.34*f;
-  const tint=new THREE.Color(d.col);
-  const mat=new THREE.MeshPhysicalMaterial({color:tint,metalness:0,roughness:0.06,
-    transmission:0.80,transparent:true,opacity:1,ior:1.4,
-    clearcoat:1,clearcoatRoughness:0.06,envMapIntensity:1.5,
-    emissive:tint,emissiveIntensity:d.open?0.22:0.09});
-  const mesh=new THREE.Mesh(new THREE.SphereGeometry(pr,64,64),mat);
-  const pivot=new THREE.Object3D();pivot.rotation.x=(Math.random()-0.5)*0.18;pivot.rotation.z=(Math.random()-0.5)*0.12;pivot.rotation.y=i*2.39996;
-  scene.add(pivot);pivot.add(mesh);mesh.position.set(orbitR,0,0);
-  const halo=new THREE.Sprite(new THREE.SpriteMaterial({map:GLOW,color:tint,transparent:true,blending:THREE.AdditiveBlending,depthWrite:false,opacity:d.open?0.8:0.36}));
-  halo.scale.set(pr*3.9,pr*3.9,1);mesh.add(halo);
-  const hit=new THREE.Mesh(new THREE.SphereGeometry(pr*1.95,12,12),new THREE.MeshBasicMaterial({visible:false}));hit.userData.idx=i;mesh.add(hit);hitList.push(hit);
-  const ringPivot=new THREE.Object3D();ringPivot.rotation.copy(pivot.rotation);scene.add(ringPivot);
-  const ring=new THREE.Mesh(new THREE.RingGeometry(orbitR-0.012,orbitR+0.012,120),new THREE.MeshBasicMaterial({color:0x8aa0c8,transparent:true,opacity:d.open?0.10:0.05,side:THREE.DoubleSide,depthWrite:false}));
-  ring.rotation.x=Math.PI/2;ringPivot.add(ring);
-  const le=document.createElement('div');le.className='lab'+(d.open?'':' locked');le.textContent=d.n;le.style.fontSize=(MOBILE?13:16)+'px';labels.appendChild(le);labelEl.push(le);
-  const speed=0.075/Math.pow(orbitR/rMin,1.5);
-  planets.push({mesh,pivot,d,i,pr,orbitR,speed});
-}
-const sunLab=document.createElement('div');sunLab.className='lab sun';sunLab.textContent='XIII';sunLab.style.fontSize=(MOBILE?22:28)+'px';labels.appendChild(sunLab);
+  // ---------- lumières ----------
+  scene.add(new THREE.AmbientLight(0x223150,0.85));
+  const sunLight=new THREE.PointLight(0xdfeaff,2.0,0,2);scene.add(sunLight);
+  const fillA=new THREE.DirectionalLight(0xff7a44,0.30);fillA.position.set(8,2,4);scene.add(fillA);
+  const fillB=new THREE.DirectionalLight(0x4a6fae,0.45);fillB.position.set(-6,4,-3);scene.add(fillB);
 
-/* ---- étoiles allégées, en expansion continue ---- */
-const SN=MOBILE?140:300;
-const sgeo=new THREE.BufferGeometry(),spos=new Float32Array(SN*3);
-function seed(k,near){const r=near?(4+Math.random()*12):(4+Math.random()*80),th=Math.random()*6.283,ph=Math.acos(2*Math.random()-1);
-  spos[k*3]=r*Math.sin(ph)*Math.cos(th);spos[k*3+1]=r*Math.sin(ph)*Math.sin(th)*0.6;spos[k*3+2]=r*Math.cos(ph);}
-for(let k=0;k<SN;k++)seed(k,false);
-sgeo.setAttribute('position',new THREE.BufferAttribute(spos,3));
-const stars=new THREE.Points(sgeo,new THREE.PointsMaterial({size:0.34,map:GLOW,color:0x9fb2d6,transparent:true,opacity:0.5,blending:THREE.AdditiveBlending,depthWrite:false,sizeAttenuation:true}));
-scene.add(stars);
-function expand(dt){const g=1+0.045*dt;for(let k=0;k<SN;k++){let x=spos[k*3]*g,y=spos[k*3+1]*g,z=spos[k*3+2]*g;
-  if(x*x+y*y+z*z>88*88)seed(k,true);else{spos[k*3]=x;spos[k*3+1]=y;spos[k*3+2]=z;}}sgeo.attributes.position.needsUpdate=true;}
+  // ---------- LE CŒUR : singularité ----------
+  const core=new THREE.Group();scene.add(core);
+  const sun=new THREE.Mesh(new THREE.SphereGeometry(0.95,48,48),new THREE.MeshBasicMaterial({color:0xf4f8ff}));
+  core.add(sun);
+  function spr(col,s,tex){const m=new THREE.Sprite(new THREE.SpriteMaterial({map:tex||GLOW,color:col,transparent:true,blending:THREE.AdditiveBlending,depthWrite:false}));m.scale.set(s,s,1);return m;}
+  // bloom RESSERRÉ : noyau brillant + halo court (fini la grosse tache qui lave I/IV/XII)
+  const coreHot=spr(0xffffff,2.6); core.add(coreHot);
+  const coreMid=spr(0xbcd4ff,5.2); core.add(coreMid);
+  const coreWarm=spr(0xe0a060,3.0); core.add(coreWarm);
+  // rais volumétriques (2 couches, rotations lentes opposées)
+  const rays1=spr(0xcfe0ff,16,RAYS); core.add(rays1);
+  const rays2=spr(0xbcd0ff,11,RAYS); core.add(rays2);
+  // disque d'accrétion incliné, frémissant
+  const disk=new THREE.Mesh(new THREE.PlaneGeometry(9,9),
+    new THREE.MeshBasicMaterial({map:DISK,transparent:true,blending:THREE.AdditiveBlending,depthWrite:false,side:THREE.DoubleSide}));
+  disk.rotation.x=Math.PI/2-0.42; core.add(disk);
 
-/* ---- interaction : survol fige, appui ouvre ---- */
-const ray=new THREE.Raycaster(),ndc=new THREE.Vector2();
-let hovered=-1,timeScale=1,pX=0,pY=0,dX=0,dY=0;
-function pick(cx,cy){ndc.x=(cx/W0())*2-1;ndc.y=-(cy/H0())*2+1;ray.setFromCamera(ndc,camera);const h=ray.intersectObjects(hitList,false);return h.length?h[0].object.userData.idx:-1;}
-addEventListener('pointermove',e=>{pX=(e.clientX/W0()-.5);pY=(e.clientY/H0()-.5);hovered=pick(e.clientX,e.clientY);document.body.style.cursor=(hovered>=0&&TOMES[hovered].open)?'pointer':'default';});
-addEventListener('pointerdown',e=>{dX=e.clientX;dY=e.clientY;});
-addEventListener('pointerup',e=>{if(Math.hypot(e.clientX-dX,e.clientY-dY)>14)return;const i=pick(e.clientX,e.clientY);if(i>=0){const d=TOMES[i];if(d.open&&d.href&&d.href!=='#')enter(d);}});
-const portal=document.getElementById('portal');
-function enter(d){portal.style.setProperty('--pc',d.col);portal.classList.add('go');setTimeout(()=>{location.href=d.href;},1080);setTimeout(()=>portal.classList.remove('go'),2400);}
+  // ---------- planètes ----------
+  const planets=[],hitList=[],labelEl=[],labels=document.getElementById('labels');
+  const rMin=3.4,rMax=12;
+  for(let i=0;i<12;i++){
+    const d=TOMES[i], f=i/11, orbitR=rMin*Math.pow(rMax/rMin,f), pr=0.46+0.34*f;
+    const base=new THREE.Color(d.col);
+    const tint=d.open?base.clone():base.clone().lerp(new THREE.Color(0x9fb0cc),0.55);
+    const mat=new THREE.MeshPhysicalMaterial({
+      color:tint,metalness:0,
+      roughness:d.open?0.05:0.42,
+      transmission:d.open?0.82:0.30,
+      transparent:true,opacity:1,ior:1.42,
+      clearcoat:1,clearcoatRoughness:d.open?0.05:0.4,
+      envMapIntensity:d.open?1.6:0.7,
+      emissive:tint,emissiveIntensity:d.open?0.20:0.05
+    });
+    if(!d.open) mat.roughnessMap=FROST;
+    const mesh=new THREE.Mesh(new THREE.SphereGeometry(pr,64,64),mat);
+    const pivot=new THREE.Object3D();
+    const rotX=(Math.random()-0.5)*0.16, rotZ=(Math.random()-0.5)*0.10;
+    pivot.rotation.x=rotX;pivot.rotation.z=rotZ;pivot.rotation.y=i*2.39996;
+    scene.add(pivot);pivot.add(mesh);mesh.position.set(orbitR,0,0);
 
-/* ---- boucle ---- */
-const tmp=new THREE.Vector3();
-function project(obj,le,open){obj.getWorldPosition(tmp);tmp.project(camera);if(tmp.z>1){le.style.opacity='0';return;}
-  le.style.transform=`translate(${(tmp.x*.5+.5)*W0()}px,${(-tmp.y*.5+.5)*H0()}px) translate(-50%,-50%)`;le.style.opacity=open?'1':'0.5';}
-let last=0,t=0;
-function animate(ts){const now=ts||performance.now();let dt=last?Math.min(.05,(now-last)/1000):.016;last=now;t+=dt;
-  timeScale+=(((hovered>=0)?0.05:1)-timeScale)*0.08;
-  planets.forEach(p=>{p.pivot.rotation.y+=p.speed*dt*timeScale;p.mesh.rotation.y+=0.12*dt;
-    const em=p.d.open?0.10:0.03;p.mesh.material.emissiveIntensity=(hovered===p.i?em+0.3:em);});
-  sun.scale.setScalar(1+0.04*Math.sin(t*1.4));sunGlow.scale.setScalar(8+0.6*Math.sin(t*1.4));sunGlow2.scale.setScalar(15+1.1*Math.sin(t*1.05));sunGlow3.scale.setScalar(5+0.4*Math.sin(t*1.7));
-  expand(dt);bg.rotation.y+=0.006*dt;bg.rotation.x=0.05*Math.sin(t*0.1);stars.rotation.y+=0.008*dt;
-  camera.position.x+=(pX*4-camera.position.x)*0.04;camera.position.y+=((7.5-pY*3)-camera.position.y)*0.04;camera.lookAt(0,0,0);
-  planets.forEach(p=>project(p.mesh,labelEl[p.i],p.d.open));project(sun,sunLab,true);
-  renderer.render(scene,camera);requestAnimationFrame(animate);}
-requestAnimationFrame(animate);
-addEventListener('resize',()=>{camera.aspect=W0()/H0();camera.updateProjectionMatrix();renderer.setSize(W0(),H0());});
+    const halo=new THREE.Sprite(new THREE.SpriteMaterial({map:GLOW,color:tint,transparent:true,blending:THREE.AdditiveBlending,depthWrite:false,opacity:d.open?0.75:0.30}));
+    halo.scale.set(pr*3.6,pr*3.6,1);mesh.add(halo);
+
+    let soul=null;
+    if(d.open){ soul=spr(new THREE.Color(tint).lerp(new THREE.Color(0xffffff),0.5).getHex(),pr*1.3); mesh.add(soul); }
+
+    const hit=new THREE.Mesh(new THREE.SphereGeometry(pr*1.95,12,12),new THREE.MeshBasicMaterial({visible:false}));hit.userData.idx=i;mesh.add(hit);hitList.push(hit);
+
+    const ringPivot=new THREE.Object3D();ringPivot.rotation.copy(pivot.rotation);scene.add(ringPivot);
+    const ringMat=new THREE.MeshBasicMaterial({color:base.clone(),transparent:true,opacity:d.open?0.12:0.05,side:THREE.DoubleSide,depthWrite:false,blending:THREE.AdditiveBlending});
+    const ring=new THREE.Mesh(new THREE.RingGeometry(orbitR-0.015,orbitR+0.015,140),ringMat);
+    ring.rotation.x=Math.PI/2;ringPivot.add(ring);
+
+    const le=document.createElement('div');le.className='lab'+(d.open?'':' locked');
+    le.innerHTML='<span class="rn">'+d.n+'</span><span class="ti"></span>';
+    le.style.fontSize=(MOBILE?13:16)+'px';labels.appendChild(le);labelEl.push(le);
+
+    const speed=(0.075/Math.pow(orbitR/rMin,1.5))*(d.open?1:0.4);
+    planets.push({mesh,pivot,ringMat,halo,soul,d,i,pr,orbitR,speed,rotX,rotZ,phase:Math.random()*6.28,hoverGlow:0,born:1});
+  }
+  const sunLab=document.createElement('div');sunLab.className='lab sun';sunLab.textContent='XIII';sunLab.style.fontSize=(MOBILE?22:28)+'px';labels.appendChild(sunLab);
+
+  // ---------- étoiles (parallaxe + expansion) ----------
+  const SN=MOBILE?160:340;
+  const sgeo=new THREE.BufferGeometry(),spos=new Float32Array(SN*3);
+  function seed(k,near){const r=near?(6+Math.random()*14):(6+Math.random()*90),th=Math.random()*6.283,ph=Math.acos(2*Math.random()-1);
+    spos[k*3]=r*Math.sin(ph)*Math.cos(th);spos[k*3+1]=r*Math.sin(ph)*Math.sin(th)*0.6;spos[k*3+2]=r*Math.cos(ph);}
+  for(let k=0;k<SN;k++)seed(k,false);
+  sgeo.setAttribute('position',new THREE.BufferAttribute(spos,3));
+  const stars=new THREE.Points(sgeo,new THREE.PointsMaterial({size:0.32,map:GLOW,color:0x9fb2d6,transparent:true,opacity:0.55,blending:THREE.AdditiveBlending,depthWrite:false,sizeAttenuation:true}));
+  scene.add(stars);
+  function expand(dt){const g=1+0.03*dt;for(let k=0;k<SN;k++){let x=spos[k*3]*g,y=spos[k*3+1]*g,z=spos[k*3+2]*g;
+    if(x*x+y*y+z*z>95*95)seed(k,true);else{spos[k*3]=x;spos[k*3+1]=y;spos[k*3+2]=z;}}sgeo.attributes.position.needsUpdate=true;}
+
+  // ---------- fil cœur<->bulle survolée ----------
+  const threadGeo=new THREE.BufferGeometry();
+  threadGeo.setAttribute('position',new THREE.BufferAttribute(new Float32Array(6),3));
+  const thread=new THREE.Line(threadGeo,new THREE.LineBasicMaterial({color:0xbfd6ff,transparent:true,opacity:0,blending:THREE.AdditiveBlending,depthWrite:false}));
+  scene.add(thread);
+
+  // ---------- AUDIO : drone 13.7 Hz + 13 notes ----------
+  let AC=null,master=null,droneG=null,soundOn=true;
+  function initAudio(){
+    if(AC)return;
+    AC=new (window.AudioContext||window.webkitAudioContext)();
+    master=AC.createGain();master.gain.value=0;master.connect(AC.destination);
+    const o1=AC.createOscillator();o1.type='sine';o1.frequency.value=54.8;
+    const o2=AC.createOscillator();o2.type='triangle';o2.frequency.value=82.2;
+    const o2g=AC.createGain();o2g.gain.value=0.3;
+    droneG=AC.createGain();droneG.gain.value=0;
+    const pulse=AC.createGain();pulse.gain.value=0.55;
+    const lfo=AC.createOscillator();lfo.type='sine';lfo.frequency.value=13.7;
+    const lfoG=AC.createGain();lfoG.gain.value=0.45;
+    lfo.connect(lfoG);lfoG.connect(pulse.gain);
+    o1.connect(droneG);o2.connect(o2g);o2g.connect(droneG);
+    droneG.connect(pulse);pulse.connect(master);
+    o1.start();o2.start();lfo.start();
+    master.gain.linearRampToValueAtTime(soundOn?0.9:0,AC.currentTime+3);
+    droneG.gain.linearRampToValueAtTime(0.16,AC.currentTime+4);
+  }
+  function note(freq,vel){
+    if(!AC||!soundOn)return;
+    const t=AC.currentTime;
+    const o=AC.createOscillator();o.type='sine';o.frequency.value=freq;
+    const h=AC.createOscillator();h.type='sine';h.frequency.value=freq*2.001;
+    const g=AC.createGain();g.gain.value=0;const hg=AC.createGain();hg.gain.value=0;
+    o.connect(g);h.connect(hg);g.connect(master);hg.connect(master);
+    g.gain.linearRampToValueAtTime(0.13*vel,t+0.02);g.gain.exponentialRampToValueAtTime(0.0001,t+2.4);
+    hg.gain.linearRampToValueAtTime(0.04*vel,t+0.02);hg.gain.exponentialRampToValueAtTime(0.0001,t+1.6);
+    o.start(t);h.start(t);o.stop(t+2.5);h.stop(t+2.5);
+  }
+  function secretChord(){
+    if(!AC||!soundOn)return;
+    NOTES.forEach((f,i)=>setTimeout(()=>note(f,0.6),i*85));
+    droneG.gain.cancelScheduledValues(AC.currentTime);
+    droneG.gain.linearRampToValueAtTime(0.30,AC.currentTime+0.4);
+    droneG.gain.linearRampToValueAtTime(0.16,AC.currentTime+6);
+  }
+
+  // ---------- interaction ----------
+  const ray=new THREE.Raycaster(),ndc=new THREE.Vector2();
+  let hovered=-1,timeScale=1,pX=0,pY=0,dX=0,dY=0,awake=false;
+  function pick(cx,cy){ndc.x=(cx/W0())*2-1;ndc.y=-(cy/H0())*2+1;ray.setFromCamera(ndc,camera);const h=ray.intersectObjects(hitList,false);return h.length?h[0].object.userData.idx:-1;}
+  function pickSun(cx,cy){ndc.x=(cx/W0())*2-1;ndc.y=-(cy/H0())*2+1;ray.setFromCamera(ndc,camera);return ray.intersectObject(sun,false).length>0;}
+  addEventListener('pointermove',e=>{
+    pX=(e.clientX/W0()-.5);pY=(e.clientY/H0()-.5);
+    if(awake && !secret.active){
+      const h=pick(e.clientX,e.clientY);
+      if(h!==hovered){ hovered=h; if(h>=0) note(NOTES[h%13],0.5); }
+      document.body.style.cursor=(h>=0||pickSun(e.clientX,e.clientY))?'pointer':'default';
+    }
+  });
+  addEventListener('pointerdown',e=>{dX=e.clientX;dY=e.clientY;});
+  addEventListener('pointerup',e=>{
+    if(Math.hypot(e.clientX-dX,e.clientY-dY)>14)return;
+    if(!awake)return;
+    if(pickSun(e.clientX,e.clientY)){ triggerSecret(); return; }
+    const i=pick(e.clientX,e.clientY);
+    if(i>=0){const d=TOMES[i]; if(d.open&&d.href&&d.href!=='#') enter(d); else note(NOTES[i%13],0.6);}
+  });
+  // gyroscope mobile
+  function enableGyro(){
+    if(typeof DeviceOrientationEvent!=='undefined'&&DeviceOrientationEvent.requestPermission){
+      DeviceOrientationEvent.requestPermission().then(s=>{if(s==='granted')bindGyro();}).catch(()=>{});
+    }else bindGyro();
+  }
+  function bindGyro(){addEventListener('deviceorientation',e=>{if(e.gamma==null)return;pX=Math.max(-.6,Math.min(.6,(e.gamma||0)/60));pY=Math.max(-.6,Math.min(.6,((e.beta||0)-45)/70));});}
+
+  const portal=document.getElementById('portal');
+  function enter(d){portal.style.setProperty('--pc',d.col);portal.classList.add('go');setTimeout(()=>{location.href=d.href;},1080);setTimeout(()=>portal.classList.remove('go'),2400);}
+
+  // ---------- secret 196 ----------
+  const secret={active:false,t:0};
+  const num196=document.getElementById('num196');
+  function triggerSecret(){ if(secret.active)return; secret.active=true; secret.t=0; secretChord(); num196.classList.add('show'); }
+
+  // ---------- rituel d'éveil ----------
+  const ritual={running:false,t:0};
+  const gate=document.getElementById('gate');
+  function startRitual(){ ritual.running=true; ritual.t=0; planets.forEach(p=>p.born=0); }
+  document.getElementById('enter-btn').addEventListener('click',()=>{
+    initAudio(); if(MOBILE) enableGyro();
+    gate.classList.add('hidden'); startRitual();
+  });
+  const stog=document.getElementById('sound-toggle');
+  stog.addEventListener('click',ev=>{ev.stopPropagation();soundOn=!soundOn;if(AC)master.gain.linearRampToValueAtTime(soundOn?0.9:0,AC.currentTime+0.3);stog.classList.toggle('off',!soundOn);});
+
+  // ---------- projection labels ----------
+  const tmp=new THREE.Vector3();
+  function project(obj,le,p){
+    obj.getWorldPosition(tmp);tmp.project(camera);
+    if(tmp.z>1){le.style.opacity='0';return;}
+    le.style.transform='translate('+((tmp.x*.5+.5)*W0())+'px,'+((-tmp.y*.5+.5)*H0())+'px) translate(-50%,-50%)';
+    let op = p ? (p.d.open?0.85:0.42) : 1;
+    if(p) op += p.hoverGlow*0.6;
+    le.style.opacity=String(Math.min(1,op*(p?(p.born):1)));
+  }
+
+  // ---------- helpers ----------
+  function clamp(v,a,b){return Math.max(a,Math.min(b,v));}
+  function easeOutCubic(t){return 1-Math.pow(1-t,3);}
+  function easeOutBack(t){const c=1.7;return 1+(c+1)*Math.pow(t-1,3)+c*Math.pow(t-1,2);}
+  function easeInOut(t){return t<0.5?2*t*t:1-Math.pow(-2*t+2,2)/2;}
+
+  // ---------- boucle ----------
+  const camDrift={x:0,y:0};
+  let last=0,t=0;
+  function animate(ts){
+    const now=ts||performance.now();let dt=last?Math.min(.05,(now-last)/1000):.016;last=now;t+=dt;
+
+    // rituel
+    if(ritual.running){ ritual.t+=dt; if(ritual.t>3.6){ awake=true; document.getElementById('footer').classList.add('show'); stog.classList.add('show'); } }
+    const ignite=ritual.running?clamp((ritual.t-0.5)/0.9,0,1):1;
+    const ie=easeOutCubic(ignite);
+
+    // secret
+    if(secret.active){ secret.t+=dt; if(secret.t>7){ secret.active=false; num196.classList.remove('show'); } }
+
+    // CŒUR
+    const pulse=1+0.05*Math.sin(t*1.3)+(secret.active?0.22:0);
+    sun.scale.setScalar(ie*(1+0.04*Math.sin(t*1.4)));
+    coreHot.scale.setScalar(2.6*pulse*ie);
+    coreMid.scale.setScalar(5.2*pulse*ie);
+    coreWarm.scale.setScalar((3.0+0.5*Math.sin(t*1.05))*ie);
+    rays1.material.rotation+=dt*0.05; rays1.scale.setScalar((16+1.2*Math.sin(t*0.7))*ie); rays1.material.opacity=(0.20+0.05*Math.sin(t*0.8))*ie;
+    rays2.material.rotation-=dt*0.035; rays2.scale.setScalar((11+0.9*Math.sin(t*0.9+1))*ie); rays2.material.opacity=(0.16+0.05*Math.sin(t*0.6))*ie;
+    disk.rotation.z+=dt*0.16; disk.material.opacity=(0.55+0.12*Math.sin(t*1.7))*ie; disk.scale.setScalar(pulse*ie);
+    sunLight.intensity=2.0*ie;
+
+    // CAMÉRA : dérive ultra-lente + parallaxe souris/gyro
+    camDrift.x=Math.sin(t*0.06)*0.9; camDrift.y=Math.cos(t*0.05)*0.5;
+    timeScale+=(((hovered>=0)?0.06:1)-timeScale)*0.08;
+    const tgX=pX*4+camDrift.x, tgY=(7.5-pY*3)+camDrift.y;
+    camera.position.x+=(tgX-camera.position.x)*0.035;
+    camera.position.y+=(tgY-camera.position.y)*0.035;
+    camera.lookAt(0,0,0);
+
+    // fond glisse
+    bg.rotation.y+=0.006*dt; bg.rotation.x=0.05*Math.sin(t*0.1);
+    stars.rotation.y+=0.008*dt; expand(dt);
+
+    // secret : facteur d'alignement
+    const sAlign = secret.active ? easeInOut(clamp(secret.t/1.4,0,1))*easeInOut(clamp((6.2-secret.t)/1.2,0,1)) : 0;
+    const Rcommon=8;
+
+    // planètes
+    let hp=null;
+    planets.forEach((p,idx)=>{
+      if(ritual.running){ const t0=0.9+idx*0.06; p.born=clamp((ritual.t-t0)/1.4,0,1); } else p.born=1;
+      const be=easeOutBack(clamp(p.born,0,1));
+
+      p.pivot.rotation.y+=p.speed*dt*timeScale*(secret.active?0.25:1);
+      // coplanéité + rayon commun pendant le secret
+      p.pivot.rotation.x = p.rotX*(1-sAlign);
+      p.pivot.rotation.z = p.rotZ*(1-sAlign);
+      const rNow = p.orbitR*(1-sAlign) + Rcommon*sAlign;
+      p.mesh.position.x = rNow*(ritual.running?be:1);
+
+      const target=(idx===hovered && !secret.active)?1:0;
+      p.hoverGlow+=(target-p.hoverGlow)*Math.min(1,dt*8);
+
+      const breath=p.d.open?(1+0.05*Math.sin(t*1.4+p.phase)):1;
+      p.mesh.scale.setScalar((1+p.hoverGlow*0.45)*breath*be);
+      p.mesh.rotation.y+=(p.d.open?0.12:0.03)*dt;
+
+      const haloBase=p.pr*(p.d.open?3.6:2.8);
+      const haloS=haloBase*(1+(p.d.open?0.18*Math.sin(t*1.4+p.phase):0)+p.hoverGlow*0.7)*be;
+      p.halo.scale.set(haloS,haloS,1);
+      p.halo.material.opacity=((p.d.open?0.7:0.28)+p.hoverGlow*0.5)*be;
+
+      if(p.soul){const ss=p.pr*(1.1+0.25*Math.sin(t*1.8+p.phase))*be;p.soul.scale.set(ss,ss,1);p.soul.material.opacity=0.8*be;}
+
+      p.mesh.material.emissiveIntensity=(p.d.open?0.20:0.05)+p.hoverGlow*0.5;
+      p.ringMat.opacity=(p.d.open?0.12:0.05)+p.hoverGlow*0.5+sAlign*0.5;
+
+      if(idx===hovered) hp=p;
+    });
+
+    // fil cœur<->bulle
+    if(hp){
+      hp.mesh.getWorldPosition(tmp);
+      const pos=threadGeo.attributes.position.array;
+      pos[0]=0;pos[1]=0;pos[2]=0;pos[3]=tmp.x;pos[4]=tmp.y;pos[5]=tmp.z;
+      threadGeo.attributes.position.needsUpdate=true;
+      thread.material.opacity=0.5*hp.hoverGlow;
+      thread.material.color.set(hp.d.col);
+    } else { thread.material.opacity+=(0-thread.material.opacity)*0.2; }
+
+    // labels + titres au survol
+    planets.forEach(p=>{
+      project(p.mesh,labelEl[p.i],p);
+      const ti=labelEl[p.i].querySelector('.ti');
+      if(p.hoverGlow>0.5 && !ti.dataset.shown){ ti.dataset.shown='1'; ti.textContent=p.d.open?('\u2014 '+(TITLES[p.d.n]||'')):'\u2014 scell\u00e9 \u2014'; }
+      if(p.hoverGlow<=0.05) delete ti.dataset.shown;
+      ti.style.opacity=String(p.hoverGlow);
+    });
+    project(sun,sunLab,null);
+    sunLab.style.opacity=String(ie*0.9);
+
+    renderer.render(scene,camera);
+    requestAnimationFrame(animate);
+  }
+  requestAnimationFrame(animate);
+
+  addEventListener('resize',()=>{camera.aspect=W0()/H0();camera.updateProjectionMatrix();renderer.setSize(W0(),H0());});
 })();}
+
 </script>
 </body>
 </html>
