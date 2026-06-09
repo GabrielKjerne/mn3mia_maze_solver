@@ -158,6 +158,10 @@ if(!window.THREE){
     const t=new THREE.CanvasTexture(c);t.wrapS=t.wrapT=THREE.RepeatWrapping;return t;
   }
   const FROST=makeFrost();
+  function makeRing(){const S=128,c=cnv(S,S),x=c.getContext('2d');x.translate(S/2,S/2);
+    x.strokeStyle='rgba(246,224,168,1)';x.lineWidth=7;x.shadowColor='rgba(246,217,160,0.9)';x.shadowBlur=10;
+    x.beginPath();x.arc(0,0,S*0.38,0,Math.PI*2);x.stroke();return new THREE.CanvasTexture(c);}
+  const RING=makeRing();
 
   // ---------- fond : peinture + environnement ----------
   const bg=new THREE.Mesh(new THREE.SphereGeometry(240,48,48),
@@ -304,6 +308,27 @@ if(!window.THREE){
   const PAL=[new THREE.Color(0x2a4673),new THREE.Color(0x6e2c33),new THREE.Color(0x9fb0cc),new THREE.Color(0x7a5e2e)];
   const baseTint=new THREE.Color(0x5a6478), tintCol=new THREE.Color(), palCol=new THREE.Color();
 
+  // ---------- RITUEL DES TREIZE : accès à l'ORACLE (appui long sur les 13 bulles) ----------
+  const ORKEY='te_eveil_v1';
+  function loadTrace(){ try{ return JSON.parse(localStorage.getItem(ORKEY))||{}; }catch(e){ return {}; } }
+  function saveTrace(s){ try{ localStorage.setItem(ORKEY,JSON.stringify(s)); }catch(e){} }
+  const marks=new Array(13).fill(false);   // 0-11 = tomes I..XII, 12 = le cœur (XIII)
+  planets.forEach(p=>{ const m=spr(0xf6e0a8,p.pr*3.0,RING); m.material.opacity=0; p.mesh.add(m); p.markSprite=m; });
+  const coreMark=spr(0xf6e0a8,3.4,RING); coreMark.material.opacity=0; core.add(coreMark);
+  const holdRing=spr(0xf6e0a8,1,RING); holdRing.material.opacity=0; scene.add(holdRing);
+  const press={active:false,idx:-1,sun:false,t:0,consumed:false};
+  let converging=false, convergeT=0, navDone=false;
+  function markTarget(idx){
+    if(marks[idx])return;
+    marks[idx]=true; note(NOTES[idx%13],0.6);
+    if(marks.filter(Boolean).length>=13) startConverge();
+  }
+  function startConverge(){
+    if(converging)return; converging=true; convergeT=0;
+    const s=loadTrace(); s.unlocked=true; s.unlockedAt=Date.now(); s.unlocks=(s.unlocks||0)+1; saveTrace(s);
+    secretChord();
+  }
+
   // ---------- fil cœur<->bulle survolée ----------
   const threadGeo=new THREE.BufferGeometry();
   threadGeo.setAttribute('position',new THREE.BufferAttribute(new Float32Array(6),3));
@@ -399,10 +424,19 @@ if(!window.THREE){
       document.body.style.cursor=(h>=0||pickSun(e.clientX,e.clientY))?'pointer':'default';
     }
   });
-  addEventListener('pointerdown',e=>{dX=e.clientX;dY=e.clientY;});
+  addEventListener('pointerdown',e=>{
+    dX=e.clientX;dY=e.clientY;
+    press.active=false;press.consumed=false;press.t=0;
+    if(!awake||converging)return;
+    if(pickSun(e.clientX,e.clientY)){ press.active=true;press.sun=true;press.idx=12; }
+    else { const i=pick(e.clientX,e.clientY); if(i>=0){ press.active=true;press.sun=false;press.idx=i; } }
+  });
+  addEventListener('pointermove',e=>{ if(press.active && Math.hypot(e.clientX-dX,e.clientY-dY)>26) press.active=false; },{passive:true});
   addEventListener('pointerup',e=>{
-    if(Math.hypot(e.clientX-dX,e.clientY-dY)>14)return;
-    if(!awake)return;
+    const wasHold=press.consumed, moved=Math.hypot(e.clientX-dX,e.clientY-dY)>14;
+    press.active=false;
+    if(wasHold)return;                 // l'appui long a déjà marqué : pas d'action de tap
+    if(moved||!awake||converging)return;
     if(pickSun(e.clientX,e.clientY)){ triggerSecret(); return; }
     const i=pick(e.clientX,e.clientY);
     if(i>=0){const d=TOMES[i]; if(d.open&&d.href&&d.href!=='#') enter(d); else note(NOTES[i%13],0.6);}
@@ -572,6 +606,30 @@ if(!window.THREE){
       thread.material.opacity=0.5*hp.hoverGlow;
       thread.material.color.set(hp.d.col);
     } else { thread.material.opacity+=(0-thread.material.opacity)*0.2; }
+
+    // RITUEL DES TREIZE : appui long -> marque ; treize marques -> Oracle
+    const HOLD=0.62;
+    if(press.active && awake && !converging){
+      press.t+=dt;
+      let rad;
+      if(press.sun){ tmp.set(0,0,0); rad=3.4; }
+      else { planets[press.idx].mesh.getWorldPosition(tmp); rad=planets[press.idx].pr*4.2; }
+      holdRing.position.copy(tmp);
+      const hp2=clamp(press.t/HOLD,0,1);
+      holdRing.scale.setScalar(rad*(0.6+0.4*hp2));
+      holdRing.material.opacity=0.25+0.6*hp2;
+      if(press.t>=HOLD && !press.consumed){ press.consumed=true; markTarget(press.idx); holdRing.material.opacity=0; }
+    } else { holdRing.material.opacity+=(0-holdRing.material.opacity)*Math.min(1,dt*10); }
+    // marqueurs persistants
+    planets.forEach(p=>{ if(p.markSprite){ const tg=marks[p.i]?0.55:0; p.markSprite.material.opacity+=(tg-p.markSprite.material.opacity)*Math.min(1,dt*4); } });
+    coreMark.material.opacity+=((marks[12]?0.6:0)-coreMark.material.opacity)*Math.min(1,dt*4);
+    // convergence -> bascule vers l'Oracle
+    if(converging){
+      convergeT+=dt;
+      const k=easeInOut(clamp(convergeT/1.6,0,1));
+      planets.forEach(p=>{ p.mesh.position.x=p.orbitR*(1-k); });
+      if(convergeT>1.7 && !navDone){ navDone=true; portal.style.setProperty('--pc','#f6e0a8'); portal.classList.add('go'); setTimeout(()=>{location.href='oracle/';},1000); }
+    }
 
     // labels + titres au survol
     planets.forEach(p=>{
