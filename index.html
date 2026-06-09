@@ -47,10 +47,6 @@ body{background:#05060f;overflow:hidden;touch-action:none;font-family:"Cinzel",s
 #sound-toggle.show{opacity:1}
 #sound-toggle:hover{color:#cfe3ff}
 #sound-toggle.off #wave{opacity:.12}
-#num196{position:fixed;inset:0;z-index:25;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none;opacity:0;transition:opacity 1s ease}
-#num196.show{opacity:1}
-#num196 .n{font-family:"Cinzel",serif;font-weight:800;font-size:clamp(4rem,16vw,11rem);color:#f6d9a0;text-shadow:0 0 50px rgba(246,217,160,.7)}
-#num196 .s{font-family:"Cormorant Garamond",serif;font-style:italic;font-size:1.2rem;color:rgba(207,227,255,.75);margin-top:.4rem;letter-spacing:.04em}
 </style>
 </head>
 <body>
@@ -58,13 +54,12 @@ body{background:#05060f;overflow:hidden;touch-action:none;font-family:"Cinzel",s
 <div id="labels"></div>
 <div class="vig"></div>
 <div id="portal"><div class="glow"></div><div class="door"></div><div class="flash"></div></div>
-<div id="num196"><div class="n">196</div><div class="s">le palindrome qu'on cesse de chercher</div></div>
 <div id="gate">
   <div class="sigil">XIII</div>
-  <div class="enter" id="enter-btn">Le Treizième Eveil</div>
-  <div class="whisper">treize mondes vous attendent</div>
+  <div class="enter" id="enter-btn">Éveiller</div>
+  <div class="whisper">treize mondes attendent dans le verre</div>
 </div>
-<div id="footer">Gabriel Kjerne</div>
+<div id="footer">Le Treizième Éveil</div>
 <div id="sound-toggle" title="son">
   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
     <path d="M4 9v6h4l5 4V5L8 9H4z"/><path id="wave" d="M16 9a4 4 0 010 6"/>
@@ -176,7 +171,7 @@ if(!window.THREE){
   });
 
   // ---------- lumières ----------
-  scene.add(new THREE.AmbientLight(0x223150,0.85));
+  const amb=new THREE.AmbientLight(0x223150,0.85);scene.add(amb);
   const sunLight=new THREE.PointLight(0xdfeaff,2.0,0,2);scene.add(sunLight);
   const fillA=new THREE.DirectionalLight(0xff7a44,0.30);fillA.position.set(8,2,4);scene.add(fillA);
   const fillB=new THREE.DirectionalLight(0x4a6fae,0.45);fillB.position.set(-6,4,-3);scene.add(fillB);
@@ -239,7 +234,7 @@ if(!window.THREE){
     le.style.fontSize=(MOBILE?13:16)+'px';labels.appendChild(le);labelEl.push(le);
 
     const speed=(0.075/Math.pow(orbitR/rMin,1.5))*(d.open?1:0.4);
-    planets.push({mesh,pivot,ringMat,halo,soul,d,i,pr,orbitR,speed,rotX,rotZ,phase:Math.random()*6.28,hoverGlow:0,born:1});
+    planets.push({mesh,pivot,ringMat,halo,soul,d,i,pr,orbitR,speed,rotX,rotZ,phase:Math.random()*6.28,hoverGlow:0,born:1,resonate:0});
   }
   const sunLab=document.createElement('div');sunLab.className='lab sun';sunLab.textContent='XIII';sunLab.style.fontSize=(MOBILE?22:28)+'px';labels.appendChild(sunLab);
 
@@ -254,6 +249,60 @@ if(!window.THREE){
   scene.add(stars);
   function expand(dt){const g=1+0.03*dt;for(let k=0;k<SN;k++){let x=spos[k*3]*g,y=spos[k*3+1]*g,z=spos[k*3+2]*g;
     if(x*x+y*y+z*z>95*95)seed(k,true);else{spos[k*3]=x;spos[k*3+1]=y;spos[k*3+2]=z;}}sgeo.attributes.position.needsUpdate=true;}
+
+  // ---------- UNIVERS NUMÉRIQUE : le 196 noyé dans une dérive de chiffres ----------
+  function makeNum(str,gold){
+    const S=128,c=cnv(S,S),x=c.getContext('2d');
+    x.clearRect(0,0,S,S);
+    x.font='600 '+(str.length>=4?40:str.length===3?52:72)+'px Cinzel, serif';
+    x.textAlign='center';x.textBaseline='middle';
+    x.shadowColor=gold?'rgba(246,217,160,0.9)':'rgba(170,200,255,0.7)';x.shadowBlur=14;
+    x.fillStyle=gold?'rgba(248,228,176,0.95)':'rgba(214,228,255,0.92)';
+    x.fillText(str,S/2,S/2);
+    return new THREE.CanvasTexture(c);
+  }
+  const digitTex=[];for(let d=0;d<10;d++)digitTex.push(makeNum(''+d,false));
+  const tex196=makeNum('196',true);
+  // la suite de Lychrel de 196 (reverse-and-add) : elle ne palindrome jamais
+  const lychrel=['887','1675','7436','13783','52514','94039','187088','1067869'];
+  const lychTex=lychrel.map(s=>makeNum(s,false));
+  const NUMBERS=new THREE.Group();scene.add(NUMBERS);
+  const motes=[];const NM=MOBILE?80:150;
+  function placeMote(m){const r=12+Math.random()*64,th=Math.random()*6.283,ph=Math.acos(2*Math.random()-1);
+    m.position.set(r*Math.sin(ph)*Math.cos(th),r*Math.sin(ph)*Math.sin(th)*0.62,r*Math.cos(ph));}
+  for(let i=0;i<NM;i++){
+    const role=Math.random();
+    let tex,key=false,col=0xbcd0ff,base=0.07;
+    if(role<0.10){ tex=tex196; key=true; col=0xf6e0a8; base=0.16; }
+    else if(role<0.24){ tex=lychTex[Math.floor(Math.random()*lychTex.length)]; col=0xcdd8f0; base=0.09; }
+    else { tex=digitTex[Math.floor(Math.random()*10)]; }
+    const sp=new THREE.Sprite(new THREE.SpriteMaterial({map:tex,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,opacity:0,color:col}));
+    const s=0.9+Math.random()*1.7;sp.scale.set(s,s,1);placeMote(sp);
+    sp.userData={base:base*(0.5+Math.random()*0.7),tw:Math.random()*6.28,tws:0.25+Math.random()*0.6,key:key};
+    NUMBERS.add(sp);motes.push(sp);
+  }
+  function expandNum(dt){for(const m of motes){m.position.multiplyScalar(1+0.011*dt);if(m.position.lengthSq()>82*82)placeMote(m);}}
+
+  // ---------- NÉBULEUSES : dérive stellaire colorée (immensité) ----------
+  function makeCloud(){const S=256,c=cnv(S,S),x=c.getContext('2d');
+    const g=x.createRadialGradient(S/2,S/2,0,S/2,S/2,S/2);
+    g.addColorStop(0,'rgba(255,255,255,0.5)');g.addColorStop(0.5,'rgba(255,255,255,0.12)');g.addColorStop(1,'rgba(255,255,255,0)');
+    x.fillStyle=g;x.fillRect(0,0,S,S);return new THREE.CanvasTexture(c);}
+  const CLOUD=makeCloud();
+  const nebCols=[0x2a4a86,0x7a2630,0x8fa2c4,0x7a5e2c];
+  const nebSprites=[];
+  for(let i=0;i<5;i++){
+    const sp=new THREE.Sprite(new THREE.SpriteMaterial({map:CLOUD,color:nebCols[i%nebCols.length],transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,opacity:0.05}));
+    const R=120+Math.random()*55,a=i/5*6.283;
+    sp.userData={a:a,R:R,y:(Math.random()-0.5)*70,sp:0.008+Math.random()*0.014,ph:Math.random()*6.28};
+    sp.position.set(Math.cos(a)*R,sp.userData.y,Math.sin(a)*R);
+    const s=130+Math.random()*80;sp.scale.set(s,s,1);
+    scene.add(sp);nebSprites.push(sp);
+  }
+
+  // palette galactique : bleu -> rouge -> blanc -> ambre, dérive très lente
+  const PAL=[new THREE.Color(0x2a4673),new THREE.Color(0x6e2c33),new THREE.Color(0x9fb0cc),new THREE.Color(0x7a5e2e)];
+  const baseTint=new THREE.Color(0x5a6478), tintCol=new THREE.Color(), palCol=new THREE.Color();
 
   // ---------- fil cœur<->bulle survolée ----------
   const threadGeo=new THREE.BufferGeometry();
@@ -281,23 +330,60 @@ if(!window.THREE){
     master.gain.linearRampToValueAtTime(soundOn?0.9:0,AC.currentTime+3);
     droneG.gain.linearRampToValueAtTime(0.16,AC.currentTime+4);
   }
-  function note(freq,vel){
+  function note(freq,vel,when){
     if(!AC||!soundOn)return;
-    const t=AC.currentTime;
+    const t=(when!=null?when:AC.currentTime);
     const o=AC.createOscillator();o.type='sine';o.frequency.value=freq;
     const h=AC.createOscillator();h.type='sine';h.frequency.value=freq*2.001;
     const g=AC.createGain();g.gain.value=0;const hg=AC.createGain();hg.gain.value=0;
     o.connect(g);h.connect(hg);g.connect(master);hg.connect(master);
+    g.gain.setValueAtTime(0,t);
     g.gain.linearRampToValueAtTime(0.13*vel,t+0.02);g.gain.exponentialRampToValueAtTime(0.0001,t+2.4);
+    hg.gain.setValueAtTime(0,t);
     hg.gain.linearRampToValueAtTime(0.04*vel,t+0.02);hg.gain.exponentialRampToValueAtTime(0.0001,t+1.6);
     o.start(t);h.start(t);o.stop(t+2.5);h.stop(t+2.5);
   }
   function secretChord(){
     if(!AC||!soundOn)return;
-    NOTES.forEach((f,i)=>setTimeout(()=>note(f,0.6),i*85));
+    NOTES.forEach((f,i)=>setTimeout(()=>note(f,0.34),i*120));
     droneG.gain.cancelScheduledValues(AC.currentTime);
-    droneG.gain.linearRampToValueAtTime(0.30,AC.currentTime+0.4);
-    droneG.gain.linearRampToValueAtTime(0.16,AC.currentTime+6);
+    droneG.gain.linearRampToValueAtTime(0.26,AC.currentTime+0.6);
+    droneG.gain.linearRampToValueAtTime(0.16,AC.currentTime+7);
+  }
+
+  // ---------- TREIZE COMPOSITIONS : treize mélodies, treize émotions ----------
+  // chaque pas = [bulle (0-11), durée en temps] ; 12 = le cœur ; -1 = silence.
+  // Elles s'enclenchent seules, au hasard ; les bulles résonnent en jouant.
+  const MELODIES=[
+    {nom:'\u00e9veil',      bpm:58, pas:[[0,2],[2,2],[4,2],[7,3],[12,5]]},
+    {nom:'m\u00e9moire',    bpm:52, pas:[[7,2],[5,1],[4,3],[2,2],[0,5]]},
+    {nom:'vertige',         bpm:98, pas:[[0,1],[4,1],[7,1],[11,1],[7,1],[4,1],[0,3]]},
+    {nom:'tendresse',       bpm:48, pas:[[5,3],[7,3],[9,2],[7,5]]},
+    {nom:'doute',           bpm:64, pas:[[3,2],[2,1],[3,1],[1,3],[0,5]]},
+    {nom:'\u00e9lan',       bpm:108,pas:[[0,1],[2,1],[4,1],[5,1],[7,1],[9,1],[11,3]]},
+    {nom:'deuil',           bpm:42, pas:[[2,4],[0,4],[3,3],[2,6]]},
+    {nom:'espoir',          bpm:70, pas:[[4,2],[7,2],[9,2],[11,3],[12,5]]},
+    {nom:'fracture',        bpm:124,pas:[[11,1],[0,1],[11,1],[2,1],[9,2],[-1,1],[12,3]]},
+    {nom:'s\u00e9r\u00e9nit\u00e9',bpm:44,pas:[[7,4],[9,4],[7,3],[4,6]]},
+    {nom:'d\u00e9sir',      bpm:78, pas:[[4,2],[5,1],[7,2],[9,1],[11,2],[9,4]]},
+    {nom:'fureur',          bpm:134,pas:[[0,1],[0,1],[3,1],[0,1],[3,1],[5,2],[0,3]]},
+    {nom:'r\u00e9v\u00e9lation',bpm:56,pas:[[0,2],[4,2],[7,2],[11,2],[12,7]]}
+  ];
+  const composer={busy:false,idleUntil:0,lastIdx:-1,endAt:0};
+  const visualQueue=[];
+  let coreResonate=0, secretFade=0;
+  function startMelody(){
+    const now=AC.currentTime; let mi;
+    do{ mi=Math.floor(Math.random()*MELODIES.length); }while(MELODIES.length>1 && mi===composer.lastIdx);
+    composer.lastIdx=mi; composer.busy=true;
+    const m=MELODIES[mi], spb=60/m.bpm; let t0=now+0.2;
+    m.pas.forEach(st=>{
+      const idx=st[0], dur=st[1]*spb;
+      if(idx>=0){ const vel=0.32+Math.random()*0.12; note(NOTES[idx%13],vel,t0); visualQueue.push({at:t0,idx:idx,vel:vel}); }
+      t0+=dur;
+    });
+    composer.endAt=t0;
+    composer.idleUntil=t0 + 3.5 + Math.random()*6.5;  // souffle avant la prochaine
   }
 
   // ---------- interaction ----------
@@ -334,8 +420,7 @@ if(!window.THREE){
 
   // ---------- secret 196 ----------
   const secret={active:false,t:0};
-  const num196=document.getElementById('num196');
-  function triggerSecret(){ if(secret.active)return; secret.active=true; secret.t=0; secretChord(); num196.classList.add('show'); }
+  function triggerSecret(){ if(secret.active)return; secret.active=true; secret.t=0; secretChord(); }
 
   // ---------- rituel d'éveil ----------
   const ritual={running:false,t:0};
@@ -356,6 +441,7 @@ if(!window.THREE){
     le.style.transform='translate('+((tmp.x*.5+.5)*W0())+'px,'+((-tmp.y*.5+.5)*H0())+'px) translate(-50%,-50%)';
     let op = p ? (p.d.open?0.85:0.42) : 1;
     if(p) op += p.hoverGlow*0.6;
+    op *= (1 - 0.85*secretFade);
     le.style.opacity=String(Math.min(1,op*(p?(p.born):1)));
   }
 
@@ -372,21 +458,34 @@ if(!window.THREE){
     const now=ts||performance.now();let dt=last?Math.min(.05,(now-last)/1000):.016;last=now;t+=dt;
 
     // rituel
-    if(ritual.running){ ritual.t+=dt; if(ritual.t>3.6){ awake=true; document.getElementById('footer').classList.add('show'); stog.classList.add('show'); } }
+    if(ritual.running){ ritual.t+=dt; if(ritual.t>3.6 && !awake){ awake=true; document.getElementById('footer').classList.add('show'); stog.classList.add('show'); if(AC) composer.idleUntil=AC.currentTime+1.8; } }
     const ignite=ritual.running?clamp((ritual.t-0.5)/0.9,0,1):1;
     const ie=easeOutCubic(ignite);
 
     // secret
-    if(secret.active){ secret.t+=dt; if(secret.t>7){ secret.active=false; num196.classList.remove('show'); } }
+    if(secret.active){ secret.t+=dt; if(secret.t>9.5){ secret.active=false; } }
+
+    // COMPOSITEUR AUTO + file de résonance (synchronisée à l'audio)
+    const ACnow = AC ? AC.currentTime : 0;
+    while(AC && visualQueue.length && visualQueue[0].at<=ACnow){
+      const ev=visualQueue.shift();
+      if(ev.idx>=0 && ev.idx<12) planets[ev.idx].resonate=Math.min(1,0.6+ev.vel);
+      else if(ev.idx===12) coreResonate=1;
+    }
+    if(awake && AC && soundOn && !secret.active){
+      if(composer.busy && ACnow>composer.endAt) composer.busy=false;
+      if(!composer.busy && ACnow>composer.idleUntil) startMelody();
+    }
+    coreResonate += (0-coreResonate)*Math.min(1,dt*2.4);
 
     // CŒUR
-    const pulse=1+0.05*Math.sin(t*1.3)+(secret.active?0.22:0);
-    sun.scale.setScalar(ie*(1+0.04*Math.sin(t*1.4)));
-    coreHot.scale.setScalar(2.6*pulse*ie);
-    coreMid.scale.setScalar(5.2*pulse*ie);
+    const pulse=1+0.05*Math.sin(t*1.3)+(secret.active?0.22:0)+coreResonate*0.18;
+    sun.scale.setScalar(ie*(1+0.04*Math.sin(t*1.4)+coreResonate*0.25));
+    coreHot.scale.setScalar(2.6*pulse*ie*(1+coreResonate*0.5));
+    coreMid.scale.setScalar(5.2*pulse*ie*(1+coreResonate*0.3));
     coreWarm.scale.setScalar((3.0+0.5*Math.sin(t*1.05))*ie);
-    rays1.material.rotation+=dt*0.05; rays1.scale.setScalar((16+1.2*Math.sin(t*0.7))*ie); rays1.material.opacity=(0.20+0.05*Math.sin(t*0.8))*ie;
-    rays2.material.rotation-=dt*0.035; rays2.scale.setScalar((11+0.9*Math.sin(t*0.9+1))*ie); rays2.material.opacity=(0.16+0.05*Math.sin(t*0.6))*ie;
+    rays1.material.rotation+=dt*0.05; rays1.scale.setScalar((16+1.2*Math.sin(t*0.7))*ie); rays1.material.opacity=(0.20+0.05*Math.sin(t*0.8)+coreResonate*0.25)*ie;
+    rays2.material.rotation-=dt*0.035; rays2.scale.setScalar((11+0.9*Math.sin(t*0.9+1))*ie); rays2.material.opacity=(0.16+0.05*Math.sin(t*0.6)+coreResonate*0.2)*ie;
     disk.rotation.z+=dt*0.16; disk.material.opacity=(0.55+0.12*Math.sin(t*1.7))*ie; disk.scale.setScalar(pulse*ie);
     sunLight.intensity=2.0*ie;
 
@@ -398,12 +497,35 @@ if(!window.THREE){
     camera.position.y+=(tgY-camera.position.y)*0.035;
     camera.lookAt(0,0,0);
 
-    // fond glisse
-    bg.rotation.y+=0.006*dt; bg.rotation.x=0.05*Math.sin(t*0.1);
+    // FOND : dérive stellaire très lente à travers les couleurs de la peinture
+    bg.rotation.y+=0.004*dt; bg.rotation.x=0.06*Math.sin(t*0.04); bg.rotation.z=0.03*Math.sin(t*0.03);
     stars.rotation.y+=0.008*dt; expand(dt);
+    // palette galactique : bleu -> rouge -> blanc -> ambre
+    const cyc=t*0.013, fi=Math.floor(cyc)%PAL.length, fr=easeInOut(cyc-Math.floor(cyc));
+    palCol.copy(PAL[fi]).lerp(PAL[(fi+1)%PAL.length],fr);
+    if(bg.material.map){ tintCol.copy(baseTint).lerp(palCol,0.42); bg.material.color.copy(tintCol); }
+    amb.color.copy(new THREE.Color(0x223150)).lerp(palCol,0.30);
+    // nébuleuses : dérive lente + respiration
+    nebSprites.forEach(sp=>{ sp.userData.a+=dt*sp.userData.sp;
+      sp.position.set(Math.cos(sp.userData.a)*sp.userData.R, sp.userData.y, Math.sin(sp.userData.a)*sp.userData.R);
+      sp.material.opacity=0.045+0.03*Math.sin(t*0.05+sp.userData.ph); });
+
+    // UNIVERS NUMÉRIQUE : ambiant ténu en permanence, affleure pendant le secret
+    const numGlow = secret.active ? easeInOut(clamp(secret.t/1.8,0,1))*easeInOut(clamp((9.0-secret.t)/2.2,0,1)) : 0;
+    NUMBERS.rotation.y += 0.01*dt;
+    expandNum(dt);
+    const ambientFloor=0.16;
+    motes.forEach(m=>{
+      m.userData.tw+=dt*m.userData.tws;
+      const tw=0.55+0.45*Math.sin(m.userData.tw);
+      let o=m.userData.base*tw*(ambientFloor + numGlow*2.6);
+      if(m.userData.key) o*=(0.55+numGlow*1.4);   // 196 : à peine souligné, sauf au dévoilement
+      m.material.opacity=o;
+    });
 
     // secret : facteur d'alignement
     const sAlign = secret.active ? easeInOut(clamp(secret.t/1.4,0,1))*easeInOut(clamp((6.2-secret.t)/1.2,0,1)) : 0;
+    secretFade = sAlign;
     const Rcommon=8;
 
     // planètes
@@ -421,20 +543,22 @@ if(!window.THREE){
 
       const target=(idx===hovered && !secret.active)?1:0;
       p.hoverGlow+=(target-p.hoverGlow)*Math.min(1,dt*8);
+      p.resonate += (0-p.resonate)*Math.min(1,dt*2.4);   // décroissance de la résonance
+      const glow = p.hoverGlow + p.resonate;             // survol OU note jouée
 
       const breath=p.d.open?(1+0.05*Math.sin(t*1.4+p.phase)):1;
-      p.mesh.scale.setScalar((1+p.hoverGlow*0.45)*breath*be);
+      p.mesh.scale.setScalar((1+glow*0.45)*breath*be);
       p.mesh.rotation.y+=(p.d.open?0.12:0.03)*dt;
 
       const haloBase=p.pr*(p.d.open?3.6:2.8);
-      const haloS=haloBase*(1+(p.d.open?0.18*Math.sin(t*1.4+p.phase):0)+p.hoverGlow*0.7)*be;
+      const haloS=haloBase*(1+(p.d.open?0.18*Math.sin(t*1.4+p.phase):0)+glow*0.7)*be;
       p.halo.scale.set(haloS,haloS,1);
-      p.halo.material.opacity=((p.d.open?0.7:0.28)+p.hoverGlow*0.5)*be;
+      p.halo.material.opacity=((p.d.open?0.7:0.28)+glow*0.55)*be;
 
-      if(p.soul){const ss=p.pr*(1.1+0.25*Math.sin(t*1.8+p.phase))*be;p.soul.scale.set(ss,ss,1);p.soul.material.opacity=0.8*be;}
+      if(p.soul){const ss=p.pr*(1.1+0.25*Math.sin(t*1.8+p.phase)+p.resonate*0.4)*be;p.soul.scale.set(ss,ss,1);p.soul.material.opacity=0.8*be;}
 
-      p.mesh.material.emissiveIntensity=(p.d.open?0.20:0.05)+p.hoverGlow*0.5;
-      p.ringMat.opacity=(p.d.open?0.12:0.05)+p.hoverGlow*0.5+sAlign*0.5;
+      p.mesh.material.emissiveIntensity=(p.d.open?0.20:0.05)+glow*0.6;
+      p.ringMat.opacity=(p.d.open?0.12:0.05)+p.hoverGlow*0.5+p.resonate*0.4+sAlign*0.28;
 
       if(idx===hovered) hp=p;
     });
@@ -458,7 +582,7 @@ if(!window.THREE){
       ti.style.opacity=String(p.hoverGlow);
     });
     project(sun,sunLab,null);
-    sunLab.style.opacity=String(ie*0.9);
+    sunLab.style.opacity=String(ie*0.9*(1-0.85*secretFade));
 
     renderer.render(scene,camera);
     requestAnimationFrame(animate);
