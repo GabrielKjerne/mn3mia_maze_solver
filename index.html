@@ -37,7 +37,21 @@ body{background:#05060f;overflow:hidden;touch-action:none;font-family:"Cinzel",s
 #gate{position:fixed;inset:0;z-index:130;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#04060b;transition:opacity 1.8s ease}
 #gate.hidden{opacity:0;pointer-events:none}
 #gate .sigil{font-family:"Cinzel",serif;font-weight:800;letter-spacing:.2em;color:#cfe3ff;font-size:clamp(2.6rem,8vw,5rem);text-shadow:0 0 30px rgba(150,190,255,.55),0 0 90px rgba(120,160,255,.25);animation:breathe 5.5s ease-in-out infinite;text-indent:.2em}
-#gate .enter{margin-top:2.4rem;font-family:"Cinzel",serif;letter-spacing:.45em;text-transform:uppercase;font-size:.72rem;color:#f6d9a0;border:1px solid rgba(246,217,160,.35);padding:.9em 2.6em;border-radius:2px;background:rgba(246,217,160,.03);cursor:pointer;backdrop-filter:blur(2px);transition:all .5s ease;text-indent:.45em}
+#gate .gtitle{margin-top:1.05rem;font-family:"Cinzel",serif;font-weight:700;font-size:clamp(1rem,3.4vw,1.55rem);letter-spacing:.32em;text-indent:.32em;text-align:center;padding:0 1rem;
+  background:linear-gradient(110deg,#8fa6c9 0%,#eaf2ff 16%,#f6d98e 34%,#ffffff 50%,#f6d98e 66%,#8fa6c9 86%);
+  background-size:240% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;
+  animation:gshine 6s linear infinite, gbreath 4.6s ease-in-out infinite}
+#gate .gauthor{margin-top:.55rem;font-family:"Cormorant Garamond",serif;font-style:italic;font-size:clamp(.9rem,2.6vw,1.12rem);letter-spacing:.22em;text-indent:.22em;color:#caa86a;text-shadow:0 0 14px rgba(202,168,106,.35);animation:abreath 4.6s ease-in-out infinite}
+@keyframes gshine{0%{background-position:130% 0}100%{background-position:-130% 0}}
+@keyframes gbreath{0%,100%{filter:drop-shadow(0 0 6px rgba(170,195,255,.18))}50%{filter:drop-shadow(0 0 18px rgba(246,217,142,.5))}}
+@keyframes abreath{0%,100%{opacity:.6}50%{opacity:1}}
+#gate .enter{margin-top:1.9rem;position:relative;overflow:hidden;font-family:"Cinzel",serif;letter-spacing:.45em;text-transform:uppercase;font-size:.72rem;color:#f6d9a0;border:1px solid rgba(246,217,160,.35);padding:.9em 2.6em;border-radius:2px;background:rgba(246,217,160,.03);cursor:pointer;backdrop-filter:blur(2px);transition:all .5s ease;text-indent:.45em;animation:bpulse 2.8s ease-in-out infinite}
+#gate .enter::before{content:"";position:absolute;left:50%;top:50%;width:300%;aspect-ratio:1;transform:translate(-50%,-50%) rotate(0deg);pointer-events:none;mix-blend-mode:screen;opacity:.85;
+  background:conic-gradient(transparent 0 70%,rgba(246,217,142,.55) 79%,rgba(170,200,255,.6) 86%,transparent 94%);
+  animation:bspin 3.4s linear infinite}
+@keyframes bspin{to{transform:translate(-50%,-50%) rotate(360deg)}}
+@keyframes bpulse{0%,100%{box-shadow:0 0 0 1px rgba(246,217,160,.18),0 0 10px rgba(246,217,160,.08)}50%{box-shadow:0 0 0 1px rgba(246,217,160,.7),0 0 26px rgba(246,217,160,.35),0 0 64px rgba(150,180,255,.16)}}
+@media(prefers-reduced-motion:reduce){#gate .gtitle,#gate .gauthor,#gate .enter{animation:none}#gate .enter::before{display:none}}
 #gate .enter:hover{background:rgba(246,217,160,.12);border-color:rgba(246,217,160,.75);color:#fff;box-shadow:0 0 34px rgba(246,217,160,.25)}
 #gate .whisper{margin-top:1.5rem;font-family:"Cormorant Garamond",serif;font-style:italic;color:rgba(159,180,216,.45);font-size:1.05rem;letter-spacing:.04em}
 @keyframes breathe{0%,100%{opacity:.6;transform:scale(.99)}50%{opacity:1;transform:scale(1.01)}}
@@ -56,6 +70,8 @@ body{background:#05060f;overflow:hidden;touch-action:none;font-family:"Cinzel",s
 <div id="portal"><div class="glow"></div><div class="door"></div><div class="flash"></div></div>
 <div id="gate">
   <div class="sigil">XIII</div>
+  <div class="gtitle">Le Treizième Éveil</div>
+  <div class="gauthor">Gabriel Kjerne</div>
   <div class="enter" id="enter-btn">Éveiller</div>
   <div class="whisper">treize mondes attendent dans le verre</div>
 </div>
@@ -319,6 +335,8 @@ if(!window.THREE){
   const press={active:false,idx:-1,sun:false,t:0,consumed:false};
   let converging=false, convergeT=0, navDone=false;
   function markTarget(idx){
+    // geste secret du peintre : Tome I verrouillé seul, puis le cœur XIII → la Galerie
+    if(idx===12 && !marks[12] && marks[0] && marks.filter(Boolean).length===1){ fxPaint('galerie/'); return; }
     if(marks[idx])return;
     marks[idx]=true; note(NOTES[idx%13],0.6);
     if(marks.filter(Boolean).length>=13) startConverge();
@@ -450,7 +468,7 @@ if(!window.THREE){
   function bindGyro(){addEventListener('deviceorientation',e=>{if(e.gamma==null)return;pX=Math.max(-.6,Math.min(.6,(e.gamma||0)/60));pY=Math.max(-.6,Math.min(.6,((e.beta||0)-45)/70));});}
 
   const portal=document.getElementById('portal');
-  function enter(d){portal.style.setProperty('--pc',d.col);portal.classList.add('go');setTimeout(()=>{location.href=d.href;},1080);setTimeout(()=>portal.classList.remove('go'),2400);}
+  function enter(d){ fxBook(d); }
 
   // ---------- secret 196 ----------
   const secret={active:false,t:0};
@@ -628,7 +646,7 @@ if(!window.THREE){
       convergeT+=dt;
       const k=easeInOut(clamp(convergeT/1.6,0,1));
       planets.forEach(p=>{ p.mesh.position.x=p.orbitR*(1-k); });
-      if(convergeT>1.7 && !navDone){ navDone=true; portal.style.setProperty('--pc','#f6e0a8'); portal.classList.add('go'); setTimeout(()=>{location.href='oracle/';},1000); }
+      if(convergeT>1.7 && !navDone){ navDone=true; fxWarp('oracle/'); }
     }
 
     // labels + titres au survol
@@ -646,6 +664,128 @@ if(!window.THREE){
     requestAnimationFrame(animate);
   }
   requestAnimationFrame(animate);
+
+  /* ---------- TRANSITIONS EYE-CANDY ENTRE SITES ---------- */
+  let fxBusy=false;
+  function fxCanvas(){
+    let c=document.getElementById('fxov');
+    if(!c){ c=document.createElement('canvas'); c.id='fxov';
+      c.style.cssText='position:fixed;inset:0;z-index:400;pointer-events:none;'; document.body.appendChild(c); }
+    const d=Math.min(devicePixelRatio||1,2);
+    c.width=W0()*d; c.height=H0()*d; c.style.width=W0()+'px'; c.style.height=H0()+'px';
+    const x=c.getContext('2d'); x.setTransform(d,0,0,d,0,0);
+    return {x:x,W:W0(),H:H0()};
+  }
+  function fxNote(f,v,dl){ try{ if(typeof note==='function'){ if(dl){ setTimeout(function(){note(f,v);},dl); } else note(f,v); } }catch(e){} }
+
+  // — GALERIE : le coup de pinceau cosmique —
+  function fxPaint(url){
+    if(fxBusy) return; fxBusy=true;
+    const o=fxCanvas(), x=o.x, W=o.W, H=o.H;
+    fxNote(392,.5); fxNote(523.25,.5,140); fxNote(659.25,.6,300); fxNote(783.99,.6,460);
+    const cols=['#3ae1ff','#b06bff','#ff4fa3','#f6d36b','#5af0c2','#6c7cff','#fff6e0'];
+    const strokes=[];
+    for(let i=0;i<9;i++){
+      const pts=[], y=H*(0.05+0.9*Math.random()), amp=H*(0.02+0.05*Math.random()), ph=Math.random()*6.28, dir=(i%2?1:-1);
+      for(let k=0;k<=40;k++){ const u=k/40, xx=(dir>0? -0.15+1.3*u : 1.15-1.3*u)*W;
+        pts.push([xx, y+Math.sin(u*5+ph)*amp]); }
+      strokes.push({pts:pts,c:cols[i%cols.length],w:H*(0.045+Math.random()*0.075),delay:i*0.055,dur:0.55});
+    }
+    [['#0b0d18',0.24,0.62],['#05060c',0.78,0.72]].forEach(function(s,j){
+      const pts=[], dir=(j%2?-1:1);
+      for(let k=0;k<=40;k++){ const u=k/40, xx=(dir>0? -0.15+1.3*u : 1.15-1.3*u)*W;
+        pts.push([xx, H*s[1]+Math.sin(u*3+j)*H*0.015]); }
+      strokes.push({pts:pts,c:s[0],w:H*0.62,delay:s[2],dur:0.5,dark:true});
+    });
+    const t0=performance.now(), DUR=1550;
+    (function f(){
+      const t=(performance.now()-t0)/1000;
+      x.clearRect(0,0,W,H);
+      strokes.forEach(function(s){
+        const p=Math.max(0,Math.min(1,(t-s.delay)/s.dur)); if(p<=0)return;
+        const n=Math.max(2,Math.floor(p*40));
+        x.strokeStyle=s.c; x.lineWidth=s.w; x.lineCap='round'; x.lineJoin='round';
+        x.globalAlpha=s.dark?1:0.96;
+        x.beginPath(); x.moveTo(s.pts[0][0],s.pts[0][1]);
+        for(let k=1;k<=n;k++) x.lineTo(s.pts[k][0],s.pts[k][1]);
+        x.stroke(); x.globalAlpha=1;
+        if(!s.dark && p<1){
+          const hp=s.pts[n];
+          for(let q=0;q<3;q++){ x.fillStyle=s.c; x.globalAlpha=0.5*Math.random();
+            x.beginPath(); x.arc(hp[0]+(Math.random()-0.5)*s.w*1.6, hp[1]+(Math.random()-0.5)*s.w*1.6, 1+Math.random()*3.5,0,6.283); x.fill(); }
+          x.globalAlpha=1;
+        }
+      });
+      if(t>1.0){ const rp=Math.min(1,(t-1.0)/0.45), rr=rp*Math.hypot(W,H)*0.6;
+        x.strokeStyle='rgba(246,211,107,'+(0.9*(1-rp)).toFixed(3)+')'; x.lineWidth=3+6*(1-rp);
+        x.beginPath(); x.arc(W/2,H*0.46,rr,0,6.283); x.stroke();
+        x.fillStyle='rgba(5,6,12,'+(0.85*rp).toFixed(3)+')'; x.fillRect(0,0,W,H);
+      }
+      if(t*1000<DUR) requestAnimationFrame(f); else location.href=url;
+    })();
+  }
+
+  // — TOMES : l'ouverture du livre —
+  function fxBook(d){
+    if(fxBusy) return; fxBusy=true;
+    const o=fxCanvas(), x=o.x, W=o.W, H=o.H, col=d.col||'#f6e0a8';
+    fxNote(523.25,.5); fxNote(659.25,.5,160); fxNote(880,.6,340);
+    const gl='LETREIZIEMEEVEIL196'.split('');
+    const parts=[]; for(let i=0;i<52;i++) parts.push({g:gl[(Math.random()*gl.length)|0], y:Math.random()*H,
+      sp:60+Math.random()*180, side:(i%2?1:-1), o:0.35+Math.random()*0.65, s:11+Math.random()*18, d:Math.random()*0.45});
+    const t0=performance.now(), DUR=1300;
+    (function f(){
+      const t=(performance.now()-t0)/1000;
+      x.clearRect(0,0,W,H);
+      x.fillStyle='rgba(3,4,10,'+Math.min(0.88,t*1.5).toFixed(3)+')'; x.fillRect(0,0,W,H);
+      const slit=Math.min(1,t/0.5), open=Math.max(0,t-0.5);
+      const lw=2+Math.pow(slit,1.6)*12 + open*open*W*2.6;
+      const g=x.createLinearGradient(W/2-lw,0,W/2+lw,0);
+      g.addColorStop(0,'rgba(255,240,200,0)'); g.addColorStop(0.5,'rgba(255,246,220,0.96)'); g.addColorStop(1,'rgba(255,240,200,0)');
+      x.fillStyle=g; x.fillRect(W/2-lw,0,lw*2,H);
+      x.globalAlpha=0.55*slit; x.fillStyle=col; x.fillRect(W/2-2,0,4,H); x.globalAlpha=1;
+      x.textAlign='center';
+      parts.forEach(function(p){ const pp=t-p.d; if(pp<=0)return;
+        const px=W/2+p.side*(20+pp*p.sp), a=Math.max(0,p.o*(1-pp*0.85))*(0.25+0.75*slit);
+        x.globalAlpha=a; x.fillStyle='#ffe9b8'; x.font='700 '+p.s.toFixed(0)+'px Cinzel, serif';
+        x.fillText(p.g,px,p.y); });
+      x.globalAlpha=1;
+      if(t>0.92){ const fa=Math.min(1,(t-0.92)/0.3); x.fillStyle='rgba(255,249,234,'+fa.toFixed(3)+')'; x.fillRect(0,0,W,H); }
+      if(t*1000<DUR) requestAnimationFrame(f); else location.href=d.href;
+    })();
+  }
+
+  // — ORACLE : la translation stellaire —
+  function fxWarp(url){
+    if(fxBusy) return; fxBusy=true;
+    const o=fxCanvas(), x=o.x, W=o.W, H=o.H, cx=W/2, cy=H*0.5, MX=Math.max(W,H);
+    fxNote(392,.5); fxNote(587.33,.5,150); fxNote(880,.7,320);
+    const st=[]; for(let i=0;i<230;i++){ const a=Math.random()*6.283;
+      st.push({a:a, r:4+Math.random()*MX*0.05, sp:0.5+Math.random()*1.3, h:Math.random()}); }
+    const t0=performance.now(), DUR=1400;
+    (function f(){
+      const t=(performance.now()-t0)/1000;
+      x.fillStyle='rgba(2,3,10,'+(t<0.2?0.5:0.3)+')'; x.fillRect(0,0,W,H);
+      x.globalCompositeOperation='lighter';
+      st.forEach(function(s){
+        const r0=s.r; s.r+=s.sp*(1.2+46*t*t);
+        const x0=cx+Math.cos(s.a)*r0, y0=cy+Math.sin(s.a)*r0, x1=cx+Math.cos(s.a)*s.r, y1=cy+Math.sin(s.a)*s.r;
+        const col=s.h<0.6?'160,230,255':(s.h<0.85?'200,180,255':'255,255,255');
+        x.strokeStyle='rgba('+col+',0.85)'; x.lineWidth=0.8+Math.min(3,s.r*0.004);
+        x.beginPath(); x.moveTo(x0,y0); x.lineTo(x1,y1); x.stroke();
+        if(s.r>MX*0.85) s.r=4+Math.random()*14;
+      });
+      for(let k=0;k<3;k++){ const rt=(t*0.9+k*0.33)%1, rr=rt*MX*0.7;
+        x.strokeStyle='rgba(43,245,255,'+(0.5*(1-rt)).toFixed(3)+')'; x.lineWidth=0.5+2.5*(1-rt);
+        x.beginPath(); x.arc(cx,cy,rr,0,6.283); x.stroke(); }
+      const g=x.createRadialGradient(cx,cy,0,cx,cy,90+t*180);
+      g.addColorStop(0,'rgba(255,255,255,'+(0.25+t*0.5).toFixed(3)+')'); g.addColorStop(1,'rgba(120,200,255,0)');
+      x.fillStyle=g; x.beginPath(); x.arc(cx,cy,90+t*200,0,6.283); x.fill();
+      x.globalCompositeOperation='source-over';
+      if(t>1.0){ const fa=Math.min(1,(t-1.0)/0.32); x.fillStyle='rgba(238,250,255,'+fa.toFixed(3)+')'; x.fillRect(0,0,W,H); }
+      if(t*1000<DUR) requestAnimationFrame(f); else location.href=url;
+    })();
+  }
 
   addEventListener('resize',()=>{camera.aspect=W0()/H0();camera.updateProjectionMatrix();renderer.setSize(W0(),H0());});
 })();}
