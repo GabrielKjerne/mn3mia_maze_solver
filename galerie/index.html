@@ -174,6 +174,11 @@ input[type=range].hue::-moz-range-thumb{background:#fff;border-radius:50%}
 .sbar #sbTxt{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .sbar #sbTxt b{color:var(--cyan);font-weight:400}
 .foot{z-index:6;margin-top:3vh;text-align:center;font-family:"Share Tech Mono",monospace;font-size:.56rem;letter-spacing:.3em;color:#3a5070;text-indent:.3em;line-height:2}
+#enterFx{position:fixed;inset:0;z-index:95;pointer-events:none;background:#05060c;animation:efFade .9s ease .15s forwards}
+#enterFx::after{content:"";position:absolute;left:50%;top:42%;width:10px;height:10px;border:2px solid #f6d36b;border-radius:50%;transform:translate(-50%,-50%);box-shadow:0 0 34px rgba(246,211,107,.8);animation:efRing 1.05s cubic-bezier(.2,.7,.2,1) .05s forwards}
+@keyframes efFade{to{opacity:0}}
+@keyframes efRing{to{width:240vmax;height:240vmax;opacity:0;border-width:1px}}
+@media(prefers-reduced-motion:reduce){#enterFx{display:none}}
 @media(prefers-reduced-motion:reduce){.tilt,.scanline,.sweep,.chead .ct span,.pname,.ping i{animation:none!important;transition:none}
   .scan img{animation:none;-webkit-mask-image:none;mask-image:none;opacity:.85}}
 @media(max-width:700px){
@@ -232,6 +237,7 @@ input[type=range].hue::-moz-range-thumb{background:#fff;border-radius:50%}
 </defs></svg>
 
 <canvas id="dust"></canvas>
+<div id="enterFx"></div>
 <div id="stage">
   <div class="head">
     <div class="eyebrow">LE TREIZIÈME ÉVEIL · GALERIE</div>
@@ -668,6 +674,7 @@ requestAnimationFrame(loop);
 setPainting(0); applyLamp(); applyVision();
 root.style.setProperty('--mx','50%'); root.style.setProperty('--my','40%');
 document.querySelector('.nav').style.display = PAINTINGS.length>1?'flex':'none';
+setTimeout(function(){ var e=document.getElementById('enterFx'); if(e) e.remove(); },1400);
 </script>
 </body>
 </html>
