@@ -148,11 +148,11 @@ body.present.rotp::after{bottom:auto;top:50%;left:auto;right:12px;width:auto;tra
   clip-path:polygon(0 0,calc(100% - 7px) 0,100% 7px,100% 100%,7px 100%,0 calc(100% - 7px));transition:all .25s}
 .nav button:hover{background:rgba(43,245,255,.14);color:#fff;box-shadow:0 0 16px rgba(43,245,255,.4)}
 .nav .count{font-family:"Share Tech Mono",monospace;font-size:.66rem;letter-spacing:.24em;color:#7fa8c8}
-.caprow{display:flex;justify-content:center;z-index:6}
-.capBtn{margin-top:7px;background:none;border:none;color:#4f6f8c;font-family:"Share Tech Mono",monospace;font-size:.5rem;letter-spacing:.24em;text-transform:uppercase;cursor:pointer;opacity:.32;transition:opacity .35s,color .35s;padding:3px 9px}
-.capBtn:hover{opacity:1;color:var(--gold)}
-.capBtn.ok{opacity:1;color:#7CFFB0}
-.capBtn.err{opacity:1;color:#ff6b6b}
+.caprow{display:flex;justify-content:center;z-index:6;margin-top:10px}
+.capBtn{display:inline-flex;align-items:center;gap:.55em;background:rgba(246,211,107,.07);border:1px solid rgba(246,211,107,.4);color:var(--gold);font-family:"Share Tech Mono",monospace;font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;cursor:pointer;padding:8px 16px;border-radius:999px;opacity:.9;transition:.3s}
+.capBtn:hover{opacity:1;background:rgba(246,211,107,.15);box-shadow:0 0 18px rgba(246,211,107,.3)}
+.capBtn.ok{opacity:1;color:#7CFFB0;border-color:rgba(124,255,176,.5)}
+.capBtn.err{opacity:1;color:#ff8a8a;border-color:rgba(255,138,138,.5)}
 .tools{position:relative;z-index:6;width:min(94vw,860px);margin-top:18px;display:flex;flex-direction:column;gap:0;
   background:linear-gradient(180deg,rgba(9,13,24,.94),rgba(5,8,16,.96));border:1px solid rgba(43,245,255,.22);
   clip-path:polygon(0 0,calc(100% - 20px) 0,100% 20px,100% 100%,20px 100%,0 calc(100% - 20px));
@@ -861,53 +861,60 @@ function captureImage(){
     const iw=src.naturalWidth, ih=src.naturalHeight;
     let sw=iw, sh=iw/ar; if(sh>ih){ sh=ih; sw=ih*ar; }
     const sx=(iw-sw)/2, sy=(ih-sh)/2;
-    const OW=Math.min(1600,Math.round(sw)), OH=Math.round(OW/ar);
-    const oc=document.createElement('canvas'); oc.width=OW; oc.height=OH; const x=oc.getContext('2d');
+    const P=Math.min(2600,Math.round(sw)), PH=Math.round(P/ar);
+    const mol=Math.round(P*0.020), matS=Math.round(P*0.055), matB=Math.round(P*0.205);
+    const CW=P+2*matS+2*mol, CH=PH+matS+matB+2*mol, ox=mol+matS, oy=mol+matS;
+    const oc=document.createElement('canvas'); oc.width=CW; oc.height=CH; const x=oc.getContext('2d');
+    // moulure dorée
+    let mg=x.createLinearGradient(0,0,CW,CH);
+    mg.addColorStop(0,'#efe0c0'); mg.addColorStop(.28,'#b69a66'); mg.addColorStop(.5,'#6e5a38'); mg.addColorStop(.72,'#c9a978'); mg.addColorStop(1,'#7d6440');
+    x.fillStyle=mg; x.fillRect(0,0,CW,CH);
+    x.fillStyle='rgba(0,0,0,.35)'; x.fillRect(mol*0.55,mol*0.55,CW-mol*1.1,CH-mol*1.1);
+    // passe-partout sombre
+    let bg=x.createLinearGradient(0,mol,0,CH-mol); bg.addColorStop(0,'#15161c'); bg.addColorStop(1,'#0a0b0e');
+    x.fillStyle=bg; x.fillRect(mol,mol,CW-2*mol,CH-2*mol);
+    // ombre portée de la toile
+    x.save(); x.shadowColor='rgba(0,0,0,.6)'; x.shadowBlur=Math.round(P*0.02); x.shadowOffsetY=Math.round(P*0.006);
+    x.fillStyle='#000'; x.fillRect(ox,oy,P,PH); x.restore();
+    // toile + filtres lampe/vision
     const cs=getComputedStyle(root);
-    const fL=getComputedStyle(document.getElementById('treat')).filter;
-    const fV=getComputedStyle(document.getElementById('breath')).filter;
+    const fL=getComputedStyle(document.getElementById('treat')).filter, fV=getComputedStyle(document.getElementById('breath')).filter;
     let f=''; if(fL&&fL!=='none')f+=fL+' '; if(fV&&fV!=='none')f+=fV;
-    x.filter=f.trim()||'none';
-    x.drawImage(src,sx,sy,sw,sh,0,0,OW,OH);
-    x.filter='none';
-    const mx=(parseFloat(cs.getPropertyValue('--mx'))||50)/100*OW;
-    const my=(parseFloat(cs.getPropertyValue('--my'))||40)/100*OH;
-    const lr=(parseFloat(cs.getPropertyValue('--lr'))||42)/100;
-    const lampcol=(cs.getPropertyValue('--lampcol')||'255,250,235').trim();
-    const ta=parseFloat(cs.getPropertyValue('--ta'))||0, hot=parseFloat(cs.getPropertyValue('--hot'))||0;
-    const R=lr*Math.max(OW,OH);
-    if(ta>0){ x.globalCompositeOperation='soft-light'; const g=x.createRadialGradient(mx,my,0,mx,my,R);
-      g.addColorStop(0,'rgba('+lampcol+','+ta+')'); g.addColorStop(.72,'rgba('+lampcol+',0)'); x.fillStyle=g; x.fillRect(0,0,OW,OH); }
-    if(hot>0){ x.globalCompositeOperation='screen'; const g=x.createRadialGradient(mx,my,0,mx,my,R*.5);
-      g.addColorStop(0,'rgba(255,250,235,'+(hot*.5)+')'); g.addColorStop(.62,'rgba(255,250,235,0)'); x.fillStyle=g; x.fillRect(0,0,OW,OH); }
+    x.save(); x.beginPath(); x.rect(ox,oy,P,PH); x.clip();
+    x.filter=f.trim()||'none'; x.drawImage(src,sx,sy,sw,sh,ox,oy,P,PH); x.filter='none';
+    const mx=ox+((parseFloat(cs.getPropertyValue('--mx'))||50)/100)*P, my=oy+((parseFloat(cs.getPropertyValue('--my'))||40)/100)*PH;
+    const lr=(parseFloat(cs.getPropertyValue('--lr'))||42)/100, lampcol=(cs.getPropertyValue('--lampcol')||'255,250,235').trim();
+    const ta=parseFloat(cs.getPropertyValue('--ta'))||0, hot=parseFloat(cs.getPropertyValue('--hot'))||0, R=lr*Math.max(P,PH);
+    if(ta>0){ x.globalCompositeOperation='soft-light'; let g=x.createRadialGradient(mx,my,0,mx,my,R); g.addColorStop(0,'rgba('+lampcol+','+ta+')'); g.addColorStop(.72,'rgba('+lampcol+',0)'); x.fillStyle=g; x.fillRect(ox,oy,P,PH); }
+    if(hot>0){ x.globalCompositeOperation='screen'; let g=x.createRadialGradient(mx,my,0,mx,my,R*.5); g.addColorStop(0,'rgba(255,250,235,'+(hot*.5)+')'); g.addColorStop(.62,'rgba(255,250,235,0)'); x.fillStyle=g; x.fillRect(ox,oy,P,PH); }
     x.globalCompositeOperation='multiply';
-    const v=x.createRadialGradient(OW/2,OH/2,Math.min(OW,OH)*.34,OW/2,OH/2,Math.max(OW,OH)*.74);
-    v.addColorStop(0,'rgb(255,255,255)'); v.addColorStop(1,'rgb(74,74,86)'); x.fillStyle=v; x.fillRect(0,0,OW,OH);
-    x.globalCompositeOperation='source-over';
-    // signature — Le Treizi\u00e8me \u00c9veil
-    x.textAlign='center'; x.textBaseline='alphabetic';
-    x.shadowColor='rgba(0,0,0,0.55)'; x.shadowBlur=Math.max(2,Math.round(OW*0.012)); x.shadowOffsetY=Math.round(OW*0.0012);
-    const _cx=OW/2, _s1=Math.round(OW*0.024), _s2=Math.round(OW*0.016), _s3=Math.round(OW*0.0130), _gap=Math.round(OH*0.012);
-    const _uY=OH-Math.round(OH*0.05), _nY=_uY-_s3-_gap, _tY=_nY-_s2-_gap;
-    try{x.letterSpacing=Math.round(OW*0.006)+'px';}catch(e){}
-    x.font='600 '+_s1+'px "Cinzel", serif'; x.fillStyle='rgba(255,255,255,0.97)';
-    x.fillText('Le Treizi\u00e8me \u00c9veil', _cx, _tY);
-    try{x.letterSpacing=Math.round(OW*0.004)+'px';}catch(e){}
-    x.font='400 '+_s2+'px "Cinzel", serif'; x.fillStyle='rgba(255,255,255,0.88)';
-    x.fillText('Gabriel Kjerne', _cx, _nY);
-    try{x.letterSpacing=Math.round(OW*0.005)+'px';}catch(e){}
-    x.font='400 '+_s3+'px "Share Tech Mono", monospace'; x.fillStyle='rgba(255,255,255,0.80)';
-    x.fillText('www.letreiziemeeveil.com', _cx, _uY);
+    let v=x.createRadialGradient(ox+P/2,oy+PH/2,Math.min(P,PH)*.34,ox+P/2,oy+PH/2,Math.max(P,PH)*.74); v.addColorStop(0,'rgb(255,255,255)'); v.addColorStop(1,'rgb(74,74,86)'); x.fillStyle=v; x.fillRect(ox,oy,P,PH);
+    x.globalCompositeOperation='source-over'; x.restore();
+    // filet doré
+    const lw=Math.max(1,Math.round(P*0.0025)); x.strokeStyle='rgba(246,211,107,.55)'; x.lineWidth=lw; x.strokeRect(ox-lw,oy-lw,P+2*lw,PH+2*lw);
+    // signature
+    const p=PAINTINGS[S.cur], title=((p&&p.title)||'').toUpperCase();
+    const band0=oy+PH, bandH=matB;
+    const sTitle=Math.round(P*0.034), sEveil=Math.round(P*0.024), sName=Math.round(P*0.018), sUrl=Math.round(P*0.015), gap=Math.round(P*0.016);
+    const totalH=sTitle+sEveil+sName+sUrl+gap*3; let yy=band0+(bandH-totalH)/2+sTitle;
+    x.textAlign='center'; x.textBaseline='alphabetic'; x.shadowColor='rgba(0,0,0,.5)'; x.shadowBlur=Math.round(P*0.006);
+    try{x.letterSpacing=Math.round(P*0.008)+'px';}catch(e){}
+    x.font='600 '+sTitle+'px "Cinzel", serif'; x.fillStyle='rgba(255,255,255,0.98)'; x.fillText(title||'\u2014',CW/2,yy); yy+=gap+sEveil;
+    try{x.letterSpacing=Math.round(P*0.010)+'px';}catch(e){}
+    x.font='400 '+sEveil+'px "Cinzel", serif'; x.fillStyle='rgba(255,255,255,0.90)'; x.fillText('Le Treizi\u00e8me \u00c9veil',CW/2,yy); yy+=gap+sName;
+    try{x.letterSpacing=Math.round(P*0.006)+'px';}catch(e){}
+    x.font='400 '+sName+'px "Cinzel", serif'; x.fillStyle='rgba(255,255,255,0.78)'; x.fillText('Gabriel Kjerne',CW/2,yy); yy+=gap+sUrl;
+    try{x.letterSpacing=Math.round(P*0.005)+'px';}catch(e){}
+    x.font='400 '+sUrl+'px "Share Tech Mono", monospace'; x.fillStyle='rgba(255,255,255,0.62)'; x.fillText('www.letreiziemeeveil.com',CW/2,yy);
     try{x.letterSpacing='0px';}catch(e){}
-    x.shadowBlur=0; x.shadowOffsetY=0; x.shadowColor='transparent';
-    const p=PAINTINGS[S.cur], slug=((p&&p.title)||'toile').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
+    x.shadowBlur=0; x.shadowColor='transparent';
+    const slug=((p&&p.title)||'toile').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
     oc.toBlob(function(blob){
-      if(!blob){ flashCap(btn,'err','⚠ utilise une capture d’écran'); return; }
-      const u=URL.createObjectURL(blob), a=document.createElement('a');
-      a.href=u; a.download='treizieme-eveil-'+slug+'.png'; document.body.appendChild(a); a.click(); a.remove();
-      setTimeout(()=>URL.revokeObjectURL(u),3000); flashCap(btn,'ok','✓ image capturée');
-    },'image/png');
-  }catch(e){ flashCap(btn,'err','⚠ utilise une capture d’écran'); }
+      if(!blob){ flashCap(btn,'err','\u26a0 utilise une capture d\u2019\u00e9cran'); return; }
+      const u=URL.createObjectURL(blob), a=document.createElement('a'); a.href=u; a.download='treizieme-eveil-'+slug+'.jpg';
+      document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(u),3000); flashCap(btn,'ok','\u2713 image captur\u00e9e');
+    },'image/jpeg',0.93);
+  }catch(e){ flashCap(btn,'err','\u26a0 utilise une capture d\u2019\u00e9cran'); }
 }
 document.getElementById('cap').addEventListener('click',captureImage);
 
