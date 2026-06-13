@@ -41,14 +41,14 @@ body{background:#06060c;color:#cdd8f0;font-family:"Orbitron",system-ui,sans-seri
 .canvas{position:relative;width:100%;height:100%;overflow:hidden;border-radius:2px;background:#04040a;cursor:crosshair;touch-action:none;perspective:1000px}
 .canvas{background:#0a0a0c}
 .canvas .l-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
-#fx{position:absolute;inset:0;transform:scale(var(--zoom));transform-origin:var(--zx) var(--zy);transition:transform .95s cubic-bezier(.2,.8,.2,1);isolation:isolate}
-#treat{position:absolute;inset:0;filter:var(--lampTreat);will-change:transform;transform-style:preserve-3d}
+#fx{position:absolute;inset:0;transform:scale(var(--zoom));transform-origin:var(--zx) var(--zy);transition:transform .95s cubic-bezier(.2,.8,.2,1)}
+#treat{position:absolute;inset:0;filter:var(--lampTreat);will-change:transform;transform-style:preserve-3d;backface-visibility:hidden}
 .breath{position:absolute;inset:0;transform-origin:center}
 .breath.asc{animation:ascCycle var(--asc-dur) linear infinite}
 @keyframes ascCycle{from{filter:hue-rotate(0deg)}to{filter:hue-rotate(360deg)}}
 .lit{position:absolute;inset:0;transition:opacity .6s}
-.lit .base{filter:brightness(var(--ambient)) saturate(.92) contrast(1.02);transition:filter .6s}
-.lit .light{transition:filter .6s;
+.lit .base{filter:brightness(var(--ambient)) saturate(.92) contrast(1.02);transition:opacity .6s;backface-visibility:hidden}
+.lit .light{transition:opacity .6s;backface-visibility:hidden;
   -webkit-mask-image:radial-gradient(ellipse var(--lr) var(--lr) at var(--mx) var(--my),#000 0%,rgba(0,0,0,.55) 52%,transparent 80%);
   mask-image:radial-gradient(ellipse var(--lr) var(--lr) at var(--mx) var(--my),#000 0%,rgba(0,0,0,.55) 52%,transparent 80%)}
 .lit .lumin{mix-blend-mode:screen;opacity:calc(var(--bl)*.55);filter:saturate(1.4) brightness(1.2) hue-rotate(var(--blhue));transition:opacity .6s}
@@ -100,7 +100,7 @@ body{background:#06060c;color:#cdd8f0;font-family:"Orbitron",system-ui,sans-seri
 .sheen{position:absolute;inset:0;z-index:11;pointer-events:none;mix-blend-mode:screen;opacity:var(--sheenO);background:linear-gradient(115deg,transparent 40%,rgba(255,255,255,.7) 50%,transparent 60%);transition:opacity .6s}
 .vig{position:absolute;inset:0;z-index:12;pointer-events:none;box-shadow:inset 0 0 90px 30px rgba(0,0,0,.55)}
 .backlight{position:absolute;inset:-8%;z-index:0;border-radius:12px;background-size:cover;background-position:center;
-  filter:blur(50px) brightness(1.6) saturate(1.7) hue-rotate(var(--blhue));opacity:var(--bl);transform:scale(1.12);transition:opacity .7s}
+  filter:blur(26px) brightness(1.6) saturate(1.7) hue-rotate(var(--blhue));opacity:var(--bl);transform:scale(1.12) translateZ(0);will-change:opacity;transition:opacity .7s}
 .reflection{position:relative;z-index:6;width:min(86vw,820px);height:clamp(26px,5.5vh,64px);overflow:hidden;transform:scaleY(-1);opacity:.16;filter:blur(2px);
   -webkit-mask-image:linear-gradient(to bottom,rgba(0,0,0,.5),transparent);mask-image:linear-gradient(to bottom,rgba(0,0,0,.5),transparent);pointer-events:none}
 .reflection img{position:absolute;left:0;bottom:0;width:100%;height:auto;filter:brightness(var(--ambient))}
@@ -118,6 +118,7 @@ body.present .backlight{border-radius:0;inset:-12%}
 body.present .frame{width:100%;height:100%;padding:0;border:none;border-radius:0;aspect-ratio:auto;background:none;box-shadow:none}
 body.present .frame::before{display:none}
 body.present .canvas{border-radius:0}
+body.present #fx{isolation:isolate}
 body.present.rotp #stage>.gallery{inset:auto;top:50%;left:50%;width:100dvh;height:100dvw;transform:translate(-50%,-50%) rotate(90deg)}
 body.present::after{content:"DOUBLE-TAPE POUR QUITTER";position:fixed;bottom:12px;left:0;right:0;text-align:center;font-family:"Share Tech Mono",monospace;font-size:.56rem;letter-spacing:.32em;color:#5a7a9a;z-index:82;pointer-events:none}
 body.present.rotp::after{bottom:auto;top:50%;left:auto;right:12px;width:auto;transform:rotate(90deg);transform-origin:center right}
