@@ -887,17 +887,30 @@ function captureImage(){
     // ombre portée de la toile
     x.save(); x.shadowColor='rgba(0,0,0,.6)'; x.shadowBlur=Math.round(P*0.02); x.shadowOffsetY=Math.round(P*0.006);
     x.fillStyle='#000'; x.fillRect(ox,oy,P,PH); x.restore();
-    // toile + filtres lampe/vision
+    // --- toile : reproduction fidèle de l'éclairage (ambiance + spot + filtres lampe & vision) ---
     const cs=getComputedStyle(root);
-    const fL=getComputedStyle(document.getElementById('treat')).filter, fV=getComputedStyle(document.getElementById('breath')).filter;
-    let f=''; if(fL&&fL!=='none')f+=fL+' '; if(fV&&fV!=='none')f+=fV;
-    x.save(); x.beginPath(); x.rect(ox,oy,P,PH); x.clip();
-    x.filter=f.trim()||'none'; x.drawImage(src,sx,sy,sw,sh,ox,oy,P,PH); x.filter='none';
-    const mx=ox+((parseFloat(cs.getPropertyValue('--mx'))||50)/100)*P, my=oy+((parseFloat(cs.getPropertyValue('--my'))||40)/100)*PH;
+    const gf=function(id){ const el=document.getElementById(id); const v=el?getComputedStyle(el).filter:'none'; return (v&&v!=='none')?v:''; };
+    const fFx=gf('fx'), fTreat=gf('treat'), fBreath=gf('breath'), fBase=gf('imgBase'), fLight=gf('imgLight');
+    const join=function(){ return Array.prototype.filter.call(arguments,function(s){return s;}).join(' ')||'none'; };
+    const mxL=((parseFloat(cs.getPropertyValue('--mx'))||50)/100)*P, myL=((parseFloat(cs.getPropertyValue('--my'))||40)/100)*PH;
     const lr=(parseFloat(cs.getPropertyValue('--lr'))||42)/100, lampcol=(cs.getPropertyValue('--lampcol')||'255,250,235').trim();
-    const ta=parseFloat(cs.getPropertyValue('--ta'))||0, hot=parseFloat(cs.getPropertyValue('--hot'))||0, R=lr*Math.max(P,PH);
-    if(ta>0){ x.globalCompositeOperation='soft-light'; let g=x.createRadialGradient(mx,my,0,mx,my,R); g.addColorStop(0,'rgba('+lampcol+','+ta+')'); g.addColorStop(.72,'rgba('+lampcol+',0)'); x.fillStyle=g; x.fillRect(ox,oy,P,PH); }
-    if(hot>0){ x.globalCompositeOperation='screen'; let g=x.createRadialGradient(mx,my,0,mx,my,R*.5); g.addColorStop(0,'rgba(255,250,235,'+(hot*.5)+')'); g.addColorStop(.62,'rgba(255,250,235,0)'); x.fillStyle=g; x.fillRect(ox,oy,P,PH); }
+    const ta=parseFloat(cs.getPropertyValue('--ta'))||0, ca=parseFloat(cs.getPropertyValue('--ca'))||0, hot=parseFloat(cs.getPropertyValue('--hot'))||0;
+    const Rspot=lr*Math.max(P,PH), cxs=ox+mxL, cys=oy+myL;
+    x.save(); x.beginPath(); x.rect(ox,oy,P,PH); x.clip();
+    // 1) base d'ambiance (assombrie) sur toute la toile
+    x.filter=join(fFx,fTreat,fBreath,fBase); x.drawImage(src,sx,sy,sw,sh,ox,oy,P,PH); x.filter='none';
+    // 2) révélation lumineuse : base pleine luminosité, masquée au spot de la lampe
+    const tmp=document.createElement('canvas'); tmp.width=P; tmp.height=PH; const tc=tmp.getContext('2d');
+    tc.filter=join(fFx,fTreat,fBreath,fLight); tc.drawImage(src,sx,sy,sw,sh,0,0,P,PH); tc.filter='none';
+    tc.globalCompositeOperation='destination-in';
+    let mk=tc.createRadialGradient(mxL,myL,0,mxL,myL,Rspot); mk.addColorStop(0,'rgba(0,0,0,1)'); mk.addColorStop(.52,'rgba(0,0,0,.55)'); mk.addColorStop(.80,'rgba(0,0,0,0)');
+    tc.fillStyle=mk; tc.fillRect(0,0,P,PH); tc.globalCompositeOperation='source-over';
+    x.drawImage(tmp,ox,oy);
+    // 3) lavis couleur + voile doux + cœur chaud (teinte de la lampe)
+    if(ca>0){ x.globalCompositeOperation='color'; let g=x.createRadialGradient(cxs,cys,0,cxs,cys,Rspot*1.08); g.addColorStop(0,'rgba('+lampcol+','+ca+')'); g.addColorStop(.48,'rgba('+lampcol+','+(ca*.45)+')'); g.addColorStop(.76,'rgba('+lampcol+',0)'); x.fillStyle=g; x.fillRect(ox,oy,P,PH); }
+    if(ta>0){ x.globalCompositeOperation='soft-light'; let g=x.createRadialGradient(cxs,cys,0,cxs,cys,Rspot); g.addColorStop(0,'rgba('+lampcol+','+ta+')'); g.addColorStop(.70,'rgba('+lampcol+',0)'); x.fillStyle=g; x.fillRect(ox,oy,P,PH); }
+    if(hot>0){ x.globalCompositeOperation='screen'; let g=x.createRadialGradient(cxs,cys,0,cxs,cys,Rspot*.5); g.addColorStop(0,'rgba(255,250,235,'+(hot*.6)+')'); g.addColorStop(.62,'rgba(255,250,235,0)'); x.fillStyle=g; x.fillRect(ox,oy,P,PH); }
+    // 4) vignettage
     x.globalCompositeOperation='multiply';
     let v=x.createRadialGradient(ox+P/2,oy+PH/2,Math.min(P,PH)*.34,ox+P/2,oy+PH/2,Math.max(P,PH)*.74); v.addColorStop(0,'rgb(255,255,255)'); v.addColorStop(1,'rgb(74,74,86)'); x.fillStyle=v; x.fillRect(ox,oy,P,PH);
     x.globalCompositeOperation='source-over'; x.restore();
