@@ -596,6 +596,14 @@ function updPresentRot(){ document.body.classList.toggle('rotp', document.body.c
 function ensureAuto(){ if(!autoOn){ autoOn=true; autoT=0; autoNext=0; const b=document.getElementById('tAuto'); if(b){ b.classList.add('on'); b.textContent='■ AUTO'; } } }
 function enterPresent(){
   closeLens(); ensureAuto();
+  // présentation = état fixe et stable : on coupe drone, 3D, scan — la toile remplit l'écran
+  drone.on=false; drone.exit=false; treatEl.style.transform=''; droneHud.classList.remove('on');
+  S.drone=false; { const b=document.getElementById('tDrone'); if(b) b.classList.remove('on'); }
+  S.depth=0; document.getElementById('canvas').classList.remove('d3'); root.style.setProperty('--ana','0px');
+  { const e=document.getElementById('depth'); if(e){ e.value=0; const vd=document.getElementById('vDepth'); if(vd) vd.textContent='0'; } }
+  S.scan=false; S.thermo=false; document.getElementById('tScan').classList.remove('on'); document.getElementById('tThermo').classList.remove('on');
+  root.style.setProperty('--zoom','1'); root.style.setProperty('--zx','50%'); root.style.setProperty('--zy','50%');
+  if(fxEl) fxEl.style.filter=visionFilterStr; applyVision();
   document.body.classList.add('present');
   if(document.documentElement.requestFullscreen) document.documentElement.requestFullscreen().catch(()=>{});
   if(screen.orientation&&screen.orientation.lock) screen.orientation.lock('landscape').then(()=>setTimeout(updPresentRot,80)).catch(()=>{});
@@ -951,6 +959,7 @@ function visionColor(A,t,k){
 function aRnd(a,b){return a+Math.random()*(b-a);}
 function aPick(a){return a[(Math.random()*a.length)|0];}
 function autoSceneApply(){
+  const pres=document.body.classList.contains('present');
   const lamp=aPick(['halogene','led','musee','musee','rasant','rasant','spectre','halogene']);
   S.lamp=lamp; document.querySelectorAll('[data-lamp]').forEach(b=>b.classList.toggle('on',b.dataset.lamp===lamp));
   S.hue=Math.round(aRnd(0,360)); let el=document.getElementById('hue'); if(el){el.value=S.hue; document.getElementById('vHue').textContent=S.hue+'°';}
@@ -959,12 +968,12 @@ function autoSceneApply(){
   applyLamp();
   const asc=aPick([0,1,2,3,4,5,6,7,8,9,10,11,12,13,0,3,7,9,13]);
   S.asc=asc; document.querySelectorAll('[data-asc]').forEach(b=>b.classList.toggle('on',+b.dataset.asc===asc));
-  const depth=Math.random()<0.22?Math.round(aRnd(-70,70)):0;
+  const depth=(!pres && Math.random()<0.22)?Math.round(aRnd(-70,70)):0;
   S.depth=depth; el=document.getElementById('depth'); if(el){el.value=depth; document.getElementById('vDepth').textContent=depth;} root.style.setProperty('--ana',(depth/100*14)+'px');
   const sonar=Math.random()<0.32?Math.round(aRnd(20,90)):0;
   S.sonar=sonar; el=document.getElementById('sonar'); if(el){el.value=sonar; document.getElementById('vSonar').textContent=sonar;}
   let scan=false,thermo=false;
-  if(depth===0 && Math.random()<0.28){ if(Math.random()<0.5) scan=true; else thermo=true; }
+  if(!pres && depth===0 && Math.random()<0.28){ if(Math.random()<0.5) scan=true; else thermo=true; }
   S.scan=scan; S.thermo=thermo;
   document.getElementById('tScan').classList.toggle('on',scan); document.getElementById('tThermo').classList.toggle('on',thermo);
   const back=Math.random()<0.82; S.back=back; root.style.setProperty('--bl',back?'.92':'0'); document.getElementById('tBack').classList.toggle('on',back);
@@ -974,7 +983,7 @@ function autoSceneApply(){
 function autoTick(){
   autoT=0; autoScene++;
   if(autoScene%3===0) setPainting(S.cur+1);
-  if(!RM && !drone.on && Math.random()<0.22){
+  if(!RM && !drone.on && !document.body.classList.contains('present') && Math.random()<0.22){
     autoSceneApply();
     S.depth=0; root.style.setProperty('--ana','0px'); let el=document.getElementById('depth'); if(el){el.value=0; document.getElementById('vDepth').textContent='0';}
     S.scan=false;S.thermo=false; document.getElementById('tScan').classList.remove('on'); document.getElementById('tThermo').classList.remove('on');
