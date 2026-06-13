@@ -898,7 +898,7 @@ function captureImage(){
     // signature
     const p=PAINTINGS[S.cur], title=((p&&p.title)||'').toUpperCase();
     const band0=oy+PH, bandH=matB;
-    const sTitle=Math.round(P*0.034), sEveil=Math.round(P*0.024), sName=Math.round(P*0.018), sUrl=Math.round(P*0.015), gap=Math.round(P*0.016);
+    const sTitle=Math.round(P*0.034), sEveil=Math.round(P*0.024), sName=Math.round(P*0.018), sUrl=Math.round(P*0.0195), gap=Math.round(P*0.016);
     const totalH=sTitle+sEveil+sName+sUrl+gap*3; let yy=band0+(bandH-totalH)/2+sTitle;
     x.textAlign='center'; x.textBaseline='alphabetic'; x.shadowColor='rgba(0,0,0,.5)'; x.shadowBlur=Math.round(P*0.006);
     try{x.letterSpacing=Math.round(P*0.008)+'px';}catch(e){}
@@ -907,8 +907,8 @@ function captureImage(){
     x.font='400 '+sEveil+'px "Cinzel", serif'; x.fillStyle='rgba(255,255,255,0.90)'; x.fillText('Le Treizi\u00e8me \u00c9veil',CW/2,yy); yy+=gap+sName;
     try{x.letterSpacing=Math.round(P*0.006)+'px';}catch(e){}
     x.font='400 '+sName+'px "Cinzel", serif'; x.fillStyle='rgba(255,255,255,0.78)'; x.fillText('Gabriel Kjerne',CW/2,yy); yy+=gap+sUrl;
-    try{x.letterSpacing=Math.round(P*0.005)+'px';}catch(e){}
-    x.font='400 '+sUrl+'px "Share Tech Mono", monospace'; x.fillStyle='rgba(255,255,255,0.62)'; x.fillText('www.letreiziemeeveil.com',CW/2,yy);
+    try{x.letterSpacing=Math.round(P*0.0007)+'px';}catch(e){}
+    x.font='500 '+sUrl+'px "Helvetica Neue", Arial, sans-serif'; x.fillStyle='rgba(255,255,255,0.95)'; x.fillText('letreiziemeeveil.com',CW/2,yy);
     try{x.letterSpacing='0px';}catch(e){}
     x.shadowBlur=0; x.shadowColor='transparent';
     const slug=((p&&p.title)||'toile').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
@@ -916,7 +916,7 @@ function captureImage(){
       if(!blob){ flashCap(btn,'err','\u26a0 utilise une capture d\u2019\u00e9cran'); return; }
       const u=URL.createObjectURL(blob), a=document.createElement('a'); a.href=u; a.download='treizieme-eveil-'+slug+'.jpg';
       document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(u),3000); flashCap(btn,'ok','\u2713 image captur\u00e9e');
-    },'image/jpeg',0.93);
+    },'image/jpeg',0.95);
   }catch(e){ flashCap(btn,'err','\u26a0 utilise une capture d\u2019\u00e9cran'); }
 }
 document.getElementById('cap').addEventListener('click',captureImage);
