@@ -148,6 +148,11 @@ body.present.rotp::after{bottom:auto;top:50%;left:auto;right:12px;width:auto;tra
   clip-path:polygon(0 0,calc(100% - 7px) 0,100% 7px,100% 100%,7px 100%,0 calc(100% - 7px));transition:all .25s}
 .nav button:hover{background:rgba(43,245,255,.14);color:#fff;box-shadow:0 0 16px rgba(43,245,255,.4)}
 .nav .count{font-family:"Share Tech Mono",monospace;font-size:.66rem;letter-spacing:.24em;color:#7fa8c8}
+.caprow{display:flex;justify-content:center;z-index:6}
+.capBtn{margin-top:7px;background:none;border:none;color:#4f6f8c;font-family:"Share Tech Mono",monospace;font-size:.5rem;letter-spacing:.24em;text-transform:uppercase;cursor:pointer;opacity:.32;transition:opacity .35s,color .35s;padding:3px 9px}
+.capBtn:hover{opacity:1;color:var(--gold)}
+.capBtn.ok{opacity:1;color:#7CFFB0}
+.capBtn.err{opacity:1;color:#ff6b6b}
 .tools{position:relative;z-index:6;width:min(94vw,860px);margin-top:18px;display:flex;flex-direction:column;gap:0;
   background:linear-gradient(180deg,rgba(9,13,24,.94),rgba(5,8,16,.96));border:1px solid rgba(43,245,255,.22);
   clip-path:polygon(0 0,calc(100% - 20px) 0,100% 20px,100% 100%,20px 100%,0 calc(100% - 20px));
@@ -320,6 +325,7 @@ input[type=range].hue::-moz-range-thumb{background:#fff;border-radius:50%}
   </div>
 
   <div class="nav"><button id="prev">‹</button><span class="count" id="count">01 / 01</span><button id="next">›</button></div>
+  <div class="caprow"><button class="capBtn" id="cap" title="Capturer la représentation actuelle">◎ capturer cette représentation</button></div>
 
   <div class="tools">
     <div class="sweep"></div>
@@ -844,6 +850,66 @@ tog('tAuto',function(on){ autoOn=on; autoT=0; autoNext=0; const b=document.getEl
 document.getElementById('reset').addEventListener('click',()=>location.reload());
 document.getElementById('prev').addEventListener('click',()=>setPainting(S.cur-1));
 document.getElementById('next').addEventListener('click',()=>setPainting(S.cur+1));
+function flashCap(btn,cls,msg){ if(!btn)return; if(!btn._t)btn._t=btn.textContent; btn.classList.add(cls); btn.textContent=msg;
+  clearTimeout(btn._to); btn._to=setTimeout(()=>{ btn.classList.remove('ok','err'); btn.textContent=btn._t; },2800); }
+function captureImage(){
+  const btn=document.getElementById('cap');
+  try{
+    const src=document.getElementById('imgBase');
+    if(!src||!src.naturalWidth) throw 0;
+    const cw=canvas.clientWidth||src.naturalWidth, ch=canvas.clientHeight||src.naturalHeight, ar=cw/ch;
+    const iw=src.naturalWidth, ih=src.naturalHeight;
+    let sw=iw, sh=iw/ar; if(sh>ih){ sh=ih; sw=ih*ar; }
+    const sx=(iw-sw)/2, sy=(ih-sh)/2;
+    const OW=Math.min(1600,Math.round(sw)), OH=Math.round(OW/ar);
+    const oc=document.createElement('canvas'); oc.width=OW; oc.height=OH; const x=oc.getContext('2d');
+    const cs=getComputedStyle(root);
+    const fL=getComputedStyle(document.getElementById('treat')).filter;
+    const fV=getComputedStyle(document.getElementById('breath')).filter;
+    let f=''; if(fL&&fL!=='none')f+=fL+' '; if(fV&&fV!=='none')f+=fV;
+    x.filter=f.trim()||'none';
+    x.drawImage(src,sx,sy,sw,sh,0,0,OW,OH);
+    x.filter='none';
+    const mx=(parseFloat(cs.getPropertyValue('--mx'))||50)/100*OW;
+    const my=(parseFloat(cs.getPropertyValue('--my'))||40)/100*OH;
+    const lr=(parseFloat(cs.getPropertyValue('--lr'))||42)/100;
+    const lampcol=(cs.getPropertyValue('--lampcol')||'255,250,235').trim();
+    const ta=parseFloat(cs.getPropertyValue('--ta'))||0, hot=parseFloat(cs.getPropertyValue('--hot'))||0;
+    const R=lr*Math.max(OW,OH);
+    if(ta>0){ x.globalCompositeOperation='soft-light'; const g=x.createRadialGradient(mx,my,0,mx,my,R);
+      g.addColorStop(0,'rgba('+lampcol+','+ta+')'); g.addColorStop(.72,'rgba('+lampcol+',0)'); x.fillStyle=g; x.fillRect(0,0,OW,OH); }
+    if(hot>0){ x.globalCompositeOperation='screen'; const g=x.createRadialGradient(mx,my,0,mx,my,R*.5);
+      g.addColorStop(0,'rgba(255,250,235,'+(hot*.5)+')'); g.addColorStop(.62,'rgba(255,250,235,0)'); x.fillStyle=g; x.fillRect(0,0,OW,OH); }
+    x.globalCompositeOperation='multiply';
+    const v=x.createRadialGradient(OW/2,OH/2,Math.min(OW,OH)*.34,OW/2,OH/2,Math.max(OW,OH)*.74);
+    v.addColorStop(0,'rgb(255,255,255)'); v.addColorStop(1,'rgb(74,74,86)'); x.fillStyle=v; x.fillRect(0,0,OW,OH);
+    x.globalCompositeOperation='source-over';
+    // signature — Le Treizi\u00e8me \u00c9veil
+    x.textAlign='center'; x.textBaseline='alphabetic';
+    x.shadowColor='rgba(0,0,0,0.55)'; x.shadowBlur=Math.max(2,Math.round(OW*0.012)); x.shadowOffsetY=Math.round(OW*0.0012);
+    const _cx=OW/2, _s1=Math.round(OW*0.024), _s2=Math.round(OW*0.016), _s3=Math.round(OW*0.0130), _gap=Math.round(OH*0.012);
+    const _uY=OH-Math.round(OH*0.05), _nY=_uY-_s3-_gap, _tY=_nY-_s2-_gap;
+    try{x.letterSpacing=Math.round(OW*0.006)+'px';}catch(e){}
+    x.font='600 '+_s1+'px "Cinzel", serif'; x.fillStyle='rgba(255,255,255,0.97)';
+    x.fillText('Le Treizi\u00e8me \u00c9veil', _cx, _tY);
+    try{x.letterSpacing=Math.round(OW*0.004)+'px';}catch(e){}
+    x.font='400 '+_s2+'px "Cinzel", serif'; x.fillStyle='rgba(255,255,255,0.88)';
+    x.fillText('Gabriel Kjerne', _cx, _nY);
+    try{x.letterSpacing=Math.round(OW*0.005)+'px';}catch(e){}
+    x.font='400 '+_s3+'px "Share Tech Mono", monospace'; x.fillStyle='rgba(255,255,255,0.80)';
+    x.fillText('www.letreiziemeeveil.com', _cx, _uY);
+    try{x.letterSpacing='0px';}catch(e){}
+    x.shadowBlur=0; x.shadowOffsetY=0; x.shadowColor='transparent';
+    const p=PAINTINGS[S.cur], slug=((p&&p.title)||'toile').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
+    oc.toBlob(function(blob){
+      if(!blob){ flashCap(btn,'err','⚠ utilise une capture d’écran'); return; }
+      const u=URL.createObjectURL(blob), a=document.createElement('a');
+      a.href=u; a.download='treizieme-eveil-'+slug+'.png'; document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(()=>URL.revokeObjectURL(u),3000); flashCap(btn,'ok','✓ image capturée');
+    },'image/png');
+  }catch(e){ flashCap(btn,'err','⚠ utilise une capture d’écran'); }
+}
+document.getElementById('cap').addEventListener('click',captureImage);
 
 (function(){ const b=document.getElementById('bars'); for(let i=0;i<13;i++){const e=document.createElement('i'); e.style.height=(6+Math.random()*20)+'px'; b.appendChild(e);} })();
 const dc=document.getElementById('dust'), dx=dc.getContext('2d'); let DW,DH,motes=[];
