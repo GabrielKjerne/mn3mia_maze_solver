@@ -138,6 +138,10 @@ body.present.rotp::after{bottom:auto;top:50%;left:auto;right:12px;width:auto;tra
 .plate .bars{display:flex;gap:2px;justify-content:flex-end;height:26px;align-items:flex-end}
 .plate .bars i{width:2px;background:var(--cyan);box-shadow:0 0 6px rgba(43,245,255,.6);display:block}
 .plate .stat{font-family:"Share Tech Mono",monospace;font-size:.54rem;letter-spacing:.18em;color:#5fb8d8;margin-top:6px}
+.plate .pmarquee{grid-column:1 / -1;overflow:hidden;margin-top:9px;-webkit-mask-image:linear-gradient(90deg,transparent,#000 7%,#000 93%,transparent);mask-image:linear-gradient(90deg,transparent,#000 7%,#000 93%,transparent)}
+.plate .pmarquee span{display:inline-block;white-space:nowrap;font-family:"Share Tech Mono",monospace;font-size:.56rem;letter-spacing:.2em;color:var(--mag);text-shadow:0 0 8px rgba(255,43,208,.35);animation:pmarq linear infinite;will-change:transform}
+@keyframes pmarq{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+@media (prefers-reduced-motion:reduce){.plate .pmarquee span{animation:none;transform:none}}
 .cnr{position:absolute;width:13px;height:13px;border:2px solid var(--cyan);opacity:.8;pointer-events:none}
 .cnr.tl{top:-1px;left:-1px;border-right:none;border-bottom:none}
 .cnr.tr{top:-1px;right:-1px;border-left:none;border-bottom:none}
@@ -322,6 +326,7 @@ input[type=range].hue::-moz-range-thumb{background:#fff;border-radius:50%}
     <div class="pl-l"><span class="rec"></span><b>REC</b><br>RÉF <b id="pid">QSR-01</b><br>DATE <b id="pdate">2019</b><br><span class="freq">13.7 Hz</span> · SOL</div>
     <div class="pl-c"><div class="pname" id="pname">QUASAR</div><div class="pmeta" id="pmeta">GABRIEL KJERNE · ACRYLIQUE</div></div>
     <div class="pl-r"><div class="bars" id="bars"></div><div class="stat">SIGNAL ◢ STABLE</div></div>
+    <div class="pmarquee" id="pmarquee"><span id="pmarqueeTxt"></span></div>
   </div>
 
   <div class="nav"><button id="prev">‹</button><span class="count" id="count">01 / 01</span><button id="next">›</button></div>
@@ -398,18 +403,18 @@ input[type=range].hue::-moz-range-thumb{background:#fff;border-radius:50%}
    au tableau ci-dessous, par exemple :
    ,{ title:"TITRE", meta:"GABRIEL KJERNE · ACRYLIQUE", id:"REF-07", date:"ANNÉE", src:"img/montitre.jpg" } */
 const PAINTINGS = [
-  { title:"QUASAR", meta:"GABRIEL KJERNE · ACRYLIQUE", id:"QSR-01", date:"2019", src:"img/quasar.jpg" },
-  { title:"FRÉQUENCE", meta:"GABRIEL KJERNE · ACRYLIQUE", id:"FRQ-02", date:"2023", src:"img/frequence.jpg" },
-  { title:"INTER||||FERENCES", meta:"GABRIEL KJERNE · ACRYLIQUE", id:"INT-03", date:"2019", src:"img/interferences.jpg" },
-  { title:"I.S.A", meta:"GABRIEL KJERNE · ACRYLIQUE", id:"ISA-04", date:"2025", src:"img/isa.jpg" },
-  { title:"CÉLESTE", meta:"GABRIEL KJERNE · ACRYLIQUE", id:"CEL-05", date:"2025", src:"img/celeste.jpg" },
-  { title:"TRANSMISSION", meta:"GABRIEL KJERNE · ACRYLIQUE", id:"TRN-07", date:"2023", src:"img/transmission.jpg" },
-  { title:"ATLANTIDE", meta:"GABRIEL KJERNE · ACRYLIQUE", id:"ATL-06", date:"2019", src:"img/atlantide.jpg" }
+  { title:"QUASAR", meta:"GABRIEL KJERNE · ACRYLIQUE", id:"QSR-01", date:"2019", src:"img/quasar.jpg", cartel:"Un œil de tempête aspire le bleu vers son centre ; à droite, le rouge monte en contre-chaleur. Noyau qui flambe à mesure que tout s'y engouffre — le point unique qu'on regarde sans jamais l'atteindre." },
+  { title:"FRÉQUENCE", meta:"GABRIEL KJERNE · ACRYLIQUE", id:"FRQ-02", date:"2023", src:"img/frequence.jpg", cartel:"Ni horizon ni centre : rien que l'oscillation. Des lames courbes se chevauchent en bas-relief, ondes gravées dans la matière. Une vibration qui ne se résout pas — et, au bord, une lueur qui perce le bruit." },
+  { title:"INTER||||FERENCES", meta:"GABRIEL KJERNE · ACRYLIQUE", id:"INT-03", date:"2019", src:"img/interferences.jpg", cartel:"Rouge, vert, bleu : les couleurs de la lumière se croisent. À l'endroit où les fronts d'onde se superposent naît une amande claire — un œil issu de l'interférence. La perception comme rencontre." },
+  { title:"I.S.A", meta:"GABRIEL KJERNE · ACRYLIQUE", id:"ISA-04", date:"2025", src:"img/isa.jpg", cartel:"Un chemin de terre rouge s'élève vers un seuil de pierres pâles, sous une couronne d'arbre auréolée de ciel. Pèlerinage tranquille vers l'ouverture claire — la porte entrevue au bout du regard." },
+  { title:"CÉLESTE", meta:"GABRIEL KJERNE · ACRYLIQUE", id:"CEL-05", date:"2025", src:"img/celeste.jpg", cartel:"La nuit, une demeure veille, fenêtres irradiantes. Au centre, un porche voûté ; tout au fond, une petite porte de lumière. Le seuil où quelqu'un attend — le ciel entrevu par des fenêtres ordinaires." },
+  { title:"TRANSMISSION", meta:"GABRIEL KJERNE · ACRYLIQUE", id:"TRN-07", date:"2023", src:"img/transmission.jpg", cartel:"Un orbe arc-en-ciel s'allume dans un champ rouge lacéré ; des éclats blancs se dispersent comme un signal en voyage. Une image qui perce l'interférence — le spectre entier, enfin émis." },
+  { title:"ATLANTIDE", meta:"GABRIEL KJERNE · ACRYLIQUE", id:"ATL-06", date:"2019", src:"img/atlantide.jpg", cartel:"Une île à demi engloutie, bâtie de lignes incisées, se mire sur une eau immobile. Le rouge trace la ligne du visible ; dessous, le reflet garde ce qui fut noyé. Mémoire qui affleure — la miséricorde de l'oubli faite paysage." }
 ];
 
 const root=document.documentElement, RM=matchMedia('(prefers-reduced-motion:reduce)').matches;
 const PHI=1.6180339887;
-const VERSION='v1.2';
+const VERSION='v1.3';
 /* ===== ADAPTATION PUISSANCE — palier appareil, modulation ~60 fps, définition PC ===== */
 const IS_PC=!/Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
 function deviceTier(){
@@ -606,6 +611,8 @@ function setPainting(i){
     document.getElementById('pmeta').textContent=p.meta||''; document.getElementById('pid').textContent=p.id||'';
     document.getElementById('pdate').textContent=p.date||'—';
     document.title=p.title+' — Galerie '+VERSION+' · Le Treizième Éveil';
+    { var c=(p.cartel||'').trim(); var sep='  ·  '; var unit=c?(c+sep):''; var mt=document.getElementById('pmarqueeTxt');
+      if(mt){ mt.textContent=unit+unit; mt.style.animationDuration=Math.max(22,Math.round((unit.length||1)*0.16))+'s'; } }
     t.style.opacity=1; pn.style.opacity=1; },180);
   const n2=x=>String(x).padStart(2,'0');
   document.getElementById('count').textContent=n2(S.cur+1)+' / '+n2(PAINTINGS.length);
