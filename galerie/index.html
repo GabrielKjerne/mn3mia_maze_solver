@@ -3157,8 +3157,12 @@ if (typeof module === "object" && typeof module.exports === "object") Object.ass
       if (!opt.all && !lampKey) lampKey = "musee";
       // durée d'affichage variable : contemplative, moyenne, ou brève
       var roll = R(), dur = roll < 0.18 ? 5.5 + R() * 2.5 : (roll < 0.78 ? 8 + R() * 5 : 14 + R() * 6);
+      // CADRAGE : tableau complet · plein cadre · zone de détail
+      var mr = R(), mode = mr < 0.34 ? "full" : (mr < 0.72 ? "cover" : "zone");
       shots.push({
         start: t, dur: dur, p: p, seed: (seed ^ (g * 40503) ^ (p * 2654435761)) >>> 0,
+        mode: mode, zoom: mode === "zone" ? 1.7 + R() * 1.1 : (mode === "full" ? 1 + R() * 0.05 : 1 + R() * 0.12),
+        zx: R() * 2 - 1, zy: R() * 2 - 1,                       // centre de la zone visée
         zin: R() < 0.5, span: (R() < 0.32 ? 0.30 + R() * 0.22 : 0.10 + R() * 0.09),
         px: R() * 2 - 1, py: R() * 2 - 1,
         lampKey: lampKey, asc: ascIdx,
@@ -3231,7 +3235,8 @@ if (typeof module === "object" && typeof module.exports === "object") Object.ass
     if (env.opt.frame && top) drawSignature(ctx, G, env.list[top.s.p], top.lt, top.s.dur, top.al);
     if (top) {
       var ts = top.s;
-      env.now = (env.list[ts.p].t || "") + " · " + (ts.lampKey || "").toUpperCase() +
+      var modeTxt = ts.mode === "full" ? "TABLEAU COMPLET" : (ts.mode === "zone" ? "ZONE" : "PLEIN CADRE");
+      env.now = (env.list[ts.p].t || "") + " · " + modeTxt + " · " + (ts.lampKey || "").toUpperCase() +
         " " + Math.round(ts.hue) + "° I" + Math.round((ts.intensity || 1) * 100) + " F" + Math.round(ts.beam) +
         (ts.asc && tl.A[ts.asc - 1] ? " · " + tl.A[ts.asc - 1].name : "") +
         (ts.back ? " · RÉTRO " + Math.round(ts.hueB) + "°" : "") + (ts.wall ? " · MUR CLAIR" : "") +
@@ -3246,7 +3251,7 @@ if (typeof module === "object" && typeof module.exports === "object") Object.ass
     if (L && L.treat) f.push(L.treat);
     if (A) {
       var hue = (A.hue || 0) + (A.cyc ? (t * 360 / A.cyc) % 360 : 0);
-      var pulse = A.pulse ? (1 + A.pulse * Math.sin(2 * Math.PI * (A.pHz || 1) * t)) : 1;
+      var pulse = A.pulse ? (1 + A.pulse * 0.35 * Math.sin(2 * Math.PI * (A.pHz || 1) * t)) : 1; // frémissement de lumière, pas de rebond
       f.push("saturate(" + ((A.sat || 1) * (L && L.colz ? 1 + L.colz * .12 : 1)).toFixed(3) + ")");
       f.push("brightness(" + (((A.bri || 1) * pulse)).toFixed(3) + ")");
       f.push("contrast(" + (A.con || 1).toFixed(3) + ")");
@@ -3258,30 +3263,44 @@ if (typeof module === "object" && typeof module.exports === "object") Object.ass
 
   function drawShot(env, tl, s, lt, al) {
     var ctx = env.ctx, G = env.geo, p = env.list[s.p], L = tl.L[s.lampKey], A = s.asc ? tl.A[s.asc - 1] : null;
-    var e = smooth(lt / s.dur);
-    var cover = Math.max(G.iw / p.w, G.ih / p.h);
-    var drone = s.drone ? 1.35 : 1;
-    var breath = A ? 1 + (A.amp || 0) * Math.sin(2 * Math.PI * (A.pHz || 1) * lt) : 1;
-    var sonarW = s.sonar ? (s.sonar / 100) * 0.012 * Math.sin(lt * 6.1) : 0;
-    var sc = cover * drone * breath * (1 + sonarW) * lerp(s.zin ? 1 : 1 + s.span, s.zin ? 1 + s.span : 1, e);
+    var e = smooth(lt / s.dur), u = lt / s.dur;               // progression 0→1, SANS aller-retour
+    var contain = Math.min(G.iw / p.w, G.ih / p.h), cover = Math.max(G.iw / p.w, G.ih / p.h);
+    var base = s.mode === "full" ? contain * 0.965 : cover;   // complet · plein cadre · zone
+    var drone = s.drone ? 1.28 : 1;
+    // dérive d'échelle continue (jamais de rebond) + très légère respiration de conscience, à sens unique
+    var swell = A ? 1 + (A.amp || 0) * 0.5 * e : 1;
+    var sc = base * s.zoom * drone * swell * lerp(s.zin ? 1 : 1 + s.span * 0.6, s.zin ? 1 + s.span * 0.6 : 1, e);
     var dw = p.w * sc, dh = p.h * sc;
     var mx = Math.max(0, (dw - G.iw) / 2), my = Math.max(0, (dh - G.ih) / 2);
-    var panU = A ? (A.pan || 0) * Math.sin(2 * Math.PI * (A.pHz || 1) * lt * 0.5) * (G.iw / 1200) : 0;
     var cx = G.ix + G.iw / 2, cy = G.iy + G.ih / 2;
-    var offX = lerp(s.px, -s.px, e) * mx + panU, offY = lerp(s.py, -s.py, e) * my;
-    var rot = A && A.rot ? (A.rot * Math.PI / 180) * Math.sin(2 * Math.PI * (A.pHz || 1) * lt * 0.35) : 0;
-
+    var offX, offY;
+    if (s.mode === "zone") {                                   // vers une zone précise, en glissant
+      offX = lerp(s.zx * 0.35, s.zx, e) * mx; offY = lerp(s.zy * 0.35, s.zy, e) * my;
+    } else {                                                   // travelling continu d'un bord vers l'autre
+      offX = lerp(s.px, -s.px * 0.35, e) * mx; offY = lerp(s.py, -s.py * 0.35, e) * my;
+    }
+    var rot = A && A.rot ? (A.rot * Math.PI / 180) * (u - 0.5) * 0.6 : 0;   // dérive lente, monotone
     ctx.save();
     ctx.translate(cx, cy); if (rot) ctx.rotate(rot); ctx.translate(-cx, -cy);
     var dx = cx - dw / 2 + offX, dy = cy - dh / 2 + offY;
+    // TABLEAU COMPLET : fond de cadre rempli par la toile floutée (le 16:9 reste habité)
+    if (s.mode === "full") {
+      var bs = cover * 1.06, bw = p.w * bs, bh2 = p.h * bs;
+      ctx.globalAlpha = al * 0.55; ctx.filter = "blur(" + Math.round(G.ih * 0.045) + "px) brightness(.45) saturate(1.1)";
+      ctx.drawImage(p.img, cx - bw / 2, cy - bh2 / 2, bw, bh2); ctx.filter = "none"; ctx.globalAlpha = al;
+    }
 
-    // RÉTROÉCLAIRAGE + SPECTRE ARRIÈRE (halo coloré derrière la toile)
+    // RÉTROÉCLAIRAGE DYNAMIQUE + SPECTRE ARRIÈRE (le halo respire et sa couleur dérive)
     if (s.back) {
-      ctx.globalAlpha = al * 0.5; ctx.filter = "blur(" + Math.round(G.ih * 0.05) + "px) brightness(1.2) saturate(1.3)";
-      ctx.drawImage(p.img, dx - G.iw * .04, dy - G.ih * .04, dw * 1.08, dh * 1.08); ctx.filter = "none";
-      var bc = hsl(s.hueB, 90, 60);
-      ctx.globalCompositeOperation = "screen"; ctx.globalAlpha = al * 0.30;
-      ctx.fillStyle = "rgb(" + bc.join(",") + ")"; ctx.fillRect(G.ix, G.iy, G.iw, G.ih);
+      var bAmp = 0.34 + 0.22 * (0.5 + 0.5 * Math.sin(lt * 0.55));          // respiration lente du halo
+      var bGrow = 1.06 + 0.05 * e;                                          // il s'ouvre au fil de la prise
+      ctx.globalAlpha = al * bAmp; ctx.filter = "blur(" + Math.round(G.ih * (0.045 + 0.02 * e)) + "px) brightness(1.25) saturate(1.35)";
+      ctx.drawImage(p.img, cx - (dw * bGrow) / 2, cy - (dh * bGrow) / 2, dw * bGrow, dh * bGrow); ctx.filter = "none";
+      var bc = hsl((s.hueB + u * 70) % 360, 90, 60);                        // la couleur dérive doucement
+      var bgr = ctx.createRadialGradient(cx, cy, Math.min(G.iw, G.ih) * 0.18, cx, cy, Math.max(G.iw, G.ih) * 0.62);
+      bgr.addColorStop(0, "rgba(" + bc.join(",") + ",0)");
+      bgr.addColorStop(1, "rgba(" + bc.join(",") + "," + (0.34 * bAmp * 2).toFixed(3) + ")");
+      ctx.globalCompositeOperation = "screen"; ctx.globalAlpha = al; ctx.fillStyle = bgr; ctx.fillRect(G.ix, G.iy, G.iw, G.ih);
       ctx.globalCompositeOperation = "source-over"; ctx.globalAlpha = al;
     }
 
@@ -3292,7 +3311,7 @@ if (typeof module === "object" && typeof module.exports === "object") Object.ass
 
     // ghost (dédoublement de conscience)
     if (A && A.ghost) {
-      var go = G.iw * 0.006 * (1 + Math.sin(lt * 1.3));
+      var go = G.iw * 0.004 * (0.4 + 1.2 * e);   // le dédoublement s'écarte progressivement (sans rebond)
       ctx.globalAlpha = al * A.ghost; ctx.globalCompositeOperation = "screen";
       ctx.drawImage(p.img, dx + go, dy - go * 0.6, dw, dh);
       ctx.globalCompositeOperation = "source-over"; ctx.globalAlpha = al;
@@ -3313,6 +3332,20 @@ if (typeof module === "object" && typeof module.exports === "object") Object.ass
       var tg = ctx.createLinearGradient(G.ix, G.iy + G.ih, G.ix + G.iw, G.iy);
       tg.addColorStop(0, "#001133"); tg.addColorStop(.35, "#6d1fa0"); tg.addColorStop(.6, "#ff5a2a"); tg.addColorStop(.82, "#ffd21e"); tg.addColorStop(1, "#fffff0");
       ctx.globalCompositeOperation = "overlay"; ctx.globalAlpha = al * 0.85; ctx.fillStyle = tg; ctx.fillRect(G.ix, G.iy, G.iw, G.ih); ctx.globalCompositeOperation = "source-over";
+    }
+    // SONAR 13.7 Hz — ondes concentriques (lumière, sans mouvement de la toile)
+    if (s.sonar) {
+      var amp = s.sonar / 100;
+      ctx.globalCompositeOperation = "screen";
+      for (var w = 0; w < 3; w++) {
+        var ph = (lt * 0.42 + w / 3) % 1, rr = ph * Math.max(G.iw, G.ih) * 0.62;
+        var rg = ctx.createRadialGradient(cx, cy, Math.max(0, rr - G.ih * 0.02), cx, cy, rr + G.ih * 0.02);
+        rg.addColorStop(0, "rgba(120,225,255,0)");
+        rg.addColorStop(0.5, "rgba(150,240,255," + (0.20 * amp * (1 - ph)).toFixed(3) + ")");
+        rg.addColorStop(1, "rgba(120,225,255,0)");
+        ctx.globalAlpha = al; ctx.fillStyle = rg; ctx.fillRect(G.ix, G.iy, G.iw, G.ih);
+      }
+      ctx.globalCompositeOperation = "source-over"; ctx.globalAlpha = al;
     }
     // scan spectral
     if (s.scan) {
