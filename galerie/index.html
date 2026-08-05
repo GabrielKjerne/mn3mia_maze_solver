@@ -3046,16 +3046,17 @@ if (typeof module === "object" && typeof module.exports === "object") Object.ass
 <!-- ═══════ CINÉ-EXPORT 4K (module ajouté) ═══════ -->
 <script>
 /* ═══════════════════ CINÉ-EXPORT 4K — Le Treizième Éveil ═══════════════════
-   Bouton RECORD (à côté de AUTO). Génère un enchaînement artistique de tes toiles
-   (Ken Burns, fondus enchaînés, fond flou, vignette, cartouches), cadré
-   PROPORTIONNELLEMENT dans un cadre TV 16:9 (chaque toile garde son format),
-   encodé HORS-LIGNE et PLUS VITE que le temps réel sur le GPU (WebCodecs/NVENC),
-   SANS SON, streamé directement sur le disque, avec barre de progression.
-   Autonome : n'altère pas le moteur d'affichage live de la galerie. */
+   Bouton RECORD (à côté de AUTO). Enchaînement artistique ALÉATOIRE de tes toiles
+   — graine tirée au hasard à CHAQUE enregistrement → un film différent à chaque fois :
+   ordre anti-répétition, durées variables, Ken Burns aléatoire, styles d'éclairage
+   (halogène / LED / musée / rasant / spectre), balayages lumineux occasionnels.
+   Cadré PROPORTIONNELLEMENT dans un cadre TV 16:9 (chaque toile garde son format),
+   encodé HORS-LIGNE, PLUS VITE que le temps réel, sur le GPU (WebCodecs/NVENC),
+   SANS SON, streamé sur le disque, barre de progression. Autonome. */
 (function () {
   "use strict";
 
-  var MUXER_URL = "https://cdn.jsdelivr.net/npm/mp4-muxer@5.0.2/build/mp4-muxer.min.js";
+  var MUXER_URL = "https://cdn.jsdelivr.net/npm/mp4-muxer@5.2.2/build/mp4-muxer.js";
   var AUTHOR = "GABRIEL KJERNE";
   var ART = [
     { t: "QUASAR", d: "2019", src: "img/quasar.jpg" },
@@ -3068,14 +3069,22 @@ if (typeof module === "object" && typeof module.exports === "object") Object.ass
     { t: "CE QUE LAISSENT LES MOTS QUAND ILS SE TAISENT", d: "2026", src: "img/ce-que-laissent-les-mots-quand-ils-se-taisent.jpg" }
   ];
   var RES = { "2160": [3840, 2160], "1440": [2560, 1440], "1080": [1920, 1080] };
-  // débit vidéo (bits/s) par [résolution][qualité]
   var BR = {
     "2160": { std: 26e6, high: 40e6, max: 60e6 },
     "1440": { std: 14e6, high: 22e6, max: 34e6 },
     "1080": { std: 8e6, high: 12e6, max: 20e6 }
   };
+  // styles d'éclairage (écho de ta console optique), tirés au hasard par prise
+  var GRADES = [
+    null,
+    { col: "#ffb268", mode: "soft-light", a: 0.20 }, // halogène
+    { col: "#84baff", mode: "soft-light", a: 0.18 }, // LED froide
+    { col: "#fff0d2", mode: "soft-light", a: 0.12 }, // musée
+    { col: "#ffd27f", mode: "overlay", a: 0.16 },    // rasant
+    { col: "#b98cff", mode: "soft-light", a: 0.18 }  // spectre
+  ];
 
-  /* ───────── styles ───────── */
+  /* ───────── styles UI ───────── */
   var st = document.createElement("style");
   st.textContent =
     "#tRec{margin-left:6px}" +
@@ -3106,10 +3115,7 @@ if (typeof module === "object" && typeof module.exports === "object") Object.ass
 
   /* ───────── bouton RECORD à côté de AUTO ───────── */
   var recBtn = document.createElement("button");
-  recBtn.id = "tRec";
-  recBtn.className = "cy";
-  recBtn.type = "button";
-  recBtn.innerHTML = "⏺ RECORD 4K";
+  recBtn.id = "tRec"; recBtn.className = "cy"; recBtn.type = "button"; recBtn.innerHTML = "⏺ RECORD 4K";
   var auto = document.getElementById("tAuto");
   if (auto && auto.parentNode) auto.parentNode.insertBefore(recBtn, auto.nextSibling);
   else document.body.appendChild(recBtn);
@@ -3121,72 +3127,54 @@ if (typeof module === "object" && typeof module.exports === "object") Object.ass
     '<h4>⏺ CINÉ-EXPORT 4K<span class="rc-x" id="recClose">✕</span></h4>' +
     '<label>Durée de la vidéo</label>' +
     '<div class="rc-row"><select id="recDur">' +
-    '<option value="30">30 secondes</option>' +
-    '<option value="60">1 minute</option>' +
-    '<option value="180">3 minutes</option>' +
-    '<option value="600" selected>10 minutes</option>' +
-    '<option value="1800">30 minutes</option>' +
-    '<option value="3600">1 heure</option>' +
-    '<option value="custom">Personnalisée…</option>' +
-    '</select><input type="number" id="recDurC" min="1" max="600" step="1" value="10" style="display:none" title="minutes"></div>' +
+    '<option value="30">30 secondes</option><option value="60">1 minute</option>' +
+    '<option value="180">3 minutes</option><option value="600" selected>10 minutes</option>' +
+    '<option value="1800">30 minutes</option><option value="3600">1 heure</option>' +
+    '<option value="custom">Personnalisée…</option></select>' +
+    '<input type="number" id="recDurC" min="1" max="600" step="1" value="10" style="display:none" title="minutes"></div>' +
     '<div class="rc-row"><div><label>Définition</label><select id="recRes">' +
-    '<option value="2160" selected>4K UHD · 3840×2160</option>' +
-    '<option value="1440">1440p · 2560×1440</option>' +
-    '<option value="1080">1080p · 1920×1080</option>' +
-    '</select></div><div><label>Cadence</label><select id="recFps">' +
-    '<option value="24">24 ips</option><option value="30" selected>30 ips</option><option value="60">60 ips</option>' +
-    '</select></div></div>' +
+    '<option value="2160" selected>4K UHD · 3840×2160</option><option value="1440">1440p · 2560×1440</option>' +
+    '<option value="1080">1080p · 1920×1080</option></select></div>' +
+    '<div><label>Cadence</label><select id="recFps"><option value="24">24 ips</option>' +
+    '<option value="30" selected>30 ips</option><option value="60">60 ips</option></select></div></div>' +
     '<div class="rc-row"><div><label>Qualité</label><select id="recQ">' +
-    '<option value="std">Standard</option><option value="high" selected>Élevée</option><option value="max">Maximale</option>' +
-    '</select></div><div><label>Codec</label><select id="recCodec">' +
-    '<option value="avc" selected>H.264 (compatible TV)</option><option value="hevc">HEVC (fichier léger)</option>' +
-    '</select></div></div>' +
+    '<option value="std">Standard</option><option value="high" selected>Élevée</option><option value="max">Maximale</option></select></div>' +
+    '<div><label>Codec</label><select id="recCodec"><option value="avc" selected>H.264 (compatible TV)</option>' +
+    '<option value="hevc">HEVC (fichier léger)</option></select></div></div>' +
     '<label class="rc-chk"><input type="checkbox" id="recTitles" checked> Cartouches (titre · année)</label>' +
     '<label class="rc-chk"><input type="checkbox" id="recGrain" checked> Grain cinéma léger</label>' +
+    '<label class="rc-chk"><input type="checkbox" id="recFx" checked> Effets aléatoires (éclairage, balayages)</label>' +
     '<button id="recRun" type="button">GÉNÉRER LA VIDÉO ▸</button>' +
     '<canvas id="recPrev" width="320" height="180"></canvas>' +
     '<div id="recProg"><div id="recBarWrap"><div id="recBar"></div></div>' +
     '<div id="recStat"><span id="recPct">0 %</span><span id="recSpd"></span></div></div>' +
-    '<button id="recCancel" type="button">■ Annuler</button>' +
-    '<div id="recMsg"></div>';
+    '<button id="recCancel" type="button">■ Annuler</button><div id="recMsg"></div>';
   document.body.appendChild(panel);
 
   var $ = function (id) { return document.getElementById(id); };
-  function open() { panel.classList.add("open"); }
   function close() { if (!running) panel.classList.remove("open"); }
   recBtn.addEventListener("click", function () { panel.classList.toggle("open"); });
   $("recClose").addEventListener("click", close);
-  $("recDur").addEventListener("change", function () {
-    $("recDurC").style.display = this.value === "custom" ? "block" : "none";
-  });
+  $("recDur").addEventListener("change", function () { $("recDurC").style.display = this.value === "custom" ? "block" : "none"; });
+  function msg(html, warn) { var m = $("recMsg"); m.innerHTML = html; m.classList.toggle("on", !!html); m.style.color = warn ? "#ff9a9a" : "#ffd9a0"; }
 
-  function msg(html, warn) {
-    var m = $("recMsg"); m.innerHTML = html; m.classList.toggle("on", !!html);
-    m.style.color = warn ? "#ff9a9a" : "#ffd9a0";
-  }
-
-  /* ───────── chargement des images ───────── */
+  /* ───────── images ───────── */
   var loaded = null;
   function loadArt() {
     if (loaded) return Promise.resolve(loaded);
     return Promise.all(ART.map(function (a) {
       return new Promise(function (res) {
-        var im = new Image();
-        im.crossOrigin = "anonymous";
+        var im = new Image(); im.crossOrigin = "anonymous";
         im.onload = function () { res({ t: a.t, d: a.d, img: im, w: im.naturalWidth, h: im.naturalHeight }); };
         im.onerror = function () { res(null); };
         im.src = a.src;
       });
-    })).then(function (arr) {
-      loaded = arr.filter(Boolean);
-      return loaded;
-    });
+    })).then(function (arr) { loaded = arr.filter(Boolean); return loaded; });
   }
 
   /* ───────── util ───────── */
   function smooth(x) { x = x < 0 ? 0 : x > 1 ? 1 : x; return x * x * (3 - 2 * x); }
   function lerp(a, b, t) { return a + (b - a) * t; }
-  // PRNG déterministe (mulberry32) → mouvements variés mais reproductibles
   function rng(seed) {
     return function () {
       seed |= 0; seed = (seed + 0x6D2B79F5) | 0;
@@ -3196,22 +3184,18 @@ if (typeof module === "object" && typeof module.exports === "object") Object.ass
     };
   }
 
-  /* ───────── pré-calcul par toile : cadre proportionnel + fond flou ───────── */
+  /* ───────── cadre proportionnel + fond flou (une fois par toile) ───────── */
   function prepare(list, W, H) {
-    var bw = 480, bh = Math.round(480 * H / W); // fond flou basse déf (upscalé, cheap)
+    var bw = 480, bh = Math.round(480 * H / W);
     return list.map(function (p) {
-      var s = Math.min(W / p.w, H / p.h) * 0.9; // 0.9 = petite marge (respect du cadre TV)
-      var dw = p.w * s, dh = p.h * s;
-      // fond : toile en COVER, flou + assombrie, cuite une seule fois
+      var s = Math.min(W / p.w, H / p.h) * 0.9;
       var bg = document.createElement("canvas"); bg.width = bw; bg.height = bh;
       var bx = bg.getContext("2d");
-      var cs = Math.max(bw / p.w, bh / p.h);
-      var cw = p.w * cs, ch = p.h * cs;
+      var cs = Math.max(bw / p.w, bh / p.h), cw = p.w * cs, ch = p.h * cs;
       bx.filter = "blur(14px) brightness(.5) saturate(1.1)";
       bx.drawImage(p.img, (bw - cw) / 2, (bh - ch) / 2, cw, ch);
-      bx.filter = "none";
-      bx.fillStyle = "rgba(4,6,11,.5)"; bx.fillRect(0, 0, bw, bh);
-      return { t: p.t, d: p.d, img: p.img, dw: dw, dh: dh, bg: bg };
+      bx.filter = "none"; bx.fillStyle = "rgba(4,6,11,.5)"; bx.fillRect(0, 0, bw, bh);
+      return { t: p.t, d: p.d, img: p.img, dw: p.w * s, dh: p.h * s, bg: bg };
     });
   }
 
@@ -3219,246 +3203,207 @@ if (typeof module === "object" && typeof module.exports === "object") Object.ass
   function makeGrain(w, h) {
     var c = document.createElement("canvas"); c.width = w; c.height = h;
     var x = c.getContext("2d"), d = x.createImageData(w, h), a = d.data;
-    for (var i = 0; i < a.length; i += 4) {
-      var v = (Math.random() * 255) | 0; a[i] = a[i + 1] = a[i + 2] = v; a[i + 3] = 255;
-    }
+    for (var i = 0; i < a.length; i += 4) { var v = (Math.random() * 255) | 0; a[i] = a[i + 1] = a[i + 2] = v; a[i + 3] = 255; }
     x.putImageData(d, 0, 0); return c;
   }
 
-  /* ───────── état ───────── */
+  /* ───────── SCÉNARIO ALÉATOIRE — graine tirée au hasard à chaque export ───────── */
+  function buildTimeline(prep, duration, seed, fxOn) {
+    var R = rng(seed >>> 0), N = prep.length;
+    var xf = 1.3 + R() * 0.9;               // fondu 1.3–2.2 s (constant sur l'export)
+    var shots = [], t = 0, prevP = -1, guard = 0;
+    while (t < duration + 0.001 && guard < 200000) {
+      guard++;
+      var p; do { p = Math.floor(R() * N); } while (N > 1 && p === prevP); prevP = p;
+      var dur = 6.5 + R() * 5;               // 6.5–11.5 s
+      var zin = R() < 0.5, span = 0.10 + R() * 0.06;
+      shots.push({
+        start: t, dur: dur, p: p,
+        sA: zin ? 1.0 : 1 + span, sB: zin ? 1 + span : 1.0,
+        ang: R() * Math.PI * 2, amp: 0.018 + R() * 0.03,
+        grade: fxOn ? GRADES[Math.floor(R() * GRADES.length)] : null,
+        sweep: fxOn && R() < 0.34, swDir: R() < 0.5 ? 1 : -1
+      });
+      t += dur - xf;
+    }
+    return { shots: shots, xf: xf };
+  }
+
   var running = false, cancelFlag = false;
 
-  /* ───────── rendu d'une image (frame) ───────── */
-  function drawFrame(ctx, W, H, prep, grain, opt, t) {
+  /* ───────── rendu d'une image ───────── */
+  function drawFrame(ctx, W, H, prep, grain, opt, active) {
     ctx.globalAlpha = 1; ctx.globalCompositeOperation = "source-over";
     ctx.fillStyle = "#04060b"; ctx.fillRect(0, 0, W, H);
-    var per = opt.per, xf = opt.xf, step = per - xf, N = prep.length;
-    // quelles « prises » sont visibles à l'instant t
-    var kStart = Math.max(0, Math.floor((t - per) / step)), kEnd = Math.floor(t / step);
-    for (var k = kStart; k <= kEnd; k++) {
-      var lt = t - k * step; if (lt < 0 || lt > per) continue;
-      var alpha = 1;
-      if (lt < xf && k > 0) alpha = lt / xf;
-      else if (lt > per - xf) alpha = Math.max(0, (per - lt) / xf);
-      if (alpha <= 0.001) continue;
-      var p = prep[k % N];
-      var r = rng(k * 2654435761 + 17);
-      var zin = (k % 2 === 0);
-      var sA = zin ? 1.0 : 1.11, sB = zin ? 1.11 : 1.0;
-      var ang = r() * Math.PI * 2, amp = 0.035;
-      var pxA = Math.cos(ang) * amp * W, pyA = Math.sin(ang) * amp * H;
-      var e = smooth(lt / per);
-      var sc = lerp(sA, sB, e), px = lerp(pxA, -pxA, e), py = lerp(pyA, -pyA, e);
-      // fond flou (suit la prise dominante)
-      if (alpha > 0.5 || k === kEnd) {
-        ctx.globalAlpha = alpha;
-        ctx.drawImage(p.bg, 0, 0, W, H);
-      }
-      // toile, proportionnelle, avec Ken Burns
+    for (var a = 0; a < active.length; a++) {
+      var s = active[a].shot, alpha = active[a].alpha, lt = active[a].lt, p = prep[s.p];
+      var e = smooth(lt / s.dur), sc = lerp(s.sA, s.sB, e);
+      var px = lerp(Math.cos(s.ang) * s.amp * W, -Math.cos(s.ang) * s.amp * W, e);
+      var py = lerp(Math.sin(s.ang) * s.amp * H, -Math.sin(s.ang) * s.amp * H, e);
+      ctx.globalCompositeOperation = "source-over"; ctx.globalAlpha = alpha; ctx.drawImage(p.bg, 0, 0, W, H);
       var dw = p.dw * sc, dh = p.dh * sc;
-      ctx.globalAlpha = alpha;
-      ctx.drawImage(p.img, (W - dw) / 2 + px, (H - dh) / 2 + py, dw, dh);
-      // cartouche
+      ctx.globalAlpha = alpha; ctx.drawImage(p.img, (W - dw) / 2 + px, (H - dh) / 2 + py, dw, dh);
+      if (s.grade) {
+        ctx.globalCompositeOperation = s.grade.mode; ctx.globalAlpha = alpha * s.grade.a;
+        ctx.fillStyle = s.grade.col; ctx.fillRect(0, 0, W, H); ctx.globalCompositeOperation = "source-over";
+      }
+      if (s.sweep) {
+        var prog = lt / s.dur, cx = (s.swDir > 0 ? prog : 1 - prog) * W * 1.4 - W * 0.2;
+        var lg = ctx.createLinearGradient(cx - W * 0.18, 0, cx + W * 0.18, 0);
+        lg.addColorStop(0, "rgba(255,242,214,0)"); lg.addColorStop(0.5, "rgba(255,244,222,0.10)"); lg.addColorStop(1, "rgba(255,242,214,0)");
+        ctx.globalCompositeOperation = "overlay"; ctx.globalAlpha = alpha; ctx.fillStyle = lg; ctx.fillRect(0, 0, W, H); ctx.globalCompositeOperation = "source-over";
+      }
       if (opt.titles) {
-        var ta = smooth((lt - 0.8) / 1.1) * smooth((per - 1.0 - lt) / 1.1);
+        var ta = smooth((lt - 0.8) / 1.1) * smooth((s.dur - 1.0 - lt) / 1.1);
         if (ta > 0.01) {
-          ctx.globalAlpha = alpha * ta;
+          ctx.globalAlpha = alpha * ta; ctx.textBaseline = "alphabetic";
           var pad = W * 0.055, fs = Math.round(H * 0.030);
-          ctx.textBaseline = "alphabetic";
           ctx.shadowColor = "rgba(0,0,0,.8)"; ctx.shadowBlur = H * 0.012; ctx.shadowOffsetY = 2;
-          ctx.fillStyle = "#f3f7ff";
-          ctx.font = "600 " + fs + "px 'Cinzel', Georgia, serif";
+          ctx.fillStyle = "#f3f7ff"; ctx.font = "600 " + fs + "px 'Cinzel', Georgia, serif";
           ctx.fillText(p.t, pad, H - pad - Math.round(fs * 0.55));
           ctx.shadowBlur = 0; ctx.shadowOffsetY = 0;
-          ctx.fillStyle = "rgba(150,210,255,.92)";
-          ctx.font = "500 " + Math.round(fs * 0.5) + "px 'Orbitron', sans-serif";
+          ctx.fillStyle = "rgba(150,210,255,.92)"; ctx.font = "500 " + Math.round(fs * 0.5) + "px 'Orbitron', sans-serif";
           ctx.fillText(AUTHOR + "  ·  " + p.d, pad, H - pad + Math.round(fs * 0.15));
         }
       }
     }
-    ctx.globalAlpha = 1;
-    // grain
+    ctx.globalAlpha = 1; ctx.globalCompositeOperation = "source-over";
     if (grain) {
       ctx.globalCompositeOperation = "soft-light"; ctx.globalAlpha = 0.06;
       var ox = (Math.random() * (grain.width - 2)) | 0, oy = (Math.random() * (grain.height - 2)) | 0;
       ctx.drawImage(grain, -ox, -oy, W + ox, H + oy);
       ctx.globalCompositeOperation = "source-over"; ctx.globalAlpha = 1;
     }
-    // vignette
-    var g = opt.vig;
-    ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+    ctx.fillStyle = opt.vig; ctx.fillRect(0, 0, W, H);
   }
 
-  /* ───────── export principal ───────── */
+  /* ───────── export ───────── */
   function run() {
     if (running) return;
-    // options
     var durSel = $("recDur").value;
     var duration = durSel === "custom" ? Math.max(1, +$("recDurC").value || 1) * 60 : +durSel;
     var res = $("recRes").value, dim = RES[res], W = dim[0], H = dim[1];
-    var fps = +$("recFps").value;
-    var q = $("recQ").value, bitrate = BR[res][q];
-    var codecSel = $("recCodec").value;
-    var opt = { titles: $("recTitles").checked, grain: $("recGrain").checked };
+    var fps = +$("recFps").value, q = $("recQ").value, bitrate = BR[res][q], codecSel = $("recCodec").value;
+    var opt = { titles: $("recTitles").checked, grain: $("recGrain").checked, fx: $("recFx").checked };
     var total = Math.round(duration * fps);
+    if (!("VideoEncoder" in window)) return msg("Ton navigateur ne gère pas WebCodecs. Utilise <b>Chrome</b> ou <b>Edge</b> (bureau).", true);
 
-    if (!("VideoEncoder" in window)) {
-      return msg("Ton navigateur ne gère pas WebCodecs. Utilise <b>Chrome</b> ou <b>Edge</b> (bureau) pour l'encodage GPU.", true);
-    }
-
-    running = true; cancelFlag = false;
-    $("recRun").disabled = true; recBtn.disabled = true;
+    running = true; cancelFlag = false; $("recRun").disabled = true; recBtn.disabled = true;
     $("recProg").classList.add("on"); $("recCancel").classList.add("on"); $("recPrev").classList.add("on");
-    msg("Préparation…");
-    var t0 = performance.now();
+    msg("Préparation…"); var t0 = performance.now();
 
-    ensureMuxer()
-      .then(loadArt)
-      .then(function (list) {
-        if (!list.length) throw new Error("Aucune image de toile n'a pu être chargée (dossier img/).");
-        var prep = prepare(list, W, H);
-        var grain = opt.grain ? makeGrain(1280, Math.round(1280 * H / W)) : null;
+    ensureMuxer().then(loadArt).then(function (list) {
+      if (!list.length) throw new Error("Aucune image de toile n'a pu être chargée (dossier img/).");
+      var prep = prepare(list, W, H);
+      var grain = opt.grain ? makeGrain(1280, Math.round(1280 * H / W)) : null;
+      var canvas = document.createElement("canvas"); canvas.width = W; canvas.height = H;
+      var ctx = canvas.getContext("2d", { alpha: false, desynchronized: true });
+      var vg = ctx.createRadialGradient(W / 2, H / 2, Math.min(W, H) * 0.32, W / 2, H / 2, Math.max(W, H) * 0.72);
+      vg.addColorStop(0, "rgba(0,0,0,0)"); vg.addColorStop(1, "rgba(0,0,0,.55)"); opt.vig = vg;
 
-        // canvas de rendu (hors écran)
-        var canvas = document.createElement("canvas"); canvas.width = W; canvas.height = H;
-        var ctx = canvas.getContext("2d", { alpha: false, desynchronized: true });
-        // vignette (dégradé radial, cuit une fois)
-        var vg = ctx.createRadialGradient(W / 2, H / 2, Math.min(W, H) * 0.32, W / 2, H / 2, Math.max(W, H) * 0.72);
-        vg.addColorStop(0, "rgba(0,0,0,0)"); vg.addColorStop(1, "rgba(0,0,0,.55)");
-        opt.vig = vg;
-        opt.per = 8.0; opt.xf = 1.6; // durée par toile + fondu (secondes)
+      var seed = (Math.random() * 4294967296) >>> 0;      // ★ graine ALÉATOIRE → film différent à chaque fois
+      var timeline = buildTimeline(prep, duration, seed, opt.fx);
 
-        var codec = codecSel === "hevc" ? "hvc1.1.6.L153.90" : "avc1.640033";
-        var config = {
-          codec: codec, width: W, height: H, bitrate: bitrate, framerate: fps,
-          hardwareAcceleration: "prefer-hardware", latencyMode: "quality"
-        };
-        if (codecSel === "hevc") config.hevc = { format: "hevc" }; else config.avc = { format: "avc" };
+      var codec = codecSel === "hevc" ? "hvc1.1.6.L153.90" : "avc1.640033";
+      var config = { codec: codec, width: W, height: H, bitrate: bitrate, framerate: fps, hardwareAcceleration: "prefer-hardware", latencyMode: "quality" };
+      if (codecSel === "hevc") config.hevc = { format: "hevc" }; else config.avc = { format: "avc" };
 
-        return VideoEncoder.isConfigSupported(config).then(function (sup) {
-          if (!sup || !sup.supported) {
-            // repli : H.264 logiciel si le matériel refuse la config
-            config.hardwareAcceleration = "no-preference";
-            return VideoEncoder.isConfigSupported(config).then(function (s2) {
-              if (!s2 || !s2.supported) throw new Error("Configuration d'encodage non supportée (" + codec + " " + W + "×" + H + ").");
-              return startEncode(canvas, ctx, prep, grain, opt, W, H, fps, total, bitrate, codecSel, config, duration, t0);
-            });
-          }
-          return startEncode(canvas, ctx, prep, grain, opt, W, H, fps, total, bitrate, codecSel, config, duration, t0);
-        });
-      })
-      .catch(function (err) { finishError(err); });
+      return VideoEncoder.isConfigSupported(config).then(function (sup) {
+        if (!sup || !sup.supported) {
+          config.hardwareAcceleration = "no-preference";
+          return VideoEncoder.isConfigSupported(config).then(function (s2) {
+            if (!s2 || !s2.supported) throw new Error("Config d'encodage non supportée (" + codec + " " + W + "×" + H + "). Essaie H.264.");
+            return startEncode(canvas, ctx, prep, grain, opt, timeline, W, H, fps, total, codecSel, config, duration, t0);
+          });
+        }
+        return startEncode(canvas, ctx, prep, grain, opt, timeline, W, H, fps, total, codecSel, config, duration, t0);
+      });
+    }).catch(finishError);
   }
 
-  function startEncode(canvas, ctx, prep, grain, opt, W, H, fps, total, bitrate, codecSel, config, duration, t0) {
-    // cible d'écriture : disque (streaming) si possible, sinon mémoire
+  function startEncode(canvas, ctx, prep, grain, opt, timeline, W, H, fps, total, codecSel, config, duration, t0) {
     return chooseTarget(duration, W, H).then(function (dst) {
       var M = window.Mp4Muxer;
       var muxer = new M.Muxer({
         target: dst.target,
         video: { codec: codecSel === "hevc" ? "hevc" : "avc", width: W, height: H, frameRate: fps },
-        fastStart: dst.mem ? "in-memory" : false,
-        firstTimestampBehavior: "offset"
+        fastStart: dst.mem ? "in-memory" : false, firstTimestampBehavior: "offset"
       });
-      var encoder = new VideoEncoder({
-        output: function (chunk, meta) { muxer.addVideoChunk(chunk, meta); },
-        error: function (e) { finishError(e); }
-      });
+      var encoder = new VideoEncoder({ output: function (c, m) { muxer.addVideoChunk(c, m); }, error: finishError });
       encoder.configure(config);
-
       var prev = $("recPrev"), pctx = prev.getContext("2d");
-      var i = 0;
-      var frameDurUs = Math.round(1e6 / fps);
+      var shots = timeline.shots, xf = timeline.xf, sp = 0, i = 0, frameDurUs = Math.round(1e6 / fps);
 
       function step() {
         if (cancelFlag) { try { encoder.close(); } catch (e) {} return finishCancel(dst); }
         var budget = 0;
         while (i < total && encoder.encodeQueueSize < 3 && budget < 6) {
           var tSec = i / fps;
-          drawFrame(ctx, W, H, prep, grain, opt, tSec);
+          while (sp < shots.length && shots[sp].start + shots[sp].dur < tSec) sp++;
+          var active = [];
+          for (var j = sp; j < shots.length && shots[j].start <= tSec; j++) {
+            var s = shots[j], lt = tSec - s.start; if (lt < 0 || lt > s.dur) continue;
+            var al = 1;
+            if (lt < xf && j > 0) al = lt / xf;
+            else if (lt > s.dur - xf && j < shots.length - 1) al = Math.max(0, (s.dur - lt) / xf);
+            if (al <= 0.001) continue;
+            active.push({ shot: s, lt: lt, alpha: al });
+          }
+          drawFrame(ctx, W, H, prep, grain, opt, active);
           var vf = new VideoFrame(canvas, { timestamp: i * frameDurUs, duration: frameDurUs });
-          encoder.encode(vf, { keyFrame: (i % (fps * 2)) === 0 });
-          vf.close();
+          encoder.encode(vf, { keyFrame: (i % (fps * 2)) === 0 }); vf.close();
           i++; budget++;
         }
-        // aperçu + progression
         var pct = i / total;
-        $("recBar").style.width = (pct * 100).toFixed(1) + "%";
-        $("recPct").textContent = (pct * 100).toFixed(1) + " %";
-        var el = (performance.now() - t0) / 1000;
-        var vidSec = i / fps, x = el > 0 ? vidSec / el : 0;
-        var eta = pct > 0 ? el / pct - el : 0;
+        $("recBar").style.width = (pct * 100).toFixed(1) + "%"; $("recPct").textContent = (pct * 100).toFixed(1) + " %";
+        var el = (performance.now() - t0) / 1000, x = el > 0 ? (i / fps) / el : 0, eta = pct > 0 ? el / pct - el : 0;
         $("recSpd").textContent = "×" + x.toFixed(1) + " temps réel · reste " + fmt(eta);
         if ((i % 12) === 0 || i >= total) pctx.drawImage(canvas, 0, 0, prev.width, prev.height);
-
         if (i < total) { setTimeout(step, 0); return; }
-        // fin
-        encoder.flush().then(function () {
-          muxer.finalize();
-          finishOk(dst, W, H, fps, duration, codecSel, performance.now() - t0);
-        }).catch(finishError);
+        encoder.flush().then(function () { muxer.finalize(); finishOk(dst, W, H, fps, duration, codecSel, performance.now() - t0); }).catch(finishError);
       }
-      msg("Encodage GPU en cours… tu peux laisser cet onglet en arrière-plan.");
+      msg("Encodage GPU en cours… (film aléatoire, différent à chaque fois). Tu peux laisser l'onglet en arrière-plan.");
       step();
     });
   }
 
-  /* ───────── cible : File System Access (disque) sinon mémoire ───────── */
+  /* ───────── cible disque / mémoire ───────── */
   function chooseTarget(duration, W, H) {
-    var M = window.Mp4Muxer;
-    var big = duration > 120 || (W >= 3840);
+    var M = window.Mp4Muxer, big = duration > 120 || W >= 3840;
     if (window.showSaveFilePicker) {
       var name = "galerie-treizieme-eveil_" + (W >= 3840 ? "4K" : H + "p") + "_" + Math.round(duration) + "s.mp4";
-      return window.showSaveFilePicker({
-        suggestedName: name,
-        types: [{ description: "Vidéo MP4", accept: { "video/mp4": [".mp4"] } }]
-      }).then(function (handle) {
-        return handle.createWritable().then(function (writable) {
-          return { target: new M.FileSystemWritableFileStreamTarget(writable), writable: writable, mem: false, handle: handle };
+      return window.showSaveFilePicker({ suggestedName: name, types: [{ description: "Vidéo MP4", accept: { "video/mp4": [".mp4"] } }] })
+        .then(function (handle) {
+          return handle.createWritable().then(function (writable) {
+            return { target: new M.FileSystemWritableFileStreamTarget(writable), writable: writable, mem: false };
+          });
         });
-      });
     }
-    // repli mémoire (déconseillé pour les longues durées)
-    if (big) msg("⚠ Ton navigateur ne permet pas l'écriture directe sur disque : le fichier sera gardé en mémoire. Pour 4K/long, préfère Chrome/Edge. Je continue quand même.", true);
+    if (big) msg("⚠ Écriture disque indisponible ici : fichier gardé en mémoire (déconseillé pour 4K/long — préfère Chrome/Edge via http://localhost). Je continue.", true);
     return Promise.resolve({ target: new M.ArrayBufferTarget(), mem: true });
   }
 
   /* ───────── fins ───────── */
-  function reset() {
-    running = false; $("recRun").disabled = false; recBtn.disabled = false; $("recCancel").classList.remove("on");
-  }
+  function reset() { running = false; $("recRun").disabled = false; recBtn.disabled = false; $("recCancel").classList.remove("on"); }
   function finishOk(dst, W, H, fps, dur, codec, ms) {
     if (dst.mem) {
       var blob = new Blob([dst.target.buffer], { type: "video/mp4" });
       var a = document.createElement("a"); a.href = URL.createObjectURL(blob);
       a.download = "galerie-treizieme-eveil_" + (W >= 3840 ? "4K" : H + "p") + "_" + Math.round(dur) + "s.mp4";
-      document.body.appendChild(a); a.click(); a.remove();
-      setTimeout(function () { URL.revokeObjectURL(a.href); }, 4000);
-    } else if (dst.writable) {
-      dst.writable.close();
-    }
+      document.body.appendChild(a); a.click(); a.remove(); setTimeout(function () { URL.revokeObjectURL(a.href); }, 4000);
+    } else if (dst.writable) { dst.writable.close(); }
     $("recBar").style.width = "100%"; $("recPct").textContent = "100 %";
-    msg("✓ Terminé — " + (W + "×" + H) + " · " + fps + " ips · " + codec.toUpperCase() +
-      " · " + fmt(dur) + " de vidéo en " + fmt(ms / 1000) + " de calcul (×" + (dur / (ms / 1000)).toFixed(1) + " temps réel).", false);
+    msg("✓ Terminé — " + W + "×" + H + " · " + fps + " ips · " + codec.toUpperCase() + " · " + fmt(dur) +
+      " de vidéo en " + fmt(ms / 1000) + " de calcul (×" + (dur / (ms / 1000)).toFixed(1) + " temps réel).", false);
     reset();
   }
-  function finishCancel(dst) {
-    try { if (dst && dst.writable) dst.writable.abort ? dst.writable.abort() : dst.writable.close(); } catch (e) {}
-    msg("Annulé.", true); $("recBar").style.width = "0"; reset();
-  }
-  function finishError(err) {
-    console.error("[Ciné-Export]", err);
-    msg("Erreur : " + (err && err.message ? err.message : err) + "<br>(WebCodecs requiert Chrome/Edge bureau ; vérifie le dossier img/.)", true);
-    reset();
-  }
+  function finishCancel(dst) { try { if (dst && dst.writable) (dst.writable.abort ? dst.writable.abort() : dst.writable.close()); } catch (e) {} msg("Annulé.", true); $("recBar").style.width = "0"; reset(); }
+  function finishError(err) { console.error("[Ciné-Export]", err); msg("Erreur : " + (err && err.message ? err.message : err) + "<br>(WebCodecs = Chrome/Edge bureau ; vérifie le dossier img/ ; si HEVC échoue → H.264.)", true); reset(); }
   $("recCancel").addEventListener("click", function () { cancelFlag = true; });
   $("recRun").addEventListener("click", run);
 
   /* ───────── helpers ───────── */
-  function fmt(s) {
-    s = Math.max(0, Math.round(s)); var h = (s / 3600) | 0, m = ((s % 3600) / 60) | 0, x = s % 60;
-    return (h ? h + "h" : "") + (h || m ? (m < 10 && h ? "0" : "") + m + "m" : "") + (x < 10 && (h || m) ? "0" : "") + x + "s";
-  }
+  function fmt(s) { s = Math.max(0, Math.round(s)); var h = (s / 3600) | 0, m = ((s % 3600) / 60) | 0, x = s % 60; return (h ? h + "h" : "") + (h || m ? (m < 10 && h ? "0" : "") + m + "m" : "") + (x < 10 && (h || m) ? "0" : "") + x + "s"; }
   var muxerP = null;
   function ensureMuxer() {
     if (window.Mp4Muxer) return Promise.resolve();
@@ -3466,7 +3411,7 @@ if (typeof module === "object" && typeof module.exports === "object") Object.ass
     muxerP = new Promise(function (res, rej) {
       var s = document.createElement("script"); s.src = MUXER_URL;
       s.onload = function () { window.Mp4Muxer ? res() : rej(new Error("mp4-muxer indisponible")); };
-      s.onerror = function () { rej(new Error("Impossible de charger l'encodeur MP4 (connexion requise au 1er lancement).")); };
+      s.onerror = function () { rej(new Error("Encodeur MP4 introuvable.")); };
       document.head.appendChild(s);
     });
     return muxerP;
