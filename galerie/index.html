@@ -3045,13 +3045,14 @@ if (typeof module === "object" && typeof module.exports === "object") Object.ass
 </script>
 <!-- ═══════ CINÉ-EXPORT 4K (module ajouté) ═══════ -->
 <script>
-/* ═══════════ CINÉ-EXPORT 4K — vrai moteur ciné hors-ligne (SANS capture d'écran) ═══════════
-   Recrée tes toiles comme des TABLEAUX VIVANTS dans un beau cadre : mouvement (Ken Burns +
-   plongées « drone »), éclairages (halogène/LED/musée/rasant/spectre), VISIONS visibles
-   (bloom, anaglyphe 3D, scan spectral, thermographie, inversion 196, neige), poussière,
-   vignette, grain — TOUT tiré au hasard → un film différent à chaque fois. Signature
-   « titre · année · Gabriel Kjerne » qui paraît un instant en bas à droite comme sur une toile.
-   Rendu image par image, encodé sur le GPU (WebCodecs/NVENC), 4K, sans son, streamé disque. */
+/* ═══════════ CINÉ-EXPORT 4K — moteur ciné hors-ligne (sans capture d'écran) ═══════════
+   CADRE FIXE 16:9 (doré + passe-partout), présent du début à la fin, jamais en fondu.
+   TOUTE la magie se passe À L'INTÉRIEUR : la toile remplit l'ouverture et vit
+   (Ken Burns, plongées drone), éclairages aléatoires, visions (bloom, anaglyphe,
+   scan, thermo, 196, neige), poussière, grain — enchaînements en fondu entre toiles.
+   Signature « titre · année · Gabriel Kjerne » qui paraît un instant en bas à droite.
+   Rendu image par image + encodage GPU (WebCodecs/NVENC), 4K, sans son, streamé disque.
+   Graine aléatoire → un film différent à chaque enregistrement. */
 (function () {
   "use strict";
   var MUX = "https://cdn.jsdelivr.net/npm/mp4-muxer@5.2.2/build/mp4-muxer.js";
@@ -3068,17 +3069,15 @@ if (typeof module === "object" && typeof module.exports === "object") Object.ass
   ];
   var RES = { "2160": [3840, 2160], "1440": [2560, 1440], "1080": [1920, 1080] };
   var BR = { "2160": { std: 28e6, high: 44e6, max: 65e6 }, "1440": { std: 15e6, high: 24e6, max: 36e6 }, "1080": { std: 9e6, high: 14e6, max: 22e6 } };
-  // éclairages (écho de ta console) : filtre CSS + couleur d'ambiance
   var LAMPS = [
-    { f: "brightness(1.03) contrast(1.05) saturate(1.10)", col: "#fff2d8", a: 0.10 }, // musée
-    { f: "brightness(1.05) contrast(1.06) saturate(1.14) sepia(.18) hue-rotate(-6deg)", col: "#ffb562", a: 0.20 }, // halogène
-    { f: "brightness(1.02) contrast(1.08) saturate(1.05) hue-rotate(8deg)", col: "#7fb6ff", a: 0.18 }, // LED froide
-    { f: "brightness(1.0) contrast(1.14) saturate(1.16)", col: "#ffd27f", a: 0.16 }, // rasant
-    { f: "brightness(1.04) contrast(1.05) saturate(1.35) hue-rotate(-14deg)", col: "#b98cff", a: 0.18 } // spectre
+    { n: "musée", f: "brightness(1.04) contrast(1.05) saturate(1.10)", col: "#fff2d8", a: 0.10 },
+    { n: "halogène", f: "brightness(1.06) contrast(1.06) saturate(1.16) sepia(.16) hue-rotate(-6deg)", col: "#ffb562", a: 0.20 },
+    { n: "led", f: "brightness(1.03) contrast(1.09) saturate(1.05) hue-rotate(8deg)", col: "#7fb6ff", a: 0.18 },
+    { n: "rasant", f: "brightness(1.0) contrast(1.16) saturate(1.18)", col: "#ffd27f", a: 0.16 },
+    { n: "spectre", f: "brightness(1.05) contrast(1.06) saturate(1.4) hue-rotate(-14deg)", col: "#b98cff", a: 0.18 }
   ];
-  var VIS = ["none", "none", "bloom", "anaglyph", "scan", "thermal", "invert", "snow"]; // tirées au hasard
+  var VIS = ["none", "none", "bloom", "anaglyph", "scan", "thermal", "invert", "snow"];
 
-  /* ─────── styles ─────── */
   var st = document.createElement("style");
   st.textContent =
     "#tRec{margin-left:6px}" +
@@ -3110,7 +3109,7 @@ if (typeof module === "object" && typeof module.exports === "object") Object.ass
     '<div class="rc-row"><div><label>Qualité</label><select id="recQ"><option value="std">Standard</option><option value="high" selected>Élevée</option><option value="max">Max</option></select></div>' +
     '<div><label>Codec</label><select id="recCodec"><option value="avc" selected>H.264</option><option value="hevc">HEVC</option></select></div></div>' +
     '<label class="rc-chk"><input type="checkbox" id="recFx" checked> Visions aléatoires (bloom, anaglyphe, scan, thermo, 196, neige)</label>' +
-    '<label class="rc-chk"><input type="checkbox" id="recFrame" checked> Cadre doré + signature</label>' +
+    '<label class="rc-chk"><input type="checkbox" id="recFrame" checked> Cadre doré 16:9 + signature</label>' +
     '<label class="rc-chk"><input type="checkbox" id="recGrain" checked> Poussière + grain</label>' +
     '<button id="recRun" type="button">GÉNÉRER LA VIDÉO ▸</button>' +
     '<canvas id="recPrev" width="320" height="180"></canvas>' +
@@ -3123,7 +3122,6 @@ if (typeof module === "object" && typeof module.exports === "object") Object.ass
   $("recClose").addEventListener("click", function () { if (!running) panel.classList.remove("open"); });
   $("recDur").addEventListener("change", function () { $("recDurC").style.display = this.value === "custom" ? "block" : "none"; });
   function msg(h, w) { var m = $("recMsg"); m.innerHTML = h; m.classList.toggle("on", !!h); m.style.color = w ? "#ff9a9a" : "#ffd9a0"; }
-
   function smooth(x) { x = x < 0 ? 0 : x > 1 ? 1 : x; return x * x * (3 - 2 * x); }
   function lerp(a, b, t) { return a + (b - a) * t; }
   function rng(s) { return function () { s |= 0; s = (s + 0x6D2B79F5) | 0; var t = Math.imul(s ^ (s >>> 15), 1 | s); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
@@ -3136,27 +3134,192 @@ if (typeof module === "object" && typeof module.exports === "object") Object.ass
     })).then(function (x) { loaded = x.filter(Boolean); return loaded; });
   }
 
-  /* ─────── scénario aléatoire (graine tirée au hasard) ─────── */
+  /* ─── scénario aléatoire ─── */
   function timeline(list, duration, seed, opt) {
     var R = rng(seed >>> 0), N = list.length, shots = [], t = 0, prev = -1, g = 0;
+    var xf = 1.4 + R() * 0.8;
     while (t < duration + 0.001 && g < 200000) {
       g++; var p; do { p = Math.floor(R() * N); } while (N > 1 && p === prev); prev = p;
-      var dur = 7 + R() * 5, drone = R() < 0.30, zin = R() < 0.5, span = drone ? (0.28 + R() * 0.18) : (0.10 + R() * 0.08);
+      var dur = 8 + R() * 5, drone = R() < 0.32, zin = R() < 0.5;
       shots.push({
-        start: t, dur: dur, p: p, zin: zin, span: span, drone: drone,
-        px: (R() * 2 - 1), py: (R() * 2 - 1), ang: R() * 6.28,
+        start: t, dur: dur, p: p, zin: zin,
+        span: drone ? 0.30 + R() * 0.22 : 0.10 + R() * 0.09, drone: drone,
+        px: R() * 2 - 1, py: R() * 2 - 1,
         lamp: LAMPS[Math.floor(R() * LAMPS.length)],
         vis: opt.fx ? VIS[Math.floor(R() * VIS.length)] : "none",
-        sweep: R() < 0.5, swDir: R() < 0.5 ? 1 : -1, seed: (seed ^ (p * 2654435761) ^ (g * 40503)) >>> 0
+        sweep: R() < 0.5, swDir: R() < 0.5 ? 1 : -1, seed: (seed ^ (g * 40503) ^ (p * 2654435761)) >>> 0
       });
-      t += dur - 0.9; // fondu au noir 0.9 s entre les tableaux
+      t += dur - xf;
     }
-    return shots;
+    return { shots: shots, xf: xf };
+  }
+  function makeDust(n, W, H, R) { var a = []; for (var i = 0; i < n; i++)a.push({ x: R() * W, y: R() * H, r: 0.7 + R() * 2.4, vx: (R() - 0.5) * 10, vy: (R() - 0.5) * 8 + 4, ph: R() * 6.28, sp: 0.4 + R() }); return a; }
+  function grainTile(w, h) { var c = document.createElement("canvas"); c.width = w; c.height = h; var x = c.getContext("2d"), d = x.createImageData(w, h), a = d.data; for (var i = 0; i < a.length; i += 4) { var v = (Math.random() * 255) | 0; a[i] = a[i + 1] = a[i + 2] = v; a[i + 3] = 255; } x.putImageData(d, 0, 0); return c; }
+
+  /* ═══ RENDU ═══ ordre : mur → toile animée (clippée) → CADRE par-dessus → signature */
+  function drawFrame(env, tl, tSec) {
+    var W = env.W, H = env.H, ctx = env.ctx, G = env.geo, shots = tl.shots, xf = tl.xf;
+    ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.globalAlpha = 1; ctx.globalCompositeOperation = "source-over"; ctx.filter = "none";
+    ctx.fillStyle = env.wall; ctx.fillRect(0, 0, W, H);
+
+    // ── INTÉRIEUR (la magie) ──
+    ctx.save(); ctx.beginPath(); ctx.rect(G.ix, G.iy, G.iw, G.ih); ctx.clip();
+    ctx.fillStyle = "#000"; ctx.fillRect(G.ix, G.iy, G.iw, G.ih);
+    var top = null;
+    for (var k = 0; k < shots.length; k++) {
+      var s = shots[k], lt = tSec - s.start; if (lt < 0 || lt > s.dur) continue;
+      var al = 1;
+      if (lt < xf && k > 0) al = lt / xf;                       // fondu entrant
+      else if (lt > s.dur - xf && k < shots.length - 1) al = Math.max(0, (s.dur - lt) / xf);
+      if (al <= 0.002) continue;
+      drawShot(env, s, lt, al);
+      if (!top || al >= top.al) top = { s: s, lt: lt, al: al };
+    }
+    // poussière (dans le cadre)
+    if (env.dust) {
+      ctx.globalCompositeOperation = "screen";
+      for (var i = 0; i < env.dust.length; i++) {
+        var m = env.dust[i];
+        var mx = G.ix + ((m.x + m.vx * tSec) % G.iw + G.iw) % G.iw;
+        var my = G.iy + ((m.y + m.vy * tSec) % G.ih + G.ih) % G.ih;
+        ctx.globalAlpha = 0.16 * (0.4 + 0.6 * (0.5 + 0.5 * Math.sin(tSec * m.sp + m.ph)));
+        ctx.fillStyle = "#dbe8ff"; ctx.beginPath(); ctx.arc(mx, my, m.r, 0, 6.283); ctx.fill();
+      }
+      ctx.globalCompositeOperation = "source-over"; ctx.globalAlpha = 1;
+    }
+    if (env.grain) {
+      ctx.globalCompositeOperation = "soft-light"; ctx.globalAlpha = 0.07;
+      var gx = (Math.random() * 180) | 0, gy = (Math.random() * 180) | 0;
+      ctx.drawImage(env.grain, G.ix - gx, G.iy - gy, G.iw + gx, G.ih + gy);
+      ctx.globalCompositeOperation = "source-over"; ctx.globalAlpha = 1;
+    }
+    ctx.fillStyle = env.ivg; ctx.fillRect(G.ix, G.iy, G.iw, G.ih); // vignette interne
+    ctx.restore();
+
+    // ── CADRE (constant, jamais de fondu, dessiné PAR-DESSUS, sans rien effacer) ──
+    if (env.opt.frame) drawGoldFrame(ctx, G);
+    // ── SIGNATURE (dans le cadre, temporaire) ──
+    if (env.opt.frame && top) drawSignature(ctx, G, env.list[top.s.p], top.lt, top.s.dur, top.al);
   }
 
-  // motes de poussière (ambiance)
-  function makeDust(n, W, H, R) { var a = []; for (var i = 0; i < n; i++)a.push({ x: R() * W, y: R() * H, r: 0.6 + R() * 2.2, vx: (R() - 0.5) * 8, vy: (R() - 0.5) * 8 + 3, ph: R() * 6.28, sp: 0.4 + R() }); return a; }
-  function grainTile(w, h) { var c = document.createElement("canvas"); c.width = w; c.height = h; var x = c.getContext("2d"), d = x.createImageData(w, h), a = d.data; for (var i = 0; i < a.length; i += 4) { var v = (Math.random() * 255) | 0; a[i] = a[i + 1] = a[i + 2] = v; a[i + 3] = 255; } x.putImageData(d, 0, 0); return c; }
+  function drawShot(env, s, lt, al) {
+    var ctx = env.ctx, G = env.geo, p = env.list[s.p];
+    var e = smooth(lt / s.dur);
+    var cover = Math.max(G.iw / p.w, G.ih / p.h);            // la toile REMPLIT l'ouverture 16:9
+    var sc = cover * lerp(s.zin ? 1 : 1 + s.span, s.zin ? 1 + s.span : 1, e);
+    var dw = p.w * sc, dh = p.h * sc;
+    var mx = Math.max(0, (dw - G.iw) / 2), my = Math.max(0, (dh - G.ih) / 2);
+    var dx = G.ix + (G.iw - dw) / 2 + lerp(s.px, -s.px, e) * mx;
+    var dy = G.iy + (G.ih - dh) / 2 + lerp(s.py, -s.py, e) * my;
+
+    ctx.globalAlpha = al; ctx.filter = s.lamp.f;
+    ctx.drawImage(p.img, dx, dy, dw, dh);
+    ctx.filter = "none";
+    applyVision(env, s, lt, al, dx, dy, dw, dh);
+    ctx.globalCompositeOperation = "soft-light"; ctx.globalAlpha = al * s.lamp.a;
+    ctx.fillStyle = s.lamp.col; ctx.fillRect(G.ix, G.iy, G.iw, G.ih);
+    if (s.sweep) {
+      var pr = lt / s.dur, cx = G.ix + (s.swDir > 0 ? pr : 1 - pr) * G.iw * 1.4 - G.iw * 0.2;
+      var lg = ctx.createLinearGradient(cx - G.iw * 0.15, 0, cx + G.iw * 0.15, 0);
+      lg.addColorStop(0, "rgba(255,244,220,0)"); lg.addColorStop(.5, "rgba(255,246,224,.18)"); lg.addColorStop(1, "rgba(255,244,220,0)");
+      ctx.globalCompositeOperation = "overlay"; ctx.globalAlpha = al; ctx.fillStyle = lg; ctx.fillRect(G.ix, G.iy, G.iw, G.ih);
+    }
+    ctx.globalCompositeOperation = "source-over"; ctx.globalAlpha = 1; ctx.filter = "none";
+  }
+
+  function applyVision(env, s, lt, al, dx, dy, dw, dh) {
+    var ctx = env.ctx, G = env.geo, p = env.list[s.p];
+    if (s.vis === "bloom") {
+      ctx.globalCompositeOperation = "screen"; ctx.globalAlpha = al * 0.42;
+      ctx.filter = "blur(" + Math.round(G.ih * 0.022) + "px) brightness(1.55) saturate(1.25)";
+      ctx.drawImage(p.img, dx, dy, dw, dh); ctx.filter = "none";
+    } else if (s.vis === "anaglyph") {
+      var off = G.iw * 0.007 * (0.6 + 0.4 * Math.sin(lt * 1.5));
+      ctx.globalCompositeOperation = "screen"; ctx.globalAlpha = al * 0.55;
+      ctx.filter = "sepia(1) hue-rotate(-50deg) saturate(7)"; ctx.drawImage(p.img, dx - off, dy, dw, dh);
+      ctx.filter = "sepia(1) hue-rotate(120deg) saturate(7)"; ctx.drawImage(p.img, dx + off, dy, dw, dh);
+      ctx.filter = "none";
+    } else if (s.vis === "thermal") {
+      ctx.globalCompositeOperation = "source-over"; ctx.globalAlpha = al * 0.9;
+      ctx.filter = "grayscale(1) contrast(1.55) brightness(1.05)"; ctx.drawImage(p.img, dx, dy, dw, dh); ctx.filter = "none";
+      var tg = ctx.createLinearGradient(G.ix, G.iy + G.ih, G.ix + G.iw, G.iy);
+      tg.addColorStop(0, "#001133"); tg.addColorStop(.35, "#6d1fa0"); tg.addColorStop(.6, "#ff5a2a"); tg.addColorStop(.82, "#ffd21e"); tg.addColorStop(1, "#fffff0");
+      ctx.globalCompositeOperation = "overlay"; ctx.globalAlpha = al * 0.85; ctx.fillStyle = tg; ctx.fillRect(G.ix, G.iy, G.iw, G.ih);
+    } else if (s.vis === "scan") {
+      var band = G.iy + ((lt * G.ih * 0.38) % G.ih);
+      ctx.globalCompositeOperation = "screen"; ctx.globalAlpha = al;
+      var bg = ctx.createLinearGradient(0, band - G.ih * 0.07, 0, band + G.ih * 0.07);
+      bg.addColorStop(0, "rgba(90,220,255,0)"); bg.addColorStop(.5, "rgba(130,240,255,.55)"); bg.addColorStop(1, "rgba(90,220,255,0)");
+      ctx.fillStyle = bg; ctx.fillRect(G.ix, band - G.ih * 0.07, G.iw, G.ih * 0.14);
+      ctx.globalCompositeOperation = "multiply"; ctx.globalAlpha = al * 0.45; ctx.fillStyle = "rgba(0,0,0,.75)";
+      for (var y = G.iy; y < G.iy + G.ih; y += 4) ctx.fillRect(G.ix, y, G.iw, 1);
+    } else if (s.vis === "invert") {
+      if (Math.sin(lt * 4.4) > 0.86) { ctx.globalCompositeOperation = "difference"; ctx.globalAlpha = al * 0.92; ctx.fillStyle = "#fff"; ctx.fillRect(G.ix, G.iy, G.iw, G.ih); }
+    } else if (s.vis === "snow") {
+      ctx.globalCompositeOperation = "screen"; var R = rng(s.seed ^ 7);
+      for (var i = 0; i < 150; i++) {
+        var fx = G.ix + ((R() * G.iw + lt * (12 + R() * 34)) % G.iw), fy = G.iy + ((R() * G.ih + lt * (45 + R() * 85)) % G.ih);
+        ctx.globalAlpha = al * (0.3 + R() * 0.5); ctx.fillStyle = "#eaf2ff";
+        ctx.beginPath(); ctx.arc(fx, fy, 0.9 + R() * 2.1, 0, 6.283); ctx.fill();
+      }
+    }
+    ctx.globalCompositeOperation = "source-over"; ctx.globalAlpha = al; ctx.filter = "none";
+  }
+
+  /* cadre doré dessiné en ANNEAU (règle even-odd) → n'efface jamais l'intérieur */
+  function drawGoldFrame(ctx, G) {
+    ctx.save(); ctx.globalAlpha = 1; ctx.globalCompositeOperation = "source-over"; ctx.filter = "none";
+    // 1) moulure dorée : anneau entre le bord extérieur et l'ouverture du passe-partout
+    var g = ctx.createLinearGradient(G.ox, G.oy, G.ox + G.ow, G.oy + G.oh);
+    g.addColorStop(0, "#3a2a12"); g.addColorStop(.22, "#d9b063"); g.addColorStop(.45, "#8a6a2c");
+    g.addColorStop(.62, "#f0d68f"); g.addColorStop(.8, "#9b7a34"); g.addColorStop(1, "#433014");
+    ctx.beginPath();
+    ctx.rect(G.ox, G.oy, G.ow, G.oh);
+    ctx.rect(G.mx, G.my, G.mw, G.mh);
+    ctx.fillStyle = g; ctx.fill("evenodd");
+    // 2) passe-partout crème : anneau entre l'ouverture de la moulure et l'ouverture image
+    ctx.beginPath();
+    ctx.rect(G.mx, G.my, G.mw, G.mh);
+    ctx.rect(G.ix, G.iy, G.iw, G.ih);
+    ctx.fillStyle = "#efe7d4"; ctx.fill("evenodd");
+    // 3) creux + filets
+    ctx.strokeStyle = "rgba(0,0,0,.45)"; ctx.lineWidth = Math.max(1, G.fb * 0.10);
+    ctx.strokeRect(G.mx + ctx.lineWidth / 2, G.my + ctx.lineWidth / 2, G.mw - ctx.lineWidth, G.mh - ctx.lineWidth);
+    ctx.strokeStyle = "rgba(255,240,205,.55)"; ctx.lineWidth = Math.max(1, G.fb * 0.06);
+    ctx.strokeRect(G.ox + ctx.lineWidth / 2, G.oy + ctx.lineWidth / 2, G.ow - ctx.lineWidth, G.oh - ctx.lineWidth);
+    // 4) ombre portée du passe-partout sur la toile (biseau)
+    var sh = ctx.createLinearGradient(G.ix, G.iy, G.ix, G.iy + G.ih * 0.06);
+    sh.addColorStop(0, "rgba(0,0,0,.45)"); sh.addColorStop(1, "rgba(0,0,0,0)");
+    ctx.fillStyle = sh; ctx.fillRect(G.ix, G.iy, G.iw, G.ih * 0.06);
+    ctx.strokeStyle = "rgba(0,0,0,.5)"; ctx.lineWidth = Math.max(1, G.mat * 0.10);
+    ctx.strokeRect(G.ix - ctx.lineWidth / 2, G.iy - ctx.lineWidth / 2, G.iw + ctx.lineWidth, G.ih + ctx.lineWidth);
+    ctx.restore();
+  }
+
+  function drawSignature(ctx, G, p, lt, dur, al) {
+    var sa = smooth((lt - 1.0) / 1.2) * (1 - smooth((lt - Math.min(6.5, dur - 1.8)) / 1.4));
+    if (sa <= 0.01) return;
+    ctx.save(); ctx.globalAlpha = Math.min(1, al) * sa; ctx.textAlign = "right"; ctx.textBaseline = "alphabetic";
+    var fs = Math.round(G.ih * 0.050), rx = G.ix + G.iw - G.iw * 0.030, by = G.iy + G.ih - G.ih * 0.055;
+    ctx.shadowColor = "rgba(0,0,0,.9)"; ctx.shadowBlur = G.ih * 0.02; ctx.shadowOffsetY = 2;
+    ctx.fillStyle = "#f8f2e2"; ctx.font = "italic 600 " + fs + "px 'Cormorant Garamond', Georgia, serif";
+    ctx.fillText(AUTHOR, rx, by);
+    ctx.shadowBlur = 0; ctx.shadowOffsetY = 0; ctx.fillStyle = "rgba(230,219,194,.94)";
+    ctx.font = "500 " + Math.round(fs * 0.40) + "px 'Cinzel', Georgia, serif";
+    ctx.fillText(p.t + "  ·  " + p.d, rx, by + Math.round(fs * 0.60));
+    ctx.restore();
+  }
+
+  /* ─── géométrie : ouverture FIXE 16:9 ─── */
+  function geometry(W, H, withFrame) {
+    if (!withFrame) return { ix: 0, iy: 0, iw: W, ih: H, ox: 0, oy: 0, ow: W, oh: H, mx: 0, my: 0, mw: W, mh: H, fb: 0, mat: 0 };
+    var fb = Math.round(H * 0.042), mat = Math.round(H * 0.030), pad = fb + mat;
+    var iw = W - 2 * pad - Math.round(W * 0.055), ih = Math.round(iw * 9 / 16);
+    if (ih + 2 * pad > H - Math.round(H * 0.045)) { ih = H - 2 * pad - Math.round(H * 0.045); iw = Math.round(ih * 16 / 9); }
+    iw = Math.round(iw); ih = Math.round(ih);
+    var ix = Math.round((W - iw) / 2), iy = Math.round((H - ih) / 2);
+    return { ix: ix, iy: iy, iw: iw, ih: ih, mx: ix - mat, my: iy - mat, mw: iw + 2 * mat, mh: ih + 2 * mat, ox: ix - pad, oy: iy - pad, ow: iw + 2 * pad, oh: ih + 2 * pad, fb: fb, mat: mat };
+  }
 
   function run() {
     if (running) return;
@@ -3171,130 +3334,48 @@ if (typeof module === "object" && typeof module.exports === "object") Object.ass
 
     ensureMux().then(loadArt).then(function (list) {
       if (!list.length) throw new Error("Aucune toile chargée (dossier img/).");
-      var seed = (Math.random() * 4294967296) >>> 0, shots = timeline(list, duration, seed, opt);
+      var seed = (Math.random() * 4294967296) >>> 0, tl = timeline(list, duration, seed, opt);
       var canvas = document.createElement("canvas"); canvas.width = W; canvas.height = H;
       var ctx = canvas.getContext("2d", { alpha: false });
-      var buf = document.createElement("canvas"); buf.width = W; buf.height = H; var bctx = buf.getContext("2d"); // tampon effets
-      var R0 = rng(seed ^ 0x9e37), dust = opt.grain ? makeDust(90, W, H, R0) : null, grain = opt.grain ? grainTile(1280, Math.round(1280 * H / W)) : null;
-      var vg = ctx.createRadialGradient(W / 2, H / 2, Math.min(W, H) * 0.30, W / 2, H / 2, Math.max(W, H) * 0.78); vg.addColorStop(0, "rgba(0,0,0,0)"); vg.addColorStop(1, "rgba(0,0,0,.58)");
-      var wall = ctx.createLinearGradient(0, 0, 0, H); wall.addColorStop(0, "#0c0e13"); wall.addColorStop(.5, "#070809"); wall.addColorStop(1, "#050506");
-      var env = { W: W, H: H, ctx: ctx, buf: buf, bctx: bctx, vg: vg, wall: wall, dust: dust, grain: grain, list: list, opt: opt };
+      var G = geometry(W, H, opt.frame), R0 = rng(seed ^ 0x9e37);
+      var wall = ctx.createLinearGradient(0, 0, 0, H); wall.addColorStop(0, "#0d0f14"); wall.addColorStop(.5, "#08090b"); wall.addColorStop(1, "#050506");
+      var ivg = ctx.createRadialGradient(G.ix + G.iw / 2, G.iy + G.ih / 2, Math.min(G.iw, G.ih) * 0.30, G.ix + G.iw / 2, G.iy + G.ih / 2, Math.max(G.iw, G.ih) * 0.72);
+      ivg.addColorStop(0, "rgba(0,0,0,0)"); ivg.addColorStop(1, "rgba(0,0,0,.45)");
+      var env = { W: W, H: H, ctx: ctx, geo: G, wall: wall, ivg: ivg, list: list, opt: opt,
+        dust: opt.grain ? makeDust(80, G.iw, G.ih, R0) : null, grain: opt.grain ? grainTile(1024, Math.round(1024 * G.ih / G.iw)) : null };
 
       var codec = codecSel === "hevc" ? "hvc1.1.6.L153.90" : "avc1.640033";
       var cfg = { codec: codec, width: W, height: H, bitrate: bitrate, framerate: fps, hardwareAcceleration: "prefer-hardware", latencyMode: "quality" };
       if (codecSel === "hevc") cfg.hevc = { format: "hevc" }; else cfg.avc = { format: "avc" };
       return VideoEncoder.isConfigSupported(cfg).then(function (s) {
-        if (s && s.supported) return encode(env, shots, W, H, fps, total, codecSel, cfg, duration, t0);
+        if (s && s.supported) return encode(env, tl, W, H, fps, total, codecSel, cfg, duration, t0);
         cfg.hardwareAcceleration = "no-preference";
-        return VideoEncoder.isConfigSupported(cfg).then(function (s2) { if (!s2 || !s2.supported) throw new Error("Codec non supporté (" + codec + "). Essaie H.264."); return encode(env, shots, W, H, fps, total, codecSel, cfg, duration, t0); });
+        return VideoEncoder.isConfigSupported(cfg).then(function (s2) { if (!s2 || !s2.supported) throw new Error("Codec non supporté (" + codec + "). Essaie H.264."); return encode(env, tl, W, H, fps, total, codecSel, cfg, duration, t0); });
       });
     }).catch(finishError);
   }
 
-  /* ─────── rendu d'une image ─────── */
-  function drawFrame(env, shots, tSec, cur) {
-    var W = env.W, H = env.H, ctx = env.ctx;
-    ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.globalAlpha = 1; ctx.globalCompositeOperation = "source-over";
-    ctx.fillStyle = env.wall; ctx.fillRect(0, 0, W, H);
-    var s = shots[cur]; if (!s) return;
-    var lt = tSec - s.start; if (lt < 0) return;
-    var fade = smooth((lt) / 0.9) * (1 - smooth((lt - (s.dur - 0.9)) / 0.9)); if (fade <= 0.001) return;
-    var p = env.list[s.p];
-
-    // géométrie : tableau centré, format respecté
-    var maxW = W * 0.74, maxH = H * 0.80, fit = Math.min(maxW / p.w, maxH / p.h), ow = p.w * fit, oh = p.h * fit;
-    var mat = env.opt.frame ? Math.round(Math.min(ow, oh) * 0.045) : 0, fb = env.opt.frame ? Math.round(Math.min(ow, oh) * 0.055) : 0;
-    var outW = ow + 2 * (mat + fb), outH = oh + 2 * (mat + fb), ox = (W - outW) / 2, oy = (H - outH) / 2;
-    var inx = ox + fb + mat, iny = oy + fb + mat; // ouverture (zone toile)
-
-    ctx.globalAlpha = fade;
-    // lueur douce derrière le cadre
-    ctx.save(); ctx.filter = "blur(" + Math.round(H * 0.02) + "px) brightness(.6)"; ctx.globalAlpha = fade * 0.5;
-    ctx.drawImage(p.img, ox - outW * 0.06, oy - outH * 0.06, outW * 1.12, outH * 1.12); ctx.restore();
-
-    // Ken Burns / drone (dans l'ouverture, format préservé)
-    var e = smooth(lt / s.dur), base = Math.max(ow / p.w, oh / p.h);
-    var sc = base * lerp(s.zin ? 1 : 1 + s.span, s.zin ? 1 + s.span : 1, e);
-    var dw = p.w * sc, dh = p.h * sc, panX = lerp(s.px, -s.px, e) * (dw - ow) * 0.5, panY = lerp(s.py, -s.py, e) * (dh - oh) * 0.5;
-    var dx = inx + (ow - dw) / 2 + panX, dy = iny + (oh - dh) / 2 + panY;
-
-    ctx.save(); ctx.beginPath(); ctx.rect(inx, iny, ow, oh); ctx.clip(); ctx.globalAlpha = fade;
-    ctx.filter = s.lamp.f; ctx.drawImage(p.img, dx, dy, dw, dh); ctx.filter = "none";
-    applyVision(env, s, lt, e, inx, iny, ow, oh, dx, dy, dw, dh, fade);
-    // éclairage : nappe colorée + balayage
-    ctx.globalCompositeOperation = "soft-light"; ctx.globalAlpha = fade * s.lamp.a; ctx.fillStyle = s.lamp.col; ctx.fillRect(inx, iny, ow, oh);
-    if (s.sweep) { var pr = lt / s.dur, cxp = (s.swDir > 0 ? pr : 1 - pr) * ow * 1.4 - ow * 0.2 + inx; var lg = ctx.createLinearGradient(cxp - ow * 0.16, 0, cxp + ow * 0.16, 0); lg.addColorStop(0, "rgba(255,244,220,0)"); lg.addColorStop(.5, "rgba(255,246,224,.16)"); lg.addColorStop(1, "rgba(255,244,220,0)"); ctx.globalCompositeOperation = "overlay"; ctx.fillStyle = lg; ctx.fillRect(inx, iny, ow, oh); }
-    ctx.globalCompositeOperation = "source-over"; ctx.filter = "none"; ctx.restore();
-
-    // cadre doré + passe-partout + signature
-    if (env.opt.frame) drawGoldFrame(ctx, ox, oy, outW, outH, fb, mat, ow, oh, inx, iny, fade);
-    ctx.globalAlpha = 1;
-    if (env.opt.frame) drawSignature(ctx, env, p, inx, iny, ow, oh, lt, s.dur, fade);
-
-    // poussière + grain + vignette (global)
-    if (env.dust) { ctx.globalCompositeOperation = "screen"; for (var i = 0; i < env.dust.length; i++) { var m = env.dust[i]; var mx = (m.x + m.vx * tSec) % W, my = (m.y + m.vy * tSec) % H; if (mx < 0) mx += W; if (my < 0) my += H; var tw = 0.4 + 0.6 * (0.5 + 0.5 * Math.sin(tSec * m.sp + m.ph)); ctx.globalAlpha = 0.16 * tw * fade; ctx.fillStyle = "#dbe8ff"; ctx.beginPath(); ctx.arc(mx, my, m.r, 0, 6.283); ctx.fill(); } ctx.globalCompositeOperation = "source-over"; }
-    ctx.globalAlpha = 1;
-    if (env.grain) { ctx.globalCompositeOperation = "soft-light"; ctx.globalAlpha = 0.06; var gx = (Math.random() * 200) | 0, gy = (Math.random() * 200) | 0; ctx.drawImage(env.grain, -gx, -gy, W + gx, H + gy); ctx.globalCompositeOperation = "source-over"; ctx.globalAlpha = 1; }
-    ctx.fillStyle = env.vg; ctx.fillRect(0, 0, W, H);
-  }
-
-  function applyVision(env, s, lt, e, inx, iny, ow, oh, dx, dy, dw, dh, fade) {
-    var ctx = env.ctx, p = env.list[s.p];
-    if (s.vis === "bloom") { ctx.globalCompositeOperation = "screen"; ctx.globalAlpha = fade * 0.4; ctx.filter = "blur(" + Math.round(oh * 0.02) + "px) brightness(1.5) saturate(1.2)"; ctx.drawImage(p.img, dx, dy, dw, dh); ctx.filter = "none"; ctx.globalCompositeOperation = "source-over"; ctx.globalAlpha = fade; }
-    else if (s.vis === "anaglyph") { var off = ow * 0.008 * (0.6 + 0.4 * Math.sin(lt * 1.6)); ctx.globalCompositeOperation = "screen"; ctx.globalAlpha = fade * 0.5; ctx.filter = "brightness(1) sepia(1) hue-rotate(-50deg) saturate(6)"; ctx.drawImage(p.img, dx - off, dy, dw, dh); ctx.filter = "brightness(1) sepia(1) hue-rotate(120deg) saturate(6)"; ctx.drawImage(p.img, dx + off, dy, dw, dh); ctx.filter = "none"; ctx.globalCompositeOperation = "source-over"; ctx.globalAlpha = fade; }
-    else if (s.vis === "thermal") { ctx.globalCompositeOperation = "source-over"; ctx.globalAlpha = fade * 0.85; ctx.filter = "grayscale(1) contrast(1.5) brightness(1.05)"; ctx.drawImage(p.img, dx, dy, dw, dh); ctx.filter = "none"; var tg = ctx.createLinearGradient(inx, iny + oh, inx + ow, iny); tg.addColorStop(0, "#001133"); tg.addColorStop(.4, "#7a1fa0"); tg.addColorStop(.6, "#ff5a2a"); tg.addColorStop(.8, "#ffd21e"); tg.addColorStop(1, "#fffff0"); ctx.globalCompositeOperation = "overlay"; ctx.globalAlpha = fade * 0.85; ctx.fillStyle = tg; ctx.fillRect(inx, iny, ow, oh); ctx.globalCompositeOperation = "source-over"; ctx.globalAlpha = fade; }
-    else if (s.vis === "scan") { var band = iny + ((lt * oh * 0.35) % oh); ctx.globalCompositeOperation = "screen"; var bg = ctx.createLinearGradient(0, band - oh * 0.06, 0, band + oh * 0.06); bg.addColorStop(0, "rgba(90,220,255,0)"); bg.addColorStop(.5, "rgba(120,235,255,.5)"); bg.addColorStop(1, "rgba(90,220,255,0)"); ctx.globalAlpha = fade; ctx.fillStyle = bg; ctx.fillRect(inx, band - oh * 0.06, ow, oh * 0.12); ctx.globalCompositeOperation = "multiply"; ctx.globalAlpha = fade * 0.5; for (var y = iny; y < iny + oh; y += 3) { ctx.fillStyle = "rgba(0,0,0,.6)"; ctx.fillRect(inx, y, ow, 1); } ctx.globalCompositeOperation = "source-over"; ctx.globalAlpha = fade; }
-    else if (s.vis === "invert") { var pulse = (Math.sin(lt * 4.2) > 0.85) ? 1 : 0; if (pulse) { ctx.globalCompositeOperation = "difference"; ctx.globalAlpha = fade * 0.9; ctx.fillStyle = "#fff"; ctx.fillRect(inx, iny, ow, oh); ctx.globalCompositeOperation = "source-over"; ctx.globalAlpha = fade; } }
-    else if (s.vis === "snow") { ctx.globalCompositeOperation = "screen"; var R = rng(s.seed ^ 7); for (var i = 0; i < 140; i++) { var fx = inx + ((R() * ow + lt * (10 + R() * 30)) % ow), fy = iny + ((R() * oh + lt * (40 + R() * 80)) % oh); ctx.globalAlpha = fade * (0.3 + R() * 0.5); ctx.fillStyle = "#eaf2ff"; ctx.beginPath(); ctx.arc(fx, fy, 0.8 + R() * 2, 0, 6.283); ctx.fill(); } ctx.globalCompositeOperation = "source-over"; ctx.globalAlpha = fade; }
-  }
-
-  function drawGoldFrame(ctx, ox, oy, outW, outH, fb, mat, ow, oh, inx, iny, fade) {
-    ctx.globalAlpha = fade;
-    var g = ctx.createLinearGradient(ox, oy, ox + outW, oy + outH);
-    g.addColorStop(0, "#3a2a12"); g.addColorStop(.25, "#caa24e"); g.addColorStop(.5, "#8a6a2c"); g.addColorStop(.75, "#e6c877"); g.addColorStop(1, "#4a3416");
-    ctx.fillStyle = g; ctx.fillRect(ox, oy, outW, outH);                     // cadre plein
-    ctx.fillStyle = "rgba(0,0,0,.35)"; ctx.fillRect(ox + fb * 0.5, oy + fb * 0.5, outW - fb, outH - fb); // creux
-    ctx.fillStyle = "#efe7d4"; ctx.fillRect(ox + fb, oy + fb, ow + 2 * mat, oh + 2 * mat);   // passe-partout crème
-    ctx.fillStyle = "rgba(0,0,0,.28)"; ctx.fillRect(inx - mat * 0.15, iny - mat * 0.15, ow + mat * 0.3, oh + mat * 0.3); // ombre interne
-    ctx.strokeStyle = "rgba(255,240,200,.5)"; ctx.lineWidth = Math.max(1, fb * 0.06); ctx.strokeRect(ox + 1, oy + 1, outW - 2, outH - 2); // filet lumineux
-    ctx.clearRect(inx, iny, ow, oh); // ouvre la fenêtre (la toile a déjà été dessinée dessous)
-  }
-
-  function drawSignature(ctx, env, p, inx, iny, ow, oh, lt, dur, fade) {
-    var sa = smooth((lt - 1.0) / 1.1) * (1 - smooth((lt - Math.min(6, dur - 1.6)) / 1.3));
-    if (sa <= 0.01) return;
-    ctx.globalAlpha = fade * sa; ctx.textAlign = "right"; ctx.textBaseline = "alphabetic";
-    var fs = Math.round(oh * 0.05), rx = inx + ow - ow * 0.035, by = iny + oh - oh * 0.05;
-    ctx.shadowColor = "rgba(0,0,0,.85)"; ctx.shadowBlur = oh * 0.02; ctx.shadowOffsetY = 2;
-    ctx.fillStyle = "#f7f0df"; ctx.font = "italic 600 " + fs + "px 'Cormorant Garamond', Georgia, serif"; ctx.fillText(AUTHOR, rx, by);
-    ctx.shadowBlur = 0; ctx.shadowOffsetY = 0; ctx.fillStyle = "rgba(228,216,190,.92)";
-    ctx.font = "500 " + Math.round(fs * 0.42) + "px 'Cinzel', Georgia, serif"; ctx.fillText(p.t + "  ·  " + p.d, rx, by + Math.round(fs * 0.62));
-    ctx.textAlign = "left"; ctx.globalAlpha = 1;
-  }
-
-  /* ─────── encodage GPU offline ─────── */
-  function encode(env, shots, W, H, fps, total, codecSel, cfg, duration, t0) {
+  function encode(env, tl, W, H, fps, total, codecSel, cfg, duration, t0) {
     return sink(duration, W, H).then(function (dst) {
       var M = window.Mp4Muxer, muxer = new M.Muxer({ target: dst.target, video: { codec: codecSel === "hevc" ? "hevc" : "avc", width: W, height: H, frameRate: fps }, fastStart: dst.mem ? "in-memory" : false, firstTimestampBehavior: "offset" });
       var enc = new VideoEncoder({ output: function (c, m) { muxer.addVideoChunk(c, m); }, error: finishError }); enc.configure(cfg);
-      var prev = $("recPrev"), pc = prev.getContext("2d"), i = 0, cur = 0, fdu = Math.round(1e6 / fps), canvas = env.ctx.canvas;
+      var prev = $("recPrev"), pc = prev.getContext("2d"), i = 0, fdu = Math.round(1e6 / fps), canvas = env.ctx.canvas;
       function step() {
         if (cancelFlag) { try { enc.close(); } catch (e) {} return finCancel(dst); }
         var b = 0;
         while (i < total && enc.encodeQueueSize < 3 && b < 4) {
-          var tSec = i / fps;
-          while (cur < shots.length - 1 && tSec >= shots[cur + 1].start) cur++;
-          drawFrame(env, shots, tSec, cur);
+          drawFrame(env, tl, i / fps);
           var vf = new VideoFrame(canvas, { timestamp: i * fdu, duration: fdu });
           enc.encode(vf, { keyFrame: (i % (fps * 2)) === 0 }); vf.close(); i++; b++;
         }
         var pct = i / total; $("recBar").style.width = (pct * 100).toFixed(1) + "%"; $("recPct").textContent = (pct * 100).toFixed(1) + " %";
-        var el = (performance.now() - t0) / 1000, x = el > 0 ? (i / fps) / el : 0; $("recSpd").textContent = "×" + x.toFixed(1) + " temps réel · reste " + fmt(pct > 0 ? el / pct - el : 0);
+        var el = (performance.now() - t0) / 1000, x = el > 0 ? (i / fps) / el : 0;
+        $("recSpd").textContent = "×" + x.toFixed(1) + " temps réel · reste " + fmt(pct > 0 ? el / pct - el : 0);
         if ((i % 10) === 0 || i >= total) pc.drawImage(canvas, 0, 0, prev.width, prev.height);
         if (i < total) { setTimeout(step, 0); return; }
         enc.flush().then(function () { muxer.finalize(); finOk(dst, W, H, fps, duration, codecSel, performance.now() - t0); }).catch(finishError);
       }
-      msg("Rendu + encodage GPU… film aléatoire, différent à chaque fois."); step();
+      msg("Rendu + encodage GPU… (film aléatoire, différent à chaque fois)."); step();
     });
   }
   function sink(duration, W, H) {
