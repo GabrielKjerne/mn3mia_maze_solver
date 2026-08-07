@@ -3061,6 +3061,16 @@ if (typeof module === "object" && typeof module.exports === "object") Object.ass
   var RES = { "2160": [3840, 2160], "1440": [2560, 1440], "1080": [1920, 1080], "s2160": [2160, 3840], "s1080": [1080, 1920] };
   var BR = { "2160": { std: 28e6, high: 44e6, max: 65e6 }, "1440": { std: 15e6, high: 24e6, max: 36e6 }, "1080": { std: 9e6, high: 14e6, max: 22e6 },
              "s2160": { std: 28e6, high: 44e6, max: 65e6 }, "s1080": { std: 9e6, high: 14e6, max: 22e6 } };
+  /* CADRES : moulure (dégradé) + passe-partout + filet */
+  var FRAMES = {
+    or:      { name: "Or",      stops: [[0,"#3a2a12"],[.22,"#d9b063"],[.45,"#8a6a2c"],[.62,"#f0d68f"],[.8,"#9b7a34"],[1,"#433014"]], mat: "#efe7d4", line: "rgba(255,240,205,.55)" },
+    argent:  { name: "Argent",  stops: [[0,"#4a4e55"],[.22,"#cfd6dd"],[.45,"#8c949c"],[.62,"#eef3f7"],[.8,"#9aa2aa"],[1,"#4e535a"]], mat: "#f0f1f3", line: "rgba(255,255,255,.6)" },
+    bois:    { name: "Bois",    stops: [[0,"#2e1c0f"],[.18,"#6b4324"],[.36,"#3f2716"],[.54,"#7d5230"],[.72,"#4a2e19"],[.88,"#6f4626"],[1,"#2a190d"]], mat: "#f2e8d5", line: "rgba(255,225,180,.35)" },
+    noir:    { name: "Noir",    stops: [[0,"#0a0a0b"],[.3,"#2a2b2e"],[.5,"#141416"],[.72,"#333438"],[1,"#0b0b0c"]], mat: "#e8e6e1", line: "rgba(255,255,255,.22)" },
+    blanc:   { name: "Blanc",   stops: [[0,"#d8d6d1"],[.25,"#ffffff"],[.5,"#eceae5"],[.75,"#ffffff"],[1,"#d2d0cb"]], mat: "#ffffff", line: "rgba(255,255,255,.9)" },
+    carbone: { name: "Carbone", stops: [[0,"#101216"],[.16,"#31363d"],[.32,"#15181c"],[.48,"#3a4048"],[.64,"#16191d"],[.8,"#2c3138"],[1,"#0e1013"]], mat: "#1b1e22", line: "rgba(150,170,190,.35)" },
+    aucun:   { name: "Sans cadre", none: true }
+  };
   // DYNAMISME : rythme du film — durées, fondus, ampleur du mouvement, densité d'effets
   var DYN = {
     rapide:   { dMin: 4.0, dVar: 3.5, xf: 0.7, xfVar: 0.5, mot: 1.35, fx: 1.35, label: "rapide" },
@@ -3119,7 +3129,13 @@ if (typeof module === "object" && typeof module.exports === "object") Object.ass
     '<label>Conscience (13 visions)</label><select id="recAsc"><option value="rand" selected>Aléatoire parmi les 13</option>' +
     '<option value="live">Celle de la console</option><option value="0">Aucune (Off)</option></select>' +
     '<label class="rc-chk"><input type="checkbox" id="recAll" checked> Tous les filtres live (éclairages, 3D, scan, thermo, sonar, drone)</label>' +
-    '<label class="rc-chk"><input type="checkbox" id="recFrame" checked> Cadre doré 16:9 + signature</label>' +
+    '<div class="rc-row"><div><label>Cadre</label><select id="recFrameType">' +
+    '<option value="or" selected>Or</option><option value="argent">Argent</option><option value="bois">Bois</option>' +
+    '<option value="noir">Noir</option><option value="blanc">Blanc</option><option value="carbone">Carbone</option>' +
+    '<option value="aucun">Sans cadre</option></select></div>' +
+    '<div><label>Ambilight</label><select id="recAmb"><option value="1">Doux</option><option value="1.5" selected>Marqué</option>' +
+    '<option value="2.2">Intense</option><option value="0">Aucun</option></select></div></div>' +
+    '<label class="rc-chk"><input type="checkbox" id="recFrame" checked> Signature (titre · année · nom)</label>' +
     '<label class="rc-chk"><input type="checkbox" id="recGrain" checked> Poussière + grain</label>' +
     '<button id="recRun" type="button">GÉNÉRER LA VIDÉO ▸</button>' +
     '<canvas id="recPrev" width="320" height="180"></canvas>' +
@@ -3214,10 +3230,13 @@ if (typeof module === "object" && typeof module.exports === "object") Object.ass
       if (aq > wl) wl = aq;
     }
     if (wl > 0.002) { ctx.globalAlpha = wl * 0.9; ctx.fillStyle = env.wallLight; ctx.fillRect(0, 0, W, H); ctx.globalAlpha = 1; }
-    // RÉTROÉCLAIRAGE DYNAMIQUE — toujours présent, rayonnant AUTOUR du cadre
-    drawBacklight(env, shots, tSec, xf);
-    ctx.save(); ctx.beginPath(); ctx.rect(G.ix, G.iy, G.iw, G.ih); ctx.clip();
-    ctx.fillStyle = "#000"; ctx.fillRect(G.ix, G.iy, G.iw, G.ih);
+
+    /* ── 1) l'intérieur est rendu dans un TAMPON (pour en extraire l'ambilight exact) ── */
+    var ic = env.ictx, mainCtx = ctx;
+    ic.setTransform(1, 0, 0, 1, 0, 0); ic.globalAlpha = 1; ic.globalCompositeOperation = "source-over"; ic.filter = "none";
+    ic.fillStyle = "#000"; ic.fillRect(0, 0, G.iw, G.ih);
+    ic.save(); ic.translate(-G.ix, -G.iy);
+    env.ctx = ic;                                   // les fonctions de dessin travaillent en coords absolues
     var top = null;
     for (var k = 0; k < shots.length; k++) {
       var s = shots[k], lt = tSec - s.start; if (lt < 0 || lt > s.dur) continue;
@@ -3228,6 +3247,14 @@ if (typeof module === "object" && typeof module.exports === "object") Object.ass
       drawShot(env, tl, s, lt, al);
       if (!top || al >= top.al) top = { s: s, lt: lt, al: al };
     }
+    env.ctx = mainCtx; ic.restore();
+
+    /* ── 2) AMBILIGHT : les vraies couleurs de l'image, projetées autour du cadre ── */
+    if (env.opt.amb > 0) drawAmbilight(env, tSec);
+
+    /* ── 3) l'intérieur est reposé dans l'ouverture ── */
+    ctx.save(); ctx.beginPath(); ctx.rect(G.ix, G.iy, G.iw, G.ih); ctx.clip();
+    ctx.drawImage(env.inner, G.ix, G.iy);
     if (env.dust) {
       ctx.globalCompositeOperation = "screen";
       for (var i = 0; i < env.dust.length; i++) {
@@ -3246,7 +3273,7 @@ if (typeof module === "object" && typeof module.exports === "object") Object.ass
     }
     ctx.fillStyle = env.ivg; ctx.fillRect(G.ix, G.iy, G.iw, G.ih);
     ctx.restore();
-    if (env.opt.frame) drawGoldFrame(ctx, G);
+    drawGoldFrame(ctx, G, env.frameStyle);
     if (env.opt.frame && top) drawSignature(ctx, G, env.list[top.s.p], top.lt, top.s.dur, top.al);
     if (top) {
       var ts = top.s;
@@ -3260,27 +3287,29 @@ if (typeof module === "object" && typeof module.exports === "object") Object.ass
     }
   }
 
-  /* RÉTROÉCLAIRAGE : halo coloré vivant qui rayonne autour du cadre (toujours actif) */
-  function drawBacklight(env, shots, tSec, xf) {
-    var ctx = env.ctx, G = env.geo, W = env.W, H = env.H;
-    // teinte : celle de la prise dominante, en fondu d'une prise à l'autre
-    var hueB = 0, best = 0, u = 0;
-    for (var k = 0; k < shots.length; k++) {
-      var s = shots[k], lt = tSec - s.start; if (lt < 0 || lt > s.dur) continue;
-      var a = 1; if (lt < xf && k > 0) a = lt / xf; else if (lt > s.dur - xf && k < shots.length - 1) a = Math.max(0, (s.dur - lt) / xf);
-      if (a > best) { best = a; hueB = s.hueB; u = lt / s.dur; }
-    }
-    var breath = 0.62 + 0.38 * (0.5 + 0.5 * Math.sin(tSec * 0.42));      // respiration lente
-    var c = hsl((hueB + tSec * 6) % 360, 92, 58);                        // dérive douce de la couleur
+  /* AMBILIGHT : les couleurs RÉELLES de l'image, diffusées tout autour du cadre.
+     L'intérieur est réduit à une vignette minuscule (donc moyennée par zone), puis
+     ré-étalée en grand et floutée → chaque bord du mur reçoit la couleur de son côté. */
+  function drawAmbilight(env, tSec) {
+    var ctx = env.ctx, G = env.geo, W = env.W, H = env.H, k = env.opt.amb;
+    var a = env.amb, actx = env.actx;
+    actx.setTransform(1, 0, 0, 1, 0, 0); actx.globalAlpha = 1; actx.filter = "none";
+    actx.clearRect(0, 0, a.width, a.height);
+    actx.drawImage(env.inner, 0, 0, a.width, a.height);      // moyenne des couleurs par zone
+    var breath = 0.86 + 0.14 * (0.5 + 0.5 * Math.sin(tSec * 0.4));   // respiration douce
+    var grow = 1.55 + 0.06 * (0.5 + 0.5 * Math.sin(tSec * 0.27));    // débordement au-delà du cadre
+    var gw = G.ow * grow, gh = G.oh * grow;
     var cx = G.ix + G.iw / 2, cy = G.iy + G.ih / 2;
-    var r0 = Math.min(G.ow, G.oh) * 0.42, r1 = Math.max(W, H) * (0.52 + 0.06 * breath);
-    var gr = ctx.createRadialGradient(cx, cy, r0, cx, cy, r1);
-    gr.addColorStop(0, "rgba(" + c.join(",") + "," + (0.55 * breath).toFixed(3) + ")");
-    gr.addColorStop(0.45, "rgba(" + c.join(",") + "," + (0.20 * breath).toFixed(3) + ")");
-    gr.addColorStop(1, "rgba(" + c.join(",") + ",0)");
-    ctx.save(); ctx.globalCompositeOperation = "screen"; ctx.globalAlpha = 1;
-    ctx.fillStyle = gr; ctx.fillRect(0, 0, W, H);
+    ctx.save();
+    ctx.globalCompositeOperation = "lighter";
+    ctx.filter = "blur(" + Math.round(Math.min(W, H) * 0.055) + "px) saturate(1.9) brightness(1.05)";
+    ctx.globalAlpha = Math.min(1, 0.30 * k) * breath;
+    ctx.drawImage(a, cx - gw / 2, cy - gh / 2, gw, gh);              // nappe proche, colorée
+    ctx.filter = "blur(" + Math.round(Math.min(W, H) * 0.11) + "px) saturate(2.2)";
+    ctx.globalAlpha = Math.min(1, 0.22 * k) * breath;
+    ctx.drawImage(a, cx - gw * 1.5 / 2, cy - gh * 1.5 / 2, gw * 1.5, gh * 1.5); // halo large
     ctx.restore();
+    ctx.filter = "none"; ctx.globalAlpha = 1; ctx.globalCompositeOperation = "source-over";
   }
 
   /* filtre couleur = éclairage (treat) + conscience (sat/bri/con/hue/sep) */
@@ -3323,7 +3352,7 @@ if (typeof module === "object" && typeof module.exports === "object") Object.ass
     ctx.translate(cx, cy); if (rot) ctx.rotate(rot); ctx.translate(-cx, -cy);
     var dx = cx - dw / 2 + offX, dy = cy - dh / 2 + offY;
 
-    /* (le rétroéclairage vit désormais AUTOUR du cadre — voir drawBacklight) */
+    /* (le rétroéclairage vit désormais AUTOUR du cadre — voir drawAmbilight) */
 
     // couche principale : éclairage + conscience
     ctx.globalAlpha = al; ctx.filter = shotFilter(L, A, s, lt);
@@ -3453,15 +3482,16 @@ if (typeof module === "object" && typeof module.exports === "object") Object.ass
     ctx.globalCompositeOperation = "source-over"; ctx.globalAlpha = al; ctx.filter = "none";
   }
 
-  function drawGoldFrame(ctx, G) {
+  function drawGoldFrame(ctx, G, F) {
+    F = F || FRAMES.or; if (F.none) return;
     ctx.save(); ctx.globalAlpha = 1; ctx.globalCompositeOperation = "source-over"; ctx.filter = "none";
     var g = ctx.createLinearGradient(G.ox, G.oy, G.ox + G.ow, G.oy + G.oh);
-    g.addColorStop(0, "#3a2a12"); g.addColorStop(.22, "#d9b063"); g.addColorStop(.45, "#8a6a2c"); g.addColorStop(.62, "#f0d68f"); g.addColorStop(.8, "#9b7a34"); g.addColorStop(1, "#433014");
+    for (var i = 0; i < F.stops.length; i++) g.addColorStop(F.stops[i][0], F.stops[i][1]);
     ctx.beginPath(); ctx.rect(G.ox, G.oy, G.ow, G.oh); ctx.rect(G.mx, G.my, G.mw, G.mh); ctx.fillStyle = g; ctx.fill("evenodd");
-    ctx.beginPath(); ctx.rect(G.mx, G.my, G.mw, G.mh); ctx.rect(G.ix, G.iy, G.iw, G.ih); ctx.fillStyle = "#efe7d4"; ctx.fill("evenodd");
+    ctx.beginPath(); ctx.rect(G.mx, G.my, G.mw, G.mh); ctx.rect(G.ix, G.iy, G.iw, G.ih); ctx.fillStyle = F.mat; ctx.fill("evenodd");
     ctx.strokeStyle = "rgba(0,0,0,.45)"; ctx.lineWidth = Math.max(1, G.fb * 0.10);
     ctx.strokeRect(G.mx + ctx.lineWidth / 2, G.my + ctx.lineWidth / 2, G.mw - ctx.lineWidth, G.mh - ctx.lineWidth);
-    ctx.strokeStyle = "rgba(255,240,205,.55)"; ctx.lineWidth = Math.max(1, G.fb * 0.06);
+    ctx.strokeStyle = F.line; ctx.lineWidth = Math.max(1, G.fb * 0.06);
     ctx.strokeRect(G.ox + ctx.lineWidth / 2, G.oy + ctx.lineWidth / 2, G.ow - ctx.lineWidth, G.oh - ctx.lineWidth);
     var sh = ctx.createLinearGradient(G.ix, G.iy, G.ix, G.iy + G.ih * 0.06);
     sh.addColorStop(0, "rgba(0,0,0,.45)"); sh.addColorStop(1, "rgba(0,0,0,0)");
@@ -3497,7 +3527,8 @@ if (typeof module === "object" && typeof module.exports === "object") Object.ass
     if (running) return;
     var ds = $("recDur").value, duration = ds === "custom" ? Math.max(1, +$("recDurC").value || 1) * 60 : +ds;
     var res = $("recRes").value, dim = RES[res], W = dim[0], H = dim[1], fps = +$("recFps").value, bitrate = BR[res][$("recQ").value], codecSel = $("recCodec").value;
-    var opt = { asc: $("recAsc").value, all: $("recAll").checked, frame: $("recFrame").checked, grain: $("recGrain").checked, dyn: $("recDyn").value };
+    var opt = { asc: $("recAsc").value, all: $("recAll").checked, frame: $("recFrame").checked, grain: $("recGrain").checked,
+                dyn: $("recDyn").value, frameType: $("recFrameType").value, amb: parseFloat($("recAmb").value) };
     var total = Math.round(duration * fps);
     if (!("VideoEncoder" in window)) return msg("Encodage GPU indisponible : utilise <b>Chrome/Edge</b> (bureau).", true);
     running = true; cancelFlag = false; $("recRun").disabled = true; recBtn.disabled = true;
@@ -3508,12 +3539,20 @@ if (typeof module === "object" && typeof module.exports === "object") Object.ass
       var seed = (Math.random() * 4294967296) >>> 0, tl = timeline(list, duration, seed, opt);
       var canvas = document.createElement("canvas"); canvas.width = W; canvas.height = H;
       var ctx = canvas.getContext("2d", { alpha: false });
-      var G = geometry(W, H, opt.frame), R0 = rng(seed ^ 0x9e37);
+      var FS = FRAMES[opt.frameType] || FRAMES.or;
+      var G = geometry(W, H, !FS.none), R0 = rng(seed ^ 0x9e37);
+      // tampon de l'intérieur (source exacte de l'ambilight) + vignette de couleurs
+      var inner = document.createElement("canvas"); inner.width = G.iw; inner.height = G.ih;
+      var ictx = inner.getContext("2d", { alpha: false });
+      var aw = 24, ah = Math.max(4, Math.round(24 * G.ih / G.iw));
+      var amb = document.createElement("canvas"); amb.width = aw; amb.height = ah;
+      var actx = amb.getContext("2d");
       var wall = ctx.createLinearGradient(0, 0, 0, H); wall.addColorStop(0, "#0d0f14"); wall.addColorStop(.5, "#08090b"); wall.addColorStop(1, "#050506");
       var wallLight = ctx.createLinearGradient(0, 0, 0, H); wallLight.addColorStop(0, "#cfc9bd"); wallLight.addColorStop(.5, "#b9b3a7"); wallLight.addColorStop(1, "#9d978c");
       var ivg = ctx.createRadialGradient(G.ix + G.iw / 2, G.iy + G.ih / 2, Math.min(G.iw, G.ih) * 0.30, G.ix + G.iw / 2, G.iy + G.ih / 2, Math.max(G.iw, G.ih) * 0.72);
       ivg.addColorStop(0, "rgba(0,0,0,0)"); ivg.addColorStop(1, "rgba(0,0,0,.45)");
       var env = { W: W, H: H, ctx: ctx, geo: G, wall: wall, wallLight: wallLight, ivg: ivg, list: list, opt: opt, now: "",
+        inner: inner, ictx: ictx, amb: amb, actx: actx, frameStyle: FS,
         dust: opt.grain ? makeDust(80, G.iw, G.ih, R0) : null, grain: opt.grain ? grainTile(1024, Math.round(1024 * G.ih / G.iw)) : null };
       var codec = codecSel === "hevc" ? "hvc1.1.6.L153.90" : "avc1.640033";
       var cfg = { codec: codec, width: W, height: H, bitrate: bitrate, framerate: fps, hardwareAcceleration: "prefer-hardware", latencyMode: "quality" };
