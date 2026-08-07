@@ -3135,6 +3135,7 @@ if (typeof module === "object" && typeof module.exports === "object") Object.ass
     '<option value="aucun">Sans cadre</option></select></div>' +
     '<div><label>Ambilight</label><select id="recAmb"><option value="1">Doux</option><option value="1.5" selected>Marqué</option>' +
     '<option value="2.2">Intense</option><option value="0">Aucun</option></select></div></div>' +
+    '<label class="rc-chk"><input type="checkbox" id="recHD" checked> Haute définition (suréchantillonnage + netteté)</label>' +
     '<label class="rc-chk"><input type="checkbox" id="recFrame" checked> Signature (titre · année · nom)</label>' +
     '<label class="rc-chk"><input type="checkbox" id="recGrain" checked> Poussière + grain</label>' +
     '<button id="recRun" type="button">GÉNÉRER LA VIDÉO ▸</button>' +
@@ -3171,6 +3172,28 @@ if (typeof module === "object" && typeof module.exports === "object") Object.ass
       });
     })).then(function (x) { loaded = x.filter(Boolean); return loaded; });
   }
+
+  /* HAUTE DÉFINITION — chaque toile est pré-agrandie une seule fois, avec accentuation
+     (réutilise la fonction unsharp de la galerie si elle est disponible). Les toiles font
+     1024–2000 px alors que l'ouverture 4K en fait ~3100 : sans cela, le zoom ramollit l'image. */
+  function enhanceArt(list, need) {
+    for (var i = 0; i < list.length; i++) {
+      var p = list[i]; if (p.hd || p.hdFail) continue;
+      try {
+        var f = Math.min(2.2, Math.max(1, need / Math.max(p.w, p.h)));
+        if (f <= 1.03) { p.hd = null; continue; }
+        var w = Math.round(p.w * f), h = Math.round(p.h * f);
+        var c = document.createElement("canvas"); c.width = w; c.height = h;
+        var x = c.getContext("2d", { willReadFrequently: true });
+        x.imageSmoothingEnabled = true; x.imageSmoothingQuality = "high";
+        x.drawImage(p.img, 0, 0, w, h);   // toujours depuis l'original
+        try { if (typeof unsharp === "function") unsharp(x, w, h, 0.5); } catch (e) {}
+        p.hd = c;
+      } catch (e) { p.hdFail = true; }
+    }
+    return list;
+  }
+  function srcOf(p) { return p.hd || p.img; }
 
   /* ── scénario : chaque prise reçoit un ÉTAT COMPLET comme en live ── */
   function timeline(list, duration, seed, opt) {
@@ -3232,10 +3255,11 @@ if (typeof module === "object" && typeof module.exports === "object") Object.ass
     if (wl > 0.002) { ctx.globalAlpha = wl * 0.9; ctx.fillStyle = env.wallLight; ctx.fillRect(0, 0, W, H); ctx.globalAlpha = 1; }
 
     /* ── 1) l'intérieur est rendu dans un TAMPON (pour en extraire l'ambilight exact) ── */
-    var ic = env.ictx, mainCtx = ctx;
+    var ic = env.ictx, mainCtx = ctx, SS = env.ss || 1;
     ic.setTransform(1, 0, 0, 1, 0, 0); ic.globalAlpha = 1; ic.globalCompositeOperation = "source-over"; ic.filter = "none";
-    ic.fillStyle = "#000"; ic.fillRect(0, 0, G.iw, G.ih);
-    ic.save(); ic.translate(-G.ix, -G.iy);
+    ic.fillStyle = "#000"; ic.fillRect(0, 0, env.inner.width, env.inner.height);
+    // suréchantillonnage : on dessine plus grand, on réduira à la composition
+    ic.save(); ic.setTransform(SS, 0, 0, SS, -G.ix * SS, -G.iy * SS);
     env.ctx = ic;                                   // les fonctions de dessin travaillent en coords absolues
     var top = null;
     for (var k = 0; k < shots.length; k++) {
@@ -3254,7 +3278,8 @@ if (typeof module === "object" && typeof module.exports === "object") Object.ass
 
     /* ── 3) l'intérieur est reposé dans l'ouverture ── */
     ctx.save(); ctx.beginPath(); ctx.rect(G.ix, G.iy, G.iw, G.ih); ctx.clip();
-    ctx.drawImage(env.inner, G.ix, G.iy);
+    ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = "high";
+    ctx.drawImage(env.inner, 0, 0, env.inner.width, env.inner.height, G.ix, G.iy, G.iw, G.ih);
     if (env.dust) {
       ctx.globalCompositeOperation = "screen";
       for (var i = 0; i < env.dust.length; i++) {
@@ -3356,29 +3381,29 @@ if (typeof module === "object" && typeof module.exports === "object") Object.ass
 
     // couche principale : éclairage + conscience
     ctx.globalAlpha = al; ctx.filter = shotFilter(L, A, s, lt);
-    ctx.drawImage(p.img, dx, dy, dw, dh);
+    ctx.drawImage(srcOf(p), dx, dy, dw, dh);
     ctx.filter = "none";
 
     // ghost (dédoublement de conscience)
     if (A && A.ghost) {
       var go = G.iw * 0.004 * (0.4 + 1.2 * e);   // le dédoublement s'écarte progressivement (sans rebond)
       ctx.globalAlpha = al * A.ghost; ctx.globalCompositeOperation = "screen";
-      ctx.drawImage(p.img, dx + go, dy - go * 0.6, dw, dh);
+      ctx.drawImage(srcOf(p), dx + go, dy - go * 0.6, dw, dh);
       ctx.globalCompositeOperation = "source-over"; ctx.globalAlpha = al;
     }
     // 3D anaglyphe (profondeur)
     if (s.depth) {
       var off = Math.abs(s.depth) / 100 * G.iw * 0.008 * (s.depth < 0 ? -1 : 1);
       ctx.globalCompositeOperation = "screen"; ctx.globalAlpha = al * 0.5;
-      ctx.filter = "sepia(1) hue-rotate(-50deg) saturate(7)"; ctx.drawImage(p.img, dx - off, dy, dw, dh);
-      ctx.filter = "sepia(1) hue-rotate(120deg) saturate(7)"; ctx.drawImage(p.img, dx + off, dy, dw, dh);
+      ctx.filter = "sepia(1) hue-rotate(-50deg) saturate(7)"; ctx.drawImage(srcOf(p), dx - off, dy, dw, dh);
+      ctx.filter = "sepia(1) hue-rotate(120deg) saturate(7)"; ctx.drawImage(srcOf(p), dx + off, dy, dw, dh);
       ctx.filter = "none"; ctx.globalCompositeOperation = "source-over"; ctx.globalAlpha = al;
     }
     // fx de conscience
     if (A && A.fx) applyFx(env, A.fx, s, lt, al, dx, dy, dw, dh);
     // thermographie
     if (s.thermo) {
-      ctx.globalAlpha = al * 0.9; ctx.filter = "grayscale(1) contrast(1.55) brightness(1.05)"; ctx.drawImage(p.img, dx, dy, dw, dh); ctx.filter = "none";
+      ctx.globalAlpha = al * 0.9; ctx.filter = "grayscale(1) contrast(1.55) brightness(1.05)"; ctx.drawImage(srcOf(p), dx, dy, dw, dh); ctx.filter = "none";
       var tg = ctx.createLinearGradient(G.ix, G.iy + G.ih, G.ix + G.iw, G.iy);
       tg.addColorStop(0, "#001133"); tg.addColorStop(.35, "#6d1fa0"); tg.addColorStop(.6, "#ff5a2a"); tg.addColorStop(.82, "#ffd21e"); tg.addColorStop(1, "#fffff0");
       ctx.globalCompositeOperation = "overlay"; ctx.globalAlpha = al * 0.85; ctx.fillStyle = tg; ctx.fillRect(G.ix, G.iy, G.iw, G.ih); ctx.globalCompositeOperation = "source-over";
@@ -3426,7 +3451,7 @@ if (typeof module === "object" && typeof module.exports === "object") Object.ass
         ctx.globalCompositeOperation = "screen"; ctx.globalAlpha = al; ctx.fillStyle = hg; ctx.fillRect(G.ix, G.iy, G.iw, G.ih);
       }
       if (L.amb) { ctx.globalCompositeOperation = "multiply"; ctx.globalAlpha = al * Math.max(0, Math.min(.5, L.amb * (1.6 - inten) * .5)); ctx.fillStyle = "#0a0c12"; ctx.fillRect(G.ix, G.iy, G.iw, G.ih); }
-      if (L.relief) { ctx.globalCompositeOperation = "overlay"; ctx.globalAlpha = al * L.relief * 0.5 * (0.6 + 0.5 * inten); ctx.filter = "grayscale(1) contrast(2.2)"; ctx.drawImage(p.img, dx + 2, dy + 2, dw, dh); ctx.filter = "none"; }
+      if (L.relief) { ctx.globalCompositeOperation = "overlay"; ctx.globalAlpha = al * L.relief * 0.5 * (0.6 + 0.5 * inten); ctx.filter = "grayscale(1) contrast(2.2)"; ctx.drawImage(srcOf(p), dx + 2, dy + 2, dw, dh); ctx.filter = "none"; }
       if (L.sheen) {
         var pr = lt / s.dur, sx = G.ix + (s.swDir > 0 ? pr : 1 - pr) * G.iw * 1.4 - G.iw * 0.2;
         var lg = ctx.createLinearGradient(sx - G.iw * 0.15, 0, sx + G.iw * 0.15, 0);
@@ -3445,11 +3470,11 @@ if (typeof module === "object" && typeof module.exports === "object") Object.ass
       var b = fx === "bloom" ? 0.45 : 0.26, bl = fx === "bloom" ? 0.024 : 0.016;
       ctx.globalCompositeOperation = "screen"; ctx.globalAlpha = al * b;
       ctx.filter = "blur(" + Math.round(G.ih * bl) + "px) brightness(1.5) saturate(1.2)";
-      ctx.drawImage(p.img, dx, dy, dw, dh); ctx.filter = "none";
+      ctx.drawImage(srcOf(p), dx, dy, dw, dh); ctx.filter = "none";
     } else if (fx === "double") {                    // LYSIS — le reflet qui se sépare
       var o = G.iw * 0.012 * (0.5 + 0.5 * Math.sin(lt * 0.9));
       ctx.globalCompositeOperation = "screen"; ctx.globalAlpha = al * 0.42;
-      ctx.save(); ctx.translate(dx + dw, 0); ctx.scale(-1, 1); ctx.drawImage(p.img, -dw + o, dy, dw, dh); ctx.restore();
+      ctx.save(); ctx.translate(dx + dw, 0); ctx.scale(-1, 1); ctx.drawImage(srcOf(p), -dw + o, dy, dw, dh); ctx.restore();
     } else if (fx === "invert") {                    // 196 — l'inversion qui ne se résout pas
       if (Math.sin(lt * 4.4) > 0.86) { ctx.globalCompositeOperation = "difference"; ctx.globalAlpha = al * 0.92; ctx.fillStyle = "#fff"; ctx.fillRect(G.ix, G.iy, G.iw, G.ih); }
     } else if (fx === "snow") {                      // LE JUBILÉ — il neige sur la toile
@@ -3469,14 +3494,14 @@ if (typeof module === "object" && typeof module.exports === "object") Object.ass
       for (var j = 0; j < n; j++) {
         var ph = (lt * 0.5 + j * 0.17) % 1, sl = (1 - smooth(ph)) * G.iw * 0.05 * (R2() < .5 ? -1 : 1);
         ctx.globalAlpha = al * 0.5;
-        ctx.drawImage(p.img, 0, Math.max(0, (j * bh - (dy - G.iy)) * p.h / dh), p.w, Math.max(1, bh * p.h / dh),
+        ctx.drawImage(srcOf(p), 0, Math.max(0, (j * bh - (dy - G.iy)) * p.h / dh), p.w, Math.max(1, bh * p.h / dh),
           dx + sl, G.iy + j * bh, dw, bh);
       }
     } else if (fx === "sleight") {                   // HOUDINI — l'escamotage
       if (Math.sin(lt * 2.3) > 0.93) {
         var cut = G.iy + ((lt * 300) % G.ih), hgt = G.ih * 0.12;
         ctx.globalCompositeOperation = "source-over"; ctx.globalAlpha = al;
-        ctx.drawImage(p.img, 0, 0, p.w, p.h, dx + G.iw * 0.03, cut, dw, hgt);
+        ctx.drawImage(srcOf(p), 0, 0, p.w, p.h, dx + G.iw * 0.03, cut, dw, hgt);
       }
     }
     ctx.globalCompositeOperation = "source-over"; ctx.globalAlpha = al; ctx.filter = "none";
@@ -3528,7 +3553,7 @@ if (typeof module === "object" && typeof module.exports === "object") Object.ass
     var ds = $("recDur").value, duration = ds === "custom" ? Math.max(1, +$("recDurC").value || 1) * 60 : +ds;
     var res = $("recRes").value, dim = RES[res], W = dim[0], H = dim[1], fps = +$("recFps").value, bitrate = BR[res][$("recQ").value], codecSel = $("recCodec").value;
     var opt = { asc: $("recAsc").value, all: $("recAll").checked, frame: $("recFrame").checked, grain: $("recGrain").checked,
-                dyn: $("recDyn").value, frameType: $("recFrameType").value, amb: parseFloat($("recAmb").value) };
+                dyn: $("recDyn").value, frameType: $("recFrameType").value, amb: parseFloat($("recAmb").value), hd: $("recHD").checked };
     var total = Math.round(duration * fps);
     if (!("VideoEncoder" in window)) return msg("Encodage GPU indisponible : utilise <b>Chrome/Edge</b> (bureau).", true);
     running = true; cancelFlag = false; $("recRun").disabled = true; recBtn.disabled = true;
@@ -3541,9 +3566,18 @@ if (typeof module === "object" && typeof module.exports === "object") Object.ass
       var ctx = canvas.getContext("2d", { alpha: false });
       var FS = FRAMES[opt.frameType] || FRAMES.or;
       var G = geometry(W, H, !FS.none), R0 = rng(seed ^ 0x9e37);
+      // HAUTE DÉFINITION : toiles pré-agrandies + suréchantillonnage du rendu
+      var zoomMax = 2.6, SS = 1;
+      if (opt.hd) {
+        enhanceArt(list, Math.min(3400, Math.round(G.iw * 1.25)));
+        SS = Math.min(1.6, Math.max(1, 4600 / G.iw));           // plafonné pour rester rapide
+      }
+      ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = "high";
       // tampon de l'intérieur (source exacte de l'ambilight) + vignette de couleurs
-      var inner = document.createElement("canvas"); inner.width = G.iw; inner.height = G.ih;
+      var inner = document.createElement("canvas");
+      inner.width = Math.round(G.iw * SS); inner.height = Math.round(G.ih * SS);
       var ictx = inner.getContext("2d", { alpha: false });
+      ictx.imageSmoothingEnabled = true; ictx.imageSmoothingQuality = "high";
       var aw = 24, ah = Math.max(4, Math.round(24 * G.ih / G.iw));
       var amb = document.createElement("canvas"); amb.width = aw; amb.height = ah;
       var actx = amb.getContext("2d");
@@ -3552,7 +3586,7 @@ if (typeof module === "object" && typeof module.exports === "object") Object.ass
       var ivg = ctx.createRadialGradient(G.ix + G.iw / 2, G.iy + G.ih / 2, Math.min(G.iw, G.ih) * 0.30, G.ix + G.iw / 2, G.iy + G.ih / 2, Math.max(G.iw, G.ih) * 0.72);
       ivg.addColorStop(0, "rgba(0,0,0,0)"); ivg.addColorStop(1, "rgba(0,0,0,.45)");
       var env = { W: W, H: H, ctx: ctx, geo: G, wall: wall, wallLight: wallLight, ivg: ivg, list: list, opt: opt, now: "",
-        inner: inner, ictx: ictx, amb: amb, actx: actx, frameStyle: FS,
+        inner: inner, ictx: ictx, amb: amb, actx: actx, frameStyle: FS, ss: SS,
         dust: opt.grain ? makeDust(80, G.iw, G.ih, R0) : null, grain: opt.grain ? grainTile(1024, Math.round(1024 * G.ih / G.iw)) : null };
       var codec = codecSel === "hevc" ? "hvc1.1.6.L153.90" : "avc1.640033";
       var cfg = { codec: codec, width: W, height: H, bitrate: bitrate, framerate: fps, hardwareAcceleration: "prefer-hardware", latencyMode: "quality" };
