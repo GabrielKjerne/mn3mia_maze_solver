@@ -3058,8 +3058,15 @@ if (typeof module === "object" && typeof module.exports === "object") Object.ass
   "use strict";
   var MUX = "https://cdn.jsdelivr.net/npm/mp4-muxer@5.2.2/build/mp4-muxer.js";
   var AUTHOR = "Gabriel Kjerne";
-  var RES = { "2160": [3840, 2160], "1440": [2560, 1440], "1080": [1920, 1080] };
-  var BR = { "2160": { std: 28e6, high: 44e6, max: 65e6 }, "1440": { std: 15e6, high: 24e6, max: 36e6 }, "1080": { std: 9e6, high: 14e6, max: 22e6 } };
+  var RES = { "2160": [3840, 2160], "1440": [2560, 1440], "1080": [1920, 1080], "s2160": [2160, 3840], "s1080": [1080, 1920] };
+  var BR = { "2160": { std: 28e6, high: 44e6, max: 65e6 }, "1440": { std: 15e6, high: 24e6, max: 36e6 }, "1080": { std: 9e6, high: 14e6, max: 22e6 },
+             "s2160": { std: 28e6, high: 44e6, max: 65e6 }, "s1080": { std: 9e6, high: 14e6, max: 22e6 } };
+  // DYNAMISME : rythme du film — durées, fondus, ampleur du mouvement, densité d'effets
+  var DYN = {
+    rapide:   { dMin: 4.0, dVar: 3.5, xf: 0.7, xfVar: 0.5, mot: 1.35, fx: 1.35, label: "rapide" },
+    equilibre:{ dMin: 7.0, dVar: 6.0, xf: 1.4, xfVar: 0.8, mot: 1.00, fx: 1.00, label: "équilibré" },
+    plenitude:{ dMin: 14.0, dVar: 12.0, xf: 2.6, xfVar: 1.6, mot: 0.62, fx: 0.70, label: "plénitude" }
+  };
 
   /* ── sources vivantes : on lit la page (repli si absent) ── */
   function getPaintings() {
@@ -3100,8 +3107,13 @@ if (typeof module === "object" && typeof module.exports === "object") Object.ass
     '<label>Durée</label><div class="rc-row"><select id="recDur"><option value="30">30 s</option><option value="60">1 min</option>' +
     '<option value="180">3 min</option><option value="600" selected>10 min</option><option value="1800">30 min</option><option value="3600">1 h</option>' +
     '<option value="custom">Perso…</option></select><input type="number" id="recDurC" min="1" max="600" value="10" style="display:none"></div>' +
-    '<div class="rc-row"><div><label>Définition</label><select id="recRes"><option value="2160" selected>4K UHD</option><option value="1440">1440p</option><option value="1080">1080p</option></select></div>' +
+    '<div class="rc-row"><div><label>Format / définition</label><select id="recRes">' +
+    '<option value="2160" selected>TV 16:9 · 4K UHD</option><option value="1440">TV 16:9 · 1440p</option><option value="1080">TV 16:9 · 1080p</option>' +
+    '<option value="s2160">Short 9:16 · 4K</option><option value="s1080">Short 9:16 · 1080p</option></select></div>' +
     '<div><label>ips</label><select id="recFps"><option value="24">24</option><option value="30" selected>30</option><option value="60">60</option></select></div></div>' +
+    '<label>Dynamisme</label><select id="recDyn"><option value="rapide">Rapide — plans courts, mouvement vif</option>' +
+    '<option value="equilibre" selected>Équilibré</option>' +
+    '<option value="plenitude">Plénitude — plans longs, mouvement lent</option></select>' +
     '<div class="rc-row"><div><label>Qualité</label><select id="recQ"><option value="std">Standard</option><option value="high" selected>Élevée</option><option value="max">Max</option></select></div>' +
     '<div><label>Codec</label><select id="recCodec"><option value="avc" selected>H.264</option><option value="hevc">HEVC</option></select></div></div>' +
     '<label>Conscience (13 visions)</label><select id="recAsc"><option value="rand" selected>Aléatoire parmi les 13</option>' +
@@ -3147,7 +3159,8 @@ if (typeof module === "object" && typeof module.exports === "object") Object.ass
   /* ── scénario : chaque prise reçoit un ÉTAT COMPLET comme en live ── */
   function timeline(list, duration, seed, opt) {
     var R = rng(seed >>> 0), N = list.length, A = getAsc(), L = getLamps(), lampKeys = Object.keys(L);
-    var live = liveState(), shots = [], t = 0, prev = -1, g = 0, xf = 1.4 + R() * 0.8;
+    var live = liveState(), shots = [], t = 0, prev = -1, g = 0;
+    var D = DYN[opt.dyn] || DYN.equilibre, xf = D.xf + R() * D.xfVar;
     while (t < duration + 0.001 && g < 200000) {
       g++; var p; do { p = Math.floor(R() * N); } while (N > 1 && p === prev); prev = p;
       var ascIdx = 0;
@@ -3155,13 +3168,13 @@ if (typeof module === "object" && typeof module.exports === "object") Object.ass
       else if (opt.asc === "live") ascIdx = live ? (live.asc || 0) : 0;
       var lampKey = opt.all ? lampKeys[Math.floor(R() * lampKeys.length)] : (live ? live.lamp : "musee");
       if (!opt.all && !lampKey) lampKey = "musee";
-      // durée d'affichage variable : contemplative, moyenne, ou brève
-      var roll = R(), dur = roll < 0.18 ? 5.5 + R() * 2.5 : (roll < 0.78 ? 8 + R() * 5 : 14 + R() * 6);
-      // CADRAGE : tableau complet · plein cadre · zone de détail
-      var mr = R(), mode = mr < 0.34 ? "full" : (mr < 0.72 ? "cover" : "zone");
+      // durée d'affichage pilotée par le DYNAMISME
+      var roll = R(), dur = D.dMin + R() * D.dVar * (roll < 0.2 ? 0.5 : (roll < 0.8 ? 1 : 1.5));
+      // CADRAGE — toujours remplissant (jamais de bord noir) : large · plein cadre · zone de détail
+      var mr = R(), mode = mr < 0.34 ? "large" : (mr < 0.72 ? "cover" : "zone");
       shots.push({
-        start: t, dur: dur, p: p, seed: (seed ^ (g * 40503) ^ (p * 2654435761)) >>> 0,
-        mode: mode, zoom: mode === "zone" ? 1.7 + R() * 1.1 : (mode === "full" ? 1 + R() * 0.05 : 1 + R() * 0.12),
+        start: t, dur: dur, p: p, seed: (seed ^ (g * 40503) ^ (p * 2654435761)) >>> 0, mot: D.mot,
+        mode: mode, zoom: mode === "zone" ? 1.6 + R() * 1.0 : (mode === "large" ? 1.0 + R() * 0.04 : 1.10 + R() * 0.14),
         zx: R() * 2 - 1, zy: R() * 2 - 1,                       // centre de la zone visée
         zin: R() < 0.5, span: (R() < 0.32 ? 0.30 + R() * 0.22 : 0.10 + R() * 0.09),
         px: R() * 2 - 1, py: R() * 2 - 1,
@@ -3201,6 +3214,8 @@ if (typeof module === "object" && typeof module.exports === "object") Object.ass
       if (aq > wl) wl = aq;
     }
     if (wl > 0.002) { ctx.globalAlpha = wl * 0.9; ctx.fillStyle = env.wallLight; ctx.fillRect(0, 0, W, H); ctx.globalAlpha = 1; }
+    // RÉTROÉCLAIRAGE DYNAMIQUE — toujours présent, rayonnant AUTOUR du cadre
+    drawBacklight(env, shots, tSec, xf);
     ctx.save(); ctx.beginPath(); ctx.rect(G.ix, G.iy, G.iw, G.ih); ctx.clip();
     ctx.fillStyle = "#000"; ctx.fillRect(G.ix, G.iy, G.iw, G.ih);
     var top = null;
@@ -3235,7 +3250,7 @@ if (typeof module === "object" && typeof module.exports === "object") Object.ass
     if (env.opt.frame && top) drawSignature(ctx, G, env.list[top.s.p], top.lt, top.s.dur, top.al);
     if (top) {
       var ts = top.s;
-      var modeTxt = ts.mode === "full" ? "TABLEAU COMPLET" : (ts.mode === "zone" ? "ZONE" : "PLEIN CADRE");
+      var modeTxt = ts.mode === "large" ? "LARGE" : (ts.mode === "zone" ? "ZONE" : "PLEIN CADRE");
       env.now = (env.list[ts.p].t || "") + " · " + modeTxt + " · " + (ts.lampKey || "").toUpperCase() +
         " " + Math.round(ts.hue) + "° I" + Math.round((ts.intensity || 1) * 100) + " F" + Math.round(ts.beam) +
         (ts.asc && tl.A[ts.asc - 1] ? " · " + tl.A[ts.asc - 1].name : "") +
@@ -3243,6 +3258,29 @@ if (typeof module === "object" && typeof module.exports === "object") Object.ass
         (ts.drone ? " · DRONE" : "") + (ts.scan ? " · SCAN" : "") + (ts.thermo ? " · THERMO" : "") +
         (ts.depth ? " · 3D " + Math.round(ts.depth) : "") + (ts.sonar ? " · SONAR " + Math.round(ts.sonar) : "");
     }
+  }
+
+  /* RÉTROÉCLAIRAGE : halo coloré vivant qui rayonne autour du cadre (toujours actif) */
+  function drawBacklight(env, shots, tSec, xf) {
+    var ctx = env.ctx, G = env.geo, W = env.W, H = env.H;
+    // teinte : celle de la prise dominante, en fondu d'une prise à l'autre
+    var hueB = 0, best = 0, u = 0;
+    for (var k = 0; k < shots.length; k++) {
+      var s = shots[k], lt = tSec - s.start; if (lt < 0 || lt > s.dur) continue;
+      var a = 1; if (lt < xf && k > 0) a = lt / xf; else if (lt > s.dur - xf && k < shots.length - 1) a = Math.max(0, (s.dur - lt) / xf);
+      if (a > best) { best = a; hueB = s.hueB; u = lt / s.dur; }
+    }
+    var breath = 0.62 + 0.38 * (0.5 + 0.5 * Math.sin(tSec * 0.42));      // respiration lente
+    var c = hsl((hueB + tSec * 6) % 360, 92, 58);                        // dérive douce de la couleur
+    var cx = G.ix + G.iw / 2, cy = G.iy + G.ih / 2;
+    var r0 = Math.min(G.ow, G.oh) * 0.42, r1 = Math.max(W, H) * (0.52 + 0.06 * breath);
+    var gr = ctx.createRadialGradient(cx, cy, r0, cx, cy, r1);
+    gr.addColorStop(0, "rgba(" + c.join(",") + "," + (0.55 * breath).toFixed(3) + ")");
+    gr.addColorStop(0.45, "rgba(" + c.join(",") + "," + (0.20 * breath).toFixed(3) + ")");
+    gr.addColorStop(1, "rgba(" + c.join(",") + ",0)");
+    ctx.save(); ctx.globalCompositeOperation = "screen"; ctx.globalAlpha = 1;
+    ctx.fillStyle = gr; ctx.fillRect(0, 0, W, H);
+    ctx.restore();
   }
 
   /* filtre couleur = éclairage (treat) + conscience (sat/bri/con/hue/sep) */
@@ -3264,12 +3302,13 @@ if (typeof module === "object" && typeof module.exports === "object") Object.ass
   function drawShot(env, tl, s, lt, al) {
     var ctx = env.ctx, G = env.geo, p = env.list[s.p], L = tl.L[s.lampKey], A = s.asc ? tl.A[s.asc - 1] : null;
     var e = smooth(lt / s.dur), u = lt / s.dur;               // progression 0→1, SANS aller-retour
-    var contain = Math.min(G.iw / p.w, G.ih / p.h), cover = Math.max(G.iw / p.w, G.ih / p.h);
-    var base = s.mode === "full" ? contain * 0.965 : cover;   // complet · plein cadre · zone
+    var mot = s.mot || 1;                                     // amplitude selon le DYNAMISME
+    var cover = Math.max(G.iw / p.w, G.ih / p.h);             // la toile REMPLIT toujours l'ouverture
+    var base = cover;                                         // jamais de bord noir
     var drone = s.drone ? 1.28 : 1;
-    // dérive d'échelle continue (jamais de rebond) + très légère respiration de conscience, à sens unique
-    var swell = A ? 1 + (A.amp || 0) * 0.5 * e : 1;
-    var sc = base * s.zoom * drone * swell * lerp(s.zin ? 1 : 1 + s.span * 0.6, s.zin ? 1 + s.span * 0.6 : 1, e);
+    var swell = A ? 1 + (A.amp || 0) * 0.5 * e * mot : 1;
+    var span = s.span * 0.6 * mot;
+    var sc = base * s.zoom * drone * swell * lerp(s.zin ? 1 : 1 + span, s.zin ? 1 + span : 1, e);
     var dw = p.w * sc, dh = p.h * sc;
     var mx = Math.max(0, (dw - G.iw) / 2), my = Math.max(0, (dh - G.ih) / 2);
     var cx = G.ix + G.iw / 2, cy = G.iy + G.ih / 2;
@@ -3283,26 +3322,8 @@ if (typeof module === "object" && typeof module.exports === "object") Object.ass
     ctx.save();
     ctx.translate(cx, cy); if (rot) ctx.rotate(rot); ctx.translate(-cx, -cy);
     var dx = cx - dw / 2 + offX, dy = cy - dh / 2 + offY;
-    // TABLEAU COMPLET : fond de cadre rempli par la toile floutée (le 16:9 reste habité)
-    if (s.mode === "full") {
-      var bs = cover * 1.06, bw = p.w * bs, bh2 = p.h * bs;
-      ctx.globalAlpha = al * 0.55; ctx.filter = "blur(" + Math.round(G.ih * 0.045) + "px) brightness(.45) saturate(1.1)";
-      ctx.drawImage(p.img, cx - bw / 2, cy - bh2 / 2, bw, bh2); ctx.filter = "none"; ctx.globalAlpha = al;
-    }
 
-    // RÉTROÉCLAIRAGE DYNAMIQUE + SPECTRE ARRIÈRE (le halo respire et sa couleur dérive)
-    if (s.back) {
-      var bAmp = 0.34 + 0.22 * (0.5 + 0.5 * Math.sin(lt * 0.55));          // respiration lente du halo
-      var bGrow = 1.06 + 0.05 * e;                                          // il s'ouvre au fil de la prise
-      ctx.globalAlpha = al * bAmp; ctx.filter = "blur(" + Math.round(G.ih * (0.045 + 0.02 * e)) + "px) brightness(1.25) saturate(1.35)";
-      ctx.drawImage(p.img, cx - (dw * bGrow) / 2, cy - (dh * bGrow) / 2, dw * bGrow, dh * bGrow); ctx.filter = "none";
-      var bc = hsl((s.hueB + u * 70) % 360, 90, 60);                        // la couleur dérive doucement
-      var bgr = ctx.createRadialGradient(cx, cy, Math.min(G.iw, G.ih) * 0.18, cx, cy, Math.max(G.iw, G.ih) * 0.62);
-      bgr.addColorStop(0, "rgba(" + bc.join(",") + ",0)");
-      bgr.addColorStop(1, "rgba(" + bc.join(",") + "," + (0.34 * bAmp * 2).toFixed(3) + ")");
-      ctx.globalCompositeOperation = "screen"; ctx.globalAlpha = al; ctx.fillStyle = bgr; ctx.fillRect(G.ix, G.iy, G.iw, G.ih);
-      ctx.globalCompositeOperation = "source-over"; ctx.globalAlpha = al;
-    }
+    /* (le rétroéclairage vit désormais AUTOUR du cadre — voir drawBacklight) */
 
     // couche principale : éclairage + conscience
     ctx.globalAlpha = al; ctx.filter = shotFilter(L, A, s, lt);
@@ -3462,9 +3483,11 @@ if (typeof module === "object" && typeof module.exports === "object") Object.ass
   }
   function geometry(W, H, withFrame) {
     if (!withFrame) return { ix: 0, iy: 0, iw: W, ih: H, ox: 0, oy: 0, ow: W, oh: H, mx: 0, my: 0, mw: W, mh: H, fb: 0, mat: 0 };
-    var fb = Math.round(H * 0.042), mat = Math.round(H * 0.030), pad = fb + mat;
-    var iw = W - 2 * pad - Math.round(W * 0.055), ih = Math.round(iw * 9 / 16);
-    if (ih + 2 * pad > H - Math.round(H * 0.045)) { ih = H - 2 * pad - Math.round(H * 0.045); iw = Math.round(ih * 16 / 9); }
+    var m = Math.min(W, H);                                  // épaisseurs proportionnées (16:9 comme 9:16)
+    var fb = Math.round(m * 0.042), mat = Math.round(m * 0.030), pad = fb + mat;
+    var ar = W / H;                                          // l'ouverture suit le format de sortie
+    var iw = W - 2 * pad - Math.round(W * 0.055), ih = Math.round(iw / ar);
+    if (ih + 2 * pad > H - Math.round(H * 0.045)) { ih = H - 2 * pad - Math.round(H * 0.045); iw = Math.round(ih * ar); }
     iw = Math.round(iw); ih = Math.round(ih);
     var ix = Math.round((W - iw) / 2), iy = Math.round((H - ih) / 2);
     return { ix: ix, iy: iy, iw: iw, ih: ih, mx: ix - mat, my: iy - mat, mw: iw + 2 * mat, mh: ih + 2 * mat, ox: ix - pad, oy: iy - pad, ow: iw + 2 * pad, oh: ih + 2 * pad, fb: fb, mat: mat };
@@ -3474,7 +3497,7 @@ if (typeof module === "object" && typeof module.exports === "object") Object.ass
     if (running) return;
     var ds = $("recDur").value, duration = ds === "custom" ? Math.max(1, +$("recDurC").value || 1) * 60 : +ds;
     var res = $("recRes").value, dim = RES[res], W = dim[0], H = dim[1], fps = +$("recFps").value, bitrate = BR[res][$("recQ").value], codecSel = $("recCodec").value;
-    var opt = { asc: $("recAsc").value, all: $("recAll").checked, frame: $("recFrame").checked, grain: $("recGrain").checked };
+    var opt = { asc: $("recAsc").value, all: $("recAll").checked, frame: $("recFrame").checked, grain: $("recGrain").checked, dyn: $("recDyn").value };
     var total = Math.round(duration * fps);
     if (!("VideoEncoder" in window)) return msg("Encodage GPU indisponible : utilise <b>Chrome/Edge</b> (bureau).", true);
     running = true; cancelFlag = false; $("recRun").disabled = true; recBtn.disabled = true;
