@@ -358,7 +358,7 @@ input[type=range].hue::-moz-range-thumb{background:#fff;border-radius:50%}
         <div class="slider"><span class="tkey">FAISCEAU</span><input type="range" id="beam" min="14" max="95" value="42"><span class="val" id="vBeam">42</span></div>
       </div>
       <div class="trow">
-        <div class="toggle" id="tBack"><span class="tk"></span>RÉTROÉCLAIRAGE</div>
+        <span class="tkey">AMBILIGHT</span><button class="cy on" data-amb="off">Off</button><button class="cy" data-amb="auto">Auto</button><button class="cy" data-amb="always">Toujours</button><div class="toggle" id="tBack" style="display:none"><span class="tk"></span>RÉTROÉCLAIRAGE</div>
         <div class="slider"><span class="tkey">SPECTRE ARRIÈRE</span><input type="range" id="hueB" class="hue" min="0" max="360" value="0"><span class="val"><i class="dot" id="hueBDot"></i><span id="vHueB">0°</span></span></div>
       </div>
       <div class="trow"><div class="toggle" id="tWall"><span class="tk"></span>MUR CLAIR</div></div>
@@ -640,7 +640,7 @@ function updPresentRot(){ document.body.classList.toggle('rotp', document.body.c
 function ensureAuto(){ if(!autoOn){ autoOn=true; autoT=0; autoNext=0; const b=document.getElementById('tAuto'); if(b){ b.classList.add('on'); b.textContent='■ AUTO'; } } }
 function enterPresent(){
   closeLens(); ensureAuto();
-  S.back=false; root.style.setProperty('--bl','0'); document.getElementById('tBack').classList.remove('on');
+  if((S.amb||'off')!=='always'){ S.back=false; root.style.setProperty('--bl','0'); document.getElementById('tBack').classList.remove('on'); }
   root.style.setProperty('--wall1','#15151d'); root.style.setProperty('--wall2','#08080e'); document.getElementById('tWall').classList.remove('on');
   document.body.classList.add('present');
   if(document.documentElement.requestFullscreen) document.documentElement.requestFullscreen().catch(()=>{});
@@ -889,6 +889,22 @@ bind('depth',v=>{S.depth=+v; document.getElementById('vDepth').textContent=v; ro
 bind('sonar',v=>{S.sonar=+v; document.getElementById('vSonar').textContent=v; applyVision();});
 const tog=(id,fn)=>document.getElementById(id).addEventListener('click',function(){ const on=this.classList.toggle('on'); fn(on); });
 tog('tBack',on=>{S.back=on; root.style.setProperty('--bl',on?'.92':'0');});
+/* ── AMBILIGHT : Off / Auto / Toujours ── */
+S.amb='off';
+function setAmb(mode){
+  S.amb=mode;
+  document.querySelectorAll('[data-amb]').forEach(function(b){ b.classList.toggle('on', b.dataset.amb===mode); });
+  if(mode==='always'){ applyBack(true); }
+  else if(mode==='off'){ applyBack(false); }
+  /* 'auto' : c'est autoSceneApply qui décidera à chaque scène */
+}
+function applyBack(on){
+  S.back=on; root.style.setProperty('--bl', on?'.92':'0');
+  var t=document.getElementById('tBack'); if(t) t.classList.toggle('on',on);
+}
+document.querySelectorAll('[data-amb]').forEach(function(b){
+  b.addEventListener('click',function(){ setAmb(b.dataset.amb); });
+});
 tog('tWall',on=>{ root.style.setProperty('--wall1',on?'#2a2c36':'#15151d'); root.style.setProperty('--wall2',on?'#16171f':'#08080e'); });
 tog('tScan',on=>{S.scan=on; applyVision();});
 tog('tThermo',on=>{S.thermo=on; applyVision();});
@@ -1045,9 +1061,13 @@ function autoSceneApply(){
   if(depth===0 && Math.random()<0.28){ if(Math.random()<0.5) scan=true; else thermo=true; }
   S.scan=scan; S.thermo=thermo;
   document.getElementById('tScan').classList.toggle('on',scan); document.getElementById('tThermo').classList.toggle('on',thermo);
-  S.back=false; root.style.setProperty('--bl','0'); document.getElementById('tBack').classList.remove('on');
+  /* AMBILIGHT : off = éteint · auto = s'allume par moments · always = toujours allumé */
+  var ambMode=S.amb||'off';
+  var ambOn = ambMode==='always' ? true : (ambMode==='auto' ? Math.random()<0.45 : false);
+  S.back=ambOn; root.style.setProperty('--bl', ambOn?'.92':'0');
+  document.getElementById('tBack').classList.toggle('on',ambOn);
   root.style.setProperty('--wall1','#15151d'); root.style.setProperty('--wall2','#08080e'); document.getElementById('tWall').classList.remove('on');
-  if(Math.random()<0.32){ const v=Math.round(aRnd(0,360)); S.hueB=v; root.style.setProperty('--blhue',v+'deg'); el=document.getElementById('hueB'); if(el){el.value=v; document.getElementById('vHueB').textContent=v+'°';} }
+  if(ambOn || Math.random()<0.32){ const v=Math.round(aRnd(0,360)); S.hueB=v; root.style.setProperty('--blhue',v+'deg'); el=document.getElementById('hueB'); if(el){el.value=v; document.getElementById('vHueB').textContent=v+'°';} }
   applyVision();
 }
 function autoTick(){
