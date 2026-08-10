@@ -3104,6 +3104,7 @@ if (typeof module === "object" && typeof module.exports === "object") Object.ass
     "#recProg{margin-top:11px;display:none}#recProg.on{display:block}#recBarWrap{height:9px;background:#0b1220;border:1px solid rgba(120,200,255,.25);border-radius:6px;overflow:hidden}#recBar{height:100%;width:0;background:linear-gradient(90deg,#2aa8ff,#57e6b0)}" +
     "#recStat{margin-top:7px;display:flex;justify-content:space-between;color:#9fd;font-size:11px}#recNow{margin-top:5px;color:#7fd4ff;font-size:10.5px;letter-spacing:.05em;min-height:13px}" +
     "#recCancel{margin-top:8px;width:100%;padding:6px;border-radius:7px;border:1px solid rgba(255,120,120,.4);background:transparent;color:#ffb0b0;font:inherit;cursor:pointer;display:none}#recCancel.on{display:block}" +
+    ".rc-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px 8px;margin-top:5px}.rc-grid label{display:flex;align-items:center;gap:6px;font-size:11px;color:#bfe;text-transform:none;letter-spacing:0;margin:0;opacity:.95}" +
     "#recMsg{margin-top:9px;font-size:11px;color:#ffd9a0;line-height:1.45;display:none;border-top:1px solid rgba(255,210,140,.2);padding-top:8px}#recMsg.on{display:block}";
   document.head.appendChild(st);
 
@@ -3129,7 +3130,26 @@ if (typeof module === "object" && typeof module.exports === "object") Object.ass
     '<div><label>Codec</label><select id="recCodec"><option value="avc" selected>H.264</option><option value="hevc">HEVC</option></select></div></div>' +
     '<label>Conscience (13 visions)</label><select id="recAsc"><option value="rand" selected>Aléatoire parmi les 13</option>' +
     '<option value="live">Celle de la console</option><option value="0">Aucune (Off)</option></select>' +
-    '<label class="rc-chk"><input type="checkbox" id="recAll" checked> Tous les filtres live (éclairages, 3D, scan, thermo, sonar, drone)</label>' +
+    '<label style="margin-top:11px">Style d\'éclairage<span id="fxAllL" style="float:right;cursor:pointer;color:#7fd4ff;text-transform:none;letter-spacing:0">tout</span></label>' +
+    '<div class="rc-grid">' +
+    '<label><input type="checkbox" id="fxLamp" checked> Sources (6)</label>' +
+    '<label><input type="checkbox" id="fxHue" checked> Teinte</label>' +
+    '<label><input type="checkbox" id="fxInt" checked> Intensité</label>' +
+    '<label><input type="checkbox" id="fxBeam" checked> Faisceau</label>' +
+    '<label><input type="checkbox" id="fxBack" checked> Rétroéclairage</label>' +
+    '<label><input type="checkbox" id="fxHueB" checked> Spectre arrière</label>' +
+    '<label><input type="checkbox" id="fxWall" checked> Mur clair</label>' +
+    '<label><input type="checkbox" id="fxMove" checked> Lumière mobile</label>' +
+    '</div>' +
+    '<label style="margin-top:10px">Visions<span id="fxAllV" style="float:right;cursor:pointer;color:#7fd4ff;text-transform:none;letter-spacing:0">tout</span></label>' +
+    '<div class="rc-grid">' +
+    '<label><input type="checkbox" id="fxDepth" checked> 3D profondeur</label>' +
+    '<label><input type="checkbox" id="fxScan" checked> Scan spectral</label>' +
+    '<label><input type="checkbox" id="fxThermo" checked> Thermographie</label>' +
+    '<label><input type="checkbox" id="fxDrone" checked> Drone</label>' +
+    '<label><input type="checkbox" id="fxSonar" checked> Sonar 13.7 Hz</label>' +
+    '<label><input type="checkbox" id="fxGhost" checked> Effets de conscience</label>' +
+    '</div>' +
     '<div class="rc-row"><div><label>Cadre</label><select id="recFrameType">' +
     '<option value="or" selected>Or</option><option value="argent">Argent</option><option value="bois">Bois</option>' +
     '<option value="noir">Noir</option><option value="blanc">Blanc</option><option value="carbone">Carbone</option>' +
@@ -3196,17 +3216,83 @@ if (typeof module === "object" && typeof module.exports === "object") Object.ass
   }
   function srcOf(p) { return p.hd || p.img; }
 
+  /* ── MODE DRONE : un vrai vol, comme en direct (survols, piqués, vrilles, orbites) ──
+     Reprend les points d'intérêt de la galerie (DEF_POI) et la grammaire de buildFlight. */
+  /* Zones de détail RÉELLES de chaque toile (analyse des pixels, comme computePOI en direct) :
+     on découpe en grille, on mesure le contraste local, on garde les cellules les plus riches. */
+  function poiOf(p) {
+    if (p.poi) return p.poi;
+    try {
+      var gx = 14, gy = 10, w = 140, h = Math.max(20, Math.round(140 * p.h / p.w));
+      var c = document.createElement("canvas"); c.width = w; c.height = h;
+      var x = c.getContext("2d", { willReadFrequently: true });
+      x.drawImage(p.img, 0, 0, w, h);
+      var d = x.getImageData(0, 0, w, h).data, cells = [];
+      for (var j = 0; j < gy; j++) for (var i = 0; i < gx; i++) {
+        var x0 = Math.floor(i * w / gx), x1 = Math.floor((i + 1) * w / gx);
+        var y0 = Math.floor(j * h / gy), y1 = Math.floor((j + 1) * h / gy);
+        var s = 0, s2 = 0, n = 0;
+        for (var yy = y0; yy < y1; yy++) for (var xx = x0; xx < x1; xx++) {
+          var o = (yy * w + xx) * 4, L = 0.2126 * d[o] + 0.7152 * d[o + 1] + 0.0722 * d[o + 2];
+          s += L; s2 += L * L; n++;
+        }
+        if (!n) continue;
+        var mean = s / n, varr = Math.max(0, s2 / n - mean * mean);   // contraste local
+        cells.push({ x: (i + 0.5) / gx, y: (j + 0.5) / gy, v: varr * (0.5 + mean / 255) });
+      }
+      cells.sort(function (a, b) { return b.v - a.v; });
+      var out = [];
+      for (var k = 0; k < cells.length && out.length < 6; k++) {         // on espace les points retenus
+        var ok = true;
+        for (var m = 0; m < out.length; m++) if (Math.hypot(out[m].x - cells[k].x, out[m].y - cells[k].y) < 0.22) { ok = false; break; }
+        if (ok) out.push({ x: Math.min(.86, Math.max(.14, cells[k].x)), y: Math.min(.86, Math.max(.14, cells[k].y)) });
+      }
+      if (out.length >= 3) { p.poi = out; return out; }
+    } catch (e) {}
+    p.poi = null; return null;
+  }
+  function buildFlight(R, painting) {
+    var P = painting ? poiOf(painting) : null;
+    if (!P) { try { P = (typeof DEF_POI !== "undefined" ? DEF_POI : null); } catch (e) { P = null; } }
+    P = (P || [{ x: .3, y: .35 }, { x: .68, y: .4 }, { x: .5, y: .62 }, { x: .25, y: .7 }, { x: .75, y: .66 }, { x: .5, y: .3 }]).slice();
+    for (var i = P.length - 1; i > 0; i--) { var j = Math.floor(R() * (i + 1)), t = P[i]; P[i] = P[j]; P[j] = t; }
+    var a = P[0], b = P[1] || a, c = P[2] || a, roll = 0, w = [{ x: .5, y: .5, s: 1, r: 0, dur: 0 }];
+    function add(x, y, s, dr, dur) { roll += dr; w.push({ x: x, y: y, s: s, r: roll, dur: dur }); }
+    add((.5 + a.x) / 2, (.5 + a.y) / 2 - .03, 1.5, 3, 2.7);   // approche
+    add(a.x, a.y, 3.4, -9, 1.0);                              // piqué véloce
+    add(a.x + .012, a.y + .006, 3.0, 11, 3.0);                // ralenti suspendu
+    add(b.x, b.y, 2.4, -24, 1.7);                             // transfert
+    add((b.x + c.x) / 2, (b.y + c.y) / 2, 2.6, R() < .35 ? 360 : 90, 1.8); // vrille / orbite
+    add(c.x, c.y, 3.2, 8, 1.2);                               // second piqué
+    add((c.x + .5) / 2, Math.max(.13, c.y - .31), 1.35, -8, 2.4); // dégagement
+    return w;
+  }
+  function sampleFlight(w, lt, dur) {
+    var tot = 0, i;
+    for (i = 1; i < w.length; i++) tot += w[i].dur;
+    var k = (lt / dur) * tot, acc = 0;
+    for (i = 1; i < w.length; i++) {
+      if (k <= acc + w[i].dur || i === w.length - 1) {
+        var t = Math.max(0, Math.min(1, (k - acc) / (w[i].dur || 1))), e = smooth(t), p0 = w[i - 1], p1 = w[i];
+        return { x: lerp(p0.x, p1.x, e), y: lerp(p0.y, p1.y, e), s: lerp(p0.s, p1.s, e), r: lerp(p0.r, p1.r, e) };
+      }
+      acc += w[i].dur;
+    }
+    return w[w.length - 1];
+  }
+
   /* ── scénario : chaque prise reçoit un ÉTAT COMPLET comme en live ── */
   function timeline(list, duration, seed, opt) {
     var R = rng(seed >>> 0), N = list.length, A = getAsc(), L = getLamps(), lampKeys = Object.keys(L);
     var live = liveState(), shots = [], t = 0, prev = -1, g = 0;
     var D = DYN[opt.dyn] || DYN.equilibre, xf = D.xf + R() * D.xfVar;
+    var F = opt.F || { lamp:1,hue:1,int:1,beam:1,back:1,hueB:1,wall:1,move:1,depth:1,scan:1,thermo:1,drone:1,sonar:1,ghost:1 };
     while (t < duration + 0.001 && g < 200000) {
       g++; var p; do { p = Math.floor(R() * N); } while (N > 1 && p === prev); prev = p;
       var ascIdx = 0;
       if (opt.asc === "rand") ascIdx = A.length > 1 ? 1 + Math.floor(R() * (A.length - 1)) : 0;  // 1..13 (ASC[0] = Off)
       else if (opt.asc === "live") ascIdx = live ? (live.asc || 0) : 0;
-      var lampKey = opt.all ? lampKeys[Math.floor(R() * lampKeys.length)] : (live ? live.lamp : "musee");
+      var lampKey = F.lamp ? lampKeys[Math.floor(R() * lampKeys.length)] : (live && live.lamp ? live.lamp : "musee");
       if (!opt.all && !lampKey) lampKey = "musee";
       // durée d'affichage pilotée par le DYNAMISME
       var roll = R(), dur = D.dMin + R() * D.dVar * (roll < 0.2 ? 0.5 : (roll < 0.8 ? 1 : 1.5));
@@ -3219,25 +3305,29 @@ if (typeof module === "object" && typeof module.exports === "object") Object.ass
         zin: R() < 0.5, span: (R() < 0.32 ? 0.30 + R() * 0.22 : 0.10 + R() * 0.09),
         px: R() * 2 - 1, py: R() * 2 - 1,
         lampKey: lampKey, asc: ascIdx,
-        // réglages du panneau ÉCLAIRAGE
-        hue: opt.all ? Math.floor(R() * 360) : (live ? live.hue : 38),           // TEINTE
-        intensity: opt.all ? 0.45 + R() * 1.2 : (live ? live.intensity : 1),      // INTENSITÉ 40–170
-        beam: opt.all ? 14 + R() * 81 : (live ? live.beam : 42),                  // FAISCEAU 14–95
-        back: opt.all ? R() < 0.35 : (live ? !!live.back : false),                // RÉTROÉCLAIRAGE
-        hueB: opt.all ? Math.floor(R() * 360) : (live ? live.hueB : 0),           // SPECTRE ARRIÈRE
-        // ÉCLAIRAGE MANUEL : la source part d'un point et glisse vers un autre (comme à la souris)
-        lx0: 0.18 + R() * 0.64, ly0: 0.15 + R() * 0.6,
-        lx1: 0.18 + R() * 0.64, ly1: 0.15 + R() * 0.6,
-        wall: opt.all ? R() < 0.28 : false,                                       // MUR CLAIR
+        // réglages du panneau ÉCLAIRAGE — chaque case du panneau active/désactive son effet
+        hue: F.hue ? Math.floor(R() * 360) : (live ? live.hue : 38),              // TEINTE
+        intensity: F.int ? 0.45 + R() * 1.2 : 1,                                   // INTENSITÉ
+        beam: F.beam ? 14 + R() * 81 : (live ? live.beam : 42),                    // FAISCEAU
+        back: F.back ? R() < 0.35 : false,                                         // RÉTROÉCLAIRAGE
+        hueB: F.hueB ? Math.floor(R() * 360) : (live ? live.hueB : 0),             // SPECTRE ARRIÈRE
+        // LUMIÈRE MOBILE : la source glisse d'un point à l'autre (comme à la souris)
+        lx0: F.move ? 0.18 + R() * 0.64 : 0.38, ly0: F.move ? 0.15 + R() * 0.6 : 0.32,
+        lx1: F.move ? 0.18 + R() * 0.64 : 0.38, ly1: F.move ? 0.15 + R() * 0.6 : 0.32,
+        wall: F.wall ? R() < 0.28 : false,                                         // MUR CLAIR
         // réglages du panneau VISIONS
-        depth: opt.all && R() < 0.30 ? (R() * 2 - 1) * 90 : (live ? live.depth : 0),
-        scan: opt.all ? R() < 0.22 : (live ? !!live.scan : false),
-        thermo: opt.all ? R() < 0.16 : (live ? !!live.thermo : false),
-        sonar: opt.all ? (R() < 0.25 ? 30 + R() * 70 : 0) : (live ? live.sonar : 0),
-        drone: opt.all ? R() < 0.22 : (live ? !!live.drone : false),
+        depth: F.depth && R() < 0.30 ? (R() * 2 - 1) * 90 : 0,
+        scan: F.scan ? R() < 0.22 : false,
+        thermo: F.thermo ? R() < 0.16 : false,
+        sonar: F.sonar ? (R() < 0.25 ? 30 + R() * 70 : 0) : 0,
+        drone: F.drone ? R() < 0.22 : false,
+        noFx: !F.ghost,                                    // coupe les fx de conscience
+        flight: null,   // rempli juste après si le drone est actif
         sweep: R() < 0.5, swDir: R() < 0.5 ? 1 : -1
       });
-      t += shots[shots.length - 1].dur - xf;
+      var last = shots[shots.length - 1];
+      if (last.drone) last.flight = buildFlight(R, list[last.p]);
+      t += last.dur - xf;
     }
     return { shots: shots, xf: xf, A: A, L: L };
   }
@@ -3376,7 +3466,7 @@ if (typeof module === "object" && typeof module.exports === "object") Object.ass
     var mot = s.mot || 1;                                     // amplitude selon le DYNAMISME
     var cover = Math.max(G.iw / p.w, G.ih / p.h);             // la toile REMPLIT toujours l'ouverture
     var base = cover;                                         // jamais de bord noir
-    var drone = s.drone ? 1.28 : 1;
+    var drone = 1;   // (le drone est désormais géré par un vrai vol — voir plus bas)
     var swell = A ? 1 + (A.amp || 0) * 0.5 * e * mot : 1;
     var span = s.span * 0.6 * mot;
     var sc = base * s.zoom * drone * swell * lerp(s.zin ? 1 : 1 + span, s.zin ? 1 + span : 1, e);
@@ -3390,9 +3480,19 @@ if (typeof module === "object" && typeof module.exports === "object") Object.ass
       offX = lerp(s.px, -s.px * 0.35, e) * mx; offY = lerp(s.py, -s.py * 0.35, e) * my;
     }
     var rot = A && A.rot ? (A.rot * Math.PI / 180) * (u - 0.5) * 0.6 : 0;   // dérive lente, monotone
+    var dx, dy;
+    if (s.drone && s.flight) {
+      // VOL DRONE : la caméra plonge dans la toile, vise les zones de détail, vrille
+      var fl = sampleFlight(s.flight, lt, s.dur);
+      sc = cover * fl.s * (1 + sonarW);
+      dw = p.w * sc; dh = p.h * sc;
+      dx = cx - fl.x * dw; dy = cy - fl.y * dh;          // le point visé passe au centre
+      rot = fl.r * Math.PI / 180 * 0.25;                  // vrille (amortie pour rester lisible)
+    } else {
+      dx = cx - dw / 2 + offX; dy = cy - dh / 2 + offY;
+    }
     ctx.save();
     ctx.translate(cx, cy); if (rot) ctx.rotate(rot); ctx.translate(-cx, -cy);
-    var dx = cx - dw / 2 + offX, dy = cy - dh / 2 + offY;
 
     // RÉTROÉCLAIRAGE + SPECTRE ARRIÈRE : la toile est rétro-illuminée, teintée par hueB
     if (s.back) {
@@ -3431,7 +3531,7 @@ if (typeof module === "object" && typeof module.exports === "object") Object.ass
       ctx.filter = "none"; ctx.globalCompositeOperation = "source-over"; ctx.globalAlpha = al;
     }
     // fx de conscience
-    if (A && A.fx) applyFx(env, A.fx, s, lt, al, dx, dy, dw, dh);
+    if (A && A.fx && !s.noFx) applyFx(env, A.fx, s, lt, al, dx, dy, dw, dh);
     // thermographie : déjà rendue par TON filtre SVG #thermo (voir shotFilter).
     // Repli seulement si le filtre SVG est absent de la page.
     if (s.thermo && !SVGFX.thermo) {
@@ -3586,7 +3686,11 @@ if (typeof module === "object" && typeof module.exports === "object") Object.ass
     if (running) return;
     var ds = $("recDur").value, duration = ds === "custom" ? Math.max(1, +$("recDurC").value || 1) * 60 : +ds;
     var res = $("recRes").value, dim = RES[res], W = dim[0], H = dim[1], fps = +$("recFps").value, bitrate = BR[res][$("recQ").value], codecSel = $("recCodec").value;
-    var opt = { asc: $("recAsc").value, all: $("recAll").checked, frame: $("recFrame").checked, grain: $("recGrain").checked,
+    var F = { lamp:$("fxLamp").checked, hue:$("fxHue").checked, int:$("fxInt").checked, beam:$("fxBeam").checked,
+              back:$("fxBack").checked, hueB:$("fxHueB").checked, wall:$("fxWall").checked, move:$("fxMove").checked,
+              depth:$("fxDepth").checked, scan:$("fxScan").checked, thermo:$("fxThermo").checked,
+              drone:$("fxDrone").checked, sonar:$("fxSonar").checked, ghost:$("fxGhost").checked };
+    var opt = { asc: $("recAsc").value, all: true, F: F, frame: $("recFrame").checked, grain: $("recGrain").checked,
                 dyn: $("recDyn").value, frameType: $("recFrameType").value, amb: parseFloat($("recAmb").value), hd: $("recHD").checked };
     var total = Math.round(duration * fps);
     if (!("VideoEncoder" in window)) return msg("Encodage GPU indisponible : utilise <b>Chrome/Edge</b> (bureau).", true);
@@ -3676,6 +3780,12 @@ if (typeof module === "object" && typeof module.exports === "object") Object.ass
   function finCancel(dst) { try { if (dst && dst.writable) (dst.writable.abort ? dst.writable.abort() : dst.writable.close()); } catch (e) {} msg("Annulé.", true); $("recBar").style.width = "0"; reset(); }
   function finishError(e) { console.error("[Ciné-Export]", e); msg("Erreur : " + (e && e.message ? e.message : e) + "<br>(Chrome/Edge bureau ; vérifie img/ ; si HEVC échoue → H.264.)", true); reset(); }
   $("recCancel").addEventListener("click", function () { cancelFlag = true; });
+  function toggleGroup(ids, el){ el.addEventListener("click", function(){
+    var on = ids.some(function(i){ return !$(i).checked; });
+    ids.forEach(function(i){ $(i).checked = on; });
+  }); }
+  toggleGroup(["fxLamp","fxHue","fxInt","fxBeam","fxBack","fxHueB","fxWall","fxMove"], $("fxAllL"));
+  toggleGroup(["fxDepth","fxScan","fxThermo","fxDrone","fxSonar","fxGhost"], $("fxAllV"));
   $("recRun").addEventListener("click", run);
   function fmt(s) { s = Math.max(0, Math.round(s)); var h = (s / 3600) | 0, m = ((s % 3600) / 60) | 0, x = s % 60; return (h ? h + "h" : "") + (h || m ? (m < 10 && h ? "0" : "") + m + "m" : "") + (x < 10 && (h || m) ? "0" : "") + x + "s"; }
   var mp = null;
