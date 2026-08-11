@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#05060c">
-<title>Galerie — Le Treizième Éveil</title>
+<title>MOS[AI]C — Galerie · Le Treizième Éveil</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;800&family=Cormorant+Garamond:ital@1&family=Orbitron:wght@400;500;700;800&family=Share+Tech+Mono&display=swap" rel="stylesheet">
 <style>
@@ -34,7 +34,7 @@ body{background:#06060c;color:#cdd8f0;font-family:"Orbitron",system-ui,sans-seri
 .head .sub{font-family:"Cormorant Garamond",serif;font-style:italic;color:#8fa0c8;font-size:1rem;letter-spacing:.04em;margin-top:4px}
 .gallery{position:relative;z-index:6;perspective:1700px;display:flex;justify-content:center;width:100%}
 .tilt{transform-style:preserve-3d;transition:transform .25s ease}
-.frame{position:relative;width:min(86vw,820px);aspect-ratio:1190/918;padding:clamp(13px,2.3vw,28px);border-radius:3px;
+.frame{position:relative;width:min(86vw,820px);aspect-ratio:3840/2743;padding:clamp(13px,2.3vw,28px);border-radius:3px;
   background:linear-gradient(135deg,#e9d9b8,#9c855c 35%,#6e5a38 55%,#caa97a 75%,#8a7048);
   box-shadow:0 2px 0 rgba(255,255,255,.4) inset,0 -2px 0 rgba(0,0,0,.5) inset,0 40px 80px rgba(0,0,0,.7),0 10px 30px rgba(0,0,0,.6)}
 .frame::before{content:"";position:absolute;inset:clamp(9px,1.7vw,20px);border-radius:2px;box-shadow:0 0 0 2px rgba(0,0,0,.35),inset 0 6px 22px rgba(0,0,0,.8);pointer-events:none;z-index:9}
@@ -279,8 +279,8 @@ input[type=range].hue::-moz-range-thumb{background:#fff;border-radius:50%}
 <div id="enterFx"></div>
 <div id="stage">
   <div class="head">
-    <div class="eyebrow">LE TREIZIÈME ÉVEIL · GALERIE</div>
-    <h1 id="title">QUASAR</h1>
+    <div class="eyebrow">LE TREIZIÈME ÉVEIL · MOS[AI]C</div>
+    <h1 id="title">MOSAIC</h1>
     <div class="sub">Gabriel Kjerne</div>
   </div>
 
@@ -398,24 +398,59 @@ input[type=range].hue::-moz-range-thumb{background:#fff;border-radius:50%}
 
 <script>
 "use strict";
-/* ════════ GALERIE — toiles chargées en fichiers séparés (dossier galerie/img/) ════════
-   Pour ajouter une œuvre : dépose son image dans galerie/img/ puis ajoute une ligne
+/* ════════ GALERIE — toiles chargées en fichiers séparés (dossier galerie2/img/) ════════
+   Pour ajouter une œuvre : dépose son image dans galerie2/img/ puis ajoute une ligne
    au tableau ci-dessous, par exemple :
    ,{ title:"TITRE", meta:"GABRIEL KJERNE · ACRYLIQUE", id:"REF-07", date:"ANNÉE", src:"img/montitre.jpg" } */
 const PAINTINGS = [
-  { title:"MOSAIC", meta:"GABRIEL KJERNE · DIGITAL ART", id:"#0", date:"2024", src:"img/MOSAIC#0.jpg", cartel:"ai and art, hand painted acrylic, generative art, living painting, contemporary art, ambient 4k, digital art, science fiction, The Thirteenth Awakening, Gabriel Kjerne, artificial consciousness, immersive art" },
-  { title:"MOSAIC", meta:"GABRIEL KJERNE · DIGITAL ART", id:"#1", date:"2024", src:"img/MOSAIC#1.jpg", cartel:"ai and art, hand painted acrylic, generative art, living painting, contemporary art, ambient 4k, digital art, science fiction, The Thirteenth Awakening, Gabriel Kjerne, artificial consciousness, immersive art" },
-  { title:"MOSAIC", meta:"GABRIEL KJERNE · DIGITAL ART", id:"#2", date:"2024", src:"img/MOSAIC#2.jpg", cartel:"ai and art, hand painted acrylic, generative art, living painting, contemporary art, ambient 4k, digital art, science fiction, The Thirteenth Awakening, Gabriel Kjerne, artificial consciousness, immersive art" },
-  { title:"MOSAIC", meta:"GABRIEL KJERNE · DIGITAL ART", id:"#3", date:"2024", src:"img/MOSAIC#3.jpg", cartel:"ai and art, hand painted acrylic, generative art, living painting, contemporary art, ambient 4k, digital art, science fiction, The Thirteenth Awakening, Gabriel Kjerne, artificial consciousness, immersive art" },
-  { title:"MOSAIC", meta:"GABRIEL KJERNE · DIGITAL ART", id:"#4", date:"2024", src:"img/MOSAIC#4.jpg", cartel:"ai and art, hand painted acrylic, generative art, living painting, contemporary art, ambient 4k, digital art, science fiction, The Thirteenth Awakening, Gabriel Kjerne, artificial consciousness, immersive art" },
-  { title:"MOSAIC", meta:"GABRIEL KJERNE · DIGITAL ART", id:"#5", date:"2024", src:"img/MOSAIC#5.jpg", cartel:"ai and art, hand painted acrylic, generative art, living painting, contemporary art, ambient 4k, digital art, science fiction, The Thirteenth Awakening, Gabriel Kjerne, artificial consciousness, immersive art" },
-  { title:"MOSAIC", meta:"GABRIEL KJERNE · DIGITAL ART", id:"#6", date:"2024", src:"img/MOSAIC#6.jpg", cartel:"ai and art, hand painted acrylic, generative art, living painting, contemporary art, ambient 4k, digital art, science fiction, The Thirteenth Awakening, Gabriel Kjerne, artificial consciousness, immersive art" },
-  { title:"MOSAIC", meta:"GABRIEL KJERNE · DIGITAL ART", id:"#7", date:"2024", src:"img/MOSAIC#7.jpg", cartel:"ai and art, hand painted acrylic, generative art, living painting, contemporary art, ambient 4k, digital art, science fiction, The Thirteenth Awakening, Gabriel Kjerne, artificial consciousness, immersive art" },
-  { title:"MOSAIC", meta:"GABRIEL KJERNE · DIGITAL ART", id:"#8", date:"2024", src:"img/MOSAIC#8.jpg", cartel:"ai and art, hand painted acrylic, generative art, living painting, contemporary art, ambient 4k, digital art, science fiction, The Thirteenth Awakening, Gabriel Kjerne, artificial consciousness, immersive art" },
-  { title:"MOSAIC", meta:"GABRIEL KJERNE · DIGITAL ART", id:"#9", date:"2024", src:"img/MOSAIC#9.jpg", cartel:"ai and art, hand painted acrylic, generative art, living painting, contemporary art, ambient 4k, digital art, science fiction, The Thirteenth Awakening, Gabriel Kjerne, artificial consciousness, immersive art" },
-  { title:"MOSAIC", meta:"GABRIEL KJERNE · DIGITAL ART", id:"#10", date:"2024", src:"img/MOSAIC#10.jpg", cartel:"ai and art, hand painted acrylic, generative art, living painting, contemporary art, ambient 4k, digital art, science fiction, The Thirteenth Awakening, Gabriel Kjerne, artificial consciousness, immersive art" },
-  { title:"MOSAIC", meta:"GABRIEL KJERNE · DIGITAL ART", id:"#11", date:"2024", src:"img/MOSAIC#11.jpg", cartel:"ai and art, hand painted acrylic, generative art, living painting, contemporary art, ambient 4k, digital art, science fiction, The Thirteenth Awakening, Gabriel Kjerne, artificial consciousness, immersive art" },
-  { title:"MOSAIC", meta:"GABRIEL KJERNE · DIGITAL ART", id:"#12", date:"2024", src:"img/MOSAIC#12.jpg", cartel:"ai and art, hand painted acrylic, generative art, living painting, contemporary art, ambient 4k, digital art, science fiction, The Thirteenth Awakening, Gabriel Kjerne, artificial consciousness, immersive art" }
+  { title:"MOSAIC", meta:"GABRIEL KJERNE · DIGITAL ART", id:"#0", date:"2024", src:"img/MOSAIC#0.jpg", cartel:"mosaïque numérique · série MOS[AI]C · 2024 · où le geste humain rencontre la machine — Le Treizième Éveil" },
+  { title:"MOSAIC", meta:"GABRIEL KJERNE · DIGITAL ART", id:"#1", date:"2024", src:"img/MOSAIC#1.jpg", cartel:"mosaïque numérique · série MOS[AI]C · 2024 · où le geste humain rencontre la machine — Le Treizième Éveil" },
+  { title:"MOSAIC", meta:"GABRIEL KJERNE · DIGITAL ART", id:"#2", date:"2024", src:"img/MOSAIC#2.jpg", cartel:"mosaïque numérique · série MOS[AI]C · 2024 · où le geste humain rencontre la machine — Le Treizième Éveil" },
+  { title:"MOSAIC", meta:"GABRIEL KJERNE · DIGITAL ART", id:"#3", date:"2024", src:"img/MOSAIC#3.jpg", cartel:"mosaïque numérique · série MOS[AI]C · 2024 · où le geste humain rencontre la machine — Le Treizième Éveil" },
+  { title:"MOSAIC", meta:"GABRIEL KJERNE · DIGITAL ART", id:"#4", date:"2024", src:"img/MOSAIC#4.jpg", cartel:"mosaïque numérique · série MOS[AI]C · 2024 · où le geste humain rencontre la machine — Le Treizième Éveil" },
+  { title:"MOSAIC", meta:"GABRIEL KJERNE · DIGITAL ART", id:"#5", date:"2024", src:"img/MOSAIC#5.jpg", cartel:"mosaïque numérique · série MOS[AI]C · 2024 · où le geste humain rencontre la machine — Le Treizième Éveil" },
+  { title:"MOSAIC", meta:"GABRIEL KJERNE · DIGITAL ART", id:"#6", date:"2024", src:"img/MOSAIC#6.jpg", cartel:"mosaïque numérique · série MOS[AI]C · 2024 · où le geste humain rencontre la machine — Le Treizième Éveil" },
+  { title:"MOSAIC", meta:"GABRIEL KJERNE · DIGITAL ART", id:"#7", date:"2024", src:"img/MOSAIC#7.jpg", cartel:"mosaïque numérique · série MOS[AI]C · 2024 · où le geste humain rencontre la machine — Le Treizième Éveil" },
+  { title:"MOSAIC", meta:"GABRIEL KJERNE · DIGITAL ART", id:"#8", date:"2024", src:"img/MOSAIC#8.jpg", cartel:"mosaïque numérique · série MOS[AI]C · 2024 · où le geste humain rencontre la machine — Le Treizième Éveil" },
+  { title:"MOSAIC", meta:"GABRIEL KJERNE · DIGITAL ART", id:"#9", date:"2024", src:"img/MOSAIC#9.jpg", cartel:"mosaïque numérique · série MOS[AI]C · 2024 · où le geste humain rencontre la machine — Le Treizième Éveil" },
+  { title:"MOSAIC", meta:"GABRIEL KJERNE · DIGITAL ART", id:"#10", date:"2024", src:"img/MOSAIC#10.jpg", cartel:"mosaïque numérique · série MOS[AI]C · 2024 · où le geste humain rencontre la machine — Le Treizième Éveil" },
+  { title:"MOSAIC", meta:"GABRIEL KJERNE · DIGITAL ART", id:"#11", date:"2024", src:"img/MOSAIC#11.jpg", cartel:"mosaïque numérique · série MOS[AI]C · 2024 · où le geste humain rencontre la machine — Le Treizième Éveil" },
+  { title:"MOSAIC", meta:"GABRIEL KJERNE · DIGITAL ART", id:"#12", date:"2024", src:"img/MOSAIC#12.jpg", cartel:"mosaïque numérique · série MOS[AI]C · 2024 · où le geste humain rencontre la machine — Le Treizième Éveil" },
+  { title:"MOSAIC", meta:"GABRIEL KJERNE · DIGITAL ART", id:"#13", date:"2024", src:"img/MOSAIC#13.jpg", cartel:"mosaïque numérique · série MOS[AI]C · 2024 · où le geste humain rencontre la machine — Le Treizième Éveil" },
+  { title:"MOSAIC", meta:"GABRIEL KJERNE · DIGITAL ART", id:"#14", date:"2024", src:"img/MOSAIC#14.jpg", cartel:"mosaïque numérique · série MOS[AI]C · 2024 · où le geste humain rencontre la machine — Le Treizième Éveil" },
+  { title:"MOSAIC", meta:"GABRIEL KJERNE · DIGITAL ART", id:"#15", date:"2024", src:"img/MOSAIC#15.jpg", cartel:"mosaïque numérique · série MOS[AI]C · 2024 · où le geste humain rencontre la machine — Le Treizième Éveil" },
+  { title:"MOSAIC", meta:"GABRIEL KJERNE · DIGITAL ART", id:"#16", date:"2024", src:"img/MOSAIC#16.jpg", cartel:"mosaïque numérique · série MOS[AI]C · 2024 · où le geste humain rencontre la machine — Le Treizième Éveil" },
+  { title:"MOSAIC", meta:"GABRIEL KJERNE · DIGITAL ART", id:"#17", date:"2024", src:"img/MOSAIC#17.jpg", cartel:"mosaïque numérique · série MOS[AI]C · 2024 · où le geste humain rencontre la machine — Le Treizième Éveil" },
+  { title:"MOSAIC", meta:"GABRIEL KJERNE · DIGITAL ART", id:"#18", date:"2024", src:"img/MOSAIC#18.jpg", cartel:"mosaïque numérique · série MOS[AI]C · 2024 · où le geste humain rencontre la machine — Le Treizième Éveil" },
+  { title:"MOSAIC", meta:"GABRIEL KJERNE · DIGITAL ART", id:"#19", date:"2024", src:"img/MOSAIC#19.jpg", cartel:"mosaïque numérique · série MOS[AI]C · 2024 · où le geste humain rencontre la machine — Le Treizième Éveil" },
+  { title:"MOSAIC", meta:"GABRIEL KJERNE · DIGITAL ART", id:"#20", date:"2024", src:"img/MOSAIC#20.jpg", cartel:"mosaïque numérique · série MOS[AI]C · 2024 · où le geste humain rencontre la machine — Le Treizième Éveil" },
+  { title:"MOSAIC", meta:"GABRIEL KJERNE · DIGITAL ART", id:"#21", date:"2024", src:"img/MOSAIC#21.jpg", cartel:"mosaïque numérique · série MOS[AI]C · 2024 · où le geste humain rencontre la machine — Le Treizième Éveil" },
+  { title:"MOSAIC", meta:"GABRIEL KJERNE · DIGITAL ART", id:"#22", date:"2024", src:"img/MOSAIC#22.jpg", cartel:"mosaïque numérique · série MOS[AI]C · 2024 · où le geste humain rencontre la machine — Le Treizième Éveil" },
+  { title:"MOSAIC", meta:"GABRIEL KJERNE · DIGITAL ART", id:"#23", date:"2024", src:"img/MOSAIC#23.jpg", cartel:"mosaïque numérique · série MOS[AI]C · 2024 · où le geste humain rencontre la machine — Le Treizième Éveil" },
+  { title:"MOSAIC", meta:"GABRIEL KJERNE · DIGITAL ART", id:"#24", date:"2024", src:"img/MOSAIC#24.jpg", cartel:"mosaïque numérique · série MOS[AI]C · 2024 · où le geste humain rencontre la machine — Le Treizième Éveil" },
+  { title:"MOSAIC", meta:"GABRIEL KJERNE · DIGITAL ART", id:"#25", date:"2024", src:"img/MOSAIC#25.jpg", cartel:"mosaïque numérique · série MOS[AI]C · 2024 · où le geste humain rencontre la machine — Le Treizième Éveil" },
+  { title:"MOSAIC", meta:"GABRIEL KJERNE · DIGITAL ART", id:"#26", date:"2024", src:"img/MOSAIC#26.jpg", cartel:"mosaïque numérique · série MOS[AI]C · 2024 · où le geste humain rencontre la machine — Le Treizième Éveil" },
+  { title:"MOSAIC", meta:"GABRIEL KJERNE · DIGITAL ART", id:"#27", date:"2024", src:"img/MOSAIC#27.jpg", cartel:"mosaïque numérique · série MOS[AI]C · 2024 · où le geste humain rencontre la machine — Le Treizième Éveil" },
+  { title:"MOSAIC", meta:"GABRIEL KJERNE · DIGITAL ART", id:"#28", date:"2024", src:"img/MOSAIC#28.jpg", cartel:"mosaïque numérique · série MOS[AI]C · 2024 · où le geste humain rencontre la machine — Le Treizième Éveil" },
+  { title:"MOSAIC", meta:"GABRIEL KJERNE · DIGITAL ART", id:"#29", date:"2024", src:"img/MOSAIC#29.jpg", cartel:"mosaïque numérique · série MOS[AI]C · 2024 · où le geste humain rencontre la machine — Le Treizième Éveil" },
+  { title:"MOSAIC", meta:"GABRIEL KJERNE · DIGITAL ART", id:"#30", date:"2024", src:"img/MOSAIC#30.jpg", cartel:"mosaïque numérique · série MOS[AI]C · 2024 · où le geste humain rencontre la machine — Le Treizième Éveil" },
+  { title:"MOSAIC", meta:"GABRIEL KJERNE · DIGITAL ART", id:"#31", date:"2024", src:"img/MOSAIC#31.jpg", cartel:"mosaïque numérique · série MOS[AI]C · 2024 · où le geste humain rencontre la machine — Le Treizième Éveil" },
+  { title:"MOSAIC", meta:"GABRIEL KJERNE · DIGITAL ART", id:"#32", date:"2024", src:"img/MOSAIC#32.jpg", cartel:"mosaïque numérique · série MOS[AI]C · 2024 · où le geste humain rencontre la machine — Le Treizième Éveil" },
+  { title:"MOSAIC", meta:"GABRIEL KJERNE · DIGITAL ART", id:"#33", date:"2024", src:"img/MOSAIC#33.jpg", cartel:"mosaïque numérique · série MOS[AI]C · 2024 · où le geste humain rencontre la machine — Le Treizième Éveil" },
+  { title:"MOSAIC", meta:"GABRIEL KJERNE · DIGITAL ART", id:"#34", date:"2024", src:"img/MOSAIC#34.jpg", cartel:"mosaïque numérique · série MOS[AI]C · 2024 · où le geste humain rencontre la machine — Le Treizième Éveil" },
+  { title:"MOSAIC", meta:"GABRIEL KJERNE · DIGITAL ART", id:"#35", date:"2024", src:"img/MOSAIC#35.jpg", cartel:"mosaïque numérique · série MOS[AI]C · 2024 · où le geste humain rencontre la machine — Le Treizième Éveil" },
+  { title:"MOSAIC", meta:"GABRIEL KJERNE · DIGITAL ART", id:"#36", date:"2024", src:"img/MOSAIC#36.jpg", cartel:"mosaïque numérique · série MOS[AI]C · 2024 · où le geste humain rencontre la machine — Le Treizième Éveil" },
+  { title:"MOSAIC", meta:"GABRIEL KJERNE · DIGITAL ART", id:"#37", date:"2024", src:"img/MOSAIC#37.jpg", cartel:"mosaïque numérique · série MOS[AI]C · 2024 · où le geste humain rencontre la machine — Le Treizième Éveil" },
+  { title:"MOSAIC", meta:"GABRIEL KJERNE · DIGITAL ART", id:"#38", date:"2024", src:"img/MOSAIC#38.jpg", cartel:"mosaïque numérique · série MOS[AI]C · 2024 · où le geste humain rencontre la machine — Le Treizième Éveil" },
+  { title:"MOSAIC", meta:"GABRIEL KJERNE · DIGITAL ART", id:"#39", date:"2024", src:"img/MOSAIC#39.jpg", cartel:"mosaïque numérique · série MOS[AI]C · 2024 · où le geste humain rencontre la machine — Le Treizième Éveil" },
+  { title:"MOSAIC", meta:"GABRIEL KJERNE · DIGITAL ART", id:"#40", date:"2024", src:"img/MOSAIC#40.jpg", cartel:"mosaïque numérique · série MOS[AI]C · 2024 · où le geste humain rencontre la machine — Le Treizième Éveil" },
+  { title:"MOSAIC", meta:"GABRIEL KJERNE · DIGITAL ART", id:"#41", date:"2024", src:"img/MOSAIC#41.jpg", cartel:"mosaïque numérique · série MOS[AI]C · 2024 · où le geste humain rencontre la machine — Le Treizième Éveil" },
+  { title:"MOSAIC", meta:"GABRIEL KJERNE · DIGITAL ART", id:"#42", date:"2024", src:"img/MOSAIC#42.jpg", cartel:"mosaïque numérique · série MOS[AI]C · 2024 · où le geste humain rencontre la machine — Le Treizième Éveil" },
+  { title:"MOSAIC", meta:"GABRIEL KJERNE · DIGITAL ART", id:"#43", date:"2024", src:"img/MOSAIC#43.jpg", cartel:"mosaïque numérique · série MOS[AI]C · 2024 · où le geste humain rencontre la machine — Le Treizième Éveil" },
+  { title:"MOSAIC", meta:"GABRIEL KJERNE · DIGITAL ART", id:"#44", date:"2024", src:"img/MOSAIC#44.jpg", cartel:"mosaïque numérique · série MOS[AI]C · 2024 · où le geste humain rencontre la machine — Le Treizième Éveil" },
+  { title:"MOSAIC", meta:"GABRIEL KJERNE · DIGITAL ART", id:"#45", date:"2024", src:"img/MOSAIC#45.jpg", cartel:"mosaïque numérique · série MOS[AI]C · 2024 · où le geste humain rencontre la machine — Le Treizième Éveil" },
+  { title:"MOSAIC", meta:"GABRIEL KJERNE · DIGITAL ART", id:"#46", date:"2024", src:"img/MOSAIC#46.jpg", cartel:"mosaïque numérique · série MOS[AI]C · 2024 · où le geste humain rencontre la machine — Le Treizième Éveil" },
+  { title:"MOSAIC", meta:"GABRIEL KJERNE · DIGITAL ART", id:"#47", date:"2024", src:"img/MOSAIC#47.jpg", cartel:"mosaïque numérique · série MOS[AI]C · 2024 · où le geste humain rencontre la machine — Le Treizième Éveil" }
 ];
 
 const root=document.documentElement, RM=matchMedia('(prefers-reduced-motion:reduce)').matches;
