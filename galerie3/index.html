@@ -267,6 +267,25 @@ const HALO = (function(){
   return tex(c);
 })();
 
+/* ══ RUBANS DE LUMIÈRE ══
+   Une arête vive et claire, plus fine qu'un pixel, scintille : à chaque image
+   elle bascule d'un côté ou de l'autre de la grille. C'est invisible sur une
+   capture figée et très désagréable en mouvement. Le remède n'est pas de
+   l'épaissir mais de lui ôter ses bords : un dégradé doux, muni de ses mipmaps,
+   se fond doucement à mesure qu'il s'éloigne au lieu de clignoter.
+   Deux orientations, selon que le ruban est couché ou dressé.               */
+function band(horiz){
+  const W=horiz?16:8, H=horiz?8:16, c=cvs(W,H), x=c.getContext('2d');
+  const g=horiz ? x.createLinearGradient(0,0,0,H) : x.createLinearGradient(0,0,W,0);
+  g.addColorStop(0,'rgba(255,255,255,0)');   g.addColorStop(.34,'rgba(255,255,255,.42)');
+  g.addColorStop(.5,'rgba(255,255,255,1)');  g.addColorStop(.66,'rgba(255,255,255,.42)');
+  g.addColorStop(1,'rgba(255,255,255,0)');
+  x.fillStyle=g; x.fillRect(0,0,W,H);
+  return tex(c);
+}
+const BAND_V = band(true);    // dégradé en travers de la HAUTEUR (ruban couché ou dressé long)
+const BAND_U = band(false);   // dégradé en travers de la LARGEUR
+
 /* voile d'attente affiché dans un cadre tant que la mosaïque n'est pas chargée */
 const WAIT = (function(){
   const c=cvs(64,46), x=c.getContext('2d');
@@ -296,9 +315,11 @@ const sky = new THREE.Group(); scene.add(sky);
   g.setAttribute('position',new THREE.BufferAttribute(pos,3));
   g.setAttribute('color',new THREE.BufferAttribute(col,3));
   g.setAttribute('size',new THREE.BufferAttribute(siz,1));
-  // fog:false — sans cela le brouillard de la nef effacerait tout le ciel
-  const m=new THREE.PointsMaterial({size:2.2, map:GLOW, vertexColors:true, transparent:true,
-    depthWrite:false, blending:THREE.AdditiveBlending, sizeAttenuation:true, opacity:.95, fog:false});
+  /* fog:false — sans cela le brouillard de la nef effacerait tout le ciel.
+     sizeAttenuation:false — les étoiles les plus lointaines tombaient sous
+     1,7 pixel et grésillaient à chaque image. Taille fixe : un ciel stable. */
+  const m=new THREE.PointsMaterial({size:2.8, map:GLOW, vertexColors:true, transparent:true,
+    depthWrite:false, blending:THREE.AdditiveBlending, sizeAttenuation:false, opacity:.95, fog:false});
   const pts=new THREE.Points(g,m); pts.frustumCulled=false; sky.add(pts);
 })();
 
@@ -346,13 +367,14 @@ const M_GLASS = new THREE.MeshBasicMaterial({map:GLASS, transparent:true, opacit
   const f=new THREE.Mesh(g,m); f.rotation.x=-Math.PI/2;
   f.position.set(0,0,LEN/2-20); f.renderOrder=1; scene.add(f);
   /* Lisérés au bord du sol : l'allée semble suspendue au-dessus du vide.
-     Ils étaient à 0,02 u du plancher — donc à cheval dessus : sur mobile, les deux
-     surfaces clignotaient sur toute la longueur de l'axe. On les décolle nettement
-     et on leur interdit d'écrire dans le tampon de profondeur. */
+     C'étaient des barres de 0,14 u — plus fines qu'un pixel dès 143 unités,
+     donc scintillantes sur les trois quarts de la nef. Ce sont maintenant des
+     rubans de lumière couchés, aux bords fondus : ils s'estompent au loin. */
   [-HW,HW].forEach(x=>{
-    const e=new THREE.Mesh(new THREE.BoxGeometry(.14,.14,LEN+90),
-      new THREE.MeshBasicMaterial({color:0xbfeeff,transparent:true,opacity:.85,depthWrite:false}));
-    e.position.set(x,.30,LEN/2-20); e.renderOrder=2; scene.add(e);
+    const e=new THREE.Mesh(new THREE.PlaneGeometry(2.2, LEN+90),
+      new THREE.MeshBasicMaterial({map:BAND_U,color:0xbfeeff,transparent:true,opacity:.85,
+        blending:THREE.AdditiveBlending,depthWrite:false,side:THREE.DoubleSide}));
+    e.rotation.x=-Math.PI/2; e.position.set(x,.10,LEN/2-20); e.renderOrder=2; scene.add(e);
   });
 })();
 
@@ -396,7 +418,8 @@ for(let i=0;i<=NBAY;i++){
      se pose nettement sur le vide, ne participe plus au tri des transparences —
      source de scintillement sur mobile — et occulte proprement ce qu'elle cache. */
   const bright=new THREE.Color(col).lerp(_white,0.62);
-  const stem=new THREE.Mesh(new THREE.TubeGeometry(curve,104,.30,7,false),
+  // 0,38 u de rayon : au-delà, le montant deviendrait plus fin qu'un pixel et scintillerait
+  const stem=new THREE.Mesh(new THREE.TubeGeometry(curve,104,.38,7,false),
     new THREE.MeshBasicMaterial({color:bright}));
   scene.add(stem);
 
@@ -430,13 +453,17 @@ for(let i=0;i<=NBAY;i++){
       p.material.color.setHex(col); p.material.opacity=.16;
       p.position.set(x,(COLH-1.4)/2+.7,z+BAY/2); p.rotation.y=Math.PI/2; scene.add(p);
     });
-    /* Nervure faîtière, opaque et jointive : chaque segment va d'une clef à la
-       suivante, si bien que la ligne de faîte court d'un bout à l'autre sans rupture. */
-    const l=new THREE.Mesh(new THREE.BoxGeometry(.15,.15,BAY),
-      new THREE.MeshBasicMaterial({color:new THREE.Color(col).lerp(_white,0.62)}));
-    l.position.set(0,COLH+RISE,z+BAY/2); scene.add(l);
   }
 }
+
+/* NERVURE FAÎTIÈRE — un seul ruban pour toute la nef, tourné vers le sol.
+   En segments opaques de 0,15 u, elle scintillait au-delà de 153 unités. */
+(function ridge(){
+  const r=new THREE.Mesh(new THREE.PlaneGeometry(1.6, LEN+40),
+    new THREE.MeshBasicMaterial({map:BAND_U,color:0xe8f6ff,transparent:true,opacity:.6,
+      blending:THREE.AdditiveBlending,depthWrite:false,side:THREE.DoubleSide}));
+  r.rotation.x=Math.PI/2; r.position.set(0, COLH+RISE, LEN/2); scene.add(r);
+})();
 
 /* Voile de voûte : un seul pan pour toute la nef. En vingt-quatre morceaux
    aboutés, les jonctions se voyaient en fines coutures lumineuses. */
@@ -451,14 +478,13 @@ for(let i=0;i<=NBAY;i++){
    creuse mieux une perspective qu'une horizontale tenue : c'est ce trait qui
    donne à un vaisseau sa longueur — et ici, sa majesté. Deux objets dessinés. */
 (function stringCourse(){
-  [-HW,HW].forEach(x=>{
-    const b=new THREE.Mesh(new THREE.BoxGeometry(.34,.16,LEN+80),
-      new THREE.MeshBasicMaterial({color:0xdcf2ff}));
-    b.position.set(x, COLH, LEN/2-20); scene.add(b);
-    const g=new THREE.Mesh(new THREE.BoxGeometry(1.5,.9,LEN+80),
-      new THREE.MeshBasicMaterial({color:0x8fd0ff,transparent:true,opacity:.10,
-        blending:THREE.AdditiveBlending,depthWrite:false}));
-    g.position.set(x, COLH, LEN/2-20); scene.add(g);
+  [-1,1].forEach(side=>{
+    const b=new THREE.Mesh(new THREE.PlaneGeometry(LEN+80, 2.0),
+      new THREE.MeshBasicMaterial({map:BAND_V,color:0xdcf2ff,transparent:true,opacity:.72,
+        blending:THREE.AdditiveBlending,depthWrite:false,side:THREE.DoubleSide}));
+    b.rotation.y=-side*Math.PI/2;
+    b.position.set(side*HW, COLH, LEN/2-20);
+    scene.add(b);
   });
 })();
 
@@ -475,7 +501,7 @@ for(let i=0;i<=NBAY;i++){
       new THREE.MeshBasicMaterial({color:c,transparent:true,opacity:.42,
         blending:THREE.AdditiveBlending,depthWrite:false}));
     pet.position.set(Math.cos(a)*R*.60, Math.sin(a)*R*.60, .1); g.add(pet);
-    const ray=new THREE.Mesh(new THREE.BoxGeometry(.11,R*.94,.11),
+    const ray=new THREE.Mesh(new THREE.BoxGeometry(.26,R*.94,.26),
       new THREE.MeshBasicMaterial({color:c,transparent:true,opacity:.62,
         blending:THREE.AdditiveBlending,depthWrite:false}));
     ray.position.set(Math.cos(a)*R*.47, Math.sin(a)*R*.47, .55);
@@ -484,7 +510,7 @@ for(let i=0;i<=NBAY;i++){
   /* La rose se tient à 400 unités : à cette distance un mobile ne distingue plus
      deux plans séparés de moins de deux unités. Toutes ses pièces sont donc en
      lumière ajoutée et n'écrivent pas la profondeur — l'ordre n'a plus d'effet. */
-  const ring=new THREE.Mesh(new THREE.TorusGeometry(R,.16,8,72),
+  const ring=new THREE.Mesh(new THREE.TorusGeometry(R,.34,8,72),
     new THREE.MeshBasicMaterial({color:0xdff2ff,transparent:true,opacity:.85,
       blending:THREE.AdditiveBlending,depthWrite:false})); ring.position.z=.9; g.add(ring);
   const halo=new THREE.Sprite(new THREE.SpriteMaterial({map:GLOW,color:0xbfe4ff,transparent:true,
@@ -766,25 +792,29 @@ function loopBack(){
 /* ─────────────────── 8bis. QUALITÉ ADAPTATIVE ───────────────────
    Il existe des centaines de téléphones et je ne peux pas tous les connaître.
    Plutôt que de parier sur une qualité fixe, la nef mesure sa propre fluidité
-   et se dépouille d'elle-même si l'appareil peine. Trois crans :
+   et se dépouille d'elle-même si l'appareil peine.
 
-     2 — tout : vitraux rétroéclairés, reflets, poussière, pleine définition
-     1 — sans les vitraux, définition réduite
-     0 — sans les reflets ni la poussière, définition d'un pour un
+   L'ORDRE DES SACRIFICES COMPTE. On renonce d'abord aux effets, et seulement
+   en dernier recours à la finesse de l'image : baisser la définition rend la
+   géométrie fine plus grossière que le pixel, donc scintillante — le remède
+   serait pire que le mal. Et jamais en dessous de 1,25.
 
-   On ne remonte jamais : une oscillation entre deux crans se verrait plus
-   qu'une image un peu moins fine.                                          */
+     3 — tout : vitraux, reflets, poussière, pleine finesse
+     2 — sans les vitraux
+     1 — sans les reflets ni la poussière
+     0 — finesse réduite, en dernier ressort
+
+   On ne remonte jamais : une oscillation se verrait plus qu'un cran de moins. */
 const PR_MAX = Math.min(devicePixelRatio||1, innerWidth<820 ? 1.75 : 2);
-const PR = [1.0, Math.min(1.3, PR_MAX), PR_MAX];
-const QU = {lvl:2, acc:0, n:0, hold:90, bloom:true, refl:true};
+const QU = {lvl:3, acc:0, n:0, hold:90, bloom:true, refl:true};
 
 function applyQuality(){
-  renderer.setPixelRatio(PR[QU.lvl]);
+  renderer.setPixelRatio(QU.lvl>=1 ? PR_MAX : Math.max(1.25, PR_MAX*0.72));
   renderer.setSize(innerWidth, innerHeight);
-  QU.bloom = QU.lvl>=2;
-  QU.refl  = QU.lvl>=1;
+  QU.bloom = QU.lvl>=3;
+  QU.refl  = QU.lvl>=2;
   for(let i=0;i<MIRRORS.length;i++) MIRRORS[i].visible=QU.refl;
-  dust.pts.visible = QU.lvl>=1;
+  dust.pts.visible = QU.lvl>=2;
 }
 
 function watch(raw){
@@ -883,8 +913,7 @@ addEventListener('resize',()=>{
   clearTimeout(rzT);
   rzT=setTimeout(()=>{
     camera.aspect=innerWidth/innerHeight; camera.updateProjectionMatrix();
-    renderer.setPixelRatio(PR[QU.lvl]);
-    renderer.setSize(innerWidth,innerHeight);
+    applyQuality();
   },160);
 });
 
