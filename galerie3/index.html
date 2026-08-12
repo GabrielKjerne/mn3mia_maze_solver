@@ -491,40 +491,104 @@ for(let i=0;i<=NBAY;i++){
   });
 })();
 
-/* — la rose des treize, au fond de la nef — */
+/* ══════════════ LA ROSE DE MOSAÏQUES ══════════════
+   Le fond de la nef était décevant pour une raison technique autant qu'artistique :
+   à 400 unités, la brume effaçait la rose à 99,999 %. On regardait un trou noir.
+
+   Deux décisions. D'abord, toutes les pièces de la rose ignorent la brume, et
+   c'est nous qui réglons leur éclat selon la distance : un foyer discret aperçu
+   dès le seuil, qui grandit et s'embrase à mesure qu'on avance. Ensuite, la rose
+   n'est plus faite de pétales de couleur mais DES MOSAÏQUES ELLES-MÊMES —
+   vingt-sept médaillons découpés en disques, en lumière ajoutée comme du verre
+   rétroéclairé, qui se renouvellent un à un et défilent les quarante-huit.
+
+   Mémoire : nulle. On réemploie les vignettes déjà chargées en permanence.     */
+const ROSE={petals:[], next:0, timer:0, k:0, out:null, in:null, att:0, Z:LEN+16, all:[]};
 (function rose(){
-  const Z=LEN+16, R=12.5, g=new THREE.Group(); g.position.set(0,COLH*.84,Z);
-  const disc=new THREE.Mesh(new THREE.CircleGeometry(R,64),
-    new THREE.MeshBasicMaterial({color:0x8fd6ff,transparent:true,opacity:.16,
-      blending:THREE.AdditiveBlending,depthWrite:false}));
-  g.add(disc);
-  for(let i=0;i<13;i++){
-    const a=i/13*Math.PI*2 - Math.PI/2, c=CONSC[i].c;
-    const pet=new THREE.Mesh(new THREE.CircleGeometry(R*.30,26),
-      new THREE.MeshBasicMaterial({color:c,transparent:true,opacity:.42,
-        blending:THREE.AdditiveBlending,depthWrite:false}));
-    pet.position.set(Math.cos(a)*R*.60, Math.sin(a)*R*.60, .1); g.add(pet);
-    const ray=new THREE.Mesh(new THREE.BoxGeometry(.26,R*.94,.26),
-      new THREE.MeshBasicMaterial({color:c,transparent:true,opacity:.62,
-        blending:THREE.AdditiveBlending,depthWrite:false}));
-    ray.position.set(Math.cos(a)*R*.47, Math.sin(a)*R*.47, .55);
-    ray.rotation.z = a - Math.PI/2; g.add(ray);
+  const Z=ROSE.Z, R=13.5;
+  const g=new THREE.Group(); g.position.set(0,COLH*.84,Z); scene.add(g);
+  const keep=m=>{ ROSE.all.push(m); return m; };
+
+  // nappe de fond : la rose repose sur une clarté, jamais sur du vide
+  const disc=new THREE.Mesh(new THREE.CircleGeometry(R*1.04,64),
+    keep(new THREE.MeshBasicMaterial({color:0x5f9fe8,transparent:true,opacity:.14,
+      blending:THREE.AdditiveBlending,depthWrite:false,fog:false})));
+  disc.position.z=-1.4; g.add(disc);
+
+  const outer=new THREE.Group(), inner=new THREE.Group();
+  g.add(outer); g.add(inner); ROSE.out=outer; ROSE.in=inner;
+
+  function petal(parent, rad, size, ang, base){
+    /* CircleGeometry découpe la texture en disque : chaque mosaïque devient
+       un médaillon, exactement comme un verre serti dans sa résille. */
+    const mat=new THREE.MeshBasicMaterial({map:WAIT,transparent:true,opacity:0,
+      blending:THREE.AdditiveBlending,depthWrite:false,side:THREE.DoubleSide,
+      toneMapped:false,fog:false});
+    const p=new THREE.Mesh(new THREE.CircleGeometry(size,26), mat);
+    p.position.set(Math.cos(ang)*rad, Math.sin(ang)*rad, 0);
+    parent.add(p);
+    ROSE.petals.push({mat:mat, base:base, t:0, out:false, k:-1});
   }
-  /* La rose se tient à 400 unités : à cette distance un mobile ne distingue plus
-     deux plans séparés de moins de deux unités. Toutes ses pièces sont donc en
-     lumière ajoutée et n'écrivent pas la profondeur — l'ordre n'a plus d'effet. */
-  const ring=new THREE.Mesh(new THREE.TorusGeometry(R,.34,8,72),
-    new THREE.MeshBasicMaterial({color:0xdff2ff,transparent:true,opacity:.85,
-      blending:THREE.AdditiveBlending,depthWrite:false})); ring.position.z=.9; g.add(ring);
-  const halo=new THREE.Sprite(new THREE.SpriteMaterial({map:GLOW,color:0xbfe4ff,transparent:true,
-    opacity:.44,blending:THREE.AdditiveBlending,depthWrite:false}));
-  halo.scale.setScalar(R*4.6); halo.position.z=-1.6; g.add(halo);
-  scene.add(g);
-  // mur du fond, en verre, pour que la rose se détache
+  for(let i=0;i<13;i++) petal(outer, R*.66, R*.235, i/13*Math.PI*2 - Math.PI/2, .70);
+  for(let i=0;i<13;i++) petal(inner, R*.35, R*.135, (i+.5)/13*Math.PI*2 - Math.PI/2, .58);
+  petal(g, 0, R*.20, 0, .80);                      // le médaillon central, immobile
+
+  // résille extérieure et nimbe
+  const ring=new THREE.Mesh(new THREE.TorusGeometry(R,.42,8,80),
+    keep(new THREE.MeshBasicMaterial({color:0xdff2ff,transparent:true,opacity:.85,
+      blending:THREE.AdditiveBlending,depthWrite:false,fog:false})));
+  ring.position.z=.9; g.add(ring);
+  const halo=new THREE.Sprite(keep(new THREE.SpriteMaterial({map:GLOW,color:0xbfe4ff,
+    transparent:true,opacity:.42,blending:THREE.AdditiveBlending,depthWrite:false,fog:false})));
+  halo.scale.setScalar(R*4.4); halo.position.z=-1.8; g.add(halo);
+
+  // mur du fond, en verre, pour que la rose se détache sur quelque chose
   const w=new THREE.Mesh(new THREE.PlaneGeometry(HW*2.2, COLH+RISE), M_GLASS.clone());
-  w.material.opacity=.11; w.position.set(0,(COLH+RISE)/2,Z+1.4); scene.add(w);
-  window.__rose=g;
+  w.material.opacity=.10; w.material.fog=false; keep(w.material);
+  w.position.set(0,(COLH+RISE)/2,Z+1.6); scene.add(w);
 })();
+
+/* ── L'ANIMATION DE LA ROSE ──
+   Les deux couronnes tournent en sens contraire, lentement et sans à-coup.
+   Toutes les 1,35 s, un médaillon s'éteint, change de mosaïque et se rallume :
+   le renouvellement est continu, jamais simultané. Vingt-sept médaillons pour
+   quarante-huit œuvres — la rose met une minute à se renouveler entièrement,
+   et ne montre jamais deux fois la même combinaison.                        */
+function roseAnimate(dt, T, breath, camZ){
+  // éclat réglé à la main, puisque la brume est ignorée : discret de loin, ardent de près
+  const d=Math.abs(ROSE.Z-camZ);
+  ROSE.att = Math.max(0.16, Math.min(1, 1.06 - d/470));
+
+  ROSE.out.rotation.z =  T*0.0085;
+  ROSE.in.rotation.z  = -T*0.0140;
+
+  ROSE.timer -= dt;
+  if(ROSE.timer<=0){
+    ROSE.timer = 1.35;
+    const p=ROSE.petals[ROSE.next % ROSE.petals.length]; ROSE.next++;
+    if(p.t>0.9) p.out=true;
+  }
+  const glow=ROSE.att*(0.80+0.20*breath);
+  for(let i=0;i<ROSE.petals.length;i++){
+    const p=ROSE.petals[i];
+    if(p.k<0 || p.mat.map===WAIT){                 // première parure, dès que la vignette existe
+      if(p.k<0) p.k=(ROSE.k++)%NIMG;
+      if(THUMB[p.k]) p.mat.map=THUMB[p.k];
+    }
+    if(p.out){
+      p.t-=dt/0.55;
+      if(p.t<=0){ p.t=0; p.out=false; p.k=(ROSE.k++)%NIMG; if(THUMB[p.k]) p.mat.map=THUMB[p.k]; }
+    } else if(p.t<1) p.t=Math.min(1, p.t+dt/0.85);
+    const e=p.t*p.t*(3-2*p.t);
+    p.mat.opacity = p.base*e*glow;
+  }
+  // la nappe, la résille, le nimbe et le mur suivent le même éclat
+  for(let i=0;i<ROSE.all.length;i++){
+    const m=ROSE.all[i];
+    if(m.userData.b===undefined) m.userData.b=m.opacity;
+    m.opacity = m.userData.b*glow;
+  }
+}
 
 /* ───────────────────────── 6. LES QUARANTE-HUIT MOSAÏQUES ─────────────── */
 const AR = 683/960;                     // portrait : largeur / hauteur, après rotation horaire
@@ -956,7 +1020,7 @@ function frame(t){
     if(m.userData.base===undefined) m.userData.base=m.opacity;
     m.opacity = m.userData.base*(0.74+0.26*breath);
   }
-  if(window.__rose){ window.__rose.rotation.z = T*0.012; }
+  roseAnimate(dt, T, breath, camZ);
 
   // poussière : dérive douce, jamais de rebond
   const P=dust.pos.array;
