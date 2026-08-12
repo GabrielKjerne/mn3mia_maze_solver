@@ -148,11 +148,14 @@ if(typeof THREE==='undefined'){
 const NBAY   = 24;          // travées d'architecture
 const BAY    = 16;          // espacement entre deux travées
 const LEN    = NBAY*BAY;    // longueur totale de la nef (384)
-const HW     = 10.5;        // demi-largeur de la nef
-const COLH   = 21;          // hauteur des colonnes
-const RISE   = 15;          // flèche de la voûte au-dessus des colonnes
+const HW     = 11.5;        // demi-largeur de la nef
+const COLH   = 27;          // hauteur des fûts
+const RISE   = 21;          // flèche de la voûte au-dessus des fûts → faîte à 48
 const EYE    = 5.6;         // hauteur du regard
 const NIMG   = 48;
+/* Élancement : 48 unités de haut pour 23 de large, soit un rapport de 2,1.
+   Amiens tient 42 m sous voûte pour 14,6 de nef — 2,9. On reste en deçà,
+   parce qu'un téléphone tenu à bout de bras ne voit que 72° de champ.        */
 
 /* Les 13 consciences du Treizième Éveil — une par travée de la nef */
 const CONSC = [
@@ -168,7 +171,7 @@ const zoneAt = z => Math.max(0, Math.min(12, Math.floor(z/ZLEN)));
 
 /* ───────────────────────── 2. SCÈNE, CAMÉRA, RENDU ─────────────────────── */
 const scene = new THREE.Scene();
-scene.fog = new THREE.FogExp2(0x040814, 0.0068);
+scene.fog = new THREE.FogExp2(0x05091c, 0.0086);   // une brume qui creuse la perspective
 
 /* Le plan rapproché est volontairement lointain (1,2) et le plan éloigné resserré.
    Beaucoup de mobiles n'accordent au tampon de profondeur que 16 bits là où un PC
@@ -241,13 +244,27 @@ const FLOOR = (function(){
   return tex(c,[NBAY*1.4, NBAY*1.4]);
 })();
 
-/* cadre des mosaïques : liseré clair qui s'estompe vers l'intérieur */
-const FRAME = (function(){
-  const c=cvs(128,128), x=c.getContext('2d');
-  const g=x.createRadialGradient(64,64,20,64,64,66);
-  g.addColorStop(0,'rgba(255,255,255,0)'); g.addColorStop(.72,'rgba(255,255,255,.06)');
-  g.addColorStop(1,'rgba(255,255,255,.9)');
-  x.fillStyle=g; x.fillRect(0,0,128,128); return tex(c);
+/* HALO DES ŒUVRES — il n'y a plus de cadre, mais une lumière qui déborde.
+   Dessiné au rapport de la toile (portrait) pour que l'épaisseur de la lueur
+   reste constante une fois étirée. Le plan porteur fait 1,5 fois l'œuvre :
+   le bord de la toile tombe donc à 16,7 % du bord de la texture. La clarté
+   naît là, et se dissipe vers l'extérieur — jamais vers le centre, qui doit
+   rester noir pour ne pas voiler la mosaïque.                                */
+const HALO = (function(){
+  const W=192, H=270, c=cvs(W,H), x=c.getContext('2d');
+  const inx=W*0.167, iny=H*0.167;
+  x.clearRect(0,0,W,H);
+  x.globalCompositeOperation='lighter';
+  for(let i=0;i<40;i++){                       // nappes successives, de plus en plus larges et pâles
+    const g=i/39;
+    x.strokeStyle='rgba(255,255,255,'+(0.115*Math.pow(1-g,2.4)).toFixed(4)+')';
+    x.lineWidth=1.5+i*1.15;
+    const d=i*0.58;
+    x.strokeRect(inx-d, iny-d, W-2*(inx-d), H-2*(iny-d));
+  }
+  x.strokeStyle='rgba(255,255,255,.98)'; x.lineWidth=2.4;   // le fil net du bord
+  x.strokeRect(inx,iny,W-2*inx,H-2*iny);
+  return tex(c);
 })();
 
 /* voile d'attente affiché dans un cadre tant que la mosaïque n'est pas chargée */
@@ -308,9 +325,12 @@ const dust=(function(){
   }
   const g=new THREE.BufferGeometry();
   g.setAttribute('position',new THREE.BufferAttribute(pos,3));
-  const m=new THREE.PointsMaterial({size:.30,map:GLOW,color:0xbfe4ff,transparent:true,opacity:.55,
-    depthWrite:false,blending:THREE.AdditiveBlending});
-  const p=new THREE.Points(g,m); scene.add(p);
+  /* sizeAttenuation désactivé : sinon un grain passant à un mètre de l'œil se
+     dilatait en une tache lumineuse couvrant un quart de l'écran. Taille fixe,
+     en pixels — de vraies poussières, jamais un éblouissement. */
+  const m=new THREE.PointsMaterial({size:2.4,map:GLOW,color:0xbfe4ff,transparent:true,opacity:.5,
+    depthWrite:false,blending:THREE.AdditiveBlending,sizeAttenuation:false});
+  const p=new THREE.Points(g,m); p.frustumCulled=false; scene.add(p);
   return {pts:p, pos:g.attributes.position, ph:ph, N:N};
 })();
 
@@ -366,7 +386,7 @@ function bayCurve(w, y0, rise, z){
 }
 
 /* — montants, verrières, travée par travée — */
-const bayLights=[];
+const bayLights=[], MIRRORS=[];
 const _white=new THREE.Color(0xffffff);
 for(let i=0;i<=NBAY;i++){
   const z=i*BAY, col=CONSC[zoneAt(z)].c;
@@ -381,10 +401,21 @@ for(let i=0;i<=NBAY;i++){
   scene.add(stem);
 
   // sa clarté : un second tube, plus large, en lumière ajoutée
+  /* BackSide, et non DoubleSide : on ne garde que la paroi lointaine du tube de
+     lumière, si bien que la clarté déborde autour du montant sans en redoubler
+     le contour — sinon la structure semblait dessinée deux fois. */
   const aura=new THREE.Mesh(new THREE.TubeGeometry(curve,104,.92,6,false),
-    new THREE.MeshBasicMaterial({color:col,transparent:true,opacity:.17,
-      blending:THREE.AdditiveBlending,depthWrite:false,side:THREE.DoubleSide}));
+    new THREE.MeshBasicMaterial({color:col,transparent:true,opacity:.26,
+      blending:THREE.AdditiveBlending,depthWrite:false,side:THREE.BackSide}));
   scene.add(aura); bayLights.push(aura);
+
+  /* SON REFLET DANS LE SOL. La cathédrale entière se mire sous vos pieds, comme
+     une nef posée sur une eau parfaitement immobile. On réemploie la géométrie
+     du montant retournée : pas un octet de mémoire de plus. (Three.js inverse
+     tout seul le sens des faces quand une échelle est négative.) */
+  const mir=new THREE.Mesh(stem.geometry,
+    new THREE.MeshBasicMaterial({color:bright,transparent:true,opacity:.22,depthWrite:false}));
+  mir.scale.y=-1; scene.add(mir); MIRRORS.push(mir);
 
   // clef de voûte
   const key=new THREE.Mesh(new THREE.OctahedronGeometry(.52,0),
@@ -415,9 +446,25 @@ for(let i=0;i<=NBAY;i++){
   v.position.set(0, COLH+RISE*.86, LEN/2); scene.add(v);
 })();
 
+/* BANDEAU DE NAISSANCE. Deux lignes de lumière courent à hauteur des sommiers,
+   d'un bout à l'autre de la nef, et convergent vers le point de fuite. Rien ne
+   creuse mieux une perspective qu'une horizontale tenue : c'est ce trait qui
+   donne à un vaisseau sa longueur — et ici, sa majesté. Deux objets dessinés. */
+(function stringCourse(){
+  [-HW,HW].forEach(x=>{
+    const b=new THREE.Mesh(new THREE.BoxGeometry(.34,.16,LEN+80),
+      new THREE.MeshBasicMaterial({color:0xdcf2ff}));
+    b.position.set(x, COLH, LEN/2-20); scene.add(b);
+    const g=new THREE.Mesh(new THREE.BoxGeometry(1.5,.9,LEN+80),
+      new THREE.MeshBasicMaterial({color:0x8fd0ff,transparent:true,opacity:.10,
+        blending:THREE.AdditiveBlending,depthWrite:false}));
+    g.position.set(x, COLH, LEN/2-20); scene.add(g);
+  });
+})();
+
 /* — la rose des treize, au fond de la nef — */
 (function rose(){
-  const Z=LEN+16, R=9.4, g=new THREE.Group(); g.position.set(0,COLH*.72,Z);
+  const Z=LEN+16, R=12.5, g=new THREE.Group(); g.position.set(0,COLH*.84,Z);
   const disc=new THREE.Mesh(new THREE.CircleGeometry(R,64),
     new THREE.MeshBasicMaterial({color:0x8fd6ff,transparent:true,opacity:.16,
       blending:THREE.AdditiveBlending,depthWrite:false}));
@@ -451,7 +498,7 @@ for(let i=0;i<=NBAY;i++){
 })();
 
 /* ───────────────────────── 6. LES QUARANTE-HUIT MOSAÏQUES ─────────────── */
-const AR = 1200/854;                                   // format natif des mosaïques
+const AR = 683/960;                     // portrait : largeur / hauteur, après rotation horaire
 const MOS = [];
 const loader = new THREE.TextureLoader();
 
@@ -476,89 +523,143 @@ for(let k=0;k<NIMG;k++){
      se tient au centre (x=0) : une toile posée sur le mur gauche (x<0) doit donc
      regarder vers +X, celle de droite vers −X — d'où le signe négatif. Le léger
      « tilt » tourne la toile vers celui qui arrive.                                */
+  /* En portrait on fixe d'abord la HAUTEUR, la largeur suit. */
   let w,h,x,y,ry,tilt;
-  if(mode===2){      w=11.0; h=w/AR; x=0;               y=COLH*0.82; ry=Math.PI; tilt=0; }
-  else if(mode===1){ w=10.4; h=w/AR; x=side*(HW-.65);   y=h/2+1.5;   tilt=0.14; ry=-side*(Math.PI/2+tilt); }
-  else {             w=8.4;  h=w/AR; x=side*(HW-.55);   y=7.6;       tilt=0;    ry=-side*Math.PI/2; }
+  if(mode===2){      h=11.5; w=h*AR; x=0;              y=21.5;    ry=Math.PI; tilt=0; }
+  else if(mode===1){ h=14.5; w=h*AR; x=side*(HW-.70);  y=h/2+1.6; tilt=0.14; ry=-side*(Math.PI/2+tilt); }
+  else {             h=10.4; w=h*AR; x=side*(HW-.60);  y=9.2;     tilt=0;    ry=-side*Math.PI/2; }
 
   const grp=new THREE.Group(); grp.position.set(x,y,z);
   grp.rotation.y = ry;
-  // toile suspendue au centre : elle fait face à −Z et s'incline vers le sol
-  if(mode===2) grp.rotation.x = -0.34;
+  /* La toile suspendue reste droite : un portrait incliné se lirait mal.
+     Elle vous fait face de loin, grandit, puis passe au-dessus de vous. */
 
-  // la toile — transparente pour pouvoir naître en fondu quand elle se charge
-  const mat=new THREE.MeshBasicMaterial({map:WAIT, side:THREE.DoubleSide, toneMapped:false,
-    transparent:true, opacity:1});
-  const mesh=new THREE.Mesh(new THREE.PlaneGeometry(w,h), mat); grp.add(mesh);
+  const geo=new THREE.PlaneGeometry(w,h);   // une seule géométrie pour deux calques
 
-  // cadre lumineux
-  const fr=new THREE.Mesh(new THREE.PlaneGeometry(w*1.10,h*1.13),
-    new THREE.MeshBasicMaterial({map:FRAME,color:col,transparent:true,opacity:.62,
+  /* 1. LA TOILE. Opaque : elle porte d'emblée sa vignette et sort du tri des
+        transparences — un souci de moins pour le téléphone. */
+  const mat=new THREE.MeshBasicMaterial({map:WAIT, side:THREE.DoubleSide, toneMapped:false});
+  grp.add(new THREE.Mesh(geo, mat));
+
+  /* 2. LE VITRAIL. Un second exemplaire de la MÊME image, en lumière ajoutée,
+        posé juste devant. Là où la mosaïque est claire, la clarté redouble et
+        l'œuvre paraît traversée de lumière ; là où elle est sombre, rien ne
+        s'ajoute et le noir tient. C'est exactement le comportement d'un verre
+        coloré rétroéclairé. Coût en mémoire : nul, la texture est la même.   */
+  const bmat=new THREE.MeshBasicMaterial({map:WAIT, side:THREE.DoubleSide, toneMapped:false,
+    transparent:true, opacity:.34, blending:THREE.AdditiveBlending, depthWrite:false});
+  const bloom=new THREE.Mesh(geo, bmat); bloom.position.z=0.06; grp.add(bloom);
+
+  /* 3. LE HALO, à la place du cadre : une lumière qui déborde de l'œuvre. */
+  const fr=new THREE.Mesh(new THREE.PlaneGeometry(w*1.5,h*1.5),
+    new THREE.MeshBasicMaterial({map:HALO,color:col,transparent:true,opacity:.78,
       blending:THREE.AdditiveBlending,depthWrite:false,side:THREE.DoubleSide}));
-  /* 0,25 u derrière la toile, et non 0,04 : à quarante unités, un tampon de
-     profondeur 16 bits ne sépare plus deux plans si proches, et le cadre se
-     mettait à papilloter autour de l'œuvre. */
-  fr.position.z=-0.25; grp.add(fr);
+  fr.position.z=-0.30; grp.add(fr);
 
-  // auréole derrière la toile
-  /* Auréole. Elle était démesurée (deux fois et demie la toile) : sur les œuvres
-     suspendues au milieu de l'axe, la traverser produisait un éblouissement. */
+  /* 4. LE NIMBE : la même clarté, mais diffuse. Elle donne à la lumière son
+        épaisseur dans la brume, comme un halo autour d'un réverbère. */
   const halo=new THREE.Sprite(new THREE.SpriteMaterial({map:GLOW,color:col,transparent:true,
     opacity:.22,blending:THREE.AdditiveBlending,depthWrite:false}));
-  const hs=(mode===2? w*1.45 : w*1.85);
-  halo.scale.set(hs,hs,1); halo.position.z=-1.3; grp.add(halo);
+  const hs=h*1.55;
+  halo.scale.set(hs,hs,1); halo.position.z=-1.4; grp.add(halo);
   scene.add(grp);
 
-  // rai de lumière tombant sur l'œuvre (uniquement au mur)
+  /* Rai de lumière. Il faisait auparavant la largeur de la toile et flottait
+     juste devant elle : on croyait voir l'œuvre en double. Il part désormais du
+     bord haut du cadre et monte vers la voûte — un faisceau, non un calque. */
   if(mode!==2){
-    const sh=new THREE.Mesh(new THREE.PlaneGeometry(w*.92, COLH-y+RISE*.5),
-      new THREE.MeshBasicMaterial({map:SHAFT,color:col,transparent:true,opacity:.17,
+    const sy=y+h/2, sh_h=(COLH+RISE*.45)-sy;
+    const sh=new THREE.Mesh(new THREE.PlaneGeometry(w*.42, sh_h),
+      new THREE.MeshBasicMaterial({map:SHAFT,color:col,transparent:true,opacity:.15,
         blending:THREE.AdditiveBlending,depthWrite:false,side:THREE.DoubleSide}));
-    sh.position.set(x - side*1.1, y+(COLH-y+RISE*.5)/2 - h*.2, z);
+    sh.position.set(x - side*0.8, sy + sh_h/2, z);
     sh.rotation.y = Math.PI/2; scene.add(sh);
   }
 
   // reflet sur le sol de verre
   let refl=null;
   if(mode!==2){
-    const rm=new THREE.MeshBasicMaterial({map:WAIT,transparent:true,opacity:.15,
+    const rm=new THREE.MeshBasicMaterial({map:WAIT,transparent:true,opacity:.17,
       side:THREE.DoubleSide,depthWrite:false,toneMapped:false});
-    refl=new THREE.Mesh(new THREE.PlaneGeometry(w,h), rm);
+    refl=new THREE.Mesh(geo, rm);
     refl.position.set(x, -y, z); refl.rotation.y=ry; refl.scale.y=-1; scene.add(refl);
   }
 
-  MOS.push({k:k, z:z, x:x, mat:mat, refl:refl, grp:grp, halo:halo,
+  MOS.push({k:k, z:z, x:x, mat:mat, bmat:bmat, bloom:bloom, refl:refl, grp:grp, halo:halo,
             src:'img/m'+String(k).padStart(2,'0')+'.jpg',
-            zone:zi, loaded:false, loading:false, fade:1});
+            zone:zi, loaded:false, loading:false});
 }
 
-/* — Chargement paresseux —
-   Une mosaïque pèse ~3,3 Mo de mémoire graphique une fois décompressée : les
-   garder toutes ferait plier un téléphone. On n'apporte donc que ce qui approche
-   (LOAD unités) et on rend au néant ce qui s'éloigne (DROP unités), ce qui
-   plafonne l'empreinte autour d'une vingtaine de toiles vivantes à la fois.
-   Le fondu d'apparition évite que l'œuvre ne surgisse d'un coup : elle s'éveille. */
-const LOAD=55, DROP=75, FADE=1.4;
+/* ══ DEUX NIVEAUX DE DÉFINITION ══
+   Chaque œuvre existe en deux exemplaires. Une VIGNETTE de 256 px (0,24 Mo en
+   mémoire) est chargée pour les quarante-huit dès l'accueil et ne repart jamais :
+   aucune toile n'est donc noire, même au fond de la nef. La HAUTE DÉFINITION de
+   960 px ne vient que pour les œuvres proches, et repart derrière soi.
+   Comme l'image est la même, le passage de l'une à l'autre ne se voit pas.
+
+   Surtout : une haute définition coûte 3,3 Mo à envoyer à la carte graphique,
+   mipmaps compris. En autoriser quatre dans la même image gelait l'affichage
+   deux à trois dixièmes de seconde — l'à-coup ressenti sur téléphone. On n'en
+   installe donc plus qu'UNE par image, à un instant maîtrisé.                  */
+const LOAD=42, DROP=62;
+const THUMB=new Array(NIMG);
+const pending=[];                       // hautes définitions reçues, pas encore installées
 let queue=0, failed=0;
+
+function tune(t,aniso){
+  t.encoding=THREE.sRGBEncoding;
+  t.minFilter=THREE.LinearMipmapLinearFilter; t.generateMipmaps=true;
+  if(aniso) t.anisotropy=Math.min(8,renderer.capabilities.getMaxAnisotropy());
+  return t;
+}
+/* Changer .map d'une texture vers une autre ne demande PAS de needsUpdate :
+   le programme de rendu est identique, l'uniforme est relu à chaque image. */
+function wear(m,t){ m.mat.map=t; m.bmat.map=t; if(m.refl) m.refl.material.map=t; }
+
 function feed(camZ){
   for(let i=0;i<MOS.length;i++){
     const m=MOS[i], d=Math.abs(m.z-camZ);
-    if(d<LOAD && !m.loaded && !m.loading && queue<4){
+    if(d<LOAD && !m.loaded && !m.loading && queue<2){
       m.loading=true; queue++;
       loader.load(m.src, t=>{
-        t.encoding=THREE.sRGBEncoding;
-        t.anisotropy=Math.min(8,renderer.capabilities.getMaxAnisotropy());
-        t.minFilter=THREE.LinearMipmapLinearFilter; t.generateMipmaps=true;
-        m.mat.map=t; m.mat.needsUpdate=true;
-        if(m.refl){ m.refl.material.map=t; m.refl.material.needsUpdate=true; }
-        m.tex=t; m.loaded=true; m.loading=false; m.fade=0; queue--;
+        tune(t,true); m.tex=t; m.loaded=true; m.loading=false; queue--;
+        pending.push(m);                // installée plus tard, une par image
       }, undefined, ()=>{ m.loading=false; queue--; failed++; });
     } else if(d>DROP && m.loaded){
-      m.mat.map=WAIT; m.mat.needsUpdate=true; m.mat.opacity=1; m.fade=1;
-      if(m.refl){ m.refl.material.map=WAIT; m.refl.material.needsUpdate=true; m.refl.material.opacity=.15; }
+      if(THUMB[m.k]) wear(m,THUMB[m.k]);
       if(m.tex){ m.tex.dispose(); m.tex=null; }
       m.loaded=false;
     }
+  }
+}
+
+/* Une seule installation par image, précédée de initTexture : l'envoi à la carte
+   graphique a lieu ici, à un moment choisi, et non au beau milieu d'un rendu. */
+function serve(){
+  if(!pending.length) return;
+  const m=pending.shift();
+  if(!m.loaded || !m.tex) return;
+  try{ renderer.initTexture(m.tex); }catch(e){}
+  wear(m,m.tex);
+}
+
+/* Les quarante-huit vignettes, chargées avant d'ouvrir les portes. */
+function loadThumbs(done){
+  let n=0;
+  const bar=document.getElementById('barIn');
+  const tick=()=>{
+    n++;
+    if(bar) bar.style.width=(n/NIMG*100).toFixed(0)+'%';
+    if(n>=NIMG && done){ done(); done=null; }
+  };
+  for(let k=0;k<NIMG;k++){
+    (function(k){
+      loader.load('img/t'+String(k).padStart(2,'0')+'.jpg', t=>{
+        tune(t,false); THUMB[k]=t;
+        if(!MOS[k].loaded) wear(MOS[k],t);
+        tick();
+      }, undefined, tick);
+    })(k);
   }
 }
 
@@ -662,6 +763,38 @@ function loopBack(){
   }, 950);
 }
 
+/* ─────────────────── 8bis. QUALITÉ ADAPTATIVE ───────────────────
+   Il existe des centaines de téléphones et je ne peux pas tous les connaître.
+   Plutôt que de parier sur une qualité fixe, la nef mesure sa propre fluidité
+   et se dépouille d'elle-même si l'appareil peine. Trois crans :
+
+     2 — tout : vitraux rétroéclairés, reflets, poussière, pleine définition
+     1 — sans les vitraux, définition réduite
+     0 — sans les reflets ni la poussière, définition d'un pour un
+
+   On ne remonte jamais : une oscillation entre deux crans se verrait plus
+   qu'une image un peu moins fine.                                          */
+const PR_MAX = Math.min(devicePixelRatio||1, innerWidth<820 ? 1.75 : 2);
+const PR = [1.0, Math.min(1.3, PR_MAX), PR_MAX];
+const QU = {lvl:2, acc:0, n:0, hold:90, bloom:true, refl:true};
+
+function applyQuality(){
+  renderer.setPixelRatio(PR[QU.lvl]);
+  renderer.setSize(innerWidth, innerHeight);
+  QU.bloom = QU.lvl>=2;
+  QU.refl  = QU.lvl>=1;
+  for(let i=0;i<MIRRORS.length;i++) MIRRORS[i].visible=QU.refl;
+  dust.pts.visible = QU.lvl>=1;
+}
+
+function watch(raw){
+  if(QU.hold>0){ QU.hold--; return; }      // on laisse passer les premières images
+  if(raw>0 && raw<400){ QU.acc+=raw; QU.n++; }
+  if(QU.n<100) return;
+  const ms=QU.acc/QU.n; QU.acc=0; QU.n=0;
+  if(ms>26 && QU.lvl>0){ QU.lvl--; applyQuality(); QU.hold=150; }  // 26 ms ≈ 38 im/s
+}
+
 /* ───────────────────────── 9. BOUCLE ───────────────────────── */
 let lastZone=-1, cartelT=0, curLabel=-1;
 const cartel=$('cartel'), cTitle=$('cTitle'), cSub=$('cSub'),
@@ -671,8 +804,10 @@ function frame(t){
   requestAnimationFrame(frame);
   /* borné des deux côtés : un onglet remis au premier plan livre un écart énorme,
      et la toute première image peut porter un horodatage antérieur à tPrev. */
-  const dt=Math.max(0, Math.min(0.05,(t-tPrev)/1000))||0; tPrev=t;
-  if(!running) return;
+  const raw=t-tPrev;
+  const dt=Math.max(0, Math.min(0.05, raw/1000))||0; tPrev=t;
+  if(!running || document.hidden) return;
+  watch(raw);
 
   // avancée
   if(walking){
@@ -704,19 +839,19 @@ function frame(t){
   }
   dust.pos.needsUpdate=true;
 
-  // auréoles + éveil progressif des toiles qui viennent de se charger
+  /* Auréoles, vitraux, reflets. Les calques coûteux ne sont allumés qu'au
+     voisinage : au-delà, ils ne se verraient pas et le téléphone les paierait
+     quand même. Une quinzaine de vitraux vivants à la fois, jamais quarante-huit. */
   for(let i=0;i<MOS.length;i++){
     const m=MOS[i], d=Math.abs(m.z-camZ);
     m.halo.material.opacity = d<70 ? 0.09 + 0.14*(1-d/70)*(0.7+0.3*breath) : 0.09;
-    if(m.fade<1){
-      m.fade=Math.min(1, m.fade + dt/FADE);
-      const e=m.fade*m.fade*(3-2*m.fade);           // adoucissement aux deux bouts
-      m.mat.opacity=e;
-      if(m.refl) m.refl.material.opacity=0.15*e;
-    }
+    m.bloom.visible = QU.bloom && d<58;
+    if(m.bloom.visible) m.bmat.opacity = 0.20 + 0.20*(1-d/58)*(0.75+0.25*breath);
+    if(m.refl) m.refl.visible = QU.refl && d<90;
   }
 
   feed(camZ);
+  serve();                      // au plus une texture installée par image
 
   // travée de conscience
   const zi=zoneAt(camZ);
@@ -741,10 +876,26 @@ function frame(t){
 }
 
 /* ───────────────────────── 10. ENTRÉE, COMMANDES ───────────────────────── */
+/* Sur mobile, la barre d'adresse qui se replie déclenche un flot de « resize ».
+   On attend que ça se calme avant de reconstruire le rendu. */
+let rzT=0;
 addEventListener('resize',()=>{
-  camera.aspect=innerWidth/innerHeight; camera.updateProjectionMatrix();
-  renderer.setSize(innerWidth,innerHeight);
+  clearTimeout(rzT);
+  rzT=setTimeout(()=>{
+    camera.aspect=innerWidth/innerHeight; camera.updateProjectionMatrix();
+    renderer.setPixelRatio(PR[QU.lvl]);
+    renderer.setSize(innerWidth,innerHeight);
+  },160);
 });
+
+/* Un téléphone peut retirer le contexte graphique à tout moment (appel entrant,
+   mise en veille, mémoire réclamée). Sans ces deux gardes, la page reste figée. */
+renderer.domElement.addEventListener('webglcontextlost',function(e){
+  e.preventDefault(); running=false;
+},false);
+renderer.domElement.addEventListener('webglcontextrestored',function(){
+  applyQuality(); tPrev=performance.now(); running=true;
+},false);
 
 $('bPlay').onclick=function(){ walking=!walking; this.textContent = walking?'⏸ PAUSE':'▶ REPRENDRE'; this.classList.toggle('on',!walking); };
 $('bSpeed').onclick=function(){ spd=(spd+1)%SPEEDS.length; this.textContent='VITESSE · '+SPEEDS[spd].n; };
@@ -758,19 +909,11 @@ $('bFull').onclick=function(){
   else { document.exitFullscreen(); this.classList.remove('on'); }
 };
 
-/* préchargement des premières mosaïques avant d'ouvrir les portes */
-(function preload(){
-  const first=Math.min(8,NIMG); let done=0;
-  const barIn=$('barIn'), pct=$('pct');
-  for(let k=0;k<first;k++){
-    const im=new Image();
-    im.onload=im.onerror=function(){
-      done++; barIn.style.width=(done/first*100)+'%';
-      if(done>=first){ pct.textContent='LA NEF EST OUVERTE'; $('enter').style.opacity='1'; }
-    };
-    im.src='img/m'+String(k).padStart(2,'0')+'.jpg';
-  }
-})();
+/* Les quarante-huit vignettes avant d'ouvrir les portes : 1,1 Mo en tout, et
+   plus jamais un cadre vide, si loin qu'il soit. */
+loadThumbs(function(){
+  const p=$('pct'); if(p) p.textContent='LA NEF EST OUVERTE';
+});
 
 $('enter').onclick=function(){
   const go=()=>{
