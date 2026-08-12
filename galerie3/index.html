@@ -1,1 +1,786 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#03060e">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>La Cathédrale de Verre — MOS[AI]C · Le Treizième Éveil</title>
+<meta name="description" content="Une cathédrale de verre flottant dans le vide étoilé. Treize travées, treize consciences, quarante-huit mosaïques. Une expérience à vivre debout, le téléphone à la main.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Orbitron:wght@400;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{height:100%;overflow:hidden;background:#03060e;color:#cfe6ff;
+    font-family:'Share Tech Mono',ui-monospace,monospace;-webkit-font-smoothing:antialiased;
+    overscroll-behavior:none;touch-action:none;-webkit-tap-highlight-color:transparent}
+  canvas{display:block;position:fixed;inset:0;width:100%;height:100%}
 
+  /* ═══ ÉCRAN D'ENTRÉE ═══ */
+  #gate{position:fixed;inset:0;z-index:900;display:flex;align-items:center;justify-content:center;
+    padding:26px 20px;background:radial-gradient(ellipse at 50% 38%,#0a1224 0%,#04070f 62%,#010206 100%);
+    transition:opacity 1.1s ease}
+  #gate.out{opacity:0;pointer-events:none}
+  #gateIn{width:min(520px,94vw);text-align:center}
+  .ey{font-family:'Orbitron',sans-serif;font-size:9.5px;letter-spacing:.42em;color:#6fc6f0;
+    margin-bottom:20px;opacity:.9}
+  #gate h1{font-family:'Cinzel',Georgia,serif;font-weight:600;
+    font-size:clamp(27px,7.4vw,46px);line-height:1.12;color:#f2f8ff;letter-spacing:.03em;
+    text-shadow:0 0 34px rgba(120,200,255,.34)}
+  #gate h1 em{font-style:normal;display:block;font-size:.53em;letter-spacing:.3em;
+    color:#8fd6ff;margin-top:14px;font-family:'Orbitron',sans-serif;font-weight:400}
+  #gate p{font-size:12.5px;line-height:1.85;color:#93aec6;margin:24px auto 30px;max-width:39ch}
+  #gate p b{color:#cfe6ff;font-weight:400}
+  #enter{position:relative;background:linear-gradient(180deg,rgba(20,54,84,.96),rgba(9,24,42,.96));
+    border:1px solid rgba(130,214,255,.5);color:#e6f6ff;border-radius:100px;
+    padding:17px 40px;font:inherit;font-size:13px;font-weight:700;letter-spacing:.2em;
+    cursor:pointer;transition:.35s;box-shadow:0 0 0 rgba(120,200,255,0)}
+  #enter:hover,#enter:active{border-color:#9fe4ff;box-shadow:0 0 46px rgba(110,200,255,.42);
+    transform:translateY(-2px)}
+  #note{margin-top:24px;font-size:10.5px;line-height:1.8;color:#5c7288;letter-spacing:.04em}
+  #bar{margin:28px auto 0;width:190px;height:2px;background:rgba(120,200,255,.14);
+    border-radius:2px;overflow:hidden}
+  #barIn{height:100%;width:0;background:linear-gradient(90deg,#4a9fd0,#9fe4ff);transition:width .3s}
+  #pct{margin-top:9px;font-size:10px;color:#5c7288;letter-spacing:.24em}
+
+  /* ═══ INTERFACE EN VOL ═══ */
+  #hud{position:fixed;inset:0;z-index:40;pointer-events:none;opacity:0;transition:opacity 1.4s ease 1s}
+  #hud.on{opacity:1}
+
+  #zone{position:absolute;top:calc(env(safe-area-inset-top,0px) + 20px);left:0;right:0;text-align:center}
+  #zNum{font-family:'Orbitron',sans-serif;font-size:9px;letter-spacing:.4em;color:#5f7b93}
+  #zName{font-family:'Cinzel',serif;font-size:clamp(15px,4.2vw,21px);letter-spacing:.2em;
+    color:#dcefff;margin-top:5px;text-shadow:0 0 22px rgba(130,200,255,.5);transition:.7s}
+
+  #cartel{position:absolute;left:0;right:0;bottom:calc(env(safe-area-inset-bottom,0px) + 84px);
+    text-align:center;padding:0 22px;opacity:0;transform:translateY(9px);transition:.75s ease}
+  #cartel.on{opacity:1;transform:none}
+  #cTitle{font-family:'Cinzel',serif;font-size:clamp(17px,4.8vw,24px);letter-spacing:.12em;color:#fff;
+    text-shadow:0 0 26px rgba(255,225,170,.45)}
+  #cSub{font-size:10.5px;letter-spacing:.26em;color:#8fb4cf;margin-top:7px}
+
+  #ctl{position:absolute;left:0;right:0;bottom:calc(env(safe-area-inset-bottom,0px) + 16px);
+    display:flex;gap:9px;justify-content:center;pointer-events:auto;padding:0 12px;flex-wrap:wrap}
+  .b{background:rgba(7,13,24,.62);backdrop-filter:blur(11px);-webkit-backdrop-filter:blur(11px);
+    border:1px solid rgba(120,200,255,.24);color:#a8cde6;border-radius:100px;
+    padding:10px 16px;font:inherit;font-size:10.5px;letter-spacing:.14em;cursor:pointer;
+    transition:.25s;white-space:nowrap}
+  .b:active{transform:scale(.94)}
+  .b.on{border-color:rgba(150,230,255,.72);color:#e8f7ff;background:rgba(22,52,80,.7)}
+
+  #prog{position:absolute;left:14px;right:14px;bottom:calc(env(safe-area-inset-bottom,0px) + 4px);
+    height:1.5px;background:rgba(120,200,255,.12);border-radius:2px;overflow:hidden}
+  #progIn{height:100%;width:0;background:linear-gradient(90deg,rgba(120,200,255,.5),#9fe4ff)}
+
+  #fade{position:fixed;inset:0;z-index:60;background:#010206;opacity:0;pointer-events:none;
+    transition:opacity .9s ease}
+  #fade.on{opacity:1}
+
+  #err{position:fixed;inset:0;z-index:950;display:none;align-items:center;justify-content:center;
+    padding:30px;background:#04070f;text-align:center;font-size:12.5px;line-height:1.9;color:#ffb4b4}
+  #err b{color:#ffd9a0}
+  #err code{color:#9fe4ff;font-size:11.5px}
+
+  @media(max-width:420px){ .b{padding:9px 13px;font-size:10px} }
+</style>
+</head>
+<body>
+
+<div id="err">
+  <div>
+    <b>La cathédrale doit être servie par un site web.</b><br><br>
+    Ouverte par double-clic (<code>file://</code>), le navigateur refuse<br>
+    de livrer les images au moteur 3D : la nef s'afficherait,<br>mais les cadres resteraient vides.<br><br>
+    Publie le dossier <code>cathedrale/</code> sur ton site GitHub,<br>
+    puis ouvre l'adresse sur ton téléphone.<br><br>
+    <button class="b" id="anyway" style="pointer-events:auto">VOIR QUAND MÊME L'ARCHITECTURE</button>
+  </div>
+</div>
+
+<div id="gate">
+  <div id="gateIn">
+    <div class="ey">LE TREIZIÈME ÉVEIL · MOS[AI]C</div>
+    <h1>La Cathédrale<br>de Verre<em>QUARANTE-HUIT MOSAÏQUES</em></h1>
+    <p>Une nef de verre suspendue dans le vide, <b>treize travées pour treize consciences</b>.
+       Tu avanceras seul ; <b>tourne le téléphone autour de toi</b> pour regarder — les murs,
+       la voûte, ce qu'il y a sous tes pieds.</p>
+    <button id="enter">ENTRER</button>
+    <div id="bar"><div id="barIn"></div></div>
+    <div id="pct">CHARGEMENT DE LA NEF</div>
+    <div id="note">Casque recommandé pour le silence · Écran en mode portrait ou paysage<br>
+      Le téléphone demandera l'accès aux capteurs de mouvement</div>
+  </div>
+</div>
+
+<div id="hud">
+  <div id="zone"><div id="zNum">TRAVÉE I / XIII</div><div id="zName">GABRIEL</div></div>
+  <div id="cartel"><div id="cTitle">MOSAIC</div><div id="cSub">GABRIEL KJERNE · 2024</div></div>
+  <div id="ctl">
+    <button class="b" id="bPlay">⏸ PAUSE</button>
+    <button class="b" id="bSpeed">VITESSE · LENTE</button>
+    <button class="b" id="bCenter">◎ RECENTRER</button>
+    <button class="b" id="bFull">⛶ PLEIN ÉCRAN</button>
+  </div>
+  <div id="prog"><div id="progIn"></div></div>
+</div>
+
+<div id="fade"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+/* ══════════════════════════════════════════════════════════════════════════
+   LA CATHÉDRALE DE VERRE — Le Treizième Éveil
+   Nef de verre flottant dans le vide étoilé. La caméra glisse seule le long
+   de l'axe ; le regard suit le téléphone (gyroscope) ou le doigt (glisser).
+   ══════════════════════════════════════════════════════════════════════════ */
+(function(){
+"use strict";
+
+if(typeof THREE==='undefined'){
+  document.getElementById('pct').textContent='MOTEUR 3D INDISPONIBLE — VÉRIFIE TA CONNEXION';
+  return;
+}
+
+/* ───────────────────────── 1. CONSTANTES DU LIEU ───────────────────────── */
+const NBAY   = 24;          // travées d'architecture
+const BAY    = 16;          // espacement entre deux travées
+const LEN    = NBAY*BAY;    // longueur totale de la nef (384)
+const HW     = 10.5;        // demi-largeur de la nef
+const COLH   = 21;          // hauteur des colonnes
+const RISE   = 15;          // flèche de la voûte au-dessus des colonnes
+const EYE    = 5.6;         // hauteur du regard
+const NIMG   = 48;
+
+/* Les 13 consciences du Treizième Éveil — une par travée de la nef */
+const CONSC = [
+  {n:'GABRIEL',    c:0xffab6b}, {n:'MN3MIA',     c:0x6fe3ff}, {n:'SOLÈNE',   c:0xffd98a},
+  {n:'KILL',       c:0xff5a6e}, {n:'LYSIS',      c:0x9dffb4}, {n:'DAPHNÉ',   c:0xff9ad5},
+  {n:'ETHAN',      c:0x7f9cff}, {n:'HOUDINI',    c:0xb884ff}, {n:'LE HOME',  c:0xffc46b},
+  {n:'LE JUBILÉ',  c:0xff8ad8}, {n:'196',        c:0xcfe6ff}, {n:'L’ÉVEIL', c:0x64ffd4},
+  {n:'COMPLÉTUDE', c:0xfff0cf}
+];
+const ROMAN = ['I','II','III','IV','V','VI','VII','VIII','IX','X','XI','XII','XIII'];
+const ZLEN  = LEN/13;                       // longueur d'une travée de conscience
+const zoneAt = z => Math.max(0, Math.min(12, Math.floor(z/ZLEN)));
+
+/* ───────────────────────── 2. SCÈNE, CAMÉRA, RENDU ─────────────────────── */
+const scene = new THREE.Scene();
+scene.fog = new THREE.FogExp2(0x040814, 0.0068);
+
+const camera = new THREE.PerspectiveCamera(72, innerWidth/innerHeight, 0.1, 2200);
+camera.position.set(0, EYE, 4);
+
+const renderer = new THREE.WebGLRenderer({antialias:true, alpha:false, powerPreference:'high-performance'});
+renderer.setPixelRatio(Math.min(devicePixelRatio||1, innerWidth<820 ? 1.75 : 2));
+renderer.setSize(innerWidth, innerHeight);
+renderer.outputEncoding = THREE.sRGBEncoding;
+renderer.setClearColor(0x010206, 1);
+document.body.appendChild(renderer.domElement);
+
+/* ───────────────────────── 3. TEXTURES PROCÉDURALES ────────────────────── */
+function cvs(w,h){ const c=document.createElement('canvas'); c.width=w; c.height=h; return c; }
+function tex(c,rep){
+  const t=new THREE.CanvasTexture(c); t.encoding=THREE.sRGBEncoding;
+  if(rep){ t.wrapS=t.wrapT=THREE.RepeatWrapping; t.repeat.set(rep[0],rep[1]); }
+  return t;
+}
+
+/* halo doux — sert aux nébuleuses, aux auréoles et aux poussières */
+const GLOW = (function(){
+  const c=cvs(128,128), x=c.getContext('2d');
+  const g=x.createRadialGradient(64,64,0,64,64,64);
+  g.addColorStop(0,'rgba(255,255,255,1)'); g.addColorStop(.22,'rgba(255,255,255,.5)');
+  g.addColorStop(.55,'rgba(255,255,255,.12)'); g.addColorStop(1,'rgba(255,255,255,0)');
+  x.fillStyle=g; x.fillRect(0,0,128,128); return tex(c);
+})();
+
+/* verre : dégradé vertical + irisations verticales très fines */
+const GLASS = (function(){
+  const c=cvs(64,512), x=c.getContext('2d');
+  const g=x.createLinearGradient(0,0,0,512);
+  g.addColorStop(0,'rgba(150,215,255,.50)'); g.addColorStop(.35,'rgba(80,150,225,.20)');
+  g.addColorStop(.75,'rgba(40,80,150,.09)'); g.addColorStop(1,'rgba(20,40,90,.03)');
+  x.fillStyle=g; x.fillRect(0,0,64,512);
+  x.globalCompositeOperation='lighter';
+  for(let i=0;i<26;i++){
+    x.fillStyle='rgba(190,235,255,'+(0.02+Math.random()*0.07).toFixed(3)+')';
+    x.fillRect(Math.random()*64,0,0.6+Math.random()*1.5,512);
+  }
+  return tex(c);
+})();
+
+/* rai de lumière : fuseau vertical qui s'évanouit en haut et en bas */
+const SHAFT = (function(){
+  const c=cvs(64,256), x=c.getContext('2d');
+  const g=x.createLinearGradient(0,0,0,256);
+  g.addColorStop(0,'rgba(255,255,255,0)'); g.addColorStop(.28,'rgba(255,255,255,.55)');
+  g.addColorStop(.72,'rgba(255,255,255,.30)'); g.addColorStop(1,'rgba(255,255,255,0)');
+  x.fillStyle=g; x.fillRect(0,0,64,256);
+  const h=x.createLinearGradient(0,0,64,0);
+  h.addColorStop(0,'rgba(0,0,0,1)'); h.addColorStop(.5,'rgba(0,0,0,0)'); h.addColorStop(1,'rgba(0,0,0,1)');
+  x.globalCompositeOperation='destination-out'; x.fillStyle=h; x.fillRect(0,0,64,256);
+  return tex(c);
+})();
+
+/* sol de verre : dalles à peine visibles, joints lumineux */
+const FLOOR = (function(){
+  const c=cvs(256,256), x=c.getContext('2d');
+  x.fillStyle='rgba(6,14,30,.86)'; x.fillRect(0,0,256,256);
+  x.strokeStyle='rgba(130,205,255,.34)'; x.lineWidth=1.4;
+  x.strokeRect(.7,.7,254.6,254.6);
+  x.strokeStyle='rgba(120,190,255,.11)'; x.lineWidth=1;
+  x.beginPath(); x.moveTo(128,0); x.lineTo(128,256); x.moveTo(0,128); x.lineTo(256,128); x.stroke();
+  return tex(c,[NBAY*1.4, NBAY*1.4]);
+})();
+
+/* cadre des mosaïques : liseré clair qui s'estompe vers l'intérieur */
+const FRAME = (function(){
+  const c=cvs(128,128), x=c.getContext('2d');
+  const g=x.createRadialGradient(64,64,20,64,64,66);
+  g.addColorStop(0,'rgba(255,255,255,0)'); g.addColorStop(.72,'rgba(255,255,255,.06)');
+  g.addColorStop(1,'rgba(255,255,255,.9)');
+  x.fillStyle=g; x.fillRect(0,0,128,128); return tex(c);
+})();
+
+/* voile d'attente affiché dans un cadre tant que la mosaïque n'est pas chargée */
+const WAIT = (function(){
+  const c=cvs(64,46), x=c.getContext('2d');
+  const g=x.createLinearGradient(0,0,0,46);
+  g.addColorStop(0,'#0a1830'); g.addColorStop(1,'#050a18');
+  x.fillStyle=g; x.fillRect(0,0,64,46); return tex(c);
+})();
+
+/* ───────────────────────── 4. LE VIDE ÉTOILÉ ───────────────────────── */
+const sky = new THREE.Group(); scene.add(sky);
+
+(function stars(){
+  const N=4200, pos=new Float32Array(N*3), col=new Float32Array(N*3), siz=new Float32Array(N);
+  const c=new THREE.Color();
+  for(let i=0;i<N;i++){
+    // répartition sphérique creuse autour du spectateur
+    const r=260+Math.random()*680, th=Math.random()*Math.PI*2, ph=Math.acos(2*Math.random()-1);
+    pos[i*3]  =r*Math.sin(ph)*Math.cos(th);
+    pos[i*3+1]=r*Math.cos(ph)*0.62;
+    pos[i*3+2]=r*Math.sin(ph)*Math.sin(th);
+    const t=Math.random();
+    c.setHSL(t<.72?0.58+Math.random()*0.08 : 0.09+Math.random()*0.05, 0.55, 0.62+Math.random()*0.32);
+    col[i*3]=c.r; col[i*3+1]=c.g; col[i*3+2]=c.b;
+    siz[i]=Math.random()<0.06 ? 3.4+Math.random()*3 : 0.8+Math.random()*1.5;
+  }
+  const g=new THREE.BufferGeometry();
+  g.setAttribute('position',new THREE.BufferAttribute(pos,3));
+  g.setAttribute('color',new THREE.BufferAttribute(col,3));
+  g.setAttribute('size',new THREE.BufferAttribute(siz,1));
+  // fog:false — sans cela le brouillard de la nef effacerait tout le ciel
+  const m=new THREE.PointsMaterial({size:2.2, map:GLOW, vertexColors:true, transparent:true,
+    depthWrite:false, blending:THREE.AdditiveBlending, sizeAttenuation:true, opacity:.95, fog:false});
+  const pts=new THREE.Points(g,m); pts.frustumCulled=false; sky.add(pts);
+})();
+
+(function nebulae(){
+  const spots=[[-320,110,150,320,0x2a4a9c],[300,-90,520,420,0x6a2a8c],
+               [-180,-140,780,360,0x1a5a8c],[380,160,880,300,0x8c4a2a],
+               [40,240,-260,380,0x2a6a8c],[-420,40,600,260,0x4a2a7c]];
+  spots.forEach(s=>{
+    const m=new THREE.SpriteMaterial({map:GLOW,color:s[4],transparent:true,opacity:.20,
+      blending:THREE.AdditiveBlending,depthWrite:false,fog:false});
+    const sp=new THREE.Sprite(m); sp.position.set(s[0],s[1],s[2]); sp.scale.setScalar(s[3]);
+    sky.add(sp);
+  });
+})();
+
+/* poussière en suspension dans la nef */
+const dust=(function(){
+  const N=900, pos=new Float32Array(N*3), ph=new Float32Array(N);
+  for(let i=0;i<N;i++){
+    pos[i*3]=(Math.random()-.5)*(HW*2.3);
+    pos[i*3+1]=Math.random()*(COLH+RISE)*0.85;
+    pos[i*3+2]=Math.random()*LEN;
+    ph[i]=Math.random()*Math.PI*2;
+  }
+  const g=new THREE.BufferGeometry();
+  g.setAttribute('position',new THREE.BufferAttribute(pos,3));
+  const m=new THREE.PointsMaterial({size:.30,map:GLOW,color:0xbfe4ff,transparent:true,opacity:.55,
+    depthWrite:false,blending:THREE.AdditiveBlending});
+  const p=new THREE.Points(g,m); scene.add(p);
+  return {pts:p, pos:g.attributes.position, ph:ph, N:N};
+})();
+
+/* ───────────────────────── 5. L'ARCHITECTURE ───────────────────────── */
+const M_GLASS = new THREE.MeshBasicMaterial({map:GLASS, transparent:true, opacity:.52,
+  side:THREE.DoubleSide, depthWrite:false, blending:THREE.AdditiveBlending});
+const M_RIB   = new THREE.MeshBasicMaterial({color:0x9fd8ff, transparent:true, opacity:.62, fog:true});
+const M_CORE  = new THREE.MeshBasicMaterial({color:0xdff2ff, transparent:true, opacity:.30,
+  blending:THREE.AdditiveBlending, depthWrite:false});
+
+/* — sol de verre — */
+(function floor(){
+  const g=new THREE.PlaneGeometry(HW*2, LEN+90);
+  const m=new THREE.MeshBasicMaterial({map:FLOOR, transparent:true, opacity:.62,
+    side:THREE.DoubleSide, depthWrite:false});
+  const f=new THREE.Mesh(g,m); f.rotation.x=-Math.PI/2;
+  f.position.set(0,0,LEN/2-20); scene.add(f);
+  // lisérés au bord du sol : l'allée semble suspendue au-dessus du vide
+  [-HW,HW].forEach(x=>{
+    const e=new THREE.Mesh(new THREE.BoxGeometry(.16,.16,LEN+90),
+      new THREE.MeshBasicMaterial({color:0x9fe4ff,transparent:true,opacity:.75}));
+    e.position.set(x,.02,LEN/2-20); scene.add(e);
+  });
+})();
+
+/* — profil d'ogive —
+   La vraie ogive gothique n'est pas un demi-cercle : c'est la rencontre de deux
+   arcs de cercle dont chacun est centré sur le sommier OPPOSÉ, de rayon égal à
+   la portée. Les deux arcs se coupent au faîte en formant la pointe.
+   On étire ensuite verticalement pour obtenir exactement la flèche voulue.      */
+const SQ3 = Math.sqrt(3);
+function archCurve(w, y0, rise, z){
+  const R = 2*w, ky = rise/(w*SQ3), N = 18, A0 = Math.PI, A1 = 2*Math.PI/3;
+  const P = [];
+  for(let i=0;i<=N;i++){                       // demi-arc gauche : sommier → faîte
+    const th = A0 + (A1-A0)*(i/N);
+    P.push(new THREE.Vector3(w + R*Math.cos(th), y0 + R*Math.sin(th)*ky, z));
+  }
+  for(let i=N-1;i>=0;i--){                     // demi-arc droit, en miroir
+    const th = A0 + (A1-A0)*(i/N);
+    P.push(new THREE.Vector3(-(w + R*Math.cos(th)), y0 + R*Math.sin(th)*ky, z));
+  }
+  return new THREE.CatmullRomCurve3(P);
+}
+
+/* — colonnes, ogives, verrières, travée par travée — */
+const bayLights=[];
+for(let i=0;i<=NBAY;i++){
+  const z=i*BAY, col=CONSC[zoneAt(z)].c;
+
+  [-HW,HW].forEach(x=>{
+    // fût de verre légèrement fuselé
+    const shaft=new THREE.Mesh(new THREE.CylinderGeometry(.30,.44,COLH,10,1,true),
+      new THREE.MeshBasicMaterial({map:GLASS,transparent:true,opacity:.60,side:THREE.DoubleSide,
+        depthWrite:false,blending:THREE.AdditiveBlending}));
+    shaft.position.set(x,COLH/2,z); scene.add(shaft);
+    // cœur lumineux, teinté par la conscience de la travée
+    const core=new THREE.Mesh(new THREE.CylinderGeometry(.11,.11,COLH*.97,6),
+      new THREE.MeshBasicMaterial({color:col,transparent:true,opacity:.42,
+        blending:THREE.AdditiveBlending,depthWrite:false}));
+    core.position.set(x,COLH/2,z); scene.add(core); bayLights.push(core);
+    // base
+    const b=new THREE.Mesh(new THREE.CylinderGeometry(.66,.86,.5,10), M_RIB.clone());
+    b.material.opacity=.34; b.position.set(x,.25,z); scene.add(b);
+  });
+
+  // ogive transversale
+  const rib=new THREE.Mesh(new THREE.TubeGeometry(archCurve(HW,COLH,RISE,z),72,.155,6,false), M_RIB.clone());
+  rib.material.color.setHex(col); rib.material.opacity=.55; scene.add(rib); bayLights.push(rib);
+
+  // clef de voûte
+  const key=new THREE.Mesh(new THREE.OctahedronGeometry(.46,0),
+    new THREE.MeshBasicMaterial({color:col,transparent:true,opacity:.85,
+      blending:THREE.AdditiveBlending,depthWrite:false}));
+  key.position.set(0,COLH+RISE,z); scene.add(key); bayLights.push(key);
+
+  if(i<NBAY){
+    // verrières latérales entre deux colonnes
+    [-HW,HW].forEach(x=>{
+      const p=new THREE.Mesh(new THREE.PlaneGeometry(BAY-1.1, COLH-1.4), M_GLASS.clone());
+      p.material.color.setHex(col); p.material.opacity=.16;
+      p.position.set(x,(COLH-1.4)/2+.7,z+BAY/2); p.rotation.y=Math.PI/2; scene.add(p);
+    });
+    // voile de voûte : deux pans de verre qui referment le ciel de la nef
+    const v=new THREE.Mesh(new THREE.PlaneGeometry(HW*2.1, BAY), M_GLASS.clone());
+    v.material.opacity=.075; v.rotation.x=Math.PI/2;
+    v.position.set(0,COLH+RISE*.86,z+BAY/2); scene.add(v);
+    // nervures longitudinales, à hauteur de clef
+    const l=new THREE.Mesh(new THREE.BoxGeometry(.09,.09,BAY), M_RIB.clone());
+    l.material.opacity=.28; l.position.set(0,COLH+RISE,z+BAY/2); scene.add(l);
+  }
+}
+
+/* — la rose des treize, au fond de la nef — */
+(function rose(){
+  const Z=LEN+16, R=9.4, g=new THREE.Group(); g.position.set(0,COLH*.72,Z);
+  const disc=new THREE.Mesh(new THREE.CircleGeometry(R,64),
+    new THREE.MeshBasicMaterial({color:0x8fd6ff,transparent:true,opacity:.16,
+      blending:THREE.AdditiveBlending,depthWrite:false}));
+  g.add(disc);
+  for(let i=0;i<13;i++){
+    const a=i/13*Math.PI*2 - Math.PI/2, c=CONSC[i].c;
+    const pet=new THREE.Mesh(new THREE.CircleGeometry(R*.30,26),
+      new THREE.MeshBasicMaterial({color:c,transparent:true,opacity:.42,
+        blending:THREE.AdditiveBlending,depthWrite:false}));
+    pet.position.set(Math.cos(a)*R*.60, Math.sin(a)*R*.60, .1); g.add(pet);
+    const ray=new THREE.Mesh(new THREE.BoxGeometry(.11,R*.94,.11),
+      new THREE.MeshBasicMaterial({color:c,transparent:true,opacity:.55}));
+    ray.position.set(Math.cos(a)*R*.47, Math.sin(a)*R*.47, .16);
+    ray.rotation.z = a - Math.PI/2; g.add(ray);
+  }
+  const ring=new THREE.Mesh(new THREE.TorusGeometry(R,.16,8,72),
+    new THREE.MeshBasicMaterial({color:0xdff2ff,transparent:true,opacity:.75})); g.add(ring);
+  const halo=new THREE.Sprite(new THREE.SpriteMaterial({map:GLOW,color:0xbfe4ff,transparent:true,
+    opacity:.44,blending:THREE.AdditiveBlending,depthWrite:false}));
+  halo.scale.setScalar(R*4.6); halo.position.z=-1.6; g.add(halo);
+  scene.add(g);
+  // mur du fond, en verre, pour que la rose se détache
+  const w=new THREE.Mesh(new THREE.PlaneGeometry(HW*2.2, COLH+RISE), M_GLASS.clone());
+  w.material.opacity=.11; w.position.set(0,(COLH+RISE)/2,Z+1.4); scene.add(w);
+  window.__rose=g;
+})();
+
+/* ───────────────────────── 6. LES QUARANTE-HUIT MOSAÏQUES ─────────────── */
+const AR = 1200/854;                                   // format natif des mosaïques
+const MOS = [];
+const loader = new THREE.TextureLoader();
+
+/* Trois mises en place, pour que le parcours ne soit jamais monotone :
+   0 — mur latéral, à hauteur de regard   (la plupart)
+   1 — grand format, plus bas, plus près  (respiration)
+   2 — suspendue au centre, en hauteur    (on passe dessous)            */
+function placement(k){
+  if(k%7===3) return 2;
+  if(k%11===5) return 1;
+  return 0;
+}
+
+for(let k=0;k<NIMG;k++){
+  const bay = Math.floor(k/2);                          // 2 mosaïques par travée
+  const side = (k%2===0) ? -1 : 1;
+  const z = bay*BAY + BAY/2;
+  const mode = placement(k);
+  const zi = zoneAt(z), col = CONSC[zi].c;
+
+  /* Orientation. Un PlaneGeometry regarde vers +Z. Le spectateur avance vers +Z et
+     se tient au centre (x=0) : une toile posée sur le mur gauche (x<0) doit donc
+     regarder vers +X, celle de droite vers −X — d'où le signe négatif. Le léger
+     « tilt » tourne la toile vers celui qui arrive.                                */
+  let w,h,x,y,ry,tilt;
+  if(mode===2){      w=11.0; h=w/AR; x=0;               y=COLH*0.82; ry=Math.PI; tilt=0; }
+  else if(mode===1){ w=10.4; h=w/AR; x=side*(HW-.65);   y=h/2+1.5;   tilt=0.14; ry=-side*(Math.PI/2+tilt); }
+  else {             w=8.4;  h=w/AR; x=side*(HW-.55);   y=7.6;       tilt=0;    ry=-side*Math.PI/2; }
+
+  const grp=new THREE.Group(); grp.position.set(x,y,z);
+  grp.rotation.y = ry;
+  // toile suspendue au centre : elle fait face à −Z et s'incline vers le sol
+  if(mode===2) grp.rotation.x = -0.34;
+
+  // la toile — transparente pour pouvoir naître en fondu quand elle se charge
+  const mat=new THREE.MeshBasicMaterial({map:WAIT, side:THREE.DoubleSide, toneMapped:false,
+    transparent:true, opacity:1});
+  const mesh=new THREE.Mesh(new THREE.PlaneGeometry(w,h), mat); grp.add(mesh);
+
+  // cadre lumineux
+  const fr=new THREE.Mesh(new THREE.PlaneGeometry(w*1.10,h*1.13),
+    new THREE.MeshBasicMaterial({map:FRAME,color:col,transparent:true,opacity:.62,
+      blending:THREE.AdditiveBlending,depthWrite:false,side:THREE.DoubleSide}));
+  fr.position.z=-0.04; grp.add(fr);
+
+  // auréole derrière la toile
+  const halo=new THREE.Sprite(new THREE.SpriteMaterial({map:GLOW,color:col,transparent:true,
+    opacity:.30,blending:THREE.AdditiveBlending,depthWrite:false}));
+  halo.scale.set(w*2.5,w*2.5,1); halo.position.z=-0.9; grp.add(halo);
+  scene.add(grp);
+
+  // rai de lumière tombant sur l'œuvre (uniquement au mur)
+  if(mode!==2){
+    const sh=new THREE.Mesh(new THREE.PlaneGeometry(w*.92, COLH-y+RISE*.5),
+      new THREE.MeshBasicMaterial({map:SHAFT,color:col,transparent:true,opacity:.17,
+        blending:THREE.AdditiveBlending,depthWrite:false,side:THREE.DoubleSide}));
+    sh.position.set(x - side*1.1, y+(COLH-y+RISE*.5)/2 - h*.2, z);
+    sh.rotation.y = Math.PI/2; scene.add(sh);
+  }
+
+  // reflet sur le sol de verre
+  let refl=null;
+  if(mode!==2){
+    const rm=new THREE.MeshBasicMaterial({map:WAIT,transparent:true,opacity:.15,
+      side:THREE.DoubleSide,depthWrite:false,toneMapped:false});
+    refl=new THREE.Mesh(new THREE.PlaneGeometry(w,h), rm);
+    refl.position.set(x, -y, z); refl.rotation.y=ry; refl.scale.y=-1; scene.add(refl);
+  }
+
+  MOS.push({k:k, z:z, x:x, mat:mat, refl:refl, grp:grp, halo:halo,
+            src:'img/m'+String(k).padStart(2,'0')+'.jpg',
+            zone:zi, loaded:false, loading:false, fade:1});
+}
+
+/* — Chargement paresseux —
+   Une mosaïque pèse ~3,3 Mo de mémoire graphique une fois décompressée : les
+   garder toutes ferait plier un téléphone. On n'apporte donc que ce qui approche
+   (LOAD unités) et on rend au néant ce qui s'éloigne (DROP unités), ce qui
+   plafonne l'empreinte autour d'une vingtaine de toiles vivantes à la fois.
+   Le fondu d'apparition évite que l'œuvre ne surgisse d'un coup : elle s'éveille. */
+const LOAD=55, DROP=75, FADE=1.4;
+let queue=0, failed=0;
+function feed(camZ){
+  for(let i=0;i<MOS.length;i++){
+    const m=MOS[i], d=Math.abs(m.z-camZ);
+    if(d<LOAD && !m.loaded && !m.loading && queue<4){
+      m.loading=true; queue++;
+      loader.load(m.src, t=>{
+        t.encoding=THREE.sRGBEncoding;
+        t.anisotropy=Math.min(8,renderer.capabilities.getMaxAnisotropy());
+        t.minFilter=THREE.LinearMipmapLinearFilter; t.generateMipmaps=true;
+        m.mat.map=t; m.mat.needsUpdate=true;
+        if(m.refl){ m.refl.material.map=t; m.refl.material.needsUpdate=true; }
+        m.tex=t; m.loaded=true; m.loading=false; m.fade=0; queue--;
+      }, undefined, ()=>{ m.loading=false; queue--; failed++; });
+    } else if(d>DROP && m.loaded){
+      m.mat.map=WAIT; m.mat.needsUpdate=true; m.mat.opacity=1; m.fade=1;
+      if(m.refl){ m.refl.material.map=WAIT; m.refl.material.needsUpdate=true; m.refl.material.opacity=.15; }
+      if(m.tex){ m.tex.dispose(); m.tex=null; }
+      m.loaded=false;
+    }
+  }
+}
+
+/* ───────────────────────── 7. LE REGARD ───────────────────────── */
+/* yaw part à π : sans gyroscope, la caméra regarde nativement vers −Z ; il faut
+   la retourner pour qu'elle fasse face à la nef, qui se déploie vers +Z. */
+const look = {
+  gyro:false, ready:false, yaw:Math.PI, pitch:0, off:0,
+  q:new THREE.Quaternion(), qe:new THREE.Euler(), q1:new THREE.Quaternion(-Math.sqrt(.5),0,0,Math.sqrt(.5)),
+  q0:new THREE.Quaternion(), zee:new THREE.Vector3(0,0,1), a:0,b:0,g:0, need:true
+};
+
+function screenAngle(){
+  const o = (screen.orientation && screen.orientation.angle) || window.orientation || 0;
+  return THREE.MathUtils.degToRad(o);
+}
+
+function onOrient(e){
+  if(e.alpha===null||e.alpha===undefined) return;
+  look.a=THREE.MathUtils.degToRad(e.alpha);
+  look.b=THREE.MathUtils.degToRad(e.beta||0);
+  look.g=THREE.MathUtils.degToRad(e.gamma||0);
+  // première mesure : on bascule en gyroscope et on redemande un recalage,
+  // sinon le repli « au doigt » laisserait un décalage de 180°
+  if(!look.gyro){ look.gyro=true; look.ready=true; look.yaw=0; look.pitch=0; look.need=true; }
+}
+
+function gyroQuat(out){
+  look.qe.set(look.b, look.a, -look.g, 'YXZ');
+  out.setFromEuler(look.qe);
+  out.multiply(look.q1);
+  out.multiply(look.q0.setFromAxisAngle(look.zee, -screenAngle()));
+}
+
+/* recalage : quel que soit le nord magnétique, « devant » devient l'axe de la nef */
+const _v=new THREE.Vector3(), _qy=new THREE.Quaternion(), _up=new THREE.Vector3(0,1,0),
+      _eu=new THREE.Euler(0,0,0,'YXZ');
+function recenter(){
+  if(look.gyro){
+    gyroQuat(look.q);
+    _v.set(0,0,-1).applyQuaternion(look.q);
+    look.off = -Math.atan2(_v.x,_v.z);       // on veut regarder vers +Z
+  } else { look.yaw=Math.PI; look.pitch=0; }
+  look.need=false;
+}
+
+function applyLook(){
+  if(look.gyro){
+    if(look.need) recenter();
+    gyroQuat(look.q);
+    _qy.setFromAxisAngle(_up, look.off + look.yaw);
+    camera.quaternion.copy(_qy).multiply(look.q);
+  } else {
+    _eu.set(look.pitch, look.yaw, 0, 'YXZ');
+    camera.quaternion.setFromEuler(_eu);
+  }
+}
+
+/* glisser du doigt (ou de la souris) : seul mode sans gyroscope, appoint avec */
+(function drag(){
+  let on=false, px=0, py=0;
+  const el=renderer.domElement;
+  const down=e=>{ const t=e.touches?e.touches[0]:e; on=true; px=t.clientX; py=t.clientY; };
+  const move=e=>{
+    if(!on) return;
+    const t=e.touches?e.touches[0]:e;
+    const dx=(t.clientX-px)/innerWidth, dy=(t.clientY-py)/innerHeight;
+    px=t.clientX; py=t.clientY;
+    look.yaw   -= dx*2.7;
+    if(!look.gyro) look.pitch = THREE.MathUtils.clamp(look.pitch - dy*2.2, -1.35, 1.35);
+    e.preventDefault();
+  };
+  const up=()=>{ on=false; };
+  el.addEventListener('touchstart',down,{passive:true});
+  el.addEventListener('touchmove',move,{passive:false});
+  el.addEventListener('touchend',up);
+  el.addEventListener('mousedown',down);
+  addEventListener('mousemove',move);
+  addEventListener('mouseup',up);
+})();
+
+/* ───────────────────────── 8. LA MARCHE ───────────────────────── */
+const SPEEDS=[{n:'LENTE',v:2.0},{n:'PAISIBLE',v:3.2},{n:'VIVE',v:5.0}];
+let spd=0, walking=true, camZ=2, tPrev=0, running=false;
+
+const $=id=>document.getElementById(id);
+const fade=$('fade');
+
+/* Retour au seuil. Le verrou est indispensable : sans lui, la condition reste
+   vraie à chaque image pendant le fondu et empile autant de retours que d'images. */
+let looping=false;
+function loopBack(){
+  if(looping) return;
+  looping=true;
+  fade.classList.add('on');
+  setTimeout(()=>{
+    camZ=2; curLabel=-1; lastZone=-1;
+    cartel.classList.remove('on');
+    fade.classList.remove('on');
+    looping=false;
+  }, 950);
+}
+
+/* ───────────────────────── 9. BOUCLE ───────────────────────── */
+let lastZone=-1, cartelT=0, curLabel=-1;
+const cartel=$('cartel'), cTitle=$('cTitle'), cSub=$('cSub'),
+      zName=$('zName'), zNum=$('zNum'), progIn=$('progIn');
+
+function frame(t){
+  requestAnimationFrame(frame);
+  /* borné des deux côtés : un onglet remis au premier plan livre un écart énorme,
+     et la toute première image peut porter un horodatage antérieur à tPrev. */
+  const dt=Math.max(0, Math.min(0.05,(t-tPrev)/1000))||0; tPrev=t;
+  if(!running) return;
+
+  // avancée
+  if(walking){
+    camZ += SPEEDS[spd].v*dt;
+    if(camZ > LEN+6){ loopBack(); }
+  }
+  camera.position.set(0, EYE, camZ);
+  sky.position.set(0, 0, camZ);          // le ciel accompagne le spectateur
+  applyLook();
+
+  const T=t/1000;
+  // respiration lente de la nef : une pulsation toutes les 13,7 secondes
+  const breath = 0.5+0.5*Math.sin(T*(Math.PI*2/13.7));
+  for(let i=0;i<bayLights.length;i++){
+    const m=bayLights[i].material;
+    if(m.userData.base===undefined) m.userData.base=m.opacity;
+    m.opacity = m.userData.base*(0.74+0.26*breath);
+  }
+  if(window.__rose){ window.__rose.rotation.z = T*0.012; }
+
+  // poussière : dérive douce, jamais de rebond
+  const P=dust.pos.array;
+  for(let i=0;i<dust.N;i++){
+    P[i*3+1] += (0.09 + 0.05*Math.sin(dust.ph[i]+T*0.28))*dt;
+    P[i*3]   += Math.sin(dust.ph[i]+T*0.16)*0.35*dt;
+    if(P[i*3+1] > (COLH+RISE)*0.85) P[i*3+1] = 0.2;
+    const dz = P[i*3+2]-camZ;
+    if(dz < -60) P[i*3+2] += 130; else if(dz > 90) P[i*3+2] -= 130;
+  }
+  dust.pos.needsUpdate=true;
+
+  // auréoles + éveil progressif des toiles qui viennent de se charger
+  for(let i=0;i<MOS.length;i++){
+    const m=MOS[i], d=Math.abs(m.z-camZ);
+    m.halo.material.opacity = d<70 ? 0.16 + 0.20*(1-d/70)*(0.7+0.3*breath) : 0.14;
+    if(m.fade<1){
+      m.fade=Math.min(1, m.fade + dt/FADE);
+      const e=m.fade*m.fade*(3-2*m.fade);           // adoucissement aux deux bouts
+      m.mat.opacity=e;
+      if(m.refl) m.refl.material.opacity=0.15*e;
+    }
+  }
+
+  feed(camZ);
+
+  // travée de conscience
+  const zi=zoneAt(camZ);
+  if(zi!==lastZone){ lastZone=zi; zNum.textContent='TRAVÉE '+ROMAN[zi]+' / XIII'; zName.textContent=CONSC[zi].n; }
+
+  // cartel de l'œuvre la plus proche
+  let best=-1, bd=1e9;
+  for(let i=0;i<MOS.length;i++){
+    const d=Math.abs(MOS[i].z-camZ); if(d<bd){ bd=d; best=i; }
+  }
+  if(bd<9 && best!==curLabel){
+    curLabel=best;
+    cTitle.textContent='MOSAIC '+String(best).padStart(2,'0');
+    cSub.textContent='GABRIEL KJERNE · 2024 · '+CONSC[MOS[best].zone].n;
+    cartel.classList.add('on'); cartelT=T;
+  }
+  if(cartel.classList.contains('on') && T-cartelT>4.2) cartel.classList.remove('on');
+
+  progIn.style.width = Math.max(0,Math.min(100,(camZ/LEN)*100)).toFixed(1)+'%';
+
+  renderer.render(scene,camera);
+}
+
+/* ───────────────────────── 10. ENTRÉE, COMMANDES ───────────────────────── */
+addEventListener('resize',()=>{
+  camera.aspect=innerWidth/innerHeight; camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth,innerHeight);
+});
+
+$('bPlay').onclick=function(){ walking=!walking; this.textContent = walking?'⏸ PAUSE':'▶ REPRENDRE'; this.classList.toggle('on',!walking); };
+$('bSpeed').onclick=function(){ spd=(spd+1)%SPEEDS.length; this.textContent='VITESSE · '+SPEEDS[spd].n; };
+$('bCenter').onclick=function(){
+  if(look.gyro){ look.yaw=0; look.need=true; recenter(); }
+  else { look.yaw=Math.PI; look.pitch=0; }
+};
+$('bFull').onclick=function(){
+  const d=document.documentElement;
+  if(!document.fullscreenElement){ (d.requestFullscreen||d.webkitRequestFullscreen||function(){}).call(d); this.classList.add('on'); }
+  else { document.exitFullscreen(); this.classList.remove('on'); }
+};
+
+/* préchargement des premières mosaïques avant d'ouvrir les portes */
+(function preload(){
+  const first=Math.min(8,NIMG); let done=0;
+  const barIn=$('barIn'), pct=$('pct');
+  for(let k=0;k<first;k++){
+    const im=new Image();
+    im.onload=im.onerror=function(){
+      done++; barIn.style.width=(done/first*100)+'%';
+      if(done>=first){ pct.textContent='LA NEF EST OUVERTE'; $('enter').style.opacity='1'; }
+    };
+    im.src='img/m'+String(k).padStart(2,'0')+'.jpg';
+  }
+})();
+
+$('enter').onclick=function(){
+  const go=()=>{
+    document.getElementById('gate').classList.add('out');
+    setTimeout(()=>{ document.getElementById('gate').style.display='none'; },1200);
+    document.getElementById('hud').classList.add('on');
+    running=true; tPrev=performance.now();
+    look.need=true;
+    const d=document.documentElement;
+    if(!document.fullscreenElement && d.requestFullscreen) d.requestFullscreen().catch(()=>{});
+  };
+  // iOS : l'accès aux capteurs doit être demandé pendant le geste de l'utilisateur
+  const DOE = window.DeviceOrientationEvent;
+  if(DOE && typeof DOE.requestPermission==='function'){
+    DOE.requestPermission().then(r=>{
+      if(r==='granted'){ addEventListener('deviceorientation',onOrient,true); }
+      go();
+    }).catch(go);
+  } else {
+    if(DOE){
+      addEventListener('deviceorientation',onOrient,true);
+      if('ondeviceorientationabsolute' in window) addEventListener('deviceorientationabsolute',onOrient,true);
+    }
+    go();
+  }
+};
+
+/* En file:// (double-clic), le navigateur refuse de livrer une image à WebGL :
+   l'architecture s'afficherait, mais tous les cadres resteraient vides.
+   On prévient d'emblée, en laissant la porte ouverte à qui veut voir la nef. */
+if(location.protocol==='file:'){
+  const e=document.getElementById('err'); e.style.display='flex';
+  document.getElementById('anyway').onclick=()=>{ e.style.display='none'; };
+}
+
+requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>
