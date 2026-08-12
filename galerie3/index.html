@@ -106,7 +106,9 @@
     <h1>La Cathédrale<br>de Verre<em>QUARANTE-HUIT MOSAÏQUES</em></h1>
     <p>Une nef de verre suspendue dans le vide, <b>treize travées pour treize consciences</b>.
        Tu avanceras seul ; <b>tourne le téléphone autour de toi</b> pour regarder — les murs,
-       la voûte, ce qu'il y a sous tes pieds.</p>
+       la voûte, ce qu'il y a sous tes pieds.<br><br>
+       Devant une mosaïque, <b>tends le bras</b> : la marche s'apaise et l'œuvre
+       livre sa matière. Ramène le téléphone pour repartir.</p>
     <button id="enter">ENTRER</button>
     <div id="bar"><div id="barIn"></div></div>
     <div id="pct">CHARGEMENT DE LA NEF</div>
@@ -119,6 +121,7 @@
   <div id="zone"><div id="zNum">TRAVÉE I / XIII</div><div id="zName">GABRIEL</div></div>
   <div id="cartel"><div id="cTitle">MOSAIC</div><div id="cSub">GABRIEL KJERNE · 2024</div></div>
   <div id="ctl">
+    <button class="b" id="bLook">◉ APPROCHER</button>
     <button class="b" id="bPlay">⏸ PAUSE</button>
     <button class="b" id="bSpeed">VITESSE · LENTE</button>
     <button class="b" id="bCenter">◎ RECENTRER</button>
@@ -695,21 +698,56 @@ function loadThumbs(done){
 const look = {
   gyro:false, ready:false, yaw:Math.PI, pitch:0, off:0,
   q:new THREE.Quaternion(), qe:new THREE.Euler(), q1:new THREE.Quaternion(-Math.sqrt(.5),0,0,Math.sqrt(.5)),
-  q0:new THREE.Quaternion(), zee:new THREE.Vector3(0,0,1), a:0,b:0,g:0, need:true
+  q0:new THREE.Quaternion(), zee:new THREE.Vector3(0,0,1), a:0,b:0,g:0, need:true,
+  /* Cible brute venue du capteur, et version lissée réellement appliquée.
+     On n'obéit jamais au capteur au pixel près : un seul relevé aberrant
+     suffirait à projeter le spectateur ailleurs le temps d'une image.      */
+  qRaw:new THREE.Quaternion(), qSmooth:new THREE.Quaternion(), have:false, drop:0,
+  src:null                       // la source d'événements adoptée, une seule
 };
+
+const _qc=new THREE.Quaternion();      // quaternion d'essai, avant jugement
 
 function screenAngle(){
   const o = (screen.orientation && screen.orientation.angle) || window.orientation || 0;
   return THREE.MathUtils.degToRad(o);
 }
 
+/* ══ UNE SEULE SOURCE, ET DU LISSAGE ══
+   Android émet DEUX événements d'orientation : « deviceorientation », dont
+   l'angle alpha part d'une référence arbitraire, et « deviceorientationabsolute »,
+   dont l'alpha part du nord magnétique. Les deux décrivent la même position du
+   téléphone avec des caps DIFFÉRENTS. Je les écoutais tous les deux : les flux
+   arrivaient en alternance et une image sur deux affichait un autre cap — donc
+   un autre endroit de la nef. La première source qui parle est adoptée ; l'autre
+   est ignorée définitivement.                                                  */
 function onOrient(e){
   if(e.alpha===null||e.alpha===undefined) return;
+  if(look.src===null) look.src=e.type;
+  if(e.type!==look.src) return;
+
   look.a=THREE.MathUtils.degToRad(e.alpha);
   look.b=THREE.MathUtils.degToRad(e.beta||0);
   look.g=THREE.MathUtils.degToRad(e.gamma||0);
-  // première mesure : on bascule en gyroscope et on redemande un recalage,
-  // sinon le repli « au doigt » laisserait un décalage de 180°
+
+  /* La mesure est d'abord calculée à l'écart, dans un quaternion d'essai. Elle
+     n'est versée dans la cible QUE si elle est jugée plausible — sinon le
+     lissage irait la chercher malgré le refus.
+
+     Rejet des sauts invraisemblables : le téléphone tenu droit place les angles
+     d'Euler tout près de leur singularité, où un relevé peut basculer d'un coup.
+     Au-delà de 50° entre deux mesures — plus de 3000°/s — c'est le capteur qui
+     délire, pas le bras. Refus limité à six de suite, au cas où le téléphone
+     aurait réellement été retourné.                                           */
+  gyroQuat(_qc);
+  if(look.have){
+    const ang=2*Math.acos(Math.min(1,Math.abs(_qc.dot(look.qSmooth))));
+    if(ang>0.87 && look.drop<6){ look.drop++; return; }
+  }
+  look.drop=0;
+  look.qRaw.copy(_qc);
+  if(!look.have){ look.qSmooth.copy(_qc); look.have=true; }
+
   if(!look.gyro){ look.gyro=true; look.ready=true; look.yaw=0; look.pitch=0; look.need=true; }
 }
 
@@ -724,20 +762,23 @@ function gyroQuat(out){
 const _v=new THREE.Vector3(), _qy=new THREE.Quaternion(), _up=new THREE.Vector3(0,1,0),
       _eu=new THREE.Euler(0,0,0,'YXZ');
 function recenter(){
-  if(look.gyro){
-    gyroQuat(look.q);
-    _v.set(0,0,-1).applyQuaternion(look.q);
+  if(look.gyro && look.have){
+    _v.set(0,0,-1).applyQuaternion(look.qSmooth);
     look.off = -Math.atan2(_v.x,_v.z);       // on veut regarder vers +Z
   } else { look.yaw=Math.PI; look.pitch=0; }
   look.need=false;
 }
 
-function applyLook(){
-  if(look.gyro){
+function applyLook(dt){
+  if(look.gyro && look.have){
     if(look.need) recenter();
-    gyroQuat(look.q);
+    /* Le regard rejoint la mesure du capteur au lieu de s'y coller : constante
+       de temps d'environ 70 ms. Assez vif pour qu'on ne sente aucun retard,
+       assez lent pour qu'un relevé isolé ne déplace la vue que de quelques
+       degrés — la mesure suivante le corrige avant qu'on l'ait perçu.      */
+    look.qSmooth.slerp(look.qRaw, 1-Math.exp(-dt*14));
     _qy.setFromAxisAngle(_up, look.off + look.yaw);
-    camera.quaternion.copy(_qy).multiply(look.q);
+    camera.quaternion.copy(_qy).multiply(look.qSmooth);
   } else {
     _eu.set(look.pitch, look.yaw, 0, 'YXZ');
     camera.quaternion.setFromEuler(_eu);
@@ -766,6 +807,59 @@ function applyLook(){
   addEventListener('mousemove',move);
   addEventListener('mouseup',up);
 })();
+
+/* ═══════════════════ 7bis. TENDRE LE BRAS ═══════════════════
+   Approcher le téléphone d'une œuvre pour en voir la matière. Deux commandes
+   pour un même geste, car aucun capteur n'est garanti sur tous les appareils :
+
+   · LE GESTE — on pousse le téléphone devant soi, on approche ; on le ramène,
+     on s'éloigne. Un bras tendu qui ne bouge plus ne produit AUCUNE accélération :
+     impossible de mesurer une position tenue. On détecte donc l'élan, pas la
+     posture, et l'état reste acquis jusqu'au geste inverse.
+   · LE BOUTON — on le maintient. Toujours disponible.
+
+   Pendant ce temps la marche s'apaise presque jusqu'à l'arrêt, le champ se
+   resserre de 72° à 30°, et la mosaïque regardée charge sa pleine définition :
+   1184 px de large au lieu de 683, soit 1,7 fois plus de matière.            */
+const ZOOM={want:0, cur:0, det:null, detK:-1, loading:false, fov0:72, fov1:30};
+let pushV=0, gRef=null;
+
+function onMotion(e){
+  let a=e.acceleration;
+  if(!a || a.x===null || a.x===undefined){
+    const g=e.accelerationIncludingGravity;
+    if(!g || g.x===null || g.x===undefined) return;
+    /* Cet appareil ne sait pas retrancher la pesanteur : on l'estime nous-mêmes
+       par une moyenne lente, et ce qui s'en écarte est le mouvement du bras. */
+    if(!gRef) gRef={x:g.x||0,y:g.y||0,z:g.z||0};
+    gRef.x+=((g.x||0)-gRef.x)*0.05;
+    gRef.y+=((g.y||0)-gRef.y)*0.05;
+    gRef.z+=((g.z||0)-gRef.z)*0.05;
+    a={x:(g.x||0)-gRef.x, y:(g.y||0)-gRef.y, z:(g.z||0)-gRef.z};
+  }
+  // l'axe Z de l'appareil sort de l'écran vers soi : tendre le bras pousse vers −Z
+  pushV = pushV*0.85 - (a.z||0)*0.15;
+  if(pushV >  1.7){ ZOOM.want=1; pushV=0; }
+  if(pushV < -1.7){ ZOOM.want=0; pushV=0; }
+}
+
+function dropDetail(){
+  if(ZOOM.detK<0) return;
+  const m=MOS[ZOOM.detK];
+  if(m) wear(m, (m.loaded&&m.tex) ? m.tex : (THUMB[m.k]||WAIT));
+  if(ZOOM.det){ ZOOM.det.dispose(); ZOOM.det=null; }
+  ZOOM.detK=-1;
+}
+function askDetail(k){
+  if(k<0 || k===ZOOM.detK || ZOOM.loading) return;
+  dropDetail(); ZOOM.loading=true;
+  loader.load('img/d'+String(k).padStart(2,'0')+'.jpg', function(t){
+    tune(t,true); ZOOM.loading=false;
+    if(ZOOM.cur<0.15){ t.dispose(); return; }      // le bras est déjà retombé
+    try{ renderer.initTexture(t); }catch(e){}
+    ZOOM.det=t; ZOOM.detK=k; wear(MOS[k], t);
+  }, undefined, function(){ ZOOM.loading=false; });
+}
 
 /* ───────────────────────── 8. LA MARCHE ───────────────────────── */
 const SPEEDS=[{n:'LENTE',v:2.0},{n:'PAISIBLE',v:3.2},{n:'VIVE',v:5.0}];
@@ -839,14 +933,20 @@ function frame(t){
   if(!running || document.hidden) return;
   watch(raw);
 
+  /* bras tendu : le champ se resserre, la marche s'apaise presque à l'arrêt */
+  ZOOM.cur += (ZOOM.want-ZOOM.cur)*(1-Math.exp(-dt*4));
+  const zf = ZOOM.cur*ZOOM.cur*(3-2*ZOOM.cur);
+  const nf = ZOOM.fov0 + (ZOOM.fov1-ZOOM.fov0)*zf;
+  if(Math.abs(nf-camera.fov)>0.04){ camera.fov=nf; camera.updateProjectionMatrix(); }
+
   // avancée
   if(walking){
-    camZ += SPEEDS[spd].v*dt;
+    camZ += SPEEDS[spd].v*dt*(1-zf*0.94);
     if(camZ > LEN+6){ loopBack(); }
   }
   camera.position.set(0, EYE, camZ);
   sky.position.set(0, 0, camZ);          // le ciel accompagne le spectateur
-  applyLook();
+  applyLook(dt);
 
   const T=t/1000;
   // respiration lente de la nef : une pulsation toutes les 13,7 secondes
@@ -898,7 +998,11 @@ function frame(t){
     cSub.textContent='GABRIEL KJERNE · 2024 · '+CONSC[MOS[best].zone].n;
     cartel.classList.add('on'); cartelT=T;
   }
-  if(cartel.classList.contains('on') && T-cartelT>4.2) cartel.classList.remove('on');
+  if(cartel.classList.contains('on') && T-cartelT>4.2 && zf<0.1) cartel.classList.remove('on');
+
+  /* la pleine définition ne vient que pour l'œuvre qu'on est en train de fixer */
+  if(zf>0.25 && bd<44) askDetail(best);
+  else if(ZOOM.cur<0.12) dropDetail();
 
   progIn.style.width = Math.max(0,Math.min(100,(camZ/LEN)*100)).toFixed(1)+'%';
 
@@ -925,6 +1029,17 @@ renderer.domElement.addEventListener('webglcontextlost',function(e){
 renderer.domElement.addEventListener('webglcontextrestored',function(){
   applyQuality(); tPrev=performance.now(); running=true;
 },false);
+
+/* APPROCHER : on maintient. Même effet que de tendre le bras, pour les
+   appareils sans capteur de mouvement — ou pour une main posée. */
+(function lookButton(){
+  const b=$('bLook');
+  const grab=function(e){ ZOOM.want=1; b.classList.add('on'); if(e.cancelable) e.preventDefault(); };
+  const free=function(){ ZOOM.want=0; b.classList.remove('on'); };
+  b.addEventListener('touchstart',grab,{passive:false});
+  b.addEventListener('touchend',free); b.addEventListener('touchcancel',free);
+  b.addEventListener('mousedown',grab); addEventListener('mouseup',free);
+})();
 
 $('bPlay').onclick=function(){ walking=!walking; this.textContent = walking?'⏸ PAUSE':'▶ REPRENDRE'; this.classList.toggle('on',!walking); };
 $('bSpeed').onclick=function(){ spd=(spd+1)%SPEEDS.length; this.textContent='VITESSE · '+SPEEDS[spd].n; };
@@ -954,20 +1069,26 @@ $('enter').onclick=function(){
     const d=document.documentElement;
     if(!document.fullscreenElement && d.requestFullscreen) d.requestFullscreen().catch(()=>{});
   };
+  /* UNE SEULE source d'orientation. On prend « deviceorientation », dont le cap
+     part d'une référence arbitraire mais qui, n'ayant pas besoin de la boussole,
+     est plus stable. La source absolue n'est sollicitée qu'en dernier recours,
+     si rien n'est venu au bout d'une seconde — et jamais en plus de l'autre.  */
+  const bind=function(){
+    addEventListener('deviceorientation',onOrient,true);
+    setTimeout(function(){
+      if(!look.gyro && ('ondeviceorientationabsolute' in window))
+        addEventListener('deviceorientationabsolute',onOrient,true);
+    },1000);
+    addEventListener('devicemotion',onMotion,true);
+  };
+
   // iOS : l'accès aux capteurs doit être demandé pendant le geste de l'utilisateur
-  const DOE = window.DeviceOrientationEvent;
-  if(DOE && typeof DOE.requestPermission==='function'){
-    DOE.requestPermission().then(r=>{
-      if(r==='granted'){ addEventListener('deviceorientation',onOrient,true); }
-      go();
-    }).catch(go);
-  } else {
-    if(DOE){
-      addEventListener('deviceorientation',onOrient,true);
-      if('ondeviceorientationabsolute' in window) addEventListener('deviceorientationabsolute',onOrient,true);
-    }
-    go();
-  }
+  const DOE=window.DeviceOrientationEvent, DME=window.DeviceMotionEvent;
+  const q=[];
+  if(DOE && typeof DOE.requestPermission==='function') q.push(DOE.requestPermission().catch(function(){}));
+  if(DME && typeof DME.requestPermission==='function') q.push(DME.requestPermission().catch(function(){}));
+  if(q.length) Promise.all(q).then(function(){ bind(); go(); },function(){ bind(); go(); });
+  else { bind(); go(); }
 };
 
 /* En file:// (double-clic), le navigateur refuse de livrer une image à WebGL :
