@@ -170,7 +170,12 @@ const zoneAt = z => Math.max(0, Math.min(12, Math.floor(z/ZLEN)));
 const scene = new THREE.Scene();
 scene.fog = new THREE.FogExp2(0x040814, 0.0068);
 
-const camera = new THREE.PerspectiveCamera(72, innerWidth/innerHeight, 0.1, 2200);
+/* Le plan rapproché est volontairement lointain (1,2) et le plan éloigné resserré.
+   Beaucoup de mobiles n'accordent au tampon de profondeur que 16 bits là où un PC
+   en offre 24 : avec un rapport de 22000 entre les deux plans, deux surfaces
+   voisines se disputaient le même pixel et la structure clignotait. Ramené à 1333,
+   la précision est multipliée par plus de dix. */
+const camera = new THREE.PerspectiveCamera(72, innerWidth/innerHeight, 1.2, 1600);
 camera.position.set(0, EYE, 4);
 
 const renderer = new THREE.WebGLRenderer({antialias:true, alpha:false, powerPreference:'high-performance'});
@@ -312,9 +317,6 @@ const dust=(function(){
 /* ───────────────────────── 5. L'ARCHITECTURE ───────────────────────── */
 const M_GLASS = new THREE.MeshBasicMaterial({map:GLASS, transparent:true, opacity:.52,
   side:THREE.DoubleSide, depthWrite:false, blending:THREE.AdditiveBlending});
-const M_RIB   = new THREE.MeshBasicMaterial({color:0x9fd8ff, transparent:true, opacity:.62, fog:true});
-const M_CORE  = new THREE.MeshBasicMaterial({color:0xdff2ff, transparent:true, opacity:.30,
-  blending:THREE.AdditiveBlending, depthWrite:false});
 
 /* — sol de verre — */
 (function floor(){
@@ -322,82 +324,96 @@ const M_CORE  = new THREE.MeshBasicMaterial({color:0xdff2ff, transparent:true, o
   const m=new THREE.MeshBasicMaterial({map:FLOOR, transparent:true, opacity:.62,
     side:THREE.DoubleSide, depthWrite:false});
   const f=new THREE.Mesh(g,m); f.rotation.x=-Math.PI/2;
-  f.position.set(0,0,LEN/2-20); scene.add(f);
-  // lisérés au bord du sol : l'allée semble suspendue au-dessus du vide
+  f.position.set(0,0,LEN/2-20); f.renderOrder=1; scene.add(f);
+  /* Lisérés au bord du sol : l'allée semble suspendue au-dessus du vide.
+     Ils étaient à 0,02 u du plancher — donc à cheval dessus : sur mobile, les deux
+     surfaces clignotaient sur toute la longueur de l'axe. On les décolle nettement
+     et on leur interdit d'écrire dans le tampon de profondeur. */
   [-HW,HW].forEach(x=>{
-    const e=new THREE.Mesh(new THREE.BoxGeometry(.16,.16,LEN+90),
-      new THREE.MeshBasicMaterial({color:0x9fe4ff,transparent:true,opacity:.75}));
-    e.position.set(x,.02,LEN/2-20); scene.add(e);
+    const e=new THREE.Mesh(new THREE.BoxGeometry(.14,.14,LEN+90),
+      new THREE.MeshBasicMaterial({color:0xbfeeff,transparent:true,opacity:.85,depthWrite:false}));
+    e.position.set(x,.30,LEN/2-20); e.renderOrder=2; scene.add(e);
   });
 })();
 
-/* — profil d'ogive —
+/* — LE MONTANT D'UNE TRAVÉE, D'UN SEUL TENANT —
    La vraie ogive gothique n'est pas un demi-cercle : c'est la rencontre de deux
    arcs de cercle dont chacun est centré sur le sommier OPPOSÉ, de rayon égal à
    la portée. Les deux arcs se coupent au faîte en formant la pointe.
-   On étire ensuite verticalement pour obtenir exactement la flèche voulue.      */
+
+   Vertu de cette construction : à la naissance de l'arc, la tangente du cercle est
+   exactement verticale — l'ogive prolonge donc le fût sans le moindre angle. On
+   peut décrire toute la travée par UNE seule courbe (sol → fût → voûte → fût → sol)
+   et la couler en un tube unique : plus aucun raccord visible, plus d'assemblage
+   de pièces rapportées.                                                          */
 const SQ3 = Math.sqrt(3);
-function archCurve(w, y0, rise, z){
-  const R = 2*w, ky = rise/(w*SQ3), N = 18, A0 = Math.PI, A1 = 2*Math.PI/3;
+function bayCurve(w, y0, rise, z){
+  const R = 2*w, ky = rise/(w*SQ3), N = 20, A0 = Math.PI, A1 = 2*Math.PI/3, NV = 6;
   const P = [];
-  for(let i=0;i<=N;i++){                       // demi-arc gauche : sommier → faîte
+  for(let i=0;i<NV;i++)                        // fût gauche, du sol vers le sommier
+    P.push(new THREE.Vector3(-w, y0*(i/NV), z));
+  for(let i=0;i<=N;i++){                       // demi-ogive gauche : sommier → faîte
     const th = A0 + (A1-A0)*(i/N);
     P.push(new THREE.Vector3(w + R*Math.cos(th), y0 + R*Math.sin(th)*ky, z));
   }
-  for(let i=N-1;i>=0;i--){                     // demi-arc droit, en miroir
+  for(let i=N-1;i>=0;i--){                     // demi-ogive droite, en miroir
     const th = A0 + (A1-A0)*(i/N);
     P.push(new THREE.Vector3(-(w + R*Math.cos(th)), y0 + R*Math.sin(th)*ky, z));
   }
+  for(let i=NV-1;i>=0;i--)                     // fût droit, du sommier vers le sol
+    P.push(new THREE.Vector3(w, y0*(i/NV), z));
   return new THREE.CatmullRomCurve3(P);
 }
 
-/* — colonnes, ogives, verrières, travée par travée — */
+/* — montants, verrières, travée par travée — */
 const bayLights=[];
+const _white=new THREE.Color(0xffffff);
 for(let i=0;i<=NBAY;i++){
   const z=i*BAY, col=CONSC[zoneAt(z)].c;
+  const curve=bayCurve(HW,COLH,RISE,z);
 
-  [-HW,HW].forEach(x=>{
-    // fût de verre légèrement fuselé
-    const shaft=new THREE.Mesh(new THREE.CylinderGeometry(.30,.44,COLH,10,1,true),
-      new THREE.MeshBasicMaterial({map:GLASS,transparent:true,opacity:.60,side:THREE.DoubleSide,
-        depthWrite:false,blending:THREE.AdditiveBlending}));
-    shaft.position.set(x,COLH/2,z); scene.add(shaft);
-    // cœur lumineux, teinté par la conscience de la travée
-    const core=new THREE.Mesh(new THREE.CylinderGeometry(.11,.11,COLH*.97,6),
-      new THREE.MeshBasicMaterial({color:col,transparent:true,opacity:.42,
-        blending:THREE.AdditiveBlending,depthWrite:false}));
-    core.position.set(x,COLH/2,z); scene.add(core); bayLights.push(core);
-    // base
-    const b=new THREE.Mesh(new THREE.CylinderGeometry(.66,.86,.5,10), M_RIB.clone());
-    b.material.opacity=.34; b.position.set(x,.25,z); scene.add(b);
-  });
+  /* Le montant, coulé d'une pièce. Il est OPAQUE à dessein : une matière franche
+     se pose nettement sur le vide, ne participe plus au tri des transparences —
+     source de scintillement sur mobile — et occulte proprement ce qu'elle cache. */
+  const bright=new THREE.Color(col).lerp(_white,0.62);
+  const stem=new THREE.Mesh(new THREE.TubeGeometry(curve,104,.30,7,false),
+    new THREE.MeshBasicMaterial({color:bright}));
+  scene.add(stem);
 
-  // ogive transversale
-  const rib=new THREE.Mesh(new THREE.TubeGeometry(archCurve(HW,COLH,RISE,z),72,.155,6,false), M_RIB.clone());
-  rib.material.color.setHex(col); rib.material.opacity=.55; scene.add(rib); bayLights.push(rib);
+  // sa clarté : un second tube, plus large, en lumière ajoutée
+  const aura=new THREE.Mesh(new THREE.TubeGeometry(curve,104,.92,6,false),
+    new THREE.MeshBasicMaterial({color:col,transparent:true,opacity:.17,
+      blending:THREE.AdditiveBlending,depthWrite:false,side:THREE.DoubleSide}));
+  scene.add(aura); bayLights.push(aura);
 
   // clef de voûte
-  const key=new THREE.Mesh(new THREE.OctahedronGeometry(.46,0),
+  const key=new THREE.Mesh(new THREE.OctahedronGeometry(.52,0),
     new THREE.MeshBasicMaterial({color:col,transparent:true,opacity:.85,
       blending:THREE.AdditiveBlending,depthWrite:false}));
   key.position.set(0,COLH+RISE,z); scene.add(key); bayLights.push(key);
 
   if(i<NBAY){
-    // verrières latérales entre deux colonnes
+    // verrières latérales, tendues entre deux montants
     [-HW,HW].forEach(x=>{
       const p=new THREE.Mesh(new THREE.PlaneGeometry(BAY-1.1, COLH-1.4), M_GLASS.clone());
       p.material.color.setHex(col); p.material.opacity=.16;
       p.position.set(x,(COLH-1.4)/2+.7,z+BAY/2); p.rotation.y=Math.PI/2; scene.add(p);
     });
-    // voile de voûte : deux pans de verre qui referment le ciel de la nef
-    const v=new THREE.Mesh(new THREE.PlaneGeometry(HW*2.1, BAY), M_GLASS.clone());
-    v.material.opacity=.075; v.rotation.x=Math.PI/2;
-    v.position.set(0,COLH+RISE*.86,z+BAY/2); scene.add(v);
-    // nervures longitudinales, à hauteur de clef
-    const l=new THREE.Mesh(new THREE.BoxGeometry(.09,.09,BAY), M_RIB.clone());
-    l.material.opacity=.28; l.position.set(0,COLH+RISE,z+BAY/2); scene.add(l);
+    /* Nervure faîtière, opaque et jointive : chaque segment va d'une clef à la
+       suivante, si bien que la ligne de faîte court d'un bout à l'autre sans rupture. */
+    const l=new THREE.Mesh(new THREE.BoxGeometry(.15,.15,BAY),
+      new THREE.MeshBasicMaterial({color:new THREE.Color(col).lerp(_white,0.62)}));
+    l.position.set(0,COLH+RISE,z+BAY/2); scene.add(l);
   }
 }
+
+/* Voile de voûte : un seul pan pour toute la nef. En vingt-quatre morceaux
+   aboutés, les jonctions se voyaient en fines coutures lumineuses. */
+(function veil(){
+  const v=new THREE.Mesh(new THREE.PlaneGeometry(HW*2.1, LEN), M_GLASS.clone());
+  v.material.opacity=.07; v.rotation.x=Math.PI/2;
+  v.position.set(0, COLH+RISE*.86, LEN/2); scene.add(v);
+})();
 
 /* — la rose des treize, au fond de la nef — */
 (function rose(){
@@ -413,12 +429,17 @@ for(let i=0;i<=NBAY;i++){
         blending:THREE.AdditiveBlending,depthWrite:false}));
     pet.position.set(Math.cos(a)*R*.60, Math.sin(a)*R*.60, .1); g.add(pet);
     const ray=new THREE.Mesh(new THREE.BoxGeometry(.11,R*.94,.11),
-      new THREE.MeshBasicMaterial({color:c,transparent:true,opacity:.55}));
-    ray.position.set(Math.cos(a)*R*.47, Math.sin(a)*R*.47, .16);
+      new THREE.MeshBasicMaterial({color:c,transparent:true,opacity:.62,
+        blending:THREE.AdditiveBlending,depthWrite:false}));
+    ray.position.set(Math.cos(a)*R*.47, Math.sin(a)*R*.47, .55);
     ray.rotation.z = a - Math.PI/2; g.add(ray);
   }
+  /* La rose se tient à 400 unités : à cette distance un mobile ne distingue plus
+     deux plans séparés de moins de deux unités. Toutes ses pièces sont donc en
+     lumière ajoutée et n'écrivent pas la profondeur — l'ordre n'a plus d'effet. */
   const ring=new THREE.Mesh(new THREE.TorusGeometry(R,.16,8,72),
-    new THREE.MeshBasicMaterial({color:0xdff2ff,transparent:true,opacity:.75})); g.add(ring);
+    new THREE.MeshBasicMaterial({color:0xdff2ff,transparent:true,opacity:.85,
+      blending:THREE.AdditiveBlending,depthWrite:false})); ring.position.z=.9; g.add(ring);
   const halo=new THREE.Sprite(new THREE.SpriteMaterial({map:GLOW,color:0xbfe4ff,transparent:true,
     opacity:.44,blending:THREE.AdditiveBlending,depthWrite:false}));
   halo.scale.setScalar(R*4.6); halo.position.z=-1.6; g.add(halo);
@@ -474,12 +495,18 @@ for(let k=0;k<NIMG;k++){
   const fr=new THREE.Mesh(new THREE.PlaneGeometry(w*1.10,h*1.13),
     new THREE.MeshBasicMaterial({map:FRAME,color:col,transparent:true,opacity:.62,
       blending:THREE.AdditiveBlending,depthWrite:false,side:THREE.DoubleSide}));
-  fr.position.z=-0.04; grp.add(fr);
+  /* 0,25 u derrière la toile, et non 0,04 : à quarante unités, un tampon de
+     profondeur 16 bits ne sépare plus deux plans si proches, et le cadre se
+     mettait à papilloter autour de l'œuvre. */
+  fr.position.z=-0.25; grp.add(fr);
 
   // auréole derrière la toile
+  /* Auréole. Elle était démesurée (deux fois et demie la toile) : sur les œuvres
+     suspendues au milieu de l'axe, la traverser produisait un éblouissement. */
   const halo=new THREE.Sprite(new THREE.SpriteMaterial({map:GLOW,color:col,transparent:true,
-    opacity:.30,blending:THREE.AdditiveBlending,depthWrite:false}));
-  halo.scale.set(w*2.5,w*2.5,1); halo.position.z=-0.9; grp.add(halo);
+    opacity:.22,blending:THREE.AdditiveBlending,depthWrite:false}));
+  const hs=(mode===2? w*1.45 : w*1.85);
+  halo.scale.set(hs,hs,1); halo.position.z=-1.3; grp.add(halo);
   scene.add(grp);
 
   // rai de lumière tombant sur l'œuvre (uniquement au mur)
@@ -680,7 +707,7 @@ function frame(t){
   // auréoles + éveil progressif des toiles qui viennent de se charger
   for(let i=0;i<MOS.length;i++){
     const m=MOS[i], d=Math.abs(m.z-camZ);
-    m.halo.material.opacity = d<70 ? 0.16 + 0.20*(1-d/70)*(0.7+0.3*breath) : 0.14;
+    m.halo.material.opacity = d<70 ? 0.09 + 0.14*(1-d/70)*(0.7+0.3*breath) : 0.09;
     if(m.fade<1){
       m.fade=Math.min(1, m.fade + dt/FADE);
       const e=m.fade*m.fade*(3-2*m.fade);           // adoucissement aux deux bouts
