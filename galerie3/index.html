@@ -122,6 +122,7 @@
   <div id="cartel"><div id="cTitle">MOSAIC</div><div id="cSub">GABRIEL KJERNE · 2024</div></div>
   <div id="ctl">
     <button class="b" id="bLook">◉ APPROCHER</button>
+    <button class="b on" id="bMusic">♪ MUSIQUE</button>
     <button class="b" id="bPlay">⏸ PAUSE</button>
     <button class="b" id="bSpeed">VITESSE · LENTE</button>
     <button class="b" id="bCenter">◎ RECENTRER</button>
@@ -998,6 +999,66 @@ function askDetail(k){
   }, undefined, function(){ ZOOM.loading=false; });
 }
 
+/* ═══════════════════ 7ter. LA MUSIQUE ═══════════════════
+   Lit MUSIC/music.wav, en boucle, active dès l'entrée.
+
+   Trois précautions. D'abord, aucun navigateur n'autorise le son avant un geste
+   de l'utilisateur : la lecture démarre donc au clic sur ENTRER, jamais avant.
+   Ensuite le volume monte et descend en fondu — une musique qui s'enclenche
+   d'un coup casse net l'entrée dans le lieu. Enfin, si le .wav est absent, on
+   essaie sans bruit les formats compressés : le reste du site est en .mp3, et
+   il serait dommage qu'un simple nom de fichier prive la nef de sa voix.      */
+const MUSIC={el:null, on:true, ok:false, vol:0.55, i:0,
+  srcs:['MUSIC/music.wav','MUSIC/music.mp3','MUSIC/music.m4a','MUSIC/music.ogg']};
+
+function musicLabel(){
+  const b=document.getElementById('bMusic'); if(!b) return;
+  if(!MUSIC.ok && MUSIC.i>=MUSIC.srcs.length){ b.textContent='♪ AUCUNE MUSIQUE'; b.classList.remove('on'); return; }
+  b.textContent = MUSIC.on ? '♪ MUSIQUE' : '♪ SILENCE';
+  b.classList.toggle('on', MUSIC.on);
+}
+
+(function musicInit(){
+  const a=document.createElement('audio');
+  a.loop=true; a.preload='auto'; a.volume=0;
+  a.setAttribute('playsinline','');            // iOS : ne pas ouvrir de lecteur plein écran
+  const tryNext=function(){
+    if(MUSIC.i>=MUSIC.srcs.length){ MUSIC.ok=false; musicLabel(); return; }
+    a.src=MUSIC.srcs[MUSIC.i++];
+    try{ a.load(); }catch(e){}
+  };
+  a.addEventListener('error', tryNext);
+  a.addEventListener('canplay', function(){
+    if(MUSIC.ok) return;
+    MUSIC.ok=true; musicLabel();
+    if(MUSIC.on && running) musicPlay();
+  });
+  MUSIC.el=a; tryNext();
+})();
+
+/* Volontairement sans condition sur le chargement : réclamer la lecture d'un
+   fichier encore en route est licite, le navigateur la lancera dès qu'il pourra.
+   L'important est que la demande parte pendant le geste de l'utilisateur.     */
+function musicPlay(){
+  const a=MUSIC.el; if(!a) return;
+  const p=a.play();
+  if(p && p.catch) p.catch(function(){});      // refus du navigateur : on n'insiste pas
+}
+
+/* Le volume rejoint sa cible en douceur, appelé à chaque image. */
+function musicFade(dt){
+  const a=MUSIC.el; if(!a || !MUSIC.ok) return;
+  const target=MUSIC.on ? MUSIC.vol : 0;
+  const v=a.volume;
+  let nv=v+(target-v)*(1-Math.exp(-dt*1.1));
+  /* On accroche la cible dès qu'on l'approche. Une approche purement
+     exponentielle ne l'atteint jamais tout à fait : le son ne se serait
+     jamais tu complètement, et le fondu se serait figé juste avant la fin. */
+  if(Math.abs(target-nv)<0.004) nv=target;
+  a.volume=Math.max(0,Math.min(1,nv));
+  if(target===0 && a.volume<=0 && !a.paused) a.pause();
+}
+
 /* ───────────────────────── 8. LA MARCHE ───────────────────────── */
 const SPEEDS=[{n:'LENTE',v:2.0},{n:'PAISIBLE',v:3.2},{n:'VIVE',v:5.0}];
 let spd=0, walking=true, camZ=2, tPrev=0, running=false;
@@ -1071,6 +1132,7 @@ function frame(t){
   const dt=Math.max(0, Math.min(0.05, raw/1000))||0; tPrev=t;
   if(!running || document.hidden) return;
   watch(raw);
+  musicFade(dt);
 
   /* bras tendu : le champ se resserre, la marche s'apaise presque à l'arrêt */
   ZOOM.cur += (ZOOM.want-ZOOM.cur)*(1-Math.exp(-dt*4));
@@ -1191,6 +1253,20 @@ renderer.domElement.addEventListener('webglcontextrestored',function(){
   b.addEventListener('mousedown',grab); addEventListener('mouseup',free);
 })();
 
+$('bMusic').onclick=function(){
+  MUSIC.on=!MUSIC.on;
+  if(MUSIC.on) musicPlay();          // le fondu se charge de la montée
+  musicLabel();
+};
+
+/* Musique en veille quand on quitte la page : personne n'aime une nef qui
+   continue de chanter dans un onglet oublié. */
+document.addEventListener('visibilitychange',function(){
+  const a=MUSIC.el; if(!a) return;
+  if(document.hidden){ try{ a.pause(); }catch(e){} }
+  else if(MUSIC.on && running) musicPlay();
+});
+
 $('bPlay').onclick=function(){ walking=!walking; this.textContent = walking?'⏸ PAUSE':'▶ REPRENDRE'; this.classList.toggle('on',!walking); };
 $('bSpeed').onclick=function(){ spd=(spd+1)%SPEEDS.length; this.textContent='VITESSE · '+SPEEDS[spd].n; };
 $('bCenter').onclick=function(){
@@ -1210,6 +1286,12 @@ loadThumbs(function(){
 });
 
 $('enter').onclick=function(){
+  /* La lecture est réclamée ICI, dans le geste même de l'utilisateur : c'est la
+     seule fenêtre où un navigateur accepte de délier le son. Le fichier n'est
+     peut-être pas encore chargé, peu importe — l'intention est enregistrée et
+     la lecture partira d'elle-même. Le volume, lui, part de zéro. */
+  if(MUSIC.on) musicPlay();
+
   const go=()=>{
     document.getElementById('gate').classList.add('out');
     setTimeout(()=>{ document.getElementById('gate').style.display='none'; },1200);
