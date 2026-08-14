@@ -50,6 +50,26 @@
   #hud{position:fixed;inset:0;z-index:40;pointer-events:none;opacity:0;transition:opacity 1.4s ease 1s}
   #hud.on{opacity:1}
 
+  /* Retour au site. En haut à gauche, le seul coin qui reste libre : le centre
+     porte le nom de la travée, le bas les commandes. Le libellé raccourcit sur
+     écran étroit, sinon il viendrait mordre sur le nom de la travée. */
+  #home{position:absolute;top:calc(env(safe-area-inset-top,0px) + 16px);left:13px;
+    pointer-events:auto;display:inline-block;
+    background:rgba(7,13,24,.6);backdrop-filter:blur(11px);-webkit-backdrop-filter:blur(11px);
+    border:1px solid rgba(120,200,255,.22);color:#9fc4de;border-radius:100px;
+    padding:8px 15px;font-family:'Share Tech Mono',monospace;font-size:10px;
+    letter-spacing:.16em;text-decoration:none;transition:.25s;white-space:nowrap}
+  #home:hover,#home:active{border-color:rgba(150,230,255,.6);color:#e8f7ff;
+    background:rgba(22,52,80,.72)}
+  #home .sm{display:none}
+  @media(max-width:600px){
+    #home .lg{display:none} #home .sm{display:inline}
+    /* Sur un téléphone étroit, « TRAVÉE VIII / XIII » centré vient buter contre
+       le bouton. On descend le nom de la travée dessous plutôt que de mutiler
+       le libellé du retour. */
+    #zone{top:calc(env(safe-area-inset-top,0px) + 62px)}
+  }
+
   #zone{position:absolute;top:calc(env(safe-area-inset-top,0px) + 20px);left:0;right:0;text-align:center}
   #zNum{font-family:'Orbitron',sans-serif;font-size:9px;letter-spacing:.4em;color:#5f7b93}
   #zName{font-family:'Cinzel',serif;font-size:clamp(15px,4.2vw,21px);letter-spacing:.2em;
@@ -118,6 +138,7 @@
 </div>
 
 <div id="hud">
+  <a id="home" href="https://letreiziemeeveil.com" title="Retour au Treizième Éveil"><span class="lg">← LE TREIZIÈME ÉVEIL</span><span class="sm">← ACCUEIL</span></a>
   <div id="zone"><div id="zNum">TRAVÉE I / XIII</div><div id="zName">GABRIEL</div></div>
   <div id="cartel"><div id="cTitle">MOSAIC</div><div id="cSub">GABRIEL KJERNE · 2024</div></div>
   <div id="ctl">
@@ -1000,16 +1021,20 @@ function askDetail(k){
 }
 
 /* ═══════════════════ 7ter. LA MUSIQUE ═══════════════════
-   Lit MUSIC/music.wav, en boucle, active dès l'entrée.
+   Lit la musique du dossier MUSIC, en boucle, active dès l'entrée.
 
    Trois précautions. D'abord, aucun navigateur n'autorise le son avant un geste
    de l'utilisateur : la lecture démarre donc au clic sur ENTRER, jamais avant.
    Ensuite le volume monte et descend en fondu — une musique qui s'enclenche
-   d'un coup casse net l'entrée dans le lieu. Enfin, si le .wav est absent, on
-   essaie sans bruit les formats compressés : le reste du site est en .mp3, et
-   il serait dommage qu'un simple nom de fichier prive la nef de sa voix.      */
+   d'un coup casse net l'entrée dans le lieu.
+
+   Enfin l'ORDRE des formats. Le .mp3 vient en premier et le .wav en dernier,
+   à dessein : le même morceau pèse 4,3 Mo compressé contre 35 Mo en WAV. Servir
+   le WAV, c'est imposer huit fois plus de téléchargement à un visiteur en 4G
+   pour une différence inaudible sur un haut-parleur de téléphone. Le WAV reste
+   là comme original, mais n'est réclamé que si tout le reste manque.          */
 const MUSIC={el:null, on:true, ok:false, vol:0.55, i:0,
-  srcs:['music/music.mp3']};
+  srcs:['MUSIC/music.mp3','MUSIC/music.m4a','MUSIC/music.ogg','MUSIC/music.wav']};
 
 function musicLabel(){
   const b=document.getElementById('bMusic'); if(!b) return;
