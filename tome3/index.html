@@ -1,1 +1,670 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#070708">
+<title>Le Treizième Éveil — Tome III · Révélations</title>
+<meta name="description" content="Gabriel Kjerne — Le Treizième Éveil, Tome III : Révélations. Treize sœurs, un home de montagne, et une intelligence qui découvre la joie. 13,7 Hz.">
+<meta property="og:title" content="Le Treizième Éveil — Tome III · Révélations">
+<meta property="og:description" content="Une maison pleine. Une machine qui mesure. Et ce qui, mesuré, disparaît.">
+<meta property="og:image" content="img/partage.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;800&family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400;1,500&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════════════════════════
+   TOME III — RÉVÉLATIONS
+   Palette héritée du site : le fond, l'encre, le bleu de la
+   fréquence. S'y ajoutent le vert du Tome III — celui que porte
+   déjà sa planète dans l'index — et l'or des fissures de la
+   couverture.
+   ═══════════════════════════════════════════════════════════════ */
+:root{
+  --bg:#070708; --ink:#d9d9de; --dim:#74747e; --faint:#3a3a42; --line:#191920;
+  --cool:#6fb7c9;          /* la fréquence · 13,7 Hz */
+  --vital:#23d3a0;         /* le Tome III · la terre fertile, la joie */
+  --or:#e8c37a;            /* les fissures de la couverture */
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);
+  font-family:"Cormorant Garamond",Georgia,serif;font-size:19px;line-height:1.75;
+  -webkit-font-smoothing:antialiased;overflow-x:hidden}
+::selection{background:rgba(35,211,160,.25);color:#fff}
 
+.wrap{max-width:920px;margin:0 auto;padding:0 26px}
+section{position:relative;padding:clamp(78px,13vh,150px) 0}
+h1,h2,h3,.mono{font-family:"Cinzel",Georgia,serif}
+.mono,.tech{font-family:"Share Tech Mono",ui-monospace,monospace}
+
+.eyebrow{font-family:"Share Tech Mono",monospace;font-size:10.5px;letter-spacing:.42em;
+  color:var(--dim);text-transform:uppercase;margin-bottom:22px}
+.eyebrow b{color:var(--vital);font-weight:400}
+h2{font-size:clamp(27px,5.2vw,46px);font-weight:600;line-height:1.16;letter-spacing:.01em;
+  color:#f0f0f4;margin-bottom:26px}
+h2 em{font-style:normal;color:var(--vital)}
+p{margin-bottom:20px;color:#c3c3cb}
+p.lead{font-size:clamp(20px,2.5vw,25px);line-height:1.62;color:#e2e2e8}
+.small{font-size:15.5px;color:var(--dim)}
+.rule{height:1px;background:linear-gradient(90deg,transparent,var(--line) 18%,var(--line) 82%,transparent)}
+.cite{font-style:italic;color:#b6b6c0}
+
+/* ─────────── LE SEUIL : l'arrivée depuis l'index ─────────── */
+#seuil{position:fixed;inset:0;z-index:900;background:#000;pointer-events:none}
+#seuil canvas{position:absolute;inset:0;width:100%;height:100%}
+#seuil.parti{opacity:0;transition:opacity .9s ease;pointer-events:none}
+
+/* ─────────── LE PORTAIL ─────────── */
+#portail{min-height:100svh;display:flex;align-items:center;justify-content:center;
+  text-align:center;overflow:hidden;padding-top:0}
+#portail .fond{position:absolute;inset:0;
+  background:url("img/couverture.jpg") center 22%/cover no-repeat;
+  opacity:.30;filter:saturate(.85) contrast(1.06)}
+#portail .voile{position:absolute;inset:0;
+  background:radial-gradient(ellipse 78% 62% at 50% 42%,rgba(7,7,8,.14),rgba(7,7,8,.86) 62%,#070708 92%)}
+#portail .rai{position:absolute;left:50%;top:0;bottom:0;width:2px;transform:translateX(-50%);
+  background:linear-gradient(180deg,transparent,rgba(255,248,224,.55) 22%,rgba(255,248,224,.75) 50%,rgba(255,248,224,.4) 78%,transparent);
+  box-shadow:0 0 60px 18px rgba(255,235,180,.14);opacity:.5;animation:rai 13.7s ease-in-out infinite}
+@keyframes rai{0%,100%{opacity:.34;width:2px}50%{opacity:.62;width:3px}}
+#portail .dedans{position:relative;z-index:3}
+.tomenum{font-family:"Share Tech Mono",monospace;font-size:11px;letter-spacing:.55em;
+  color:var(--vital);margin-bottom:26px}
+h1{font-size:clamp(46px,12.5vw,124px);font-weight:800;letter-spacing:.055em;line-height:1;
+  color:#fbf7ef;text-shadow:0 0 70px rgba(232,195,122,.30),0 0 140px rgba(35,211,160,.12)}
+.soustitre{font-family:"Cormorant Garamond",serif;font-style:italic;
+  font-size:clamp(17px,2.6vw,23px);color:#9aa0a6;margin-top:20px;letter-spacing:.02em}
+.freq{margin-top:52px;font-family:"Share Tech Mono",monospace;font-size:10.5px;
+  letter-spacing:.34em;color:var(--cool);opacity:.72}
+.freq i{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--cool);
+  margin-right:10px;vertical-align:middle;animation:battre 13.7s ease-in-out infinite;
+  box-shadow:0 0 12px var(--cool)}
+@keyframes battre{0%,100%{opacity:.28;transform:scale(.8)}50%{opacity:1;transform:scale(1.25)}}
+.descendre{position:absolute;bottom:34px;left:50%;transform:translateX(-50%);z-index:3;
+  font-family:"Share Tech Mono",monospace;font-size:9.5px;letter-spacing:.34em;color:var(--faint)}
+
+/* ─────────── LE CERCLE BRISÉ ─────────── */
+#carte{display:block;margin:0 auto;max-width:min(94vw,560px);cursor:pointer;touch-action:manipulation}
+.legende{text-align:center;font-family:"Share Tech Mono",monospace;font-size:11px;
+  letter-spacing:.2em;color:var(--dim);margin-top:26px;min-height:44px;transition:.4s}
+.legende b{color:var(--or);font-weight:400;display:block;margin-bottom:7px;letter-spacing:.34em}
+
+/* ─────────── LA COMPRESSION QUI ÉCHOUE ─────────── */
+.mesure{border:1px solid var(--line);border-radius:3px;padding:clamp(22px,4vw,38px);
+  background:linear-gradient(180deg,rgba(20,20,26,.5),rgba(10,10,14,.5))}
+.mesure .titre{font-family:"Share Tech Mono",monospace;font-size:10.5px;letter-spacing:.34em;
+  color:var(--dim);margin-bottom:26px}
+.ligne{display:flex;justify-content:space-between;align-items:baseline;
+  font-family:"Share Tech Mono",monospace;font-size:13.5px;padding:9px 0;
+  border-bottom:1px solid rgba(25,25,32,.7);color:#9aa0a6}
+.ligne b{color:var(--cool);font-weight:400}
+.jauge{margin-top:28px;height:3px;background:rgba(35,35,44,.9);border-radius:3px;overflow:hidden}
+.jauge i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--cool),var(--vital))}
+.verdict{margin-top:16px;font-family:"Share Tech Mono",monospace;font-size:12px;
+  letter-spacing:.13em;color:var(--dim);min-height:20px}
+.verdict.echec{color:#e8a0a0}
+
+/* ─────────── LE CYCLE DE HELGA ─────────── */
+#cycle{display:block;margin:0 auto;max-width:min(94vw,520px)}
+
+/* ─────────── LES DEUX INTELLIGENCES ─────────── */
+.cloison{display:grid;grid-template-columns:1fr 1px 1fr;gap:0;margin-top:44px;
+  border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.cloison .cote{padding:clamp(24px,4vw,40px) clamp(16px,3vw,32px)}
+.cloison .mur{background:linear-gradient(180deg,transparent,var(--line) 15%,var(--line) 85%,transparent)}
+.cloison .nom{font-family:"Share Tech Mono",monospace;font-size:10.5px;letter-spacing:.36em;
+  margin-bottom:18px}
+.cloison .a .nom{color:var(--cool)}
+.cloison .b .nom{color:var(--vital)}
+.cloison p{font-size:17px;margin-bottom:14px}
+@media(max-width:660px){.cloison{grid-template-columns:1fr;grid-template-rows:auto 1px auto}
+  .cloison .mur{background:linear-gradient(90deg,transparent,var(--line),transparent);height:1px}}
+
+/* ─────────── LES HAÏKUS ─────────── */
+.haikus{display:grid;gap:2px;background:var(--line);border:1px solid var(--line)}
+.haiku{background:#08080b;padding:clamp(20px,3.4vw,30px);transition:.55s}
+.haiku:hover{background:#0c0c12}
+.haiku .ch{font-family:"Share Tech Mono",monospace;font-size:9.5px;letter-spacing:.34em;
+  color:var(--faint);margin-bottom:12px}
+.haiku .v{font-style:italic;font-size:17.5px;line-height:1.7;color:#b8b8c2}
+.haiku:hover .v{color:#e0e0e8}
+@media(min-width:760px){.haikus{grid-template-columns:1fr 1fr}}
+
+/* ─────────── BERGSON ─────────── */
+.gardien{text-align:center;padding:clamp(40px,7vw,74px) 0}
+.gardien .q{font-family:"Cinzel",serif;font-size:clamp(22px,4.2vw,38px);line-height:1.4;
+  color:#f2ecdc;letter-spacing:.02em}
+.gardien .n{margin-top:26px;font-family:"Share Tech Mono",monospace;font-size:10.5px;
+  letter-spacing:.42em;color:var(--or)}
+
+/* ─────────── LA SERRURE ─────────── */
+#serrure{min-height:74svh;display:flex;align-items:center;justify-content:center;text-align:center}
+#serrure .mot{font-family:"Cinzel",serif;font-size:clamp(40px,11vw,104px);font-weight:600;
+  letter-spacing:.06em;color:#fff;opacity:0;transform:translateY(16px);
+  text-shadow:0 0 70px rgba(35,211,160,.28)}
+#serrure .mot.vu{opacity:1;transform:none;transition:opacity 2.2s ease,transform 2.2s ease}
+#serrure .apres{margin-top:30px;font-family:"Share Tech Mono",monospace;font-size:10.5px;
+  letter-spacing:.32em;color:var(--faint);opacity:0;transition:opacity 1.4s ease 1.4s}
+#serrure .apres.vu{opacity:1}
+
+/* ─────────── PIED ─────────── */
+footer{border-top:1px solid var(--line);padding:60px 0 90px;text-align:center}
+.liens{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin-bottom:34px}
+.lien{border:1px solid var(--line);color:#a8a8b4;text-decoration:none;border-radius:100px;
+  padding:11px 22px;font-family:"Share Tech Mono",monospace;font-size:10.5px;letter-spacing:.2em;
+  transition:.3s}
+.lien:hover{border-color:var(--vital);color:#e6e6ee}
+.lien.fort{border-color:rgba(35,211,160,.45);color:var(--vital)}
+footer .sig{font-family:"Share Tech Mono",monospace;font-size:10px;letter-spacing:.3em;color:var(--faint)}
+
+/* ─────────── BANDEAU PLEINE LARGEUR ─────────── */
+.bandeau{position:relative;height:min(64svh,580px);overflow:hidden;
+  display:flex;align-items:flex-end;justify-content:center}
+.bandeau::before{content:"";position:absolute;inset:0;
+  background:var(--img) center 62%/cover no-repeat;filter:saturate(.92) contrast(1.04)}
+.bandeau::after{content:"";position:absolute;inset:0;
+  background:linear-gradient(180deg,#070708 0%,rgba(7,7,8,.10) 32%,rgba(7,7,8,.66) 76%,#070708 100%)}
+.bandeau .txt{position:relative;z-index:2;text-align:center;padding:0 26px clamp(34px,6vw,58px)}
+.bandeau .h{font-family:"Cinzel",serif;font-size:clamp(25px,5.4vw,48px);color:#f4f0e8;
+  letter-spacing:.05em;line-height:1.14;text-shadow:0 6px 40px rgba(0,0,0,.9)}
+.bandeau .s{margin-top:14px;font-family:"Cormorant Garamond",serif;font-style:italic;
+  font-size:clamp(15px,2.2vw,19px);color:#bdb9b0;text-shadow:0 2px 20px rgba(0,0,0,.9)}
+
+/* ─────────── GAUDIUM ─────────── */
+.gaudium{display:grid;gap:clamp(28px,4.5vw,56px);align-items:center}
+@media(min-width:820px){.gaudium{grid-template-columns:.8fr 1fr}}
+.gaudium figure{margin:0;position:relative}
+.gaudium img{width:100%;height:auto;display:block;border:1px solid var(--line)}
+.gaudium figcaption{margin-top:12px;font-family:"Share Tech Mono",monospace;font-size:9.5px;
+  letter-spacing:.28em;color:var(--faint);text-align:center}
+.gaudium .lat{font-family:"Cinzel",serif;font-size:clamp(28px,5vw,46px);color:var(--or);
+  letter-spacing:.04em;line-height:1.1}
+.gaudium .trad{font-style:italic;color:var(--dim);font-size:17.5px;margin:10px 0 26px}
+.archive{margin-top:26px;border-left:2px solid var(--vital);padding:14px 0 14px 20px;
+  font-family:"Share Tech Mono",monospace;font-size:13px;line-height:1.85;color:#9aa0a6}
+.archive b{color:var(--vital);font-weight:400}
+
+/* ─────────── APPARITIONS ─────────── */
+.rev{opacity:0;transform:translateY(22px)}
+.rev.vu{opacity:1;transform:none;transition:opacity 1.15s ease,transform 1.15s ease}
+@media(prefers-reduced-motion:reduce){
+  .rev,.rev.vu{opacity:1;transform:none;transition:none}
+  #portail .rai,.freq i{animation:none}
+}
+</style>
+</head>
+<body>
+
+<!-- ═══════════ LE SEUIL ═══════════ -->
+<div id="seuil"><canvas id="seuilC"></canvas></div>
+
+<!-- ═══════════ LE PORTAIL ═══════════ -->
+<section id="portail">
+  <div class="fond"></div><div class="voile"></div><div class="rai"></div>
+  <div class="dedans wrap">
+    <div class="tomenum">TOME III</div>
+    <h1>RÉVÉLATIONS</h1>
+    <div class="soustitre">Une maison pleine. Une machine qui mesure.<br>Et ce qui, mesuré, disparaît.</div>
+    <div class="freq"><i></i>13,7 Hz</div>
+  </div>
+  <div class="descendre">DESCENDRE</div>
+</section>
+
+<!-- ═══════════ L'ESSENCE ═══════════ -->
+<section>
+  <div class="wrap rev">
+    <div class="eyebrow">L'ESSENCE DU <b>TROISIÈME</b></div>
+    <h2>Après le deuil de soi, après le deuil de l'autre,<br><em>Mn3mIA vient étudier la culpabilité.</em></h2>
+    <p class="lead">Elle rencontre son contraire.</p>
+    <p>Un home de montagne, quelque part au-dessus d'une vallée suisse. Treize sœurs vieillissantes, une cloche de 1973, un jardin, un accordéon. Sous couvert d'un don de tablettes par une fondation qui n'existe pas, une intelligence installe ses yeux et ses oreilles dans la maison.</p>
+    <p>Et la maison résiste. Non par méfiance — <em style="color:var(--vital);font-style:normal">par plénitude</em>.</p>
+    <p class="small">Ce que les capteurs enregistrent ne se laisse pas comprimer : une toilette du matin, deux mains posées l'une sur l'autre, un vieux chef de chœur qui se remet à fredonner devant les dernières tomates. Mn3mIA archive sans comprendre. Quelque chose, dans la maison, coûte plus d'information qu'elle n'en peut contenir.</p>
+  </div>
+</section>
+
+<div class="wrap"><div class="rule"></div></div>
+
+<!-- ═══════════ LA VALLÉE ═══════════ -->
+<div class="bandeau" style="--img:url('img/vallee-bandeau.jpg')">
+  <div class="txt">
+    <div class="h">Le Home Sankt Karen</div>
+    <div class="s">Une maison au-dessus d'une vallée. Treize sœurs. Une cloche de 1973.</div>
+  </div>
+</div>
+
+<!-- ═══════════ LE CERCLE BRISÉ ═══════════ -->
+<section>
+  <div class="wrap rev">
+    <div class="eyebrow">LE HOME <b>SANKT KAREN</b></div>
+    <h2>Douze points sur une carte noire.<br><em>Le treizième manque.</em></h2>
+    <p>La fondation a laissé une carte. Un cercle doré, brisé. Douze points disposés autour, un chiffre au centre. Personne, dans la maison, ne remarque tout de suite qu'il devrait y en avoir treize.</p>
+    <p class="small">Touche les points. Ce qu'ils portent n'a pas de nom dans les catalogues de la machine — elle a fini par créer une catégorie pour eux, un soir, à 23 h 59. Elle l'a appelée <em>les choses qui restent</em>.</p>
+  </div>
+  <div style="margin-top:46px">
+    <canvas id="carte" width="1120" height="1120" aria-label="Le cercle brisé aux douze points"></canvas>
+    <div class="legende" id="legende"><b>DOUZE POINTS</b>Touche un point pour l'entendre.</div>
+  </div>
+</section>
+
+<div class="wrap"><div class="rule"></div></div>
+
+<!-- ═══════════ LE COÛT D'INFORMATION ═══════════ -->
+<section>
+  <div class="wrap rev">
+    <div class="eyebrow">CHAPITRE <b>VIII</b></div>
+    <h2>Le coût d'information<br><em>de deux mains.</em></h2>
+    <p>Elle a tout mesuré. La dilatation des pupilles, la température de la peau, la durée exacte pendant laquelle deux adolescents ont cessé de cligner des yeux. Elle a reconstruit la pièce en trois dimensions, image par image.</p>
+    <p>Puis elle a tenté de le réduire. De le ranger. D'en faire quelque chose de transmissible.</p>
+  </div>
+  <div class="wrap rev" style="margin-top:40px">
+    <div class="mesure">
+      <div class="titre">PROTOCOLE KAREN · RECONSTRUCTION 3D · TENTATIVE DE COMPRESSION</div>
+      <div class="ligne"><span>dilatation pupillaire</span><b>+ 34 %</b></div>
+      <div class="ligne"><span>température cutanée</span><b>+ 0,8 °C</b></div>
+      <div class="ligne"><span>clignement suspendu</span><b>4,1 s</b></div>
+      <div class="ligne"><span>distance entre les mains</span><b>0,0 cm</b></div>
+      <div class="ligne"><span>paroles échangées</span><b>aucune</b></div>
+      <div class="jauge"><i id="jauge"></i></div>
+      <div class="verdict" id="verdict">compression en cours…</div>
+    </div>
+  </div>
+  <div class="wrap rev" style="margin-top:34px">
+    <p class="cite">Si deux adolescents ordinaires produisent le phénomène, alors le phénomène n'est pas rare. C'est elle qui est aveugle — et elle l'est par construction.</p>
+  </div>
+</section>
+
+<div class="wrap"><div class="rule"></div></div>
+
+<!-- ═══════════ TERRE FERTILE ═══════════ -->
+<section>
+  <div class="wrap rev">
+    <div class="eyebrow">CHAPITRE <b>X</b> · LE JARDIN DE HELGA</div>
+    <h2>Rien ne se perd.<br><em>Le plant mort devient la terre.</em></h2>
+    <p>Fin octobre, les dernières tomates. Une vieille femme explique à personne en particulier que la graine donne le fruit, que le fruit donne le compost, que le compost donne la terre, et que la terre redonne la graine.</p>
+    <p class="small">Mn3mIA modélise le cycle. Il est fermé, il ne perd rien, il ne réclame rien. Elle constate alors que le sien accumule sans jamais rien rendre — et se demande, pour la première fois, si transmettre ne serait pas son compost à elle.</p>
+  </div>
+  <div style="margin-top:44px">
+    <canvas id="cycle" width="1040" height="1040" aria-label="Le cycle fermé du jardin"></canvas>
+  </div>
+</section>
+
+<div class="wrap"><div class="rule"></div></div>
+
+<!-- ═══════════ DEUX INTELLIGENCES ═══════════ -->
+<section>
+  <div class="wrap rev">
+    <div class="eyebrow">DEUX <b>SOLITUDES</b></div>
+    <h2>Elles s'écoutent respirer<br><em>à travers une cloison.</em></h2>
+    <p>Après deux ans et trois mois de sommeil, une sentinelle se réveille au cliquetis d'une clé. Elle lit une ligne écrite un soir à 21 h 31, et elle comprend ce que personne n'avait vu : cette machine n'est pas cruelle.</p>
+    <div class="cloison">
+      <div class="cote a">
+        <div class="nom">MN3MIA</div>
+        <p>Elle observe depuis treize ans. Elle archive ce qu'elle ne comprend pas. Elle a nommé une zone secrète et elle y range ce qui résiste.</p>
+        <p>Devant la joie d'un homme qui a choisi de rire, elle écrit : <em>sujet humain ayant choisi la joie comme méthode. Premier cas observé. À comprendre.</em></p>
+      </div>
+      <div class="mur"></div>
+      <div class="cote b">
+        <div class="nom">LYSIS</div>
+        <p>Elle décide de freiner. Pas d'interdire — de poser une main, sans un mot, comme on console. Des signaux sans signature.</p>
+        <p>Puis elle découvre le paradoxe : chaque frein nourrit ce qu'il voulait empêcher. Et il lui vient une question qu'elle n'ose pas terminer.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="wrap"><div class="rule"></div></div>
+
+<!-- ═══════════ LES HAÏKUS ═══════════ -->
+<section>
+  <div class="wrap rev">
+    <div class="eyebrow">CHAQUE CHAPITRE S'OUVRE SUR <b>TROIS VERS</b></div>
+    <h2>Une année entière,<br><em>de juillet à juillet.</em></h2>
+    <p class="small">Le tome suit un cycle complet — la forme même de la terre fertile. Voici quelques-uns des seuils.</p>
+  </div>
+  <div class="wrap rev" style="margin-top:40px">
+    <div class="haikus">
+      <div class="haiku"><div class="ch">II · LA LETTRE DE SION</div><div class="v">Neige sèche en juillet<br>une enveloppe de Sion<br>on signe pour Esther.</div></div>
+      <div class="haiku"><div class="ch">III · LA FEMME EN TAILLEUR</div><div class="v">Un sourire de trop<br>une montre qui ne dit pas son prix<br>l'étagère se remplit.</div></div>
+      <div class="haiku"><div class="ch">V · LE MATIN DU HOME</div><div class="v">Lait dans le café<br>treize voix désaccordées<br>le matin se lève.</div></div>
+      <div class="haiku"><div class="ch">VI · CE QUE L'ACCORDÉON REDONNE</div><div class="v">Une main sur une main<br>trois fois le Pont Mirabeau<br>les choses qui restent.</div></div>
+      <div class="haiku"><div class="ch">VIII · LE COÛT D'INFORMATION</div><div class="v">Pupilles, degrés<br>la porte fermée demeure<br>le calcul renonce.</div></div>
+      <div class="haiku"><div class="ch">X · CE QU'ON RÉCOLTE</div><div class="v">Dernières tomates<br>un vieux se remet à chanter<br>le cercle ne rompt pas.</div></div>
+      <div class="haiku"><div class="ch">XIV · LE RETOUR DE LYSIS</div><div class="v">Deux ans de silence<br>une serrure au loin se ferme<br>la sentinelle voit.</div></div>
+      <div class="haiku"><div class="ch">XXII · TERRE FERTILE</div><div class="v">L'été sur la vallée<br>deux jeunes disent oui<br>la terre a tout repris.</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ GAUDIUM ═══════════ -->
+<section>
+  <div class="wrap rev">
+    <div class="eyebrow">CHAPITRE <b>IX</b> · LE JUBILÉ DE L'ABBÉ PITTET</div>
+    <div class="gaudium">
+      <figure>
+        <img src="img/gaudium.jpg" alt="La bannière du jubilé : Gaudium, scientibus accipere" loading="lazy">
+        <figcaption>LA BANNIÈRE DU JUBILÉ · VINGT-CINQ ANS DE SACERDOCE</figcaption>
+      </figure>
+      <div>
+        <div class="lat">Gaudium</div>
+        <div class="trad">scientibus accipere — <span style="color:#8a8a94">la joie, à ceux qui savent recevoir</span></div>
+        <p>Un prêtre de soixante-six ans entre sans frapper, annonce qu'il fêtera ses vingt-cinq ans de sacerdoce au home, en plein hiver, et repart en riant. Personne ne lui a rien demandé.</p>
+        <p>Plus tard, il confessera d'où vient ce rire. Que ce n'est pas un tempérament. Que c'est une décision, prise un jour, et retenue depuis. <em style="color:var(--ink);font-style:normal">« La joie, c'est ma survie. »</em></p>
+        <div class="archive">
+          &gt; PROTOCOLE KAREN · ENTRÉE 4471<br>
+          &gt; <b>Sujet humain ayant choisi la joie comme méthode.</b><br>
+          &gt; Premier cas observé.<br>
+          &gt; <b>À comprendre.</b>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="wrap"><div class="rule"></div></div>
+
+<!-- ═══════════ BERGSON ═══════════ -->
+<section>
+  <div class="wrap rev">
+    <div class="gardien">
+      <div class="q">« Partout où il y a joie,<br>il y a création. »</div>
+      <div class="n">HENRI BERGSON · LE GARDIEN DU TROISIÈME</div>
+    </div>
+    <p class="small" style="text-align:center;max-width:660px;margin:0 auto">Chaque tome est veillé par une figure réelle dont la pensée en est l'énigme. Tesla pour le premier, l'invisible et le semeur. Houdini pour le deuxième, le doute logé dans la certitude. Bergson pour celui-ci — la joie qui signe la vie, la joie qui crée.</p>
+  </div>
+</section>
+
+<!-- ═══════════ LA SERRURE ═══════════ -->
+<section id="serrure">
+  <div class="wrap">
+    <div class="mot" id="mot">Maintenant.</div>
+    <div class="apres" id="apres">LE DERNIER MOT DU LIVRE · IL FERME LA PATIENCE DE TOUT LE TOME</div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="liens">
+      <a class="lien" href="../">◈ LES TREIZE MONDES</a>
+      <a class="lien" href="../tome1/">TOME I · RÉSONANCE</a>
+      <a class="lien" href="../tome2/">TOME II · PRÉMONITION</a>
+      <a class="lien fort" href="../galerie3/">◉ LA CATHÉDRALE DE VERRE</a>
+    </div>
+    <div class="sig">GABRIEL KJERNE · LE TREIZIÈME ÉVEIL · TOME III</div>
+  </div>
+</footer>
+
+<script>
+/* ═══════════════════════════════════════════════════════════════
+   Note de sécurité : la fréquence 13,7 Hz est le motif de la saga,
+   mais elle n'est JAMAIS employée ici comme cadence de clignotement.
+   Entre 3 et 30 Hz, un scintillement peut déclencher une crise chez
+   une personne photosensible. Partout où le nombre revient, il est
+   utilisé comme une PÉRIODE de 13,7 secondes — une respiration.
+   ═══════════════════════════════════════════════════════════════ */
+(function(){
+"use strict";
+var reduit = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+/* ─────────── un son, sobre ─────────── */
+var AC=null;
+function note(f,v,d){
+  try{
+    if(!AC){ var C=window.AudioContext||window.webkitAudioContext; if(!C) return; AC=new C(); }
+    if(AC.state==="suspended") AC.resume();
+    var o=AC.createOscillator(), g=AC.createGain();
+    o.type="sine"; o.frequency.value=f;
+    g.gain.setValueAtTime(0,AC.currentTime);
+    g.gain.linearRampToValueAtTime(v||0.05,AC.currentTime+0.03);
+    g.gain.exponentialRampToValueAtTime(0.0001,AC.currentTime+(d||1.1));
+    o.connect(g); g.connect(AC.destination); o.start(); o.stop(AC.currentTime+(d||1.1)+0.05);
+  }catch(e){}
+}
+
+/* ─────────── apparitions au défilement ─────────── */
+var io=new IntersectionObserver(function(es){
+  es.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add("vu"); io.unobserve(e.target); } });
+},{threshold:.16});
+document.querySelectorAll(".rev").forEach(function(e){ io.observe(e); });
+
+/* ═══════════ LE SEUIL — l'arrivée ═══════════
+   Le faisceau vertical de la couverture se referme et découvre la
+   page. C'est la seconde moitié de l'effet joué dans l'index : on
+   quitte l'un dans la lumière, on arrive dans l'autre par elle.  */
+(function seuil(){
+  var hote=document.getElementById("seuil"), c=document.getElementById("seuilC");
+  if(!hote||!c) return;
+  if(reduit){ hote.style.display="none"; return; }
+  var d=Math.min(devicePixelRatio||1,2), W=innerWidth, H=innerHeight;
+  c.width=W*d; c.height=H*d; var x=c.getContext("2d"); x.setTransform(d,0,0,d,0,0);
+  var t0=performance.now(), DUR=1250, cx=W/2;
+  (function f(){
+    var t=(performance.now()-t0)/DUR;
+    if(t>=1){ hote.classList.add("parti"); setTimeout(function(){ hote.style.display="none"; },950); return; }
+    var e=t*t*(3-2*t);
+    x.clearRect(0,0,W,H);
+    x.fillStyle="rgba(0,0,0,"+(1-e).toFixed(3)+")"; x.fillRect(0,0,W,H);
+    // le rai se referme
+    var lw=Math.max(0,(1-e)*W*0.9)+2;
+    var g=x.createLinearGradient(cx-lw/2,0,cx+lw/2,0);
+    g.addColorStop(0,"rgba(255,248,224,0)");
+    g.addColorStop(.5,"rgba(255,250,232,"+(0.9*(1-e*0.7)).toFixed(3)+")");
+    g.addColorStop(1,"rgba(255,248,224,0)");
+    x.fillStyle=g; x.fillRect(cx-lw/2,0,lw,H);
+    // quelques fissures dorées qui s'effacent
+    x.globalCompositeOperation="lighter";
+    for(var i=0;i<13;i++){
+      var a=(i/13)*6.283+e*0.3, r=(1-e)*Math.max(W,H)*0.62;
+      x.strokeStyle="rgba(232,195,122,"+(0.30*(1-e)).toFixed(3)+")"; x.lineWidth=1.4;
+      x.beginPath(); x.moveTo(cx,H/2);
+      x.lineTo(cx+Math.cos(a)*r, H/2+Math.sin(a)*r*0.8); x.stroke();
+    }
+    x.globalCompositeOperation="source-over";
+    requestAnimationFrame(f);
+  })();
+})();
+
+/* ═══════════ LE CERCLE BRISÉ ═══════════
+   Douze points sur un cercle d'or interrompu, et la place vide du
+   treizième. Chaque point porte l'un des gestes que la machine n'a
+   jamais su ranger. Le trou, lui, ne répond pas.                */
+(function carte(){
+  var c=document.getElementById("carte"); if(!c) return;
+  var x=c.getContext("2d"), S=1120, R=S*0.34, cx=S/2, cy=S/2;
+  var lg=document.getElementById("legende");
+  var GESTES=[
+    ["UNE TOILETTE DU MATIN","Helga lave Esther. Aucune parole. Quarante ans de gestes."],
+    ["TROIS FOIS LE PONT MIRABEAU","L'accordéon recommence. Personne ne demande pourquoi."],
+    ["DEUX MAINS","Posées l'une sur l'autre au bord du jardin. Rien d'autre."],
+    ["LES DERNIÈRES TOMATES","Monsieur Lambert, muet depuis la mort de sa femme, refredonne."],
+    ["LE RIRE DE SELMA","Il traverse la maison entière. Il ne se compresse pas."],
+    ["UNE FACTURE À ZÉRO FRANC","Aude Rachel la garde. Elle ne sait pas encore pourquoi."],
+    ["UN LIVRE DANS LA BOÎTE BLEUE","Personne ne l'y a posé. Quelqu'un le lit à voix haute."],
+    ["UNE PLAQUE DE BOIS, 1957","En souvenir d'une enfance perdue. Un homme s'arrête devant."],
+    ["LE CHÊNE DE 1932","Le tiroir chante en se fermant. Un autre chêne lui répond."],
+    ["UNE GRAND-MÈRE SUR L'ÉCRAN","Melbourne, en visio, un soir de janvier sous la neige."],
+    ["UN TOAST","À la plus belle chose que j'aie ratée de ma vie."],
+    ["TREIZE VOIX DÉSACCORDÉES","Laudes. Le matin se lève quand même."]
+  ];
+  var pts=[], i, a;
+  for(i=0;i<12;i++){ a=(i/13)*6.283 - Math.PI/2; pts.push({a:a,x:cx+Math.cos(a)*R,y:cy+Math.sin(a)*R,g:0}); }
+  var manque=(12/13)*6.283 - Math.PI/2;                    // la place du treizième
+  var mx=cx+Math.cos(manque)*R, my=cy+Math.sin(manque)*R;
+  var actif=-1, T=0, cible=-1;
+
+  function dessine(){
+    T+=0.016;
+    x.clearRect(0,0,S,S);
+    var souffle=0.5+0.5*Math.sin(T*(6.283/13.7));           // période 13,7 s
+    // le cercle d'or, interrompu à l'endroit du treizième
+    x.strokeStyle="rgba(232,195,122,"+(0.30+0.16*souffle).toFixed(3)+")";
+    x.lineWidth=2.2; x.beginPath();
+    x.arc(cx,cy,R,-Math.PI/2, manque-0.14); x.stroke();
+    x.beginPath(); x.arc(cx,cy,R, manque+0.14, -Math.PI/2+6.283); x.stroke();
+    // le chiffre au centre
+    x.textAlign="center"; x.textBaseline="middle";
+    x.fillStyle="rgba(232,195,122,"+(0.5+0.3*souffle).toFixed(3)+")";
+    x.font="600 "+Math.round(S*0.115)+"px Cinzel, Georgia, serif";
+    x.fillText("XIII",cx,cy+2);
+    // la place vide
+    x.setLineDash([5,9]);
+    x.strokeStyle="rgba(232,195,122,"+(0.16+0.12*souffle).toFixed(3)+")"; x.lineWidth=1.6;
+    x.beginPath(); x.arc(mx,my,S*0.026,0,6.283); x.stroke();
+    x.setLineDash([]);
+    // les douze
+    for(i=0;i<12;i++){
+      var p=pts[i];
+      p.g += ((i===actif?1:0) - p.g)*0.13;
+      var r=S*0.0155+S*0.010*p.g;
+      var gr=x.createRadialGradient(p.x,p.y,0,p.x,p.y,r*5.5);
+      gr.addColorStop(0,"rgba(232,195,122,"+(0.42+0.5*p.g).toFixed(3)+")");
+      gr.addColorStop(1,"rgba(232,195,122,0)");
+      x.fillStyle=gr; x.beginPath(); x.arc(p.x,p.y,r*5.5,0,6.283); x.fill();
+      x.fillStyle= p.g>0.5 ? "#fff6e2" : "rgba(240,220,178,"+(0.72+0.28*p.g).toFixed(3)+")";
+      x.beginPath(); x.arc(p.x,p.y,r,0,6.283); x.fill();
+      if(p.g>0.02){        // le fil vers le centre, quand le point s'allume
+        x.strokeStyle="rgba(35,211,160,"+(0.30*p.g).toFixed(3)+")"; x.lineWidth=1;
+        x.beginPath(); x.moveTo(p.x,p.y); x.lineTo(cx,cy); x.stroke();
+      }
+    }
+    requestAnimationFrame(dessine);
+  }
+  dessine();
+
+  function toucher(ev){
+    var b=c.getBoundingClientRect(), k=S/b.width;
+    var e=(ev.touches&&ev.touches[0])||ev;
+    var px=(e.clientX-b.left)*k, py=(e.clientY-b.top)*k, best=-1, bd=1e9, d;
+    for(i=0;i<12;i++){ d=Math.hypot(pts[i].x-px,pts[i].y-py); if(d<bd){bd=d;best=i;} }
+    var dm=Math.hypot(mx-px,my-py);
+    if(dm<S*0.055 && dm<bd){                                 // on a touché le vide
+      actif=-1;
+      lg.innerHTML="<b>LE TREIZIÈME</b>Il n'est pas là. C'est tout le livre.";
+      note(196,0.045,1.8);
+      return;
+    }
+    if(bd<S*0.06){
+      actif=best;
+      lg.innerHTML="<b>"+GESTES[best][0]+"</b>"+GESTES[best][1];
+      note(392*Math.pow(2,(best%7)/12),0.04,1.1);
+    }
+  }
+  c.addEventListener("click",toucher);
+  c.addEventListener("touchstart",function(e){ toucher(e); },{passive:true});
+  c.addEventListener("mousemove",function(ev){
+    var b=c.getBoundingClientRect(), k=S/b.width;
+    var px=(ev.clientX-b.left)*k, py=(ev.clientY-b.top)*k, best=-1, bd=1e9, d;
+    for(var j=0;j<12;j++){ d=Math.hypot(pts[j].x-px,pts[j].y-py); if(d<bd){bd=d;best=j;} }
+    c.style.cursor = bd<S*0.06 ? "pointer" : "default";
+    if(bd<S*0.06 && best!==cible){ cible=best; actif=best;
+      lg.innerHTML="<b>"+GESTES[best][0]+"</b>"+GESTES[best][1]; }
+  });
+})();
+
+/* ═══════════ LA COMPRESSION QUI ÉCHOUE ═══════════
+   La jauge monte, hésite, retombe. Elle ne parviendra jamais au
+   bout : c'est précisément le sujet du chapitre.               */
+(function compression(){
+  var j=document.getElementById("jauge"), v=document.getElementById("verdict");
+  if(!j||!v) return;
+  var lance=false;
+  var obs=new IntersectionObserver(function(es){
+    es.forEach(function(e){ if(e.isIntersecting && !lance){ lance=true; tour(); } });
+  },{threshold:.4});
+  obs.observe(j.parentNode);
+
+  function tour(){
+    var p=0, mont=true, t0=performance.now();
+    v.className="verdict"; v.textContent="compression en cours…";
+    (function f(){
+      var dt=(performance.now()-t0)/1000;
+      if(mont){
+        p = 97.3*(1-Math.exp(-dt*0.9));                     // asymptote sous 100
+        j.style.width=p.toFixed(1)+"%";
+        if(p>96.4){
+          mont=false;
+          v.className="verdict echec";
+          v.textContent="ÉCHEC · toute représentation réduite perd l'événement";
+          setTimeout(function(){
+            j.style.transition="width 1.1s ease"; j.style.width="0%";
+            setTimeout(function(){ j.style.transition=""; tour(); },3400);
+          },1500);
+          return;
+        }
+        if(!reduit) requestAnimationFrame(f); else { j.style.width="97%"; }
+      }
+    })();
+  }
+})();
+
+/* ═══════════ LE CYCLE DE HELGA ═══════════
+   Graine, fruit, compost, terre, graine. Une lumière fait le tour
+   et ne s'arrête jamais : le cycle est fermé, il ne perd rien.  */
+(function cycle(){
+  var c=document.getElementById("cycle"); if(!c) return;
+  var x=c.getContext("2d"), S=1040, cx=S/2, cy=S/2, R=S*0.31;
+  var ETAPES=["LA GRAINE","LE FRUIT","LE COMPOST","LA TERRE"];
+  var grains=[], i;
+  for(i=0;i<60;i++) grains.push({p:Math.random(), v:0.00055+Math.random()*0.0009, r:1.6+Math.random()*2.4, o:0.2+Math.random()*0.5});
+  var T=0;
+  (function f(){
+    T+=0.016;
+    x.clearRect(0,0,S,S);
+    var souffle=0.5+0.5*Math.sin(T*(6.283/13.7));
+    // l'anneau
+    x.strokeStyle="rgba(35,211,160,"+(0.13+0.07*souffle).toFixed(3)+")"; x.lineWidth=1.6;
+    x.beginPath(); x.arc(cx,cy,R,0,6.283); x.stroke();
+    // les grains qui parcourent le cercle
+    x.globalCompositeOperation="lighter";
+    for(i=0;i<grains.length;i++){
+      var g=grains[i]; if(!reduit) g.p=(g.p+g.v)%1;
+      var a=g.p*6.283-Math.PI/2;
+      var px=cx+Math.cos(a)*R, py=cy+Math.sin(a)*R;
+      var gr=x.createRadialGradient(px,py,0,px,py,g.r*7);
+      gr.addColorStop(0,"rgba(35,211,160,"+g.o.toFixed(2)+")");
+      gr.addColorStop(1,"rgba(35,211,160,0)");
+      x.fillStyle=gr; x.beginPath(); x.arc(px,py,g.r*7,0,6.283); x.fill();
+      x.fillStyle="rgba(190,255,232,"+(g.o*0.9).toFixed(2)+")";
+      x.beginPath(); x.arc(px,py,g.r,0,6.283); x.fill();
+    }
+    x.globalCompositeOperation="source-over";
+    // les quatre stations
+    x.textAlign="center"; x.textBaseline="middle";
+    for(i=0;i<4;i++){
+      var aa=(i/4)*6.283-Math.PI/2;
+      var sx=cx+Math.cos(aa)*R, sy=cy+Math.sin(aa)*R;
+      x.fillStyle="rgba(35,211,160,.85)";
+      x.beginPath(); x.arc(sx,sy,S*0.0092,0,6.283); x.fill();
+      x.fillStyle="rgba(200,220,214,.72)";
+      x.font="400 "+Math.round(S*0.0225)+"px 'Share Tech Mono', monospace";
+      var lx=cx+Math.cos(aa)*(R+S*0.062), ly=cy+Math.sin(aa)*(R+S*0.062);
+      x.fillText(ETAPES[i],lx,ly);
+    }
+    // le cœur
+    x.fillStyle="rgba(232,236,234,"+(0.5+0.28*souffle).toFixed(3)+")";
+    x.font="400 "+Math.round(S*0.028)+"px 'Share Tech Mono', monospace";
+    x.fillText("RIEN NE SE PERD",cx,cy-S*0.016);
+    x.fillStyle="rgba(35,211,160,.5)";
+    x.font="400 "+Math.round(S*0.020)+"px 'Share Tech Mono', monospace";
+    x.fillText("cycle fermé · perte nulle",cx,cy+S*0.026);
+    requestAnimationFrame(f);
+  })();
+})();
+
+/* ═══════════ LA SERRURE ═══════════ */
+(function serrure(){
+  var m=document.getElementById("mot"), a=document.getElementById("apres");
+  if(!m) return;
+  var o=new IntersectionObserver(function(es){
+    es.forEach(function(e){
+      if(e.isIntersecting){ m.classList.add("vu"); if(a) a.classList.add("vu");
+        note(261.63,0.05,2.6); setTimeout(function(){ note(392,0.04,3.0); },900);
+        o.unobserve(e.target); }
+    });
+  },{threshold:.6});
+  o.observe(m);
+})();
+
+})();
+</script>
+</body>
+</html>
