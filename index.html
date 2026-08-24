@@ -88,7 +88,7 @@ const QUASAR="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAY
 const TOMES=[
   {n:'I',col:'#5b9cff',open:true, href:'tome1/'},
   {n:'II',col:'#ff5fa8',open:true, href:'tome2/'},
-  {n:'III',col:'#23d3a0',open:false,href:'#'},
+  {n:'III',col:'#23d3a0',open:true, href:'tome3/'},
   {n:'IV',col:'#ffb347',open:false,href:'#'},
   {n:'V',col:'#a78bff',open:false,href:'#'},
   {n:'VI',col:'#ff5a4d',open:false,href:'#'},
@@ -468,7 +468,7 @@ if(!window.THREE){
   function bindGyro(){addEventListener('deviceorientation',e=>{if(e.gamma==null)return;pX=Math.max(-.6,Math.min(.6,(e.gamma||0)/60));pY=Math.max(-.6,Math.min(.6,((e.beta||0)-45)/70));});}
 
   const portal=document.getElementById('portal');
-  function enter(d){ fxBook(d); }
+  function enter(d){ if(d.href==='tome3/') fxRevelation(d); else fxBook(d); }
 
   // ---------- secret 196 ----------
   const secret={active:false,t:0};
@@ -725,7 +725,67 @@ if(!window.THREE){
     })();
   }
 
-  // — TOMES : l'ouverture du livre —
+   /* — TOME III : LA RÉVÉLATION —
+    L'écran se fend de treize fissures d'or, un œil s'ouvre au centre,
+    puis le faisceau vertical de la couverture emporte tout. La page
+    d'arrivée referme ce même faisceau : on quitte l'un dans la lumière,
+    on entre dans l'autre par elle.
+    L'accord est majeur — c'est le tome de la joie.                    */
+ function fxRevelation(d){
+ if(fxBusy) return; fxBusy=true;
+ const o=fxCanvas(), x=o.x, W=o.W, H=o.H, cx=W/2, cy=H*0.5, MX=Math.max(W,H);
+ fxNote(349.23,.5); fxNote(440,.5,150); fxNote(523.25,.6,300); fxNote(698.46,.5,620);
+ const cracks=[];
+ for(let i=0;i<13;i++){
+ let a=(i/13)*6.283+Math.random()*0.34, r=0; const seg=[];
+ for(let k=0;k<9;k++){ r+=MX*(0.055+Math.random()*0.055); a+=(Math.random()-0.5)*0.55;
+ seg.push({x:cx+Math.cos(a)*r, y:cy+Math.sin(a)*r*0.92}); }
+ cracks.push(seg);
+ }
+ const t0=performance.now(), DUR=1650;
+ (function f(){
+ const t=(performance.now()-t0)/DUR;
+ x.clearRect(0,0,W,H);
+ x.fillStyle='rgba(4,5,9,'+Math.min(1,t*2.2).toFixed(3)+')'; x.fillRect(0,0,W,H);
+ x.globalCompositeOperation='lighter';
+ const kf=Math.min(1,t/0.5);
+ cracks.forEach(function(seg){
+ const n=Math.max(1,Math.floor(kf*seg.length));
+ x.beginPath(); x.moveTo(cx,cy);
+ for(let k=0;k<n;k++) x.lineTo(seg[k].x,seg[k].y);
+ x.strokeStyle='rgba(232,195,122,'+(0.85*(1-t*0.55)).toFixed(3)+')';
+ x.lineWidth=2.6*(1-t*0.4)+0.6; x.stroke();
+ });
+ if(t>0.28){
+ const ke=Math.min(1,(t-0.28)/0.34), rw=MX*0.20*ke, rh=MX*0.20*ke*(0.28+0.62*ke);
+ x.save(); x.beginPath(); x.ellipse(cx,cy,rw,rh,0,0,6.283); x.clip();
+ const g=x.createRadialGradient(cx,cy,0,cx,cy,Math.max(1,rw));
+ g.addColorStop(0,'rgba(255,255,255,'+(0.90*ke).toFixed(3)+')');
+ g.addColorStop(.35,'rgba(120,200,255,'+(0.70*ke).toFixed(3)+')');
+ g.addColorStop(1,'rgba(20,60,120,0)');
+ x.fillStyle=g; x.fillRect(cx-rw,cy-rh,rw*2,rh*2);
+ x.fillStyle='rgba(6,10,20,'+(0.85*ke).toFixed(3)+')';
+ x.beginPath(); x.arc(cx,cy,rw*0.17,0,6.283); x.fill();
+ x.restore();
+ x.strokeStyle='rgba(232,195,122,'+(0.5*ke).toFixed(3)+')'; x.lineWidth=2;
+ x.beginPath(); x.ellipse(cx,cy,rw,rh,0,0,6.283); x.stroke();
+ }
+ if(t>0.55){
+ const kb=Math.min(1,(t-0.55)/0.45), lw=Math.pow(kb,2.1)*W*1.5+4;
+ const g2=x.createLinearGradient(cx-lw/2,0,cx+lw/2,0);
+ g2.addColorStop(0,'rgba(255,248,224,0)');
+ g2.addColorStop(.5,'rgba(255,252,240,'+(0.95*kb).toFixed(3)+')');
+ g2.addColorStop(1,'rgba(255,248,224,0)');
+ x.fillStyle=g2; x.fillRect(cx-lw/2,0,lw,H);
+ }
+ x.globalCompositeOperation='source-over';
+ if(t>0.86){ const fa=Math.min(1,(t-0.86)/0.14);
+ x.fillStyle='rgba(255,252,242,'+fa.toFixed(3)+')'; x.fillRect(0,0,W,H); }
+ if(t<1) requestAnimationFrame(f); else location.href=d.href;
+ })();
+ }
+
+ // — TOMES : l'ouverture du livre —
   function fxBook(d){
     if(fxBusy) return; fxBusy=true;
     const o=fxCanvas(), x=o.x, W=o.W, H=o.H, col=d.col||'#f6e0a8';
